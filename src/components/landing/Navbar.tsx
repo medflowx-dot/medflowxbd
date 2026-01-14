@@ -1,7 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Pill } from 'lucide-react';
-
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -41,11 +41,11 @@ const Navbar = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="default">
-              Login
+            <Button variant="ghost" size="default" asChild>
+              <Link to="/login">Login</Link>
             </Button>
-            <Button variant="default" size="default">
-              Start Free Trial
+            <Button variant="default" size="default" asChild>
+              <Link to="/signup">Start Free Trial</Link>
             </Button>
           </div>
 
@@ -74,11 +74,11 @@ const Navbar = () => {
                 </a>
               ))}
               <div className="flex flex-col gap-3 pt-4 border-t border-border/50">
-                <Button variant="outline" className="w-full">
-                  Login
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/login">Login</Link>
                 </Button>
-                <Button variant="default" className="w-full">
-                  Start Free Trial
+                <Button variant="default" className="w-full" asChild>
+                  <Link to="/signup">Start Free Trial</Link>
                 </Button>
               </div>
             </div>
