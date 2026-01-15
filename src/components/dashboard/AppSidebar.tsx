@@ -11,7 +11,8 @@ import {
   Shield,
   Building2,
   Users,
-  AlertTriangle
+  AlertTriangle,
+  Bell
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { usePermissions, menuAccessByRole } from '@/hooks/usePermissions';
@@ -33,6 +34,7 @@ const mainMenuItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Medicines', url: '/dashboard/medicines', icon: Package },
   { title: 'Expiry Monitor', url: '/dashboard/expiry', icon: AlertTriangle },
+  { title: 'Alerts', url: '/dashboard/alerts', icon: Bell },
   { title: 'Sales', url: '/dashboard/sales', icon: ShoppingCart },
   { title: 'Customer Dues', url: '/dashboard/customer-dues', icon: Users },
   { title: 'Suppliers', url: '/dashboard/suppliers', icon: Truck },

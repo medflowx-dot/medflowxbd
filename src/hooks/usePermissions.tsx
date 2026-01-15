@@ -73,7 +73,10 @@ export const menuAccessByRole: Record<string, string[]> = {
   owner_admin: [
     '/dashboard',
     '/dashboard/medicines',
+    '/dashboard/expiry',
+    '/dashboard/alerts',
     '/dashboard/sales',
+    '/dashboard/customer-dues',
     '/dashboard/suppliers',
     '/dashboard/manufacturers',
     '/dashboard/daily-cash',
@@ -85,7 +88,10 @@ export const menuAccessByRole: Record<string, string[]> = {
   client_admin: [
     '/dashboard',
     '/dashboard/medicines',
+    '/dashboard/expiry',
+    '/dashboard/alerts',
     '/dashboard/sales',
+    '/dashboard/customer-dues',
     '/dashboard/suppliers',
     '/dashboard/manufacturers',
     '/dashboard/daily-cash',
@@ -96,7 +102,10 @@ export const menuAccessByRole: Record<string, string[]> = {
   client_staff: [
     '/dashboard',
     '/dashboard/medicines',
+    '/dashboard/expiry',
+    '/dashboard/alerts',
     '/dashboard/sales',
+    '/dashboard/customer-dues',
     '/dashboard/daily-cash',
   ],
 };
