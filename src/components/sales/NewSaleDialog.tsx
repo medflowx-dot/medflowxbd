@@ -36,16 +36,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Trash2, ShoppingCart, Search, ClipboardList } from 'lucide-react';
+import { Trash2, ShoppingCart, Search, ClipboardList } from 'lucide-react';
 import { useSales, type CreateSaleItemData, type SaleUnit } from '@/hooks/useSales';
-import { useCustomers } from '@/hooks/useCustomers';
 import { useMedicines, type MedicineWithBatches, type MedicineBatch } from '@/hooks/useMedicines';
-import { AddCustomerDialog } from './AddCustomerDialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 
 const saleSchema = z.object({
-  customer_id: z.string().optional(),
   discount: z.coerce.number().min(0).default(0),
   paid_amount: z.coerce.number().min(0),
   payment_method: z.string().default('cash'),
@@ -70,13 +67,11 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
   const [selectedMedicine, setSelectedMedicine] = useState<MedicineWithBatches | null>(null);
   
   const { createSale } = useSales();
-  const { customers } = useCustomers();
   const { medicines } = useMedicines();
 
   const form = useForm<SaleFormData>({
     resolver: zodResolver(saleSchema),
     defaultValues: {
-      customer_id: '',
       discount: 0,
       paid_amount: 0,
       payment_method: 'cash',
@@ -164,7 +159,6 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
     if (cart.length === 0) return;
 
     await createSale.mutateAsync({
-      customer_id: data.customer_id || undefined,
       subtotal,
       discount: data.discount,
       total_amount: total,
@@ -338,37 +332,6 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
           <div className="space-y-4">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="flex items-end gap-2">
-                  <FormField
-                    control={form.control}
-                    name="customer_id"
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel>Customer (Optional)</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Walk-in customer" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="">Walk-in customer</SelectItem>
-                            {customers.map((customer) => (
-                              <SelectItem key={customer.id} value={customer.id}>
-                                {customer.name} {customer.phone && `(${customer.phone})`}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <AddCustomerDialog
-                    trigger={<Button type="button" variant="outline" size="icon"><Plus className="h-4 w-4" /></Button>}
-                  />
-                </div>
-
                 <div className="space-y-2 p-4 bg-muted rounded-lg">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal:</span>
@@ -446,16 +409,14 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                 {dueAmount > 0 && (
                   <div className="p-3 bg-orange-100 dark:bg-orange-950 rounded-lg border border-orange-200 dark:border-orange-900">
                     <div className="flex justify-between items-center">
-                      <span className="font-medium text-orange-800 dark:text-orange-200">Due Amount:</span>
+                      <span className="font-medium text-orange-800 dark:text-orange-200">Unpaid Balance:</span>
                       <Badge variant="destructive" className="text-lg px-3">
                         ৳{dueAmount.toFixed(2)}
                       </Badge>
                     </div>
-                    {!form.watch('customer_id') && (
-                      <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">
-                        Select a customer to track this due
-                      </p>
-                    )}
+                    <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">
+                      This amount will be tracked as internal unpaid balance
+                    </p>
                   </div>
                 )}
 

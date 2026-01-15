@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
-import type { DailySummaryReport, SalesReportItem, CustomerDueItem, SupplierDueItem } from '@/hooks/useReports';
+import type { DailySummaryReport, SalesReportItem, SupplierDueItem } from '@/hooks/useReports';
 import type { StockOrder } from '@/hooks/useStockOrders';
 
 const CURRENCY = '৳';
@@ -143,20 +143,20 @@ export function generateSalesReportPDF(
   const summaryY = startY + 6;
   doc.text(`Total Sales: ${CURRENCY}${totals.total.toLocaleString()}`, 14, summaryY);
   doc.text(`Total Paid: ${CURRENCY}${totals.paid.toLocaleString()}`, 70, summaryY);
-  doc.text(`Total Due: ${CURRENCY}${totals.due.toLocaleString()}`, 126, summaryY);
-  doc.text(`Number of Sales: ${data.length}`, 14, summaryY + 5);
+  doc.text(`Unpaid Balance: ${CURRENCY}${totals.due.toLocaleString()}`, 126, summaryY);
+  doc.text(`Number of Entries: ${data.length}`, 14, summaryY + 5);
 
   // Table
   autoTable(doc, {
     startY: summaryY + 12,
-    head: [['Invoice', 'Date', 'Customer', 'Total', 'Paid', 'Due', 'Method']],
+    head: [['Entry ID', 'Type', 'Date', 'Total', 'Paid', 'Balance', 'Method']],
     body: data.map(row => [
       row.invoice_number,
+      row.entry_type === 'quick' ? 'Quick' : 'Detailed',
       format(new Date(row.sale_date), 'MMM dd, yyyy'),
-      row.customer_name,
       `${CURRENCY}${row.total_amount.toLocaleString()}`,
       `${CURRENCY}${row.paid_amount.toLocaleString()}`,
-      `${CURRENCY}${row.due_amount.toLocaleString()}`,
+      row.due_amount > 0 ? `${CURRENCY}${row.due_amount.toLocaleString()}` : '-',
       row.payment_method,
     ]),
     styles: { fontSize: 8 },
@@ -165,41 +165,6 @@ export function generateSalesReportPDF(
 
   addFooter(doc);
   doc.save(`sales-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-}
-
-export function generateCustomerDuePDF(data: CustomerDueItem[]) {
-  const doc = new jsPDF();
-  const startY = addHeader(doc, 'Customer Due Report');
-
-  // Calculate total
-  const totalDue = data.reduce((acc, row) => acc + row.total_due, 0);
-
-  // Summary
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Summary', 14, startY);
-  
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.text(`Total Outstanding: ${CURRENCY}${totalDue.toLocaleString()}`, 14, startY + 6);
-  doc.text(`Number of Customers: ${data.length}`, 14, startY + 11);
-
-  // Table
-  autoTable(doc, {
-    startY: startY + 18,
-    head: [['Customer Name', 'Phone', 'Total Due', 'Last Purchase']],
-    body: data.map(row => [
-      row.name,
-      row.phone || '-',
-      `${CURRENCY}${row.total_due.toLocaleString()}`,
-      row.last_purchase_date ? format(new Date(row.last_purchase_date), 'MMM dd, yyyy') : '-',
-    ]),
-    styles: { fontSize: 9 },
-    headStyles: { fillColor: [239, 68, 68] },
-  });
-
-  addFooter(doc);
-  doc.save(`customer-due-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 }
 
 export function generateSupplierDuePDF(data: SupplierDueItem[]) {

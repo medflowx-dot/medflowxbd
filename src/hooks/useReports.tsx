@@ -24,20 +24,11 @@ export interface SalesReportItem {
   id: string;
   invoice_number: string;
   sale_date: string;
-  customer_name: string | null;
   total_amount: number;
   paid_amount: number;
   due_amount: number;
   payment_method: string;
   entry_type: 'quick' | 'detailed';
-}
-
-export interface CustomerDueItem {
-  id: string;
-  name: string;
-  phone: string | null;
-  total_due: number;
-  last_purchase_date: string | null;
 }
 
 export interface SupplierDueItem {
@@ -186,7 +177,7 @@ export function useSalesReport(dateRange: ReportDateRange) {
 
       const { data, error } = await supabase
         .from('sales')
-        .select('id, invoice_number, sale_date, total_amount, paid_amount, due_amount, payment_method, entry_type, customers(name)')
+        .select('id, invoice_number, sale_date, total_amount, paid_amount, due_amount, payment_method, entry_type')
         .gte('sale_date', startStr)
         .lte('sale_date', endStr)
         .order('sale_date', { ascending: false });
@@ -197,54 +188,12 @@ export function useSalesReport(dateRange: ReportDateRange) {
         id: sale.id,
         invoice_number: sale.invoice_number,
         sale_date: sale.sale_date,
-        customer_name: (sale.customers as any)?.name || 'Walk-in',
         total_amount: Number(sale.total_amount),
         paid_amount: Number(sale.paid_amount),
         due_amount: Number(sale.due_amount),
         payment_method: sale.payment_method,
         entry_type: (sale.entry_type as 'quick' | 'detailed') || 'detailed',
       })) || [];
-    },
-    enabled: !!user?.id,
-  });
-}
-
-export function useCustomerDueReport() {
-  const { user } = useAuth();
-
-  return useQuery({
-    queryKey: ['report-customer-dues', user?.id],
-    queryFn: async (): Promise<CustomerDueItem[]> => {
-      // Get customers with dues
-      const { data: customers, error } = await supabase
-        .from('customers')
-        .select('id, name, phone, total_due')
-        .gt('total_due', 0)
-        .order('total_due', { ascending: false });
-
-      if (error) throw error;
-
-      // Get last purchase date for each customer
-      const result: CustomerDueItem[] = [];
-      for (const customer of customers || []) {
-        const { data: lastSale } = await supabase
-          .from('sales')
-          .select('sale_date')
-          .eq('customer_id', customer.id)
-          .order('sale_date', { ascending: false })
-          .limit(1)
-          .single();
-
-        result.push({
-          id: customer.id,
-          name: customer.name,
-          phone: customer.phone,
-          total_due: Number(customer.total_due),
-          last_purchase_date: lastSale?.sale_date || null,
-        });
-      }
-
-      return result;
     },
     enabled: !!user?.id,
   });
