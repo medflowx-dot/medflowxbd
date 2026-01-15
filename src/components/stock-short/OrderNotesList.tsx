@@ -36,6 +36,8 @@ import {
   MessageCircle,
   Copy,
   Phone,
+  FileText,
+  Download,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -43,6 +45,7 @@ import { useStockOrders, StockOrder } from '@/hooks/useStockOrders';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { ManufacturerPhoneDialog } from './ManufacturerPhoneDialog';
 import { ReceiveOrderDialog } from './ReceiveOrderDialog';
+import { generateStockOrderPDF, generateAllOrdersPDF } from '@/lib/pdfGenerator';
 
 const statusColors: Record<StockOrder['status'], string> = {
   pending: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
@@ -165,8 +168,35 @@ export function OrderNotesList() {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Order Notes</CardTitle>
-          <CardDescription>Track stock orders by manufacturer</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Order Notes</CardTitle>
+              <CardDescription>Track stock orders by manufacturer</CardDescription>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export PDF
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => generateAllOrdersPDF(orders)}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  All Orders
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => generateAllOrdersPDF(orders, 'pending')}>
+                  Pending Orders
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => generateAllOrdersPDF(orders, 'submitted')}>
+                  Submitted Orders
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => generateAllOrdersPDF(orders, 'received')}>
+                  Received Orders
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[400px]">
@@ -244,6 +274,11 @@ export function OrderNotesList() {
                               Cancel Order
                             </DropdownMenuItem>
                           )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => generateStockOrderPDF(order)}>
+                            <FileText className="h-4 w-4 mr-2" />
+                            Download PDF
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => setDeleteId(order.id)}
