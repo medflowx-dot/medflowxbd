@@ -13,7 +13,7 @@ import {
 const features = [
   {
     icon: Package,
-    title: 'Inventory & Batches',
+    title: 'Expiry & Batch Tracking',
     description: 'Track medicines with batch numbers, expiry dates, and get alerts 30/60/90 days before expiration.',
     color: 'primary',
   },
@@ -59,11 +59,11 @@ const Features = () => {
             <span className="text-accent-foreground text-sm font-semibold">Powerful Features</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
-            Everything Your Pharmacy Needs
+            Complete Expiry & Financial Tracking
           </h2>
           <p className="text-lg text-muted-foreground">
             A complete solution designed specifically for Bangladesh pharmacies. 
-            Manage every aspect of your business from one dashboard.
+            Track expiry, manage earnings, and control your finances from one dashboard.
           </p>
         </div>
 

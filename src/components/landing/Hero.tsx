@@ -46,7 +46,7 @@ const Hero = () => {
 
           {/* Subheading */}
           <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            Track inventory, manage sales, monitor cash flow, and grow your pharmacy business — all in one powerful platform designed for Bangladesh.
+            Track medicine expiry, manage sales earnings, monitor supplier dues and daily costs — all in one powerful platform designed for Bangladesh.
           </p>
 
           {/* CTA Buttons */}

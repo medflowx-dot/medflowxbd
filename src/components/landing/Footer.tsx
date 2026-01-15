@@ -39,8 +39,8 @@ const Footer = () => {
               </span>
             </a>
             <p className="text-background/70 mb-6 max-w-sm leading-relaxed">
-              Modern pharmacy management software designed for Bangladesh. 
-              Track inventory, manage sales, and grow your business.
+              Expiry intelligence & financial tracking software designed for Bangladesh pharmacies. 
+              Track expiry, manage earnings, and control supplier dues.
             </p>
             <div className="space-y-3">
               <a href="mailto:support@medflowx.com" className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">

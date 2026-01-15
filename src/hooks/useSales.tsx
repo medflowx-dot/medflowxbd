@@ -185,24 +185,9 @@ export function useSales(dateFilter?: Date) {
 
         if (itemsError) throw itemsError;
 
-        // Update batch quantities - decrement stock
-        for (const item of data.items) {
-          if (item.batch_id) {
-            // First get current quantity
-            const { data: batchData } = await supabase
-              .from('medicine_batches')
-              .select('quantity')
-              .eq('id', item.batch_id)
-              .single();
-
-            if (batchData) {
-              await supabase
-                .from('medicine_batches')
-                .update({ quantity: Math.max(0, batchData.quantity - item.quantity) })
-                .eq('id', item.batch_id);
-            }
-          }
-        }
+        // Note: Stock quantities are NOT auto-deducted
+        // This system focuses on expiry tracking and financial management
+        // Stock is managed manually through batch entries
       }
 
       return sale;
