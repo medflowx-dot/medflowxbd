@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertTriangle, ClipboardList, Send, Calendar } from 'lucide-react';
+import { AlertTriangle, ClipboardList, Send, PackageCheck } from 'lucide-react';
 import { useMedicines, MedicineWithBatches } from '@/hooks/useMedicines';
 import { useStockOrders } from '@/hooks/useStockOrders';
 import { LowStockList } from '@/components/stock-short/LowStockList';
 import { OrderNotesList } from '@/components/stock-short/OrderNotesList';
+import { PurchaseHistory } from '@/components/stock-short/PurchaseHistory';
 import { CreateOrderDialog } from '@/components/stock-short/CreateOrderDialog';
 
 export default function StockShort() {
   const { medicines } = useMedicines();
-  const { pendingOrders, submittedOrders, thisWeekOrders } = useStockOrders();
+  const { pendingOrders, submittedOrders, orders } = useStockOrders();
+  const receivedOrders = orders.filter((o) => o.status === 'received');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedMedicines, setSelectedMedicines] = useState<MedicineWithBatches[]>([]);
 
@@ -63,18 +65,19 @@ export default function StockShort() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              This Week
+              <PackageCheck className="h-4 w-4" />
+              Received
             </CardDescription>
-            <CardTitle className="text-2xl">{thisWeekOrders.length}</CardTitle>
+            <CardTitle className="text-2xl">{receivedOrders.length}</CardTitle>
           </CardHeader>
         </Card>
       </div>
 
       <Tabs defaultValue="low-stock" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="low-stock">Low Stock Items</TabsTrigger>
-          <TabsTrigger value="orders">Order Notes</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
+          <TabsTrigger value="low-stock">Low Stock</TabsTrigger>
+          <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="low-stock">
@@ -83,6 +86,10 @@ export default function StockShort() {
 
         <TabsContent value="orders">
           <OrderNotesList />
+        </TabsContent>
+
+        <TabsContent value="history">
+          <PurchaseHistory />
         </TabsContent>
       </Tabs>
 
