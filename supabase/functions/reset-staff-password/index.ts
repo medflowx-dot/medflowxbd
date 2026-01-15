@@ -55,12 +55,29 @@ async function getSmtpConfig(supabaseAdmin: any): Promise<SmtpConfig | null> {
   };
 }
 
+async function getEmailTemplate(supabaseAdmin: any, templateKey: string): Promise<{ subject: string; html_content: string } | null> {
+  const { data } = await supabaseAdmin
+    .from('email_templates')
+    .select('subject, html_content')
+    .eq('template_key', templateKey)
+    .eq('is_active', true)
+    .single();
+  
+  return data;
+}
+
+function replacePlaceholders(template: string, data: Record<string, string>): string {
+  let result = template;
+  Object.entries(data).forEach(([key, value]) => {
+    result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
+  });
+  return result;
+}
+
 async function sendPasswordResetEmail(
   smtpConfig: SmtpConfig,
-  toEmail: string,
-  staffName: string,
-  newPassword: string,
-  loginUrl: string
+  template: { subject: string; html_content: string },
+  data: Record<string, string>
 ): Promise<void> {
   const client = new SMTPClient({
     connection: {
@@ -74,66 +91,13 @@ async function sendPasswordResetEmail(
     },
   });
 
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
-        .content { background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; }
-        .credentials { background: white; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 20px 0; }
-        .credential-item { margin: 10px 0; }
-        .label { color: #64748b; font-size: 12px; text-transform: uppercase; }
-        .value { font-size: 16px; font-weight: 600; color: #0f172a; background: #f1f5f9; padding: 8px 12px; border-radius: 4px; margin-top: 4px; }
-        .btn { display: inline-block; background: #f59e0b; color: white !important; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; margin-top: 20px; }
-        .footer { text-align: center; padding: 20px; color: #64748b; font-size: 12px; }
-        .warning { background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 12px; margin-top: 20px; font-size: 13px; color: #92400e; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1 style="margin: 0;">🔐 Password Reset</h1>
-          <p style="margin: 10px 0 0 0; opacity: 0.9;">Your password has been reset</p>
-        </div>
-        <div class="content">
-          <p>Hello <strong>${staffName}</strong>,</p>
-          <p>Your password has been reset by your pharmacy administrator. Please use the new credentials below to log in.</p>
-          
-          <div class="credentials">
-            <h3 style="margin-top: 0; color: #f59e0b;">🔑 Your New Credentials</h3>
-            <div class="credential-item">
-              <div class="label">Email</div>
-              <div class="value">${toEmail}</div>
-            </div>
-            <div class="credential-item">
-              <div class="label">New Password</div>
-              <div class="value">${newPassword}</div>
-            </div>
-          </div>
-
-          <a href="${loginUrl}" class="btn">Login Now →</a>
-
-          <div class="warning">
-            ⚠️ <strong>Security Tip:</strong> Please change your password after logging in for better security.
-          </div>
-        </div>
-        <div class="footer">
-          <p>This email was sent by ${smtpConfig.smtp_from_name}</p>
-          <p>If you didn't expect this email, please contact your administrator.</p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
+  const subject = replacePlaceholders(template.subject, data);
+  const html = replacePlaceholders(template.html_content, data);
 
   await client.send({
     from: `${smtpConfig.smtp_from_name} <${smtpConfig.smtp_from_email}>`,
-    to: toEmail,
-    subject: `🔐 Password Reset - ${smtpConfig.smtp_from_name}`,
+    to: data.email,
+    subject: subject,
     html: html,
   });
 
@@ -239,18 +203,20 @@ Deno.serve(async (req) => {
 
     // Send email notification
     const smtpConfig = await getSmtpConfig(supabaseAdmin);
+    const template = await getEmailTemplate(supabaseAdmin, 'password_reset');
     let emailSent = false;
 
-    if (smtpConfig && updatedUser.user?.email) {
+    if (smtpConfig && template && updatedUser.user?.email) {
       try {
         const loginUrl = 'https://medflowxbd.lovable.app/login';
-        await sendPasswordResetEmail(
-          smtpConfig,
-          updatedUser.user.email,
-          staffProfile?.full_name || 'Staff Member',
-          newPassword,
-          loginUrl
-        );
+        const templateData = {
+          staff_name: staffProfile?.full_name || 'Staff Member',
+          email: updatedUser.user.email,
+          new_password: newPassword,
+          platform_name: smtpConfig.smtp_from_name,
+          login_url: loginUrl,
+        };
+        await sendPasswordResetEmail(smtpConfig, template, templateData);
         emailSent = true;
         console.log('Password reset email sent to:', updatedUser.user.email);
       } catch (emailError) {

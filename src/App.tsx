@@ -39,6 +39,7 @@ import SystemReview from "./pages/owner/SystemReview";
 import CMSManager from "./pages/owner/CMSManager";
 import AuditLogs from "./pages/owner/AuditLogs";
 import OwnerSettings from "./pages/owner/OwnerSettings";
+import EmailTemplates from "./pages/owner/EmailTemplates";
 
 const queryClient = new QueryClient();
 
@@ -104,6 +105,7 @@ const App = () => (
               <Route path="feature-flags" element={<FeatureFlags />} />
               <Route path="system-review" element={<SystemReview />} />
               <Route path="cms" element={<CMSManager />} />
+              <Route path="email-templates" element={<EmailTemplates />} />
               <Route path="logs" element={<AuditLogs />} />
               <Route path="settings" element={<OwnerSettings />} />
             </Route>
