@@ -1,8 +1,24 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus, Package } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Package, Search, AlertTriangle, TrendingDown } from 'lucide-react';
+import { AddMedicineDialog } from '@/components/medicines/AddMedicineDialog';
+import { MedicineTable } from '@/components/medicines/MedicineTable';
+import { ExpiryAlerts } from '@/components/medicines/ExpiryAlerts';
+import { useMedicines, useExpiryAlerts } from '@/hooks/useMedicines';
 
 export default function Medicines() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const { medicines, isLoading } = useMedicines();
+  const { expired, expiring30, totalAlerts } = useExpiryAlerts();
+
+  const totalStock = medicines.reduce((sum, m) => sum + m.total_stock, 0);
+  const lowStockCount = medicines.filter(
+    (m) => m.min_stock_level && m.total_stock <= m.min_stock_level && m.total_stock > 0
+  ).length;
+  const outOfStockCount = medicines.filter((m) => m.total_stock === 0).length;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -12,33 +28,114 @@ export default function Medicines() {
             Manage your medicine inventory and batches
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Medicine
-        </Button>
+        <AddMedicineDialog />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Medicine Inventory</CardTitle>
-          <CardDescription>Track all medicines, batches, and expiry dates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="p-4 rounded-full bg-muted mb-4">
-              <Package className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="font-semibold text-lg">No medicines yet</h3>
-            <p className="text-muted-foreground text-sm max-w-sm mt-1">
-              Start by adding your first medicine to track inventory and batches.
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Medicines</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{medicines.length}</div>
+            <p className="text-xs text-muted-foreground">
+              {totalStock} total items in stock
             </p>
-            <Button className="mt-4">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Medicine
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Low Stock</CardTitle>
+            <TrendingDown className="h-4 w-4 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{lowStockCount}</div>
+            <p className="text-xs text-muted-foreground">
+              Below minimum stock level
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Out of Stock</CardTitle>
+            <Package className="h-4 w-4 text-destructive" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-destructive">{outOfStockCount}</div>
+            <p className="text-xs text-muted-foreground">
+              Needs immediate restocking
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Expiry Alerts</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-destructive">{totalAlerts}</div>
+            <p className="text-xs text-muted-foreground">
+              {expired.length} expired, {expiring30.length} expiring soon
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="inventory" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="inventory">Inventory</TabsTrigger>
+          <TabsTrigger value="expiry" className="relative">
+            Expiry Alerts
+            {totalAlerts > 0 && (
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center">
+                {totalAlerts}
+              </span>
+            )}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="inventory" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <CardTitle>Medicine Inventory</CardTitle>
+                  <CardDescription>
+                    Track all medicines, batches, and expiry dates
+                  </CardDescription>
+                </div>
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search medicines..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : (
+                <MedicineTable medicines={medicines} searchTerm={searchTerm} />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="expiry">
+          <ExpiryAlerts />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
