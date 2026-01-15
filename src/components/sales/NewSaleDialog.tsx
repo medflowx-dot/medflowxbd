@@ -36,8 +36,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Trash2, ShoppingCart, Search } from 'lucide-react';
-import { useSales, type CreateSaleItemData } from '@/hooks/useSales';
+import { Plus, Trash2, ShoppingCart, Search, ClipboardList } from 'lucide-react';
+import { useSales, type CreateSaleItemData, type SaleUnit } from '@/hooks/useSales';
 import { useCustomers } from '@/hooks/useCustomers';
 import { useMedicines, type MedicineWithBatches, type MedicineBatch } from '@/hooks/useMedicines';
 import { AddCustomerDialog } from './AddCustomerDialog';
@@ -56,9 +56,14 @@ type SaleFormData = z.infer<typeof saleSchema>;
 
 interface CartItem extends CreateSaleItemData {
   id: string;
+  sale_unit: SaleUnit;
 }
 
-export function NewSaleDialog() {
+interface NewSaleDialogProps {
+  trigger?: React.ReactNode;
+}
+
+export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
   const [open, setOpen] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -94,8 +99,8 @@ export function NewSaleDialog() {
     ).slice(0, 10);
   }, [medicines, searchTerm]);
 
-  const addToCart = (medicine: MedicineWithBatches, batch: MedicineBatch) => {
-    const existingIndex = cart.findIndex((item) => item.batch_id === batch.id);
+  const addToCart = (medicine: MedicineWithBatches, batch: MedicineBatch, unit: SaleUnit = 'piece') => {
+    const existingIndex = cart.findIndex((item) => item.batch_id === batch.id && item.sale_unit === unit);
     
     if (existingIndex >= 0) {
       const updatedCart = [...cart];
@@ -105,7 +110,7 @@ export function NewSaleDialog() {
       setCart(updatedCart);
     } else {
       const newItem: CartItem = {
-        id: `${batch.id}-${Date.now()}`,
+        id: `${batch.id}-${unit}-${Date.now()}`,
         medicine_id: medicine.id,
         batch_id: batch.id,
         medicine_name: medicine.name,
@@ -113,6 +118,7 @@ export function NewSaleDialog() {
         quantity: 1,
         unit_price: batch.selling_price,
         total_price: batch.selling_price,
+        sale_unit: unit,
       };
       setCart([...cart, newItem]);
     }
@@ -131,6 +137,22 @@ export function NewSaleDialog() {
       item.id === itemId
         ? { ...item, quantity, total_price: quantity * item.unit_price }
         : item
+    ));
+  };
+
+  const updateUnitPrice = (itemId: string, unitPrice: number) => {
+    if (unitPrice < 0) return;
+    
+    setCart(cart.map((item) =>
+      item.id === itemId
+        ? { ...item, unit_price: unitPrice, total_price: item.quantity * unitPrice }
+        : item
+    ));
+  };
+
+  const updateSaleUnit = (itemId: string, saleUnit: SaleUnit) => {
+    setCart(cart.map((item) =>
+      item.id === itemId ? { ...item, sale_unit: saleUnit } : item
     ));
   };
 
@@ -158,18 +180,32 @@ export function NewSaleDialog() {
     form.reset();
   };
 
+  const getUnitLabel = (unit: SaleUnit) => {
+    switch (unit) {
+      case 'piece': return 'Pcs';
+      case 'strip': return 'Strip';
+      case 'box': return 'Box';
+      default: return unit;
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Sale
-        </Button>
+        {trigger || (
+          <Button>
+            <ClipboardList className="h-4 w-4 mr-2" />
+            Detailed Sale
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>New Sale</DialogTitle>
-          <DialogDescription>Create a new sale transaction</DialogDescription>
+          <DialogTitle className="flex items-center gap-2">
+            <ClipboardList className="h-5 w-5 text-primary" />
+            Detailed Sale Entry
+          </DialogTitle>
+          <DialogDescription>Add medicines to the cart and complete the sale</DialogDescription>
         </DialogHeader>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -197,7 +233,7 @@ export function NewSaleDialog() {
                           size="sm"
                           variant="outline"
                           className="h-7 text-xs"
-                          onClick={() => addToCart(medicine, batch)}
+                          onClick={() => addToCart(medicine, batch, 'piece')}
                         >
                           {batch.batch_number} (৳{batch.selling_price}) - {batch.quantity} left
                         </Button>
@@ -216,7 +252,7 @@ export function NewSaleDialog() {
                 <ShoppingCart className="h-4 w-4" />
                 Cart ({cart.length} items)
               </div>
-              <ScrollArea className="h-48">
+              <ScrollArea className="h-64">
                 {cart.length === 0 ? (
                   <div className="p-4 text-center text-muted-foreground text-sm">
                     Search and add medicines to cart
@@ -226,9 +262,11 @@ export function NewSaleDialog() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Item</TableHead>
-                        <TableHead className="w-20">Qty</TableHead>
-                        <TableHead className="text-right">Total</TableHead>
-                        <TableHead className="w-10"></TableHead>
+                        <TableHead className="w-20">Unit</TableHead>
+                        <TableHead className="w-20">Price</TableHead>
+                        <TableHead className="w-16">Qty</TableHead>
+                        <TableHead className="text-right w-20">Total</TableHead>
+                        <TableHead className="w-8"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -237,8 +275,33 @@ export function NewSaleDialog() {
                           <TableCell className="py-2">
                             <div className="text-sm font-medium">{item.medicine_name}</div>
                             <div className="text-xs text-muted-foreground">
-                              {item.batch_number} @ ৳{item.unit_price}
+                              {item.batch_number}
                             </div>
+                          </TableCell>
+                          <TableCell className="py-2">
+                            <Select
+                              value={item.sale_unit}
+                              onValueChange={(value: SaleUnit) => updateSaleUnit(item.id, value)}
+                            >
+                              <SelectTrigger className="h-7 text-xs w-16">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="piece">Pcs</SelectItem>
+                                <SelectItem value="strip">Strip</SelectItem>
+                                <SelectItem value="box">Box</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="py-2">
+                            <Input
+                              type="number"
+                              min={0}
+                              step="0.01"
+                              value={item.unit_price}
+                              onChange={(e) => updateUnitPrice(item.id, parseFloat(e.target.value) || 0)}
+                              className="h-7 w-16 text-xs"
+                            />
                           </TableCell>
                           <TableCell className="py-2">
                             <Input
@@ -246,17 +309,17 @@ export function NewSaleDialog() {
                               min={1}
                               value={item.quantity}
                               onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 0)}
-                              className="h-8 w-16"
+                              className="h-7 w-14 text-xs"
                             />
                           </TableCell>
-                          <TableCell className="py-2 text-right">
+                          <TableCell className="py-2 text-right text-sm">
                             ৳{item.total_price.toFixed(2)}
                           </TableCell>
                           <TableCell className="py-2">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 text-destructive"
+                              className="h-6 w-6 text-destructive"
                               onClick={() => removeFromCart(item.id)}
                             >
                               <Trash2 className="h-3 w-3" />

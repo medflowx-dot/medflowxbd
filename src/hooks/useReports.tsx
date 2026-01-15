@@ -29,6 +29,7 @@ export interface SalesReportItem {
   paid_amount: number;
   due_amount: number;
   payment_method: string;
+  entry_type: 'quick' | 'detailed';
 }
 
 export interface CustomerDueItem {
@@ -185,7 +186,7 @@ export function useSalesReport(dateRange: ReportDateRange) {
 
       const { data, error } = await supabase
         .from('sales')
-        .select('id, invoice_number, sale_date, total_amount, paid_amount, due_amount, payment_method, customers(name)')
+        .select('id, invoice_number, sale_date, total_amount, paid_amount, due_amount, payment_method, entry_type, customers(name)')
         .gte('sale_date', startStr)
         .lte('sale_date', endStr)
         .order('sale_date', { ascending: false });
@@ -201,6 +202,7 @@ export function useSalesReport(dateRange: ReportDateRange) {
         paid_amount: Number(sale.paid_amount),
         due_amount: Number(sale.due_amount),
         payment_method: sale.payment_method,
+        entry_type: (sale.entry_type as 'quick' | 'detailed') || 'detailed',
       })) || [];
     },
     enabled: !!user?.id,

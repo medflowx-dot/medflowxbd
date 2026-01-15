@@ -4,6 +4,9 @@ import { useAuth } from './useAuth';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
+export type SaleUnit = 'piece' | 'strip' | 'box';
+export type EntryType = 'quick' | 'detailed';
+
 export interface SaleItem {
   id: string;
   sale_id: string;
@@ -14,6 +17,7 @@ export interface SaleItem {
   quantity: number;
   unit_price: number;
   total_price: number;
+  sale_unit: SaleUnit;
   created_at: string;
 }
 
@@ -29,6 +33,7 @@ export interface Sale {
   paid_amount: number;
   due_amount: number;
   payment_method: string;
+  entry_type: EntryType;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -60,6 +65,7 @@ export interface CreateSaleItemData {
   quantity: number;
   unit_price: number;
   total_price: number;
+  sale_unit?: SaleUnit;
 }
 
 export interface CreateSaleData {
@@ -73,6 +79,14 @@ export interface CreateSaleData {
   payment_method?: string;
   notes?: string;
   items: CreateSaleItemData[];
+}
+
+export interface CreateQuickSaleData {
+  sale_date?: string;
+  total_amount: number;
+  paid_amount: number;
+  payment_method?: string;
+  notes?: string;
 }
 
 export function useSales(dateFilter?: Date) {
@@ -114,7 +128,7 @@ export function useSales(dateFilter?: Date) {
 
       if (invoiceError) throw invoiceError;
 
-      // Create sale
+      // Create sale with entry_type = 'detailed'
       const { data: sale, error: saleError } = await supabase
         .from('sales')
         .insert({
@@ -128,6 +142,7 @@ export function useSales(dateFilter?: Date) {
           paid_amount: data.paid_amount,
           due_amount: data.due_amount,
           payment_method: data.payment_method || 'cash',
+          entry_type: 'detailed',
           notes: data.notes || null,
         })
         .select()
@@ -146,6 +161,7 @@ export function useSales(dateFilter?: Date) {
           quantity: item.quantity,
           unit_price: item.unit_price,
           total_price: item.total_price,
+          sale_unit: item.sale_unit || 'piece',
         }));
 
         const { error: itemsError } = await supabase
@@ -187,6 +203,51 @@ export function useSales(dateFilter?: Date) {
     },
   });
 
+  const createQuickSale = useMutation({
+    mutationFn: async (data: CreateQuickSaleData) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      // Generate invoice number
+      const { data: invoiceData, error: invoiceError } = await supabase
+        .rpc('generate_invoice_number');
+
+      if (invoiceError) throw invoiceError;
+
+      const dueAmount = Math.max(0, data.total_amount - data.paid_amount);
+
+      // Create sale with entry_type = 'quick'
+      const { data: sale, error: saleError } = await supabase
+        .from('sales')
+        .insert({
+          user_id: user.id,
+          customer_id: null,
+          invoice_number: invoiceData,
+          sale_date: data.sale_date || format(new Date(), 'yyyy-MM-dd'),
+          subtotal: data.total_amount,
+          discount: 0,
+          total_amount: data.total_amount,
+          paid_amount: data.paid_amount,
+          due_amount: dueAmount,
+          payment_method: data.payment_method || 'cash',
+          entry_type: 'quick',
+          notes: data.notes || null,
+        })
+        .select()
+        .single();
+
+      if (saleError) throw saleError;
+
+      return sale;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sales'] });
+      toast({ title: 'Quick sale recorded successfully' });
+    },
+    onError: (error) => {
+      toast({ title: 'Failed to record quick sale', description: error.message, variant: 'destructive' });
+    },
+  });
+
   const deleteSale = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -207,24 +268,35 @@ export function useSales(dateFilter?: Date) {
   });
 
   // Calculate daily stats
-  const todaySales = (salesQuery.data || []).filter(
-    (s) => s.sale_date === format(new Date(), 'yyyy-MM-dd')
-  );
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const todaySales = (salesQuery.data || []).filter((s) => s.sale_date === todayStr);
+  
+  const quickSales = todaySales.filter((s) => s.entry_type === 'quick');
+  const detailedSales = todaySales.filter((s) => s.entry_type === 'detailed');
+  
   const todayTotal = todaySales.reduce((sum, s) => sum + Number(s.total_amount), 0);
   const todayCash = todaySales.reduce((sum, s) => sum + Number(s.paid_amount), 0);
   const todayDue = todaySales.reduce((sum, s) => sum + Number(s.due_amount), 0);
+  
+  const quickTotal = quickSales.reduce((sum, s) => sum + Number(s.total_amount), 0);
+  const detailedTotal = detailedSales.reduce((sum, s) => sum + Number(s.total_amount), 0);
 
   return {
     sales: salesQuery.data || [],
     isLoading: salesQuery.isLoading,
     error: salesQuery.error,
     createSale,
+    createQuickSale,
     deleteSale,
     todayStats: {
       total: todayTotal,
       cash: todayCash,
       due: todayDue,
       count: todaySales.length,
+      quickTotal,
+      detailedTotal,
+      quickCount: quickSales.length,
+      detailedCount: detailedSales.length,
     },
   };
 }

@@ -636,6 +636,7 @@ export type Database = {
           medicine_name: string
           quantity: number
           sale_id: string
+          sale_unit: string
           total_price: number
           unit_price: number
         }
@@ -648,6 +649,7 @@ export type Database = {
           medicine_name: string
           quantity: number
           sale_id: string
+          sale_unit?: string
           total_price: number
           unit_price: number
         }
@@ -660,6 +662,7 @@ export type Database = {
           medicine_name?: string
           quantity?: number
           sale_id?: string
+          sale_unit?: string
           total_price?: number
           unit_price?: number
         }
@@ -693,6 +696,7 @@ export type Database = {
           customer_id: string | null
           discount: number
           due_amount: number
+          entry_type: string
           id: string
           invoice_number: string
           notes: string | null
@@ -709,6 +713,7 @@ export type Database = {
           customer_id?: string | null
           discount?: number
           due_amount?: number
+          entry_type?: string
           id?: string
           invoice_number: string
           notes?: string | null
@@ -725,6 +730,7 @@ export type Database = {
           customer_id?: string | null
           discount?: number
           due_amount?: number
+          entry_type?: string
           id?: string
           invoice_number?: string
           notes?: string | null
