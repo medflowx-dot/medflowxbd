@@ -10,6 +10,7 @@ export interface Medicine {
   generic_name: string | null;
   category: string | null;
   manufacturer: string | null;
+  manufacturer_id: string | null;
   unit: string;
   shelf_location: string | null;
   min_stock_level: number | null;
@@ -45,6 +46,7 @@ export interface CreateMedicineData {
   generic_name?: string;
   category?: string;
   manufacturer?: string;
+  manufacturer_id?: string;
   unit?: string;
   shelf_location?: string;
   min_stock_level?: number;

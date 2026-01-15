@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Trash2, Phone } from 'lucide-react';
 import { MedicineWithBatches } from '@/hooks/useMedicines';
 import { useStockOrders } from '@/hooks/useStockOrders';
+import { useManufacturers } from '@/hooks/useManufacturers';
 
 interface CreateOrderDialogProps {
   open: boolean;
@@ -22,6 +24,7 @@ interface OrderItem {
 
 export function CreateOrderDialog({ open, onOpenChange, medicines }: CreateOrderDialogProps) {
   const { createOrder } = useStockOrders();
+  const { manufacturers: manufacturerList } = useManufacturers();
   const [notes, setNotes] = useState('');
   const [items, setItems] = useState<OrderItem[]>(() =>
     medicines.map((m) => ({
@@ -30,8 +33,33 @@ export function CreateOrderDialog({ open, onOpenChange, medicines }: CreateOrder
     }))
   );
 
-  // Group by manufacturer
-  const manufacturers = [...new Set(medicines.map((m) => m.manufacturer || 'Unknown'))];
+  // Group by manufacturer - use manufacturer_id to get the actual manufacturer info
+  const manufacturerGroups = useMemo(() => {
+    const groups: Record<string, { name: string; phone: string | null; items: OrderItem[] }> = {};
+    
+    items.forEach((item) => {
+      const manufacturerName = item.medicine.manufacturer || 'Unknown';
+      const manufacturerId = item.medicine.manufacturer_id;
+      
+      // Try to find manufacturer details from the manufacturers list
+      const manufacturerInfo = manufacturerId 
+        ? manufacturerList.find(m => m.id === manufacturerId)
+        : manufacturerList.find(m => m.name.toLowerCase() === manufacturerName.toLowerCase());
+      
+      if (!groups[manufacturerName]) {
+        groups[manufacturerName] = {
+          name: manufacturerName,
+          phone: manufacturerInfo?.phone || null,
+          items: [],
+        };
+      }
+      groups[manufacturerName].items.push(item);
+    });
+    
+    return groups;
+  }, [items, manufacturerList]);
+
+  const manufacturers = Object.keys(manufacturerGroups);
 
   const updateQuantity = (medicineId: string, quantity: number) => {
     setItems((prev) =>
@@ -52,16 +80,14 @@ export function CreateOrderDialog({ open, onOpenChange, medicines }: CreateOrder
 
     // Create separate orders for each manufacturer
     for (const manufacturer of manufacturers) {
-      const manufacturerItems = items.filter(
-        (item) => (item.medicine.manufacturer || 'Unknown') === manufacturer
-      );
-
-      if (manufacturerItems.length === 0) continue;
+      const group = manufacturerGroups[manufacturer];
+      if (!group || group.items.length === 0) continue;
 
       await createOrder.mutateAsync({
         manufacturer,
+        manufacturer_phone: group.phone || undefined,
         notes: notes || undefined,
-        items: manufacturerItems.map((item) => ({
+        items: group.items.map((item) => ({
           medicine_id: item.medicine.id,
           medicine_name: item.medicine.name,
           current_stock: item.medicine.total_stock,
@@ -89,17 +115,22 @@ export function CreateOrderDialog({ open, onOpenChange, medicines }: CreateOrder
         <ScrollArea className="max-h-[400px]">
           <div className="space-y-4">
             {manufacturers.map((manufacturer) => {
-              const manufacturerItems = items.filter(
-                (item) => (item.medicine.manufacturer || 'Unknown') === manufacturer
-              );
-
-              if (manufacturerItems.length === 0) return null;
+              const group = manufacturerGroups[manufacturer];
+              if (!group || group.items.length === 0) return null;
 
               return (
                 <div key={manufacturer} className="border rounded-lg p-3">
-                  <h4 className="font-semibold text-sm mb-3">{manufacturer}</h4>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-semibold text-sm">{manufacturer}</h4>
+                    {group.phone && (
+                      <Badge variant="outline" className="text-xs">
+                        <Phone className="h-3 w-3 mr-1" />
+                        {group.phone}
+                      </Badge>
+                    )}
+                  </div>
                   <div className="space-y-2">
-                    {manufacturerItems.map((item) => (
+                    {group.items.map((item) => (
                       <div
                         key={item.medicine.id}
                         className="flex items-center gap-3 p-2 bg-muted/50 rounded"

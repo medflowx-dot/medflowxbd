@@ -437,6 +437,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           manufacturer: string | null
+          manufacturer_id: string | null
           min_stock_level: number | null
           name: string
           shelf_location: string | null
@@ -451,6 +452,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           manufacturer?: string | null
+          manufacturer_id?: string | null
           min_stock_level?: number | null
           name: string
           shelf_location?: string | null
@@ -465,6 +467,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           manufacturer?: string | null
+          manufacturer_id?: string | null
           min_stock_level?: number | null
           name?: string
           shelf_location?: string | null
@@ -472,7 +475,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "medicines_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       opening_cash: {
         Row: {
