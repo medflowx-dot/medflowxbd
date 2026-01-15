@@ -105,7 +105,7 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
       name: data.name,
       generic_name: data.generic_name || undefined,
       category: data.category || undefined,
-      manufacturer_id: data.manufacturer_id || undefined,
+      manufacturer_id: data.manufacturer_id === 'none' ? undefined : data.manufacturer_id || undefined,
       manufacturer: data.manufacturer || undefined,
       unit: data.unit,
       shelf_location: data.shelf_location || undefined,
@@ -239,7 +239,7 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {manufacturers.map((m) => (
                         <SelectItem key={m.id} value={m.id}>
                           {m.name}
