@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePlatformSettings, useUpdatePlatformSetting } from '@/hooks/useOwnerData';
-import { Loader2, Settings, Save, AlertTriangle } from 'lucide-react';
+import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function OwnerSettings() {
   const { data: settings, isLoading } = usePlatformSettings();
@@ -15,6 +16,9 @@ export default function OwnerSettings() {
 
   const [localSettings, setLocalSettings] = useState<Record<string, any>>({});
   const [hasChanges, setHasChanges] = useState(false);
+  const [showSmtpPassword, setShowSmtpPassword] = useState(false);
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [testEmailAddress, setTestEmailAddress] = useState('');
 
   useEffect(() => {
     if (settings) {
@@ -49,6 +53,32 @@ export default function OwnerSettings() {
     }
     setHasChanges(false);
     toast.success('All settings saved');
+  };
+
+  const handleTestEmail = async () => {
+    if (!testEmailAddress) {
+      toast.error('Please enter an email address');
+      return;
+    }
+    
+    setTestingEmail(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-smtp-email', {
+        body: {
+          to: testEmailAddress,
+          subject: 'SMTP Test Email - MedFlowX',
+          html: '<h1>SMTP Configuration Test</h1><p>If you received this email, your SMTP settings are configured correctly!</p><p>Sent from MedFlowX Admin Panel</p>',
+        },
+      });
+      
+      if (error) throw error;
+      toast.success('Test email sent successfully!');
+    } catch (error: any) {
+      console.error('Test email error:', error);
+      toast.error(error.message || 'Failed to send test email');
+    } finally {
+      setTestingEmail(false);
+    }
   };
 
   if (isLoading) {
@@ -222,6 +252,134 @@ export default function OwnerSettings() {
               checked={localSettings.maintenance_mode === true}
               onCheckedChange={(checked) => handleChange('maintenance_mode', checked)}
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* SMTP Email Settings */}
+      <Card className="border-0 shadow-card">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Mail className="h-5 w-5 text-primary" />
+            <CardTitle>SMTP Email Configuration</CardTitle>
+          </div>
+          <CardDescription>Configure email server for sending notifications (staff invites, etc.)</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>SMTP Host</Label>
+              <Input
+                value={localSettings.smtp_host?.replace(/"/g, '') || ''}
+                onChange={(e) => handleChange('smtp_host', `"${e.target.value}"`)}
+                placeholder="smtp.gmail.com or mail.yourdomain.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>SMTP Port</Label>
+              <Select 
+                value={String(localSettings.smtp_port || 587)}
+                onValueChange={(value) => handleChange('smtp_port', parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="587">587 (TLS - Recommended)</SelectItem>
+                  <SelectItem value="465">465 (SSL)</SelectItem>
+                  <SelectItem value="25">25 (Plain - Not Recommended)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>SMTP Username / Email</Label>
+              <Input
+                value={localSettings.smtp_user?.replace(/"/g, '') || ''}
+                onChange={(e) => handleChange('smtp_user', `"${e.target.value}"`)}
+                placeholder="your-email@gmail.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>SMTP Password / App Password</Label>
+              <div className="relative">
+                <Input
+                  type={showSmtpPassword ? 'text' : 'password'}
+                  value={localSettings.smtp_password?.replace(/"/g, '') || ''}
+                  onChange={(e) => handleChange('smtp_password', `"${e.target.value}"`)}
+                  placeholder="••••••••••••"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowSmtpPassword(!showSmtpPassword)}
+                >
+                  {showSmtpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">For Gmail, use App Password instead of regular password</p>
+            </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>From Email</Label>
+              <Input
+                value={localSettings.smtp_from_email?.replace(/"/g, '') || ''}
+                onChange={(e) => handleChange('smtp_from_email', `"${e.target.value}"`)}
+                placeholder="noreply@yourdomain.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>From Name</Label>
+              <Input
+                value={localSettings.smtp_from_name?.replace(/"/g, '') || 'MedFlowX'}
+                onChange={(e) => handleChange('smtp_from_name', `"${e.target.value}"`)}
+                placeholder="MedFlowX"
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+            <div>
+              <Label>Use TLS/SSL</Label>
+              <p className="text-sm text-muted-foreground">Enable secure connection (recommended)</p>
+            </div>
+            <Switch
+              checked={localSettings.smtp_secure === true || localSettings.smtp_secure === 'true'}
+              onCheckedChange={(checked) => handleChange('smtp_secure', checked)}
+            />
+          </div>
+          
+          {/* Test Email Section */}
+          <div className="border-t pt-4 mt-4">
+            <Label className="mb-2 block">Test SMTP Configuration</Label>
+            <div className="flex gap-2">
+              <Input
+                type="email"
+                value={testEmailAddress}
+                onChange={(e) => setTestEmailAddress(e.target.value)}
+                placeholder="Enter email to send test"
+                className="flex-1"
+              />
+              <Button 
+                onClick={handleTestEmail} 
+                disabled={testingEmail || !localSettings.smtp_host?.replace(/"/g, '')}
+                variant="outline"
+              >
+                {testingEmail ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Send className="h-4 w-4 mr-2" />
+                )}
+                Send Test
+              </Button>
+            </div>
+            {!localSettings.smtp_host?.replace(/"/g, '') && (
+              <p className="text-xs text-muted-foreground mt-2">Configure SMTP settings and save before testing</p>
+            )}
           </div>
         </CardContent>
       </Card>

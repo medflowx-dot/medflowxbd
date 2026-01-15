@@ -101,10 +101,17 @@ export function useInviteStaff() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['pharmacy-staff', profile?.pharmacy_name] });
-      toast.success('Staff member invited successfully!', {
-        description: `Temporary password: ${data.temp_password}`,
-        duration: 15000,
-      });
+      if (data.email_sent) {
+        toast.success('Staff member invited successfully!', {
+          description: 'Login credentials have been sent via email.',
+          duration: 5000,
+        });
+      } else {
+        toast.success('Staff member created successfully!', {
+          description: `Please share this temporary password: ${data.temp_password}`,
+          duration: 15000,
+        });
+      }
     },
     onError: (error) => {
       toast.error('Failed to invite staff: ' + error.message);

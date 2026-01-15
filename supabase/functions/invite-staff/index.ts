@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,6 +10,137 @@ interface InviteStaffRequest {
   email: string;
   full_name: string;
   admin_user_id: string;
+}
+
+interface SmtpConfig {
+  smtp_host: string;
+  smtp_port: number;
+  smtp_user: string;
+  smtp_password: string;
+  smtp_from_email: string;
+  smtp_from_name: string;
+  smtp_secure: boolean;
+}
+
+async function getSmtpConfig(supabaseAdmin: any): Promise<SmtpConfig | null> {
+  const { data: settings } = await supabaseAdmin
+    .from('platform_settings')
+    .select('setting_key, setting_value')
+    .in('setting_key', [
+      'smtp_host', 'smtp_port', 'smtp_user', 'smtp_password',
+      'smtp_from_email', 'smtp_from_name', 'smtp_secure'
+    ]);
+
+  if (!settings || settings.length === 0) return null;
+
+  const config: Record<string, any> = {};
+  settings.forEach((s: any) => {
+    let value = s.setting_value;
+    if (typeof value === 'string') {
+      value = value.replace(/^"|"$/g, '');
+    }
+    config[s.setting_key] = value;
+  });
+
+  if (!config.smtp_host || !config.smtp_user || !config.smtp_password) {
+    return null;
+  }
+
+  return {
+    smtp_host: config.smtp_host,
+    smtp_port: Number(config.smtp_port) || 587,
+    smtp_user: config.smtp_user,
+    smtp_password: config.smtp_password,
+    smtp_from_email: config.smtp_from_email || config.smtp_user,
+    smtp_from_name: config.smtp_from_name || 'MedFlowX',
+    smtp_secure: config.smtp_secure === true || config.smtp_secure === 'true',
+  };
+}
+
+async function sendInviteEmail(
+  smtpConfig: SmtpConfig,
+  toEmail: string,
+  staffName: string,
+  tempPassword: string,
+  pharmacyName: string,
+  loginUrl: string
+): Promise<void> {
+  const client = new SMTPClient({
+    connection: {
+      hostname: smtpConfig.smtp_host,
+      port: smtpConfig.smtp_port,
+      tls: smtpConfig.smtp_secure,
+      auth: {
+        username: smtpConfig.smtp_user,
+        password: smtpConfig.smtp_password,
+      },
+    },
+  });
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+        .content { background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; }
+        .credentials { background: white; border: 2px solid #0ea5e9; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .credential-item { margin: 10px 0; }
+        .label { color: #64748b; font-size: 12px; text-transform: uppercase; }
+        .value { font-size: 16px; font-weight: 600; color: #0f172a; background: #f1f5f9; padding: 8px 12px; border-radius: 4px; margin-top: 4px; }
+        .btn { display: inline-block; background: #0ea5e9; color: white !important; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; margin-top: 20px; }
+        .footer { text-align: center; padding: 20px; color: #64748b; font-size: 12px; }
+        .warning { background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 12px; margin-top: 20px; font-size: 13px; color: #92400e; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1 style="margin: 0;">🎉 Welcome to ${smtpConfig.smtp_from_name}!</h1>
+          <p style="margin: 10px 0 0 0; opacity: 0.9;">You've been invited as a Staff Member</p>
+        </div>
+        <div class="content">
+          <p>Hello <strong>${staffName}</strong>,</p>
+          <p>You have been invited to join <strong>${pharmacyName || 'our pharmacy'}</strong> as a staff member on ${smtpConfig.smtp_from_name}.</p>
+          
+          <div class="credentials">
+            <h3 style="margin-top: 0; color: #0ea5e9;">📧 Your Login Credentials</h3>
+            <div class="credential-item">
+              <div class="label">Email</div>
+              <div class="value">${toEmail}</div>
+            </div>
+            <div class="credential-item">
+              <div class="label">Temporary Password</div>
+              <div class="value">${tempPassword}</div>
+            </div>
+          </div>
+
+          <a href="${loginUrl}" class="btn">Login to Your Account →</a>
+
+          <div class="warning">
+            ⚠️ <strong>Important:</strong> Please change your password after your first login for security purposes.
+          </div>
+        </div>
+        <div class="footer">
+          <p>This email was sent by ${smtpConfig.smtp_from_name}</p>
+          <p>If you didn't expect this invitation, please ignore this email.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  await client.send({
+    from: `${smtpConfig.smtp_from_name} <${smtpConfig.smtp_from_email}>`,
+    to: toEmail,
+    subject: `🎉 You're Invited! Join ${pharmacyName || 'our pharmacy'} on ${smtpConfig.smtp_from_name}`,
+    html: html,
+  });
+
+  await client.close();
 }
 
 Deno.serve(async (req) => {
@@ -148,18 +280,40 @@ Deno.serve(async (req) => {
       .update({ role: 'client_staff' })
       .eq('user_id', newUser.user.id);
 
-    // Send password reset email so user can set their own password
-    await supabaseAdmin.auth.admin.generateLink({
-      type: 'recovery',
-      email: email.toLowerCase().trim(),
-    });
+    // Get SMTP config and send invite email
+    const smtpConfig = await getSmtpConfig(supabaseAdmin);
+    let emailSent = false;
+    
+    if (smtpConfig) {
+      try {
+        const loginUrl = 'https://medflowxbd.lovable.app/login';
+        await sendInviteEmail(
+          smtpConfig,
+          email.toLowerCase().trim(),
+          full_name.trim(),
+          tempPassword,
+          callerProfile?.pharmacy_name || '',
+          loginUrl
+        );
+        emailSent = true;
+        console.log('Invite email sent successfully to:', email);
+      } catch (emailError) {
+        console.error('Failed to send invite email:', emailError);
+        // Don't fail the whole operation if email fails
+      }
+    } else {
+      console.log('SMTP not configured, skipping invite email');
+    }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Staff member invited successfully',
+        message: emailSent 
+          ? 'Staff member invited successfully. Login credentials sent via email.'
+          : 'Staff member created successfully. Please share the credentials manually.',
         user_id: newUser.user.id,
-        temp_password: tempPassword, // Return this so admin can share it
+        temp_password: emailSent ? undefined : tempPassword, // Only return if email not sent
+        email_sent: emailSent,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
