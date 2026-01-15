@@ -32,6 +32,7 @@ import {
 import { AddMedicineDialog } from './AddMedicineDialog';
 import { AddBatchDialog } from './AddBatchDialog';
 import { useMedicines, type MedicineWithBatches } from '@/hooks/useMedicines';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface MedicineTableProps {
   medicines: MedicineWithBatches[];
@@ -41,6 +42,9 @@ interface MedicineTableProps {
 export function MedicineTable({ medicines, searchTerm }: MedicineTableProps) {
   const [expandedMedicines, setExpandedMedicines] = useState<Set<string>>(new Set());
   const { deleteMedicine, deleteBatch } = useMedicines();
+  const { hasPermission } = usePermissions();
+  
+  const canManageMedicines = hasPermission('manage_medicines');
 
   const toggleExpand = (id: string) => {
     setExpandedMedicines((prev) => {
@@ -108,7 +112,9 @@ export function MedicineTable({ medicines, searchTerm }: MedicineTableProps) {
             <TableHead>Category</TableHead>
             <TableHead>Stock</TableHead>
             <TableHead>Earliest Expiry</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            {canManageMedicines && (
+              <TableHead className="text-right">Actions</TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -184,57 +190,59 @@ export function MedicineTable({ medicines, searchTerm }: MedicineTableProps) {
                       <span className="text-muted-foreground text-sm">No batches</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <AddBatchDialog
-                        medicineId={medicine.id}
-                        medicineName={medicine.name}
-                        trigger={
-                          <Button variant="ghost" size="sm">
-                            + Batch
-                          </Button>
-                        }
-                      />
-                      <AddMedicineDialog
-                        medicine={medicine}
-                        trigger={
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        }
-                      />
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Medicine</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete "{medicine.name}"? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deleteMedicine.mutate(medicine.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
+                  {canManageMedicines && (
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <AddBatchDialog
+                          medicineId={medicine.id}
+                          medicineName={medicine.name}
+                          trigger={
+                            <Button variant="ghost" size="sm">
+                              + Batch
+                            </Button>
+                          }
+                        />
+                        <AddMedicineDialog
+                          medicine={medicine}
+                          trigger={
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          }
+                        />
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Medicine</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{medicine.name}"? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteMedicine.mutate(medicine.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
 
                 {/* Expanded Batches */}
                 {isExpanded && medicine.batches.length > 0 && (
                   <TableRow className="bg-muted/30">
-                    <TableCell colSpan={6} className="p-0">
+                    <TableCell colSpan={canManageMedicines ? 6 : 5} className="p-0">
                       <div className="px-8 py-4">
                         <h4 className="font-medium text-sm mb-3">Batches ({medicine.batches.length})</h4>
                         <Table>
@@ -246,7 +254,9 @@ export function MedicineTable({ medicines, searchTerm }: MedicineTableProps) {
                               <TableHead>Selling Price</TableHead>
                               <TableHead>Expiry Date</TableHead>
                               <TableHead>Supplier</TableHead>
-                              <TableHead className="text-right">Actions</TableHead>
+                              {canManageMedicines && (
+                                <TableHead className="text-right">Actions</TableHead>
+                              )}
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -285,44 +295,46 @@ export function MedicineTable({ medicines, searchTerm }: MedicineTableProps) {
                                   <TableCell>
                                     {batch.supplier_name || '-'}
                                   </TableCell>
-                                  <TableCell className="text-right">
-                                    <div className="flex items-center justify-end gap-1">
-                                      <AddBatchDialog
-                                        medicineId={medicine.id}
-                                        medicineName={medicine.name}
-                                        batch={batch}
-                                        trigger={
-                                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                                            <Edit className="h-3 w-3" />
-                                          </Button>
-                                        }
-                                      />
-                                      <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive">
-                                            <Trash2 className="h-3 w-3" />
-                                          </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                          <AlertDialogHeader>
-                                            <AlertDialogTitle>Delete Batch</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                              Are you sure you want to delete batch "{batch.batch_number}"? This action cannot be undone.
-                                            </AlertDialogDescription>
-                                          </AlertDialogHeader>
-                                          <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction
-                                              onClick={() => deleteBatch.mutate(batch.id)}
-                                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                            >
-                                              Delete
-                                            </AlertDialogAction>
-                                          </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                      </AlertDialog>
-                                    </div>
-                                  </TableCell>
+                                  {canManageMedicines && (
+                                    <TableCell className="text-right">
+                                      <div className="flex items-center justify-end gap-1">
+                                        <AddBatchDialog
+                                          medicineId={medicine.id}
+                                          medicineName={medicine.name}
+                                          batch={batch}
+                                          trigger={
+                                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                                              <Edit className="h-3 w-3" />
+                                            </Button>
+                                          }
+                                        />
+                                        <AlertDialog>
+                                          <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive">
+                                              <Trash2 className="h-3 w-3" />
+                                            </Button>
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                              <AlertDialogTitle>Delete Batch</AlertDialogTitle>
+                                              <AlertDialogDescription>
+                                                Are you sure you want to delete batch "{batch.batch_number}"? This action cannot be undone.
+                                              </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                              <AlertDialogAction
+                                                onClick={() => deleteBatch.mutate(batch.id)}
+                                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                              >
+                                                Delete
+                                              </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+                                      </div>
+                                    </TableCell>
+                                  )}
                                 </TableRow>
                               );
                             })}
