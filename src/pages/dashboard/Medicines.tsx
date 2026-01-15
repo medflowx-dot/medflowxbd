@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Package, Search, AlertTriangle, TrendingDown } from 'lucide-react';
 import { AddMedicineDialog } from '@/components/medicines/AddMedicineDialog';
+import { BulkImportDialog } from '@/components/medicines/BulkImportDialog';
 import { MedicineTable } from '@/components/medicines/MedicineTable';
 import { ExpiryAlerts } from '@/components/medicines/ExpiryAlerts';
 import { useMedicines, useExpiryAlerts } from '@/hooks/useMedicines';
@@ -28,7 +29,10 @@ export default function Medicines() {
             Manage your medicine inventory and batches
           </p>
         </div>
-        <AddMedicineDialog />
+        <div className="flex items-center gap-2">
+          <BulkImportDialog />
+          <AddMedicineDialog />
+        </div>
       </div>
 
       {/* Stats Cards */}

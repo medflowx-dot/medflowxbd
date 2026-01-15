@@ -239,6 +239,32 @@ export function useMedicines() {
     },
   });
 
+  const bulkCreateMedicines = useMutation({
+    mutationFn: async (medicines: CreateMedicineData[]) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      const medicinesWithUserId = medicines.map((m) => ({
+        ...m,
+        user_id: user.id,
+      }));
+
+      const { data, error } = await supabase
+        .from('medicines')
+        .insert(medicinesWithUserId)
+        .select();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['medicines'] });
+      toast({ title: `${data.length} medicines imported successfully` });
+    },
+    onError: (error) => {
+      toast({ title: 'Failed to import medicines', description: error.message, variant: 'destructive' });
+    },
+  });
+
   return {
     medicines: medicinesQuery.data || [],
     isLoading: medicinesQuery.isLoading,
@@ -249,6 +275,7 @@ export function useMedicines() {
     createBatch,
     updateBatch,
     deleteBatch,
+    bulkCreateMedicines,
   };
 }
 
