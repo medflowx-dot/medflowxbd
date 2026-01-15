@@ -37,9 +37,10 @@ import { usePermissions } from '@/hooks/usePermissions';
 interface MedicineTableProps {
   medicines: MedicineWithBatches[];
   searchTerm: string;
+  shelfFilter?: string;
 }
 
-export function MedicineTable({ medicines, searchTerm }: MedicineTableProps) {
+export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: MedicineTableProps) {
   const [expandedMedicines, setExpandedMedicines] = useState<Set<string>>(new Set());
   const { deleteMedicine, deleteBatch } = useMedicines();
   const { hasPermission } = usePermissions();
@@ -58,11 +59,26 @@ export function MedicineTable({ medicines, searchTerm }: MedicineTableProps) {
     });
   };
 
-  const filteredMedicines = medicines.filter((medicine) =>
-    medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    medicine.generic_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    medicine.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMedicines = medicines.filter((medicine) => {
+    // Text search filter
+    const matchesSearch = 
+      medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      medicine.generic_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      medicine.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      medicine.shelf_location?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Shelf location filter
+    let matchesShelf = true;
+    if (shelfFilter !== 'all') {
+      if (shelfFilter === 'unassigned') {
+        matchesShelf = !medicine.shelf_location || medicine.shelf_location.trim() === '';
+      } else {
+        matchesShelf = medicine.shelf_location === shelfFilter;
+      }
+    }
+    
+    return matchesSearch && matchesShelf;
+  });
 
   const getExpiryStatus = (expiryDate: string | null) => {
     if (!expiryDate) return null;
@@ -110,7 +126,7 @@ export function MedicineTable({ medicines, searchTerm }: MedicineTableProps) {
             <TableHead className="w-[40px]"></TableHead>
             <TableHead>Medicine</TableHead>
             <TableHead>Category</TableHead>
-            <TableHead>Tax</TableHead>
+            <TableHead>Shelf</TableHead>
             <TableHead>Stock</TableHead>
             <TableHead>Earliest Expiry</TableHead>
             {canManageMedicines && (
@@ -155,10 +171,12 @@ export function MedicineTable({ medicines, searchTerm }: MedicineTableProps) {
                     )}
                   </TableCell>
                   <TableCell onClick={() => toggleExpand(medicine.id)}>
-                    {medicine.is_tax_applicable ? (
-                      <Badge variant="default" className="bg-green-600 hover:bg-green-700">Yes</Badge>
+                    {medicine.shelf_location ? (
+                      <Badge variant="outline" className="font-mono">
+                        {medicine.shelf_location}
+                      </Badge>
                     ) : (
-                      <Badge variant="outline" className="text-muted-foreground">No</Badge>
+                      <span className="text-muted-foreground text-sm">—</span>
                     )}
                   </TableCell>
                   <TableCell onClick={() => toggleExpand(medicine.id)}>

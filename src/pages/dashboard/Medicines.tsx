@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, Search, AlertTriangle, TrendingDown } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Package, Search, AlertTriangle, TrendingDown, MapPin } from 'lucide-react';
 import { AddMedicineDialog } from '@/components/medicines/AddMedicineDialog';
 import { BulkImportDialog } from '@/components/medicines/BulkImportDialog';
 import { MedicineTable } from '@/components/medicines/MedicineTable';
@@ -12,11 +13,20 @@ import { usePermissions } from '@/hooks/usePermissions';
 
 export default function Medicines() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [shelfFilter, setShelfFilter] = useState<string>('all');
   const { medicines, isLoading } = useMedicines();
   const { expired, expiring30, totalAlerts } = useExpiryAlerts();
   const { hasPermission } = usePermissions();
   
   const canManageMedicines = hasPermission('manage_medicines');
+
+  // Get unique shelf locations for the filter dropdown
+  const shelfLocations = useMemo(() => {
+    const locations = medicines
+      .map(m => m.shelf_location)
+      .filter((loc): loc is string => !!loc && loc.trim() !== '');
+    return [...new Set(locations)].sort();
+  }, [medicines]);
 
   const totalStock = medicines.reduce((sum, m) => sum + m.total_stock, 0);
   const lowStockCount = medicines.filter(
@@ -123,14 +133,33 @@ export default function Medicines() {
                       : 'View medicines, batches, and expiry dates'}
                   </CardDescription>
                 </div>
-                <div className="relative w-full sm:w-64">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search medicines..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9"
-                  />
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <div className="relative w-full sm:w-64">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search medicines..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                  {shelfLocations.length > 0 && (
+                    <Select value={shelfFilter} onValueChange={setShelfFilter}>
+                      <SelectTrigger className="w-full sm:w-40">
+                        <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <SelectValue placeholder="All Shelves" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Shelves</SelectItem>
+                        <SelectItem value="unassigned">Unassigned</SelectItem>
+                        {shelfLocations.map((loc) => (
+                          <SelectItem key={loc} value={loc}>
+                            {loc}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
               </div>
             </CardHeader>
@@ -140,7 +169,7 @@ export default function Medicines() {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
               ) : (
-                <MedicineTable medicines={medicines} searchTerm={searchTerm} />
+                <MedicineTable medicines={medicines} searchTerm={searchTerm} shelfFilter={shelfFilter} />
               )}
             </CardContent>
           </Card>
