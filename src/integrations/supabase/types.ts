@@ -14,6 +14,161 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action_type: string
+          admin_user_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          target_id: string | null
+          target_type: string
+          target_user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_user_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_type: string
+          target_user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_user_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_type?: string
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
+      cms_media: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          file_name: string
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      cms_pages: {
+        Row: {
+          created_at: string
+          id: string
+          is_published: boolean | null
+          meta_description: string | null
+          page_slug: string
+          page_title: string
+          published_at: string | null
+          updated_at: string
+          updated_by: string | null
+          version: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          meta_description?: string | null
+          page_slug: string
+          page_title: string
+          published_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          meta_description?: string | null
+          page_slug?: string
+          page_title?: string
+          published_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number | null
+        }
+        Relationships: []
+      }
+      cms_sections: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          is_visible: boolean | null
+          page_id: string
+          section_key: string
+          section_type: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          id?: string
+          is_visible?: boolean | null
+          page_id: string
+          section_key: string
+          section_type: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          is_visible?: boolean | null
+          page_id?: string
+          section_key?: string
+          section_type?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cms_sections_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "cms_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_payments: {
         Row: {
           amount: number
@@ -140,6 +295,39 @@ export type Database = {
           payment_method?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      impersonation_sessions: {
+        Row: {
+          admin_user_id: string
+          created_at: string
+          ended_at: string | null
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          session_token: string
+          target_user_id: string
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string
+          ended_at?: string | null
+          expires_at: string
+          id?: string
+          is_active?: boolean | null
+          session_token: string
+          target_user_id: string
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string
+          ended_at?: string | null
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          session_token?: string
+          target_user_id?: string
         }
         Relationships: []
       }
@@ -271,6 +459,84 @@ export type Database = {
           notes?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      pricing_plans: {
+        Row: {
+          created_at: string
+          currency: string
+          display_name: string
+          duration_days: number | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          plan_name: string
+          price: number
+          sort_order: number | null
+          trial_restrictions: Json | null
+          updated_at: string
+          user_limit: number | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          display_name: string
+          duration_days?: number | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          plan_name: string
+          price?: number
+          sort_order?: number | null
+          trial_restrictions?: Json | null
+          updated_at?: string
+          user_limit?: number | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          display_name?: string
+          duration_days?: number | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          plan_name?: string
+          price?: number
+          sort_order?: number | null
+          trial_restrictions?: Json | null
+          updated_at?: string
+          user_limit?: number | null
         }
         Relationships: []
       }
@@ -653,6 +919,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      log_admin_action: {
+        Args: {
+          p_action_type: string
+          p_details?: Json
+          p_target_id?: string
+          p_target_type: string
+          p_target_user_id?: string
+        }
+        Returns: string
       }
     }
     Enums: {

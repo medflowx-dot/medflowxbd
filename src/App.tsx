@@ -20,6 +20,18 @@ import Settings from "./pages/dashboard/Settings";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
+// Owner Panel Pages
+import OwnerLayout from "./pages/owner/OwnerLayout";
+import OwnerDashboard from "./pages/owner/OwnerDashboard";
+import ClientManagement from "./pages/owner/ClientManagement";
+import SubscriptionManagement from "./pages/owner/SubscriptionManagement";
+import PaymentManagement from "./pages/owner/PaymentManagement";
+import PricingPlans from "./pages/owner/PricingPlans";
+import SystemReview from "./pages/owner/SystemReview";
+import CMSManager from "./pages/owner/CMSManager";
+import AuditLogs from "./pages/owner/AuditLogs";
+import OwnerSettings from "./pages/owner/OwnerSettings";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -33,6 +45,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            
+            {/* Client Dashboard */}
             <Route
               path="/dashboard"
               element={
@@ -51,6 +65,27 @@ const App = () => (
               <Route path="settings" element={<Settings />} />
               <Route path="admin" element={<AdminDashboard />} />
             </Route>
+
+            {/* Owner Panel - Separate Route */}
+            <Route
+              path="/owner"
+              element={
+                <ProtectedRoute>
+                  <OwnerLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<OwnerDashboard />} />
+              <Route path="clients" element={<ClientManagement />} />
+              <Route path="subscriptions" element={<SubscriptionManagement />} />
+              <Route path="payments" element={<PaymentManagement />} />
+              <Route path="pricing" element={<PricingPlans />} />
+              <Route path="system-review" element={<SystemReview />} />
+              <Route path="cms" element={<CMSManager />} />
+              <Route path="logs" element={<AuditLogs />} />
+              <Route path="settings" element={<OwnerSettings />} />
+            </Route>
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
