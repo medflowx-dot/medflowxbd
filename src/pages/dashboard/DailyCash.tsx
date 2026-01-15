@@ -1,73 +1,76 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CashFlowSummary } from '@/components/daily-cash/CashFlowSummary';
+import { DailyTransactionsList } from '@/components/daily-cash/DailyTransactionsList';
+import { AddCostDialog } from '@/components/daily-cash/AddCostDialog';
+import { SetOpeningCashDialog } from '@/components/daily-cash/SetOpeningCashDialog';
+import { CalendarIcon, Wallet } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 export default function DailyCash() {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">Daily Cash</h1>
-          <p className="text-muted-foreground mt-1">
-            Track your daily cash flow (auto-calculated)
-          </p>
-        </div>
-        <Button variant="outline">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Adjustment
-        </Button>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Opening Cash</CardDescription>
-            <CardTitle className="text-2xl">৳0.00</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardDescription>Cash In</CardDescription>
-              <ArrowUpRight className="h-4 w-4 text-green-600" />
-            </div>
-            <CardTitle className="text-2xl text-green-600">৳0.00</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardDescription>Cash Out</CardDescription>
-              <ArrowDownRight className="h-4 w-4 text-red-600" />
-            </div>
-            <CardTitle className="text-2xl text-red-600">৳0.00</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card className="bg-primary/5 border-primary/20">
-          <CardHeader className="pb-2">
-            <CardDescription>Closing Cash</CardDescription>
-            <CardTitle className="text-2xl text-primary">৳0.00</CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Today's Transactions</CardTitle>
-          <CardDescription>All cash movements for today</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="p-4 rounded-full bg-muted mb-4">
-              <Wallet className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="font-semibold text-lg">No transactions today</h3>
-            <p className="text-muted-foreground text-sm max-w-sm mt-1">
-              Daily cash is auto-calculated from sales, dues, supplier payments, and costs.
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-primary/10">
+            <Wallet className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Daily Cash</h1>
+            <p className="text-muted-foreground">
+              Auto-calculated cash flow from all transactions
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Date Picker */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[200px] justify-start text-left font-normal",
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {format(selectedDate, 'PPP')}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => date && setSelectedDate(date)}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+
+          <SetOpeningCashDialog date={selectedDate} />
+          <AddCostDialog date={selectedDate} />
+        </div>
+      </div>
+
+      {/* Info Banner */}
+      <div className="bg-muted/50 rounded-lg p-4 border">
+        <p className="text-sm text-muted-foreground">
+          <strong>Note:</strong> Cash flow is auto-calculated from sales, due collections, supplier payments, and daily costs. 
+          Only <strong>cash transactions</strong> are counted. You can only manually set the opening cash and add daily costs.
+        </p>
+      </div>
+
+      {/* Cash Flow Summary Cards */}
+      <CashFlowSummary date={selectedDate} />
+
+      {/* Transactions List */}
+      <DailyTransactionsList date={selectedDate} />
     </div>
   );
 }
