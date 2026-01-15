@@ -49,9 +49,14 @@ const navItems = [
     icon: FileText,
   },
   {
+    title: 'Feature Flags',
+    href: '/owner/feature-flags',
+    icon: Activity,
+  },
+  {
     title: 'System Review',
     href: '/owner/system-review',
-    icon: Activity,
+    icon: Shield,
   },
   {
     title: 'CMS Manager',

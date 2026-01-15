@@ -298,6 +298,39 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_flags: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_name: string
+          feature_key: string
+          id: string
+          is_enabled: boolean
+          module_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_name: string
+          feature_key: string
+          id?: string
+          is_enabled?: boolean
+          module_type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_name?: string
+          feature_key?: string
+          id?: string
+          is_enabled?: boolean
+          module_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       impersonation_sessions: {
         Row: {
           admin_user_id: string
@@ -518,6 +551,62 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          gateway_response: Json | null
+          id: string
+          notes: string | null
+          paid_at: string | null
+          payment_method: string | null
+          status: string
+          subscription_id: string | null
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          gateway_response?: Json | null
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string
+          subscription_id?: string | null
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          gateway_response?: Json | null
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string
+          subscription_id?: string | null
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_settings: {
         Row: {
           created_at: string
@@ -598,30 +687,42 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           avatar_url: string | null
           created_at: string
+          currency: string | null
+          date_format: string | null
           full_name: string | null
           id: string
+          language: string | null
           pharmacy_name: string | null
           phone: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          address?: string | null
           avatar_url?: string | null
           created_at?: string
+          currency?: string | null
+          date_format?: string | null
           full_name?: string | null
           id?: string
+          language?: string | null
           pharmacy_name?: string | null
           phone?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          address?: string | null
           avatar_url?: string | null
           created_at?: string
+          currency?: string | null
+          date_format?: string | null
           full_name?: string | null
           id?: string
+          language?: string | null
           pharmacy_name?: string | null
           phone?: string | null
           updated_at?: string
