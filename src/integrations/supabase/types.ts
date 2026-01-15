@@ -436,6 +436,7 @@ export type Database = {
           generic_name: string | null
           id: string
           is_active: boolean | null
+          is_tax_applicable: boolean
           manufacturer: string | null
           manufacturer_id: string | null
           min_stock_level: number | null
@@ -451,6 +452,7 @@ export type Database = {
           generic_name?: string | null
           id?: string
           is_active?: boolean | null
+          is_tax_applicable?: boolean
           manufacturer?: string | null
           manufacturer_id?: string | null
           min_stock_level?: number | null
@@ -466,6 +468,7 @@ export type Database = {
           generic_name?: string | null
           id?: string
           is_active?: boolean | null
+          is_tax_applicable?: boolean
           manufacturer?: string | null
           manufacturer_id?: string | null
           min_stock_level?: number | null

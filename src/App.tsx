@@ -22,6 +22,8 @@ import Manufacturers from "./pages/dashboard/Manufacturers";
 import Reports from "./pages/dashboard/Reports";
 import Settings from "./pages/dashboard/Settings";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import CustomerDues from "./pages/dashboard/CustomerDues";
+import ExpiryMonitoring from "./pages/dashboard/ExpiryMonitoring";
 import NotFound from "./pages/NotFound";
 
 // Owner Panel Pages
@@ -68,7 +70,9 @@ const App = () => (
             >
               <Route index element={<DashboardHome />} />
               <Route path="medicines" element={<Medicines />} />
+              <Route path="expiry" element={<ExpiryMonitoring />} />
               <Route path="sales" element={<Sales />} />
+              <Route path="customer-dues" element={<CustomerDues />} />
               {/* Admin-only routes - staff will be redirected */}
               <Route path="suppliers" element={<AdminRoute><Suppliers /></AdminRoute>} />
               <Route path="stock-short" element={<AdminRoute><StockShort /></AdminRoute>} />
