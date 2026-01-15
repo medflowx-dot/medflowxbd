@@ -8,6 +8,7 @@ import { useSalesReport, useMedicineProfitReport, ReportDateRange } from '@/hook
 import { generateSalesReportPDF, generateProfitReportPDF } from '@/lib/pdfGenerator';
 import { Loader2, Download, Zap, ClipboardList, TrendingUp, TrendingDown, Package } from 'lucide-react';
 import { format } from 'date-fns';
+import { ProfitTrendChart } from './ProfitTrendChart';
 
 interface SalesReportViewProps {
   dateRange: ReportDateRange;
@@ -114,11 +115,16 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
         </Card>
       </div>
 
-      <Tabs defaultValue="sales" className="space-y-4">
+      <Tabs defaultValue="trends" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="trends">Profit Trends</TabsTrigger>
           <TabsTrigger value="sales">Sales Entries</TabsTrigger>
           <TabsTrigger value="medicine-profit">Profit by Medicine</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="trends">
+          <ProfitTrendChart dateRange={dateRange} />
+        </TabsContent>
 
         <TabsContent value="sales">
           <Card>
