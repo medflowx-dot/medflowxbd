@@ -18,6 +18,7 @@ export interface SaleItem {
   unit_price: number;
   total_price: number;
   sale_unit: SaleUnit;
+  purchase_price: number;
   created_at: string;
 }
 
@@ -60,6 +61,7 @@ export interface CreateSaleItemData {
   unit_price: number;
   total_price: number;
   sale_unit?: SaleUnit;
+  purchase_price?: number;
 }
 
 export interface CreateSaleData {
@@ -108,6 +110,28 @@ export function useSales(dateFilter?: Date) {
     enabled: !!user?.id,
   });
 
+  // Fetch today's sale items with purchase prices for profit calculation
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const todaySaleIds = (salesQuery.data || [])
+    .filter((s) => s.sale_date === todayStr && s.entry_type === 'detailed')
+    .map((s) => s.id);
+
+  const todayItemsQuery = useQuery({
+    queryKey: ['today-sale-items', todaySaleIds],
+    queryFn: async () => {
+      if (todaySaleIds.length === 0) return [];
+      
+      const { data, error } = await supabase
+        .from('sale_items')
+        .select('sale_id, quantity, total_price, purchase_price')
+        .in('sale_id', todaySaleIds);
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: todaySaleIds.length > 0,
+  });
+
   const createSale = useMutation({
     mutationFn: async (data: CreateSaleData) => {
       if (!user?.id) throw new Error('User not authenticated');
@@ -152,6 +176,7 @@ export function useSales(dateFilter?: Date) {
           unit_price: item.unit_price,
           total_price: item.total_price,
           sale_unit: item.sale_unit || 'piece',
+          purchase_price: item.purchase_price || 0,
         }));
 
         const { error: itemsError } = await supabase
@@ -256,7 +281,6 @@ export function useSales(dateFilter?: Date) {
   });
 
   // Calculate daily stats
-  const todayStr = format(new Date(), 'yyyy-MM-dd');
   const todaySales = (salesQuery.data || []).filter((s) => s.sale_date === todayStr);
   
   const quickSales = todaySales.filter((s) => s.entry_type === 'quick');
@@ -268,6 +292,12 @@ export function useSales(dateFilter?: Date) {
   
   const quickTotal = quickSales.reduce((sum, s) => sum + Number(s.total_amount), 0);
   const detailedTotal = detailedSales.reduce((sum, s) => sum + Number(s.total_amount), 0);
+
+  // Calculate today's profit from detailed sales
+  const todayItems = todayItemsQuery.data || [];
+  const todayRevenue = todayItems.reduce((sum, item) => sum + Number(item.total_price), 0);
+  const todayCost = todayItems.reduce((sum, item) => sum + (Number(item.purchase_price) * item.quantity), 0);
+  const todayProfit = todayRevenue - todayCost;
 
   return {
     sales: salesQuery.data || [],
@@ -285,6 +315,8 @@ export function useSales(dateFilter?: Date) {
       detailedTotal,
       quickCount: quickSales.length,
       detailedCount: detailedSales.length,
+      profit: todayProfit,
+      profitAvailable: todayItems.length > 0,
     },
   };
 }

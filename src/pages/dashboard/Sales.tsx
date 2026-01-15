@@ -6,7 +6,7 @@ import { NewSaleDialog } from '@/components/sales/NewSaleDialog';
 import { QuickSaleDialog } from '@/components/sales/QuickSaleDialog';
 import { SalesTable } from '@/components/sales/SalesTable';
 import { useSales, type EntryType } from '@/hooks/useSales';
-import { Zap, ClipboardList, TrendingUp, Wallet, Loader2 } from 'lucide-react';
+import { Zap, ClipboardList, TrendingUp, Wallet, Loader2, TrendingDown } from 'lucide-react';
 
 export default function Sales() {
   const { sales, isLoading, todayStats } = useSales();
@@ -34,7 +34,7 @@ export default function Sales() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-1">
@@ -88,6 +88,22 @@ export default function Sales() {
           <CardContent>
             <p className="text-xs text-muted-foreground">
               {todayStats.due > 0 ? `৳${todayStats.due.toLocaleString()} unpaid` : 'All paid'}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription className="flex items-center gap-1">
+              {todayStats.profit >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+              Today's Profit
+            </CardDescription>
+            <CardTitle className={`text-2xl ${todayStats.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {todayStats.profit >= 0 ? '+' : ''}৳{todayStats.profit.toLocaleString()}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-muted-foreground">
+              {todayStats.profitAvailable ? 'From detailed sales' : 'No detailed sales yet'}
             </p>
           </CardContent>
         </Card>
