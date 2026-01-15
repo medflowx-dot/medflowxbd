@@ -1,11 +1,34 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { format, startOfDay, endOfDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns';
+import { format, startOfDay, endOfDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, differenceInDays, subDays } from 'date-fns';
 
 export interface ReportDateRange {
   start: Date;
   end: Date;
+}
+
+export interface DailyProfitData {
+  date: string;
+  revenue: number;
+  cost: number;
+  profit: number;
+  salesCount: number;
+}
+
+export interface ProfitTrendData {
+  dailyData: DailyProfitData[];
+  comparison: {
+    currentPeriod: { dayIndex: number; profit: number; date: string }[];
+    previousPeriod: { dayIndex: number; profit: number; date: string }[];
+  };
+  summary: {
+    currentProfit: number;
+    previousProfit: number;
+    changePercent: number;
+    avgDailyProfit: number;
+    avgPreviousDailyProfit: number;
+  };
 }
 
 export interface DailySummaryReport {
@@ -295,6 +318,159 @@ export function useMedicineProfitReport(dateRange: ReportDateRange) {
 
       return Array.from(medicineMap.values())
         .sort((a, b) => b.profit - a.profit);
+    },
+    enabled: !!user?.id,
+  });
+}
+
+export function useProfitTrendReport(dateRange: ReportDateRange) {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['report-profit-trend', user?.id, dateRange.start, dateRange.end],
+    queryFn: async (): Promise<ProfitTrendData> => {
+      const startStr = format(dateRange.start, 'yyyy-MM-dd');
+      const endStr = format(dateRange.end, 'yyyy-MM-dd');
+
+      // Calculate previous period dates
+      const daysDiff = differenceInDays(dateRange.end, dateRange.start) + 1;
+      const previousStart = subDays(dateRange.start, daysDiff);
+      const previousEnd = subDays(dateRange.start, 1);
+      const prevStartStr = format(previousStart, 'yyyy-MM-dd');
+      const prevEndStr = format(previousEnd, 'yyyy-MM-dd');
+
+      // Fetch current period sales
+      const { data: currentSales } = await supabase
+        .from('sales')
+        .select('id, sale_date, total_amount, entry_type')
+        .gte('sale_date', startStr)
+        .lte('sale_date', endStr)
+        .eq('entry_type', 'detailed');
+
+      // Fetch previous period sales
+      const { data: previousSales } = await supabase
+        .from('sales')
+        .select('id, sale_date, total_amount, entry_type')
+        .gte('sale_date', prevStartStr)
+        .lte('sale_date', prevEndStr)
+        .eq('entry_type', 'detailed');
+
+      // Get sale items for current period
+      const currentSaleIds = currentSales?.map(s => s.id) || [];
+      const previousSaleIds = previousSales?.map(s => s.id) || [];
+
+      let currentItems: { sale_id: string; quantity: number; total_price: number; purchase_price: number }[] = [];
+      let previousItems: { sale_id: string; quantity: number; total_price: number; purchase_price: number }[] = [];
+
+      if (currentSaleIds.length > 0) {
+        const { data } = await supabase
+          .from('sale_items')
+          .select('sale_id, quantity, total_price, purchase_price')
+          .in('sale_id', currentSaleIds);
+        currentItems = data || [];
+      }
+
+      if (previousSaleIds.length > 0) {
+        const { data } = await supabase
+          .from('sale_items')
+          .select('sale_id, quantity, total_price, purchase_price')
+          .in('sale_id', previousSaleIds);
+        previousItems = data || [];
+      }
+
+      // Group current period by date
+      const currentByDate = new Map<string, DailyProfitData>();
+      currentSales?.forEach(sale => {
+        const date = sale.sale_date;
+        if (!currentByDate.has(date)) {
+          currentByDate.set(date, { date, revenue: 0, cost: 0, profit: 0, salesCount: 0 });
+        }
+        const entry = currentByDate.get(date)!;
+        entry.salesCount += 1;
+      });
+
+      currentItems.forEach(item => {
+        const sale = currentSales?.find(s => s.id === item.sale_id);
+        if (sale) {
+          const entry = currentByDate.get(sale.sale_date);
+          if (entry) {
+            entry.revenue += Number(item.total_price);
+            entry.cost += Number(item.purchase_price) * item.quantity;
+          }
+        }
+      });
+
+      currentByDate.forEach(entry => {
+        entry.profit = entry.revenue - entry.cost;
+      });
+
+      // Group previous period by date
+      const previousByDate = new Map<string, DailyProfitData>();
+      previousSales?.forEach(sale => {
+        const date = sale.sale_date;
+        if (!previousByDate.has(date)) {
+          previousByDate.set(date, { date, revenue: 0, cost: 0, profit: 0, salesCount: 0 });
+        }
+        const entry = previousByDate.get(date)!;
+        entry.salesCount += 1;
+      });
+
+      previousItems.forEach(item => {
+        const sale = previousSales?.find(s => s.id === item.sale_id);
+        if (sale) {
+          const entry = previousByDate.get(sale.sale_date);
+          if (entry) {
+            entry.revenue += Number(item.total_price);
+            entry.cost += Number(item.purchase_price) * item.quantity;
+          }
+        }
+      });
+
+      previousByDate.forEach(entry => {
+        entry.profit = entry.revenue - entry.cost;
+      });
+
+      // Sort daily data
+      const dailyData = Array.from(currentByDate.values()).sort((a, b) => a.date.localeCompare(b.date));
+      const previousDailyData = Array.from(previousByDate.values()).sort((a, b) => a.date.localeCompare(b.date));
+
+      // Create comparison data
+      const currentPeriod = dailyData.map((d, i) => ({
+        dayIndex: i,
+        profit: d.profit,
+        date: d.date,
+      }));
+
+      const previousPeriod = previousDailyData.map((d, i) => ({
+        dayIndex: i,
+        profit: d.profit,
+        date: d.date,
+      }));
+
+      // Calculate summary
+      const currentProfit = dailyData.reduce((sum, d) => sum + d.profit, 0);
+      const previousProfit = previousDailyData.reduce((sum, d) => sum + d.profit, 0);
+      const changePercent = previousProfit !== 0 
+        ? ((currentProfit - previousProfit) / Math.abs(previousProfit)) * 100 
+        : currentProfit > 0 ? 100 : 0;
+      
+      const avgDailyProfit = dailyData.length > 0 ? currentProfit / dailyData.length : 0;
+      const avgPreviousDailyProfit = previousDailyData.length > 0 ? previousProfit / previousDailyData.length : 0;
+
+      return {
+        dailyData,
+        comparison: {
+          currentPeriod,
+          previousPeriod,
+        },
+        summary: {
+          currentProfit,
+          previousProfit,
+          changePercent,
+          avgDailyProfit,
+          avgPreviousDailyProfit,
+        },
+      };
     },
     enabled: !!user?.id,
   });
