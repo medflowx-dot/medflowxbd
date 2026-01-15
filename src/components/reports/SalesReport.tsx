@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useSalesReport, ReportDateRange } from '@/hooks/useReports';
 import { generateSalesReportPDF } from '@/lib/pdfGenerator';
-import { Loader2, Download } from 'lucide-react';
+import { Loader2, Download, Zap, ClipboardList } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface SalesReportViewProps {
@@ -85,6 +85,7 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Invoice</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead className="text-right">Total</TableHead>
@@ -96,7 +97,7 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
             <TableBody>
               {!data?.length ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     No sales for selected period
                   </TableCell>
                 </TableRow>
@@ -104,6 +105,19 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
                 data.map((sale) => (
                   <TableRow key={sale.id}>
                     <TableCell className="font-mono text-sm">{sale.invoice_number}</TableCell>
+                    <TableCell>
+                      {sale.entry_type === 'quick' ? (
+                        <Badge variant="secondary" className="gap-1">
+                          <Zap className="h-3 w-3" />
+                          Quick
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="gap-1">
+                          <ClipboardList className="h-3 w-3" />
+                          Detailed
+                        </Badge>
+                      )}
+                    </TableCell>
                     <TableCell>{format(new Date(sale.sale_date), 'MMM dd, yyyy')}</TableCell>
                     <TableCell>{sale.customer_name}</TableCell>
                     <TableCell className="text-right">৳{sale.total_amount.toLocaleString()}</TableCell>
