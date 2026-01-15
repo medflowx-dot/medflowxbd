@@ -44,8 +44,7 @@ export default function DashboardHome() {
     { icon: FileText, title: 'Reports', description: 'Analytics & exports', href: '/dashboard/reports', color: 'bg-cyan-500' },
   ];
 
-  const trialDaysRemaining = subscription.daysRemaining;
-    : 0;
+  const trialDaysRemaining = subscription.daysRemaining || 0;
 
   return (
     <div className="space-y-6">
@@ -121,7 +120,7 @@ export default function DashboardHome() {
       </div>
 
       {/* Trial Banner */}
-      {subscription?.plan_type === 'trial' && (
+      {subscription?.isTrial && (
         <Card className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
           <CardContent className="py-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
