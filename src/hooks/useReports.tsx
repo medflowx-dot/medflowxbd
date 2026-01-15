@@ -29,6 +29,18 @@ export interface SalesReportItem {
   due_amount: number;
   payment_method: string;
   entry_type: 'quick' | 'detailed';
+  profit?: number;
+  cost?: number;
+}
+
+export interface MedicineProfitItem {
+  medicine_id: string;
+  medicine_name: string;
+  total_quantity: number;
+  total_revenue: number;
+  total_cost: number;
+  profit: number;
+  margin_percent: number;
 }
 
 export interface SupplierDueItem {
@@ -175,25 +187,114 @@ export function useSalesReport(dateRange: ReportDateRange) {
       const startStr = format(dateRange.start, 'yyyy-MM-dd');
       const endStr = format(dateRange.end, 'yyyy-MM-dd');
 
-      const { data, error } = await supabase
+      // Get sales
+      const { data: salesData, error: salesError } = await supabase
         .from('sales')
         .select('id, invoice_number, sale_date, total_amount, paid_amount, due_amount, payment_method, entry_type')
         .gte('sale_date', startStr)
         .lte('sale_date', endStr)
         .order('sale_date', { ascending: false });
 
+      if (salesError) throw salesError;
+
+      // Get sale items with purchase prices for profit calculation
+      const saleIds = salesData?.map(s => s.id) || [];
+      let profitBySale: Record<string, { revenue: number; cost: number }> = {};
+
+      if (saleIds.length > 0) {
+        const { data: itemsData } = await supabase
+          .from('sale_items')
+          .select('sale_id, quantity, total_price, purchase_price')
+          .in('sale_id', saleIds);
+
+        if (itemsData) {
+          itemsData.forEach(item => {
+            if (!profitBySale[item.sale_id]) {
+              profitBySale[item.sale_id] = { revenue: 0, cost: 0 };
+            }
+            profitBySale[item.sale_id].revenue += Number(item.total_price);
+            profitBySale[item.sale_id].cost += Number(item.purchase_price) * item.quantity;
+          });
+        }
+      }
+
+      return salesData?.map(sale => {
+        const profitData = profitBySale[sale.id];
+        return {
+          id: sale.id,
+          invoice_number: sale.invoice_number,
+          sale_date: sale.sale_date,
+          total_amount: Number(sale.total_amount),
+          paid_amount: Number(sale.paid_amount),
+          due_amount: Number(sale.due_amount),
+          payment_method: sale.payment_method,
+          entry_type: (sale.entry_type as 'quick' | 'detailed') || 'detailed',
+          profit: profitData ? profitData.revenue - profitData.cost : undefined,
+          cost: profitData?.cost,
+        };
+      }) || [];
+    },
+    enabled: !!user?.id,
+  });
+}
+
+export function useMedicineProfitReport(dateRange: ReportDateRange) {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['report-medicine-profit', user?.id, dateRange.start, dateRange.end],
+    queryFn: async (): Promise<MedicineProfitItem[]> => {
+      const startStr = format(dateRange.start, 'yyyy-MM-dd');
+      const endStr = format(dateRange.end, 'yyyy-MM-dd');
+
+      // Get sales in date range
+      const { data: salesData } = await supabase
+        .from('sales')
+        .select('id')
+        .gte('sale_date', startStr)
+        .lte('sale_date', endStr)
+        .eq('entry_type', 'detailed');
+
+      const saleIds = salesData?.map(s => s.id) || [];
+      
+      if (saleIds.length === 0) return [];
+
+      // Get sale items with medicine details
+      const { data: itemsData, error } = await supabase
+        .from('sale_items')
+        .select('medicine_id, medicine_name, quantity, total_price, purchase_price')
+        .in('sale_id', saleIds);
+
       if (error) throw error;
 
-      return data?.map(sale => ({
-        id: sale.id,
-        invoice_number: sale.invoice_number,
-        sale_date: sale.sale_date,
-        total_amount: Number(sale.total_amount),
-        paid_amount: Number(sale.paid_amount),
-        due_amount: Number(sale.due_amount),
-        payment_method: sale.payment_method,
-        entry_type: (sale.entry_type as 'quick' | 'detailed') || 'detailed',
-      })) || [];
+      // Group by medicine
+      const medicineMap = new Map<string, MedicineProfitItem>();
+
+      itemsData?.forEach(item => {
+        const key = item.medicine_id || item.medicine_name;
+        const existing = medicineMap.get(key) || {
+          medicine_id: item.medicine_id || 'unknown',
+          medicine_name: item.medicine_name,
+          total_quantity: 0,
+          total_revenue: 0,
+          total_cost: 0,
+          profit: 0,
+          margin_percent: 0,
+        };
+
+        existing.total_quantity += item.quantity;
+        existing.total_revenue += Number(item.total_price);
+        existing.total_cost += Number(item.purchase_price) * item.quantity;
+        existing.profit = existing.total_revenue - existing.total_cost;
+        existing.margin_percent = existing.total_cost > 0 
+          ? (existing.profit / existing.total_cost) * 100 
+          : 0;
+
+        medicineMap.set(key, existing);
+      });
+
+      return Array.from(medicineMap.values())
+        .sort((a, b) => b.profit - a.profit);
     },
     enabled: !!user?.id,
   });
