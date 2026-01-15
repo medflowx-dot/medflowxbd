@@ -103,13 +103,12 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
         <TableHeader>
           <TableRow>
             {showEntryType && <TableHead className="w-10"></TableHead>}
-            <TableHead>Invoice</TableHead>
+            <TableHead>Entry ID</TableHead>
             {showEntryType && <TableHead>Type</TableHead>}
             <TableHead>Date</TableHead>
-            <TableHead>Customer</TableHead>
             <TableHead className="text-right">Total</TableHead>
             <TableHead className="text-right">Paid</TableHead>
-            <TableHead className="text-right">Due</TableHead>
+            <TableHead className="text-right">Balance</TableHead>
             <TableHead>Method</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -165,18 +164,6 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                     <TableCell>
                       {format(new Date(sale.sale_date), 'dd MMM yyyy')}
                     </TableCell>
-                    <TableCell>
-                      {sale.customer ? (
-                        <div>
-                          <p className="font-medium">{sale.customer.name}</p>
-                          {sale.customer.phone && (
-                            <p className="text-xs text-muted-foreground">{sale.customer.phone}</p>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">Walk-in</span>
-                      )}
-                    </TableCell>
                     <TableCell className="text-right font-medium">
                       ৳{Number(sale.total_amount).toFixed(2)}
                     </TableCell>
@@ -185,9 +172,9 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                     </TableCell>
                     <TableCell className="text-right">
                       {Number(sale.due_amount) > 0 ? (
-                        <Badge variant="destructive">৳{Number(sale.due_amount).toFixed(2)}</Badge>
+                        <span className="text-orange-600 font-medium">৳{Number(sale.due_amount).toFixed(2)}</span>
                       ) : (
-                        <Badge variant="secondary">Paid</Badge>
+                        <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -207,7 +194,7 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Delete Sale</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete invoice "{sale.invoice_number}"? This action cannot be undone.
+                                Are you sure you want to delete entry "{sale.invoice_number}"? This action cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -227,7 +214,7 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                   {isDetailedSale && (
                     <CollapsibleContent asChild>
                       <TableRow className="bg-muted/50">
-                        <TableCell colSpan={showEntryType ? 10 : 8} className="py-2 px-6">
+                        <TableCell colSpan={showEntryType ? 9 : 7} className="py-2 px-6">
                           {items.length > 0 ? (
                             <div className="space-y-1">
                               <p className="text-xs font-medium text-muted-foreground mb-2">Sale Items:</p>

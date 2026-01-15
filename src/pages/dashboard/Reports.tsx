@@ -6,10 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DailySummaryReportView } from '@/components/reports/DailySummaryReport';
 import { SalesReportView } from '@/components/reports/SalesReport';
-import { CustomerDueReportView } from '@/components/reports/CustomerDueReport';
 import { SupplierDueReportView } from '@/components/reports/SupplierDueReport';
 import { getDateRangePresets, ReportDateRange } from '@/hooks/useReports';
-import { CalendarIcon, FileText, TrendingUp, Users, Truck, BarChart3 } from 'lucide-react';
+import { CalendarIcon, FileText, TrendingUp, Truck, BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -131,7 +130,7 @@ export default function Reports() {
 
       {/* Report Tabs */}
       <Tabs defaultValue="daily-summary" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="daily-summary" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             <span className="hidden sm:inline">Daily Summary</span>
@@ -141,11 +140,6 @@ export default function Reports() {
             <TrendingUp className="h-4 w-4" />
             <span className="hidden sm:inline">Sales Report</span>
             <span className="sm:hidden">Sales</span>
-          </TabsTrigger>
-          <TabsTrigger value="customer-due" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">Customer Due</span>
-            <span className="sm:hidden">Customer</span>
           </TabsTrigger>
           <TabsTrigger value="supplier-due" className="flex items-center gap-2">
             <Truck className="h-4 w-4" />
@@ -160,10 +154,6 @@ export default function Reports() {
 
         <TabsContent value="sales">
           <SalesReportView dateRange={dateRange} />
-        </TabsContent>
-
-        <TabsContent value="customer-due">
-          <CustomerDueReportView />
         </TabsContent>
 
         <TabsContent value="supplier-due">

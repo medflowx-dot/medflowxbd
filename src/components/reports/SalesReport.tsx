@@ -69,12 +69,12 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
             <p className="text-sm text-muted-foreground">Total Paid</p>
             <p className="text-xl font-bold text-green-600">৳{totals.paid.toLocaleString()}</p>
           </div>
-          <div className="p-4 rounded-lg bg-red-500/10">
-            <p className="text-sm text-muted-foreground">Total Due</p>
-            <p className="text-xl font-bold text-red-600">৳{totals.due.toLocaleString()}</p>
+          <div className="p-4 rounded-lg bg-orange-500/10">
+            <p className="text-sm text-muted-foreground">Unpaid Balance</p>
+            <p className="text-xl font-bold text-orange-600">৳{totals.due.toLocaleString()}</p>
           </div>
           <div className="p-4 rounded-lg bg-muted">
-            <p className="text-sm text-muted-foreground">Number of Sales</p>
+            <p className="text-sm text-muted-foreground">Number of Entries</p>
             <p className="text-xl font-bold">{data?.length || 0}</p>
           </div>
         </div>
@@ -84,20 +84,19 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Invoice</TableHead>
+                <TableHead>Entry ID</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>Customer</TableHead>
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead className="text-right">Paid</TableHead>
-                <TableHead className="text-right">Due</TableHead>
+                <TableHead className="text-right">Balance</TableHead>
                 <TableHead>Method</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {!data?.length ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No sales for selected period
                   </TableCell>
                 </TableRow>
@@ -119,11 +118,10 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
                       )}
                     </TableCell>
                     <TableCell>{format(new Date(sale.sale_date), 'MMM dd, yyyy')}</TableCell>
-                    <TableCell>{sale.customer_name}</TableCell>
                     <TableCell className="text-right">৳{sale.total_amount.toLocaleString()}</TableCell>
                     <TableCell className="text-right text-green-600">৳{sale.paid_amount.toLocaleString()}</TableCell>
-                    <TableCell className={`text-right ${sale.due_amount > 0 ? 'text-red-600' : ''}`}>
-                      ৳{sale.due_amount.toLocaleString()}
+                    <TableCell className={`text-right ${sale.due_amount > 0 ? 'text-orange-600' : ''}`}>
+                      {sale.due_amount > 0 ? `৳${sale.due_amount.toLocaleString()}` : '-'}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{sale.payment_method}</Badge>

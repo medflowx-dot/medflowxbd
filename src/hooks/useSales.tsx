@@ -24,7 +24,6 @@ export interface SaleItem {
 export interface Sale {
   id: string;
   user_id: string;
-  customer_id: string | null;
   invoice_number: string;
   sale_date: string;
   subtotal: number;
@@ -37,11 +36,6 @@ export interface Sale {
   notes: string | null;
   created_at: string;
   updated_at: string;
-  customer?: {
-    id: string;
-    name: string;
-    phone: string | null;
-  } | null;
   items?: SaleItem[];
 }
 
@@ -69,7 +63,6 @@ export interface CreateSaleItemData {
 }
 
 export interface CreateSaleData {
-  customer_id?: string;
   sale_date?: string;
   subtotal: number;
   discount?: number;
@@ -100,10 +93,7 @@ export function useSales(dateFilter?: Date) {
 
       let query = supabase
         .from('sales')
-        .select(`
-          *,
-          customer:customers(id, name, phone)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (dateFilter) {
@@ -128,12 +118,12 @@ export function useSales(dateFilter?: Date) {
 
       if (invoiceError) throw invoiceError;
 
-      // Create sale with entry_type = 'detailed'
+      // Create sale with entry_type = 'detailed' (no customer association)
       const { data: sale, error: saleError } = await supabase
         .from('sales')
         .insert({
           user_id: user.id,
-          customer_id: data.customer_id || null,
+          customer_id: null,
           invoice_number: invoiceData,
           sale_date: data.sale_date || format(new Date(), 'yyyy-MM-dd'),
           subtotal: data.subtotal,
@@ -194,7 +184,6 @@ export function useSales(dateFilter?: Date) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] });
-      queryClient.invalidateQueries({ queryKey: ['customers'] });
       queryClient.invalidateQueries({ queryKey: ['medicines'] });
       toast({ title: 'Sale recorded successfully' });
     },
@@ -259,7 +248,6 @@ export function useSales(dateFilter?: Date) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] });
-      queryClient.invalidateQueries({ queryKey: ['customers'] });
       toast({ title: 'Sale deleted successfully' });
     },
     onError: (error) => {
