@@ -38,6 +38,7 @@ const medicineSchema = z.object({
   manufacturer_id: z.string().optional(),
   manufacturer: z.string().trim().max(200).optional(),
   unit: z.string().trim().min(1, 'Unit is required'),
+  shelf_location: z.string().trim().max(50).optional(),
 });
 
 type MedicineFormData = z.infer<typeof medicineSchema>;
@@ -78,6 +79,7 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
       manufacturer_id: medicine?.manufacturer_id || '',
       manufacturer: medicine?.manufacturer || '',
       unit: medicine?.unit || 'pcs',
+      shelf_location: medicine?.shelf_location || '',
     },
   });
 
@@ -100,6 +102,7 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
       manufacturer_id: data.manufacturer_id === 'none' ? undefined : data.manufacturer_id || undefined,
       manufacturer: data.manufacturer || undefined,
       unit: data.unit,
+      shelf_location: data.shelf_location || undefined,
     };
 
     if (isEditing) {
@@ -236,6 +239,20 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="shelf_location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Shelf Location</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., A1-B2" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
