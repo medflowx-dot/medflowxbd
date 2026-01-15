@@ -358,6 +358,57 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          current_period_end: string | null
+          current_period_start: string
+          id: string
+          lifetime_service_due_date: string | null
+          notes: string | null
+          payment_method: string | null
+          plan_type: string
+          status: string
+          trial_ends_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          current_period_end?: string | null
+          current_period_start?: string
+          id?: string
+          lifetime_service_due_date?: string | null
+          notes?: string | null
+          payment_method?: string | null
+          plan_type?: string
+          status?: string
+          trial_ends_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          current_period_end?: string | null
+          current_period_start?: string
+          id?: string
+          lifetime_service_due_date?: string | null
+          notes?: string | null
+          payment_method?: string | null
+          plan_type?: string
+          status?: string
+          trial_ends_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       supplier_payments: {
         Row: {
           amount: number
