@@ -7,6 +7,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -32,7 +33,10 @@ import {
   PackageCheck,
   Trash2,
   XCircle,
+  MessageCircle,
+  Copy,
 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { useStockOrders, StockOrder } from '@/hooks/useStockOrders';
 
@@ -59,6 +63,42 @@ export function OrderNotesList() {
       await deleteOrder.mutateAsync(deleteId);
       setDeleteId(null);
     }
+  };
+
+  const generateOrderMessage = (order: StockOrder): string => {
+    const lines = [
+      `📦 *Stock Order - ${order.manufacturer}*`,
+      `📅 Date: ${format(new Date(order.created_at), 'PP')}`,
+      '',
+      '*Items to Order:*',
+    ];
+
+    order.items?.forEach((item, index) => {
+      lines.push(`${index + 1}. ${item.medicine_name} - ${item.quantity_to_order} ${item.unit}`);
+    });
+
+    if (order.notes) {
+      lines.push('', `📝 Notes: ${order.notes}`);
+    }
+
+    lines.push('', '---', 'Sent from Pharmacy Management System');
+
+    return lines.join('\n');
+  };
+
+  const shareViaWhatsApp = (order: StockOrder, phoneNumber?: string) => {
+    const message = generateOrderMessage(order);
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = phoneNumber 
+      ? `https://wa.me/${phoneNumber.replace(/\D/g, '')}?text=${encodedMessage}`
+      : `https://wa.me/?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const copyToClipboard = async (order: StockOrder) => {
+    const message = generateOrderMessage(order);
+    await navigator.clipboard.writeText(message);
+    toast({ title: 'Copied to clipboard', description: 'Order details copied successfully' });
   };
 
   if (isLoading) {
@@ -136,6 +176,15 @@ export function OrderNotesList() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => shareViaWhatsApp(order)}>
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            Share via WhatsApp
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => copyToClipboard(order)}>
+                            <Copy className="h-4 w-4 mr-2" />
+                            Copy Order Details
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
                           {order.status === 'pending' && (
                             <DropdownMenuItem
                               onClick={() =>
