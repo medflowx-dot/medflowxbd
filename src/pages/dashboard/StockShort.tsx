@@ -8,6 +8,7 @@ import { LowStockList } from '@/components/stock-short/LowStockList';
 import { OrderNotesList } from '@/components/stock-short/OrderNotesList';
 import { PurchaseHistory } from '@/components/stock-short/PurchaseHistory';
 import { CreateOrderDialog } from '@/components/stock-short/CreateOrderDialog';
+import { AddToShortlistDialog } from '@/components/stock-short/AddToShortlistDialog';
 
 export default function StockShort() {
   const { medicines } = useMedicines();
@@ -27,11 +28,14 @@ export default function StockShort() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-display font-bold">Stock Short List</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage manufacturer-based order notes for low stock items
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold">Stock Short List</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage manufacturer-based order notes for low stock items
+          </p>
+        </div>
+        <AddToShortlistDialog onAddToShortlist={handleCreateOrder} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-4">
