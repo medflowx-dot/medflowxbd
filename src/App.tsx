@@ -34,6 +34,7 @@ import ClientManagement from "./pages/owner/ClientManagement";
 import SubscriptionManagement from "./pages/owner/SubscriptionManagement";
 import PaymentManagement from "./pages/owner/PaymentManagement";
 import PricingPlans from "./pages/owner/PricingPlans";
+import FeatureFlags from "./pages/owner/FeatureFlags";
 import SystemReview from "./pages/owner/SystemReview";
 import CMSManager from "./pages/owner/CMSManager";
 import AuditLogs from "./pages/owner/AuditLogs";
@@ -100,6 +101,7 @@ const App = () => (
               <Route path="subscriptions" element={<SubscriptionManagement />} />
               <Route path="payments" element={<PaymentManagement />} />
               <Route path="pricing" element={<PricingPlans />} />
+              <Route path="feature-flags" element={<FeatureFlags />} />
               <Route path="system-review" element={<SystemReview />} />
               <Route path="cms" element={<CMSManager />} />
               <Route path="logs" element={<AuditLogs />} />

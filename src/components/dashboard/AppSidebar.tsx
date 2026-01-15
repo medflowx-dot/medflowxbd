@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { usePermissions, menuAccessByRole } from '@/hooks/usePermissions';
+import { useEnabledFeatures } from '@/hooks/useFeatureFlags';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import {
   Sidebar,
   SidebarContent,
@@ -56,15 +58,32 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
   const { role, isOwnerAdmin, canAccessRoute } = usePermissions();
+  const { isRouteEnabled } = useEnabledFeatures();
+  const { isTrial, daysRemaining, planType } = useSubscriptionStatus();
 
-  // Filter menu items based on role permissions
+  // Filter menu items based on role permissions AND feature flags
   const allowedRoutes = menuAccessByRole[role] || [];
   const filteredMainMenuItems = mainMenuItems.filter(item => 
-    allowedRoutes.includes(item.url)
+    allowedRoutes.includes(item.url) && isRouteEnabled(item.url)
   );
   const filteredSettingsItems = settingsItems.filter(item =>
-    allowedRoutes.includes(item.url)
+    allowedRoutes.includes(item.url) && isRouteEnabled(item.url)
   );
+
+  const getSubscriptionLabel = () => {
+    if (isOwnerAdmin) return 'Owner Admin';
+    if (isTrial) return 'Free Trial';
+    if (planType === 'monthly') return 'Monthly Plan';
+    if (planType === 'yearly') return 'Yearly Plan';
+    if (planType === 'lifetime') return 'Lifetime';
+    return 'Active';
+  };
+
+  const getSubscriptionSubtext = () => {
+    if (isOwnerAdmin) return 'Full Access';
+    if (daysRemaining) return `${daysRemaining} days remaining`;
+    return '';
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -158,8 +177,8 @@ export function AppSidebar() {
         <div className="px-2 py-3">
           {!isCollapsed && (
             <div className="text-xs text-muted-foreground">
-              <p className="font-medium text-foreground">Free Trial</p>
-              <p>7 days remaining</p>
+              <p className="font-medium text-foreground">{getSubscriptionLabel()}</p>
+              <p>{getSubscriptionSubtext()}</p>
             </div>
           )}
         </div>

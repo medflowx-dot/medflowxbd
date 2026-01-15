@@ -1,6 +1,8 @@
 import { useUserRole } from '@/hooks/useAdminData';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 
 export type Permission = 
+  | 'create_staff'
   | 'view_dashboard'
   | 'view_medicines'
   | 'manage_medicines'
@@ -39,6 +41,7 @@ const rolePermissions: Record<string, Permission[]> = {
     'view_settings',
     'manage_settings',
     'view_admin',
+    'create_staff',
   ],
   client_admin: [
     'view_dashboard',
@@ -57,6 +60,7 @@ const rolePermissions: Record<string, Permission[]> = {
     'view_reports',
     'view_settings',
     'manage_settings',
+    'create_staff', // Will be restricted for trial users
   ],
   client_staff: [
     'view_dashboard',
@@ -111,10 +115,16 @@ export const menuAccessByRole: Record<string, string[]> = {
 };
 
 export function usePermissions() {
-  const { data: role, isLoading } = useUserRole();
+  const { data: role, isLoading: roleLoading } = useUserRole();
+  const { isTrial, isLoading: subscriptionLoading, isOwnerAdmin: isOwnerAdminFromSubscription } = useSubscriptionStatus();
   
   const currentRole = role || 'client_staff';
-  const permissions = rolePermissions[currentRole] || [];
+  let permissions = [...(rolePermissions[currentRole] || [])];
+
+  // Trial users cannot create staff members
+  if (isTrial && currentRole === 'client_admin') {
+    permissions = permissions.filter(p => p !== 'create_staff');
+  }
 
   const hasPermission = (permission: Permission): boolean => {
     return permissions.includes(permission);
@@ -125,18 +135,28 @@ export function usePermissions() {
     return allowedRoutes.includes(route);
   };
 
+  // Helper specifically for staff creation
+  const canCreateStaff = (): boolean => {
+    if (isOwnerAdminFromSubscription) return true;
+    if (currentRole !== 'client_admin') return false;
+    if (isTrial) return false;
+    return true;
+  };
+
   const isStaff = currentRole === 'client_staff';
   const isAdmin = currentRole === 'client_admin' || currentRole === 'owner_admin';
   const isOwnerAdmin = currentRole === 'owner_admin';
 
   return {
     role: currentRole,
-    isLoading,
+    isLoading: roleLoading || subscriptionLoading,
     permissions,
     hasPermission,
     canAccessRoute,
+    canCreateStaff,
     isStaff,
     isAdmin,
     isOwnerAdmin,
+    isTrial,
   };
 }
