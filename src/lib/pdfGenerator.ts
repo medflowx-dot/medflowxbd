@@ -6,6 +6,13 @@ import type { StockOrder } from '@/hooks/useStockOrders';
 
 const CURRENCY = '৳';
 
+export interface CustomerDueItem {
+  id: string;
+  name: string;
+  phone: string | null;
+  total_due: number;
+}
+
 function addHeader(doc: jsPDF, title: string, dateRange?: { start: Date; end: Date }) {
   // Title
   doc.setFontSize(18);
@@ -438,4 +445,49 @@ export function generateAllOrdersPDF(orders: StockOrder[], statusFilter?: string
   }
   
   doc.save(`stock-orders-${statusFilter || 'all'}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+}
+
+export function generateCustomerDuesPDF(data: CustomerDueItem[]) {
+  const doc = new jsPDF();
+  const startY = addHeader(doc, 'Customer Dues Report');
+
+  // Calculate totals
+  const totalDue = data.reduce((acc, row) => acc + row.total_due, 0);
+
+  // Summary
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Summary', 14, startY);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text(`Total Outstanding: ${CURRENCY}${totalDue.toLocaleString()}`, 14, startY + 6);
+  doc.text(`Number of Customers: ${data.length}`, 80, startY + 6);
+
+  // Table
+  autoTable(doc, {
+    startY: startY + 14,
+    head: [['#', 'Customer Name', 'Phone', 'Total Due']],
+    body: data.map((row, index) => [
+      (index + 1).toString(),
+      row.name,
+      row.phone || '-',
+      `${CURRENCY}${row.total_due.toLocaleString()}`,
+    ]),
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [245, 158, 11] },
+    columnStyles: {
+      0: { cellWidth: 15 },
+      3: { halign: 'right', fontStyle: 'bold' },
+    },
+  });
+
+  // Footer with total
+  const finalY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Grand Total: ${CURRENCY}${totalDue.toLocaleString()}`, 14, finalY + 10);
+
+  addFooter(doc);
+  doc.save(`customer-dues-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 }
