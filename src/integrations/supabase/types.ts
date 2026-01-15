@@ -634,6 +634,7 @@ export type Database = {
           id: string
           medicine_id: string | null
           medicine_name: string
+          purchase_price: number | null
           quantity: number
           sale_id: string
           sale_unit: string
@@ -647,6 +648,7 @@ export type Database = {
           id?: string
           medicine_id?: string | null
           medicine_name: string
+          purchase_price?: number | null
           quantity: number
           sale_id: string
           sale_unit?: string
@@ -660,6 +662,7 @@ export type Database = {
           id?: string
           medicine_id?: string | null
           medicine_name?: string
+          purchase_price?: number | null
           quantity?: number
           sale_id?: string
           sale_unit?: string

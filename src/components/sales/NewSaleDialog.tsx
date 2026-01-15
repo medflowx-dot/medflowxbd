@@ -54,6 +54,7 @@ type SaleFormData = z.infer<typeof saleSchema>;
 interface CartItem extends CreateSaleItemData {
   id: string;
   sale_unit: SaleUnit;
+  purchase_price: number;
 }
 
 interface NewSaleDialogProps {
@@ -80,8 +81,10 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
   });
 
   const subtotal = cart.reduce((sum, item) => sum + item.total_price, 0);
+  const totalCost = cart.reduce((sum, item) => sum + (item.purchase_price * item.quantity), 0);
   const discount = form.watch('discount') || 0;
   const total = subtotal - discount;
+  const profit = total - totalCost;
   const paidAmount = form.watch('paid_amount') || 0;
   const dueAmount = Math.max(0, total - paidAmount);
 
@@ -114,6 +117,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
         unit_price: batch.selling_price,
         total_price: batch.selling_price,
         sale_unit: unit,
+        purchase_price: batch.purchase_price,
       };
       setCart([...cart, newItem]);
     }
@@ -364,6 +368,20 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                     <span>Total:</span>
                     <span>৳{total.toFixed(2)}</span>
                   </div>
+                  
+                  {cart.length > 0 && totalCost > 0 && (
+                    <div className={`flex justify-between text-sm pt-1 ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <span>Est. Profit:</span>
+                      <span className="font-medium">
+                        {profit >= 0 ? '+' : ''}৳{profit.toFixed(2)}
+                        {totalCost > 0 && (
+                          <span className="text-xs text-muted-foreground ml-1">
+                            ({((profit / totalCost) * 100).toFixed(1)}%)
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
