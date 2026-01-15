@@ -110,6 +110,7 @@ export function MedicineTable({ medicines, searchTerm }: MedicineTableProps) {
             <TableHead className="w-[40px]"></TableHead>
             <TableHead>Medicine</TableHead>
             <TableHead>Category</TableHead>
+            <TableHead>Tax</TableHead>
             <TableHead>Stock</TableHead>
             <TableHead>Earliest Expiry</TableHead>
             {canManageMedicines && (
@@ -151,6 +152,13 @@ export function MedicineTable({ medicines, searchTerm }: MedicineTableProps) {
                   <TableCell onClick={() => toggleExpand(medicine.id)}>
                     {medicine.category && (
                       <Badge variant="secondary">{medicine.category}</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell onClick={() => toggleExpand(medicine.id)}>
+                    {medicine.is_tax_applicable ? (
+                      <Badge variant="default" className="bg-green-600 hover:bg-green-700">Yes</Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-muted-foreground">No</Badge>
                     )}
                   </TableCell>
                   <TableCell onClick={() => toggleExpand(medicine.id)}>
@@ -242,7 +250,7 @@ export function MedicineTable({ medicines, searchTerm }: MedicineTableProps) {
                 {/* Expanded Batches */}
                 {isExpanded && medicine.batches.length > 0 && (
                   <TableRow className="bg-muted/30">
-                    <TableCell colSpan={canManageMedicines ? 6 : 5} className="p-0">
+                    <TableCell colSpan={canManageMedicines ? 7 : 6} className="p-0">
                       <div className="px-8 py-4">
                         <h4 className="font-medium text-sm mb-3">Batches ({medicine.batches.length})</h4>
                         <Table>
