@@ -331,6 +331,48 @@ export type Database = {
         }
         Relationships: []
       }
+      manufacturers: {
+        Row: {
+          address: string | null
+          contact_person: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       medicine_batches: {
         Row: {
           batch_number: string
@@ -752,6 +794,7 @@ export type Database = {
           created_at: string
           id: string
           manufacturer: string
+          manufacturer_phone: string | null
           notes: string | null
           received_at: string | null
           status: string
@@ -763,6 +806,7 @@ export type Database = {
           created_at?: string
           id?: string
           manufacturer: string
+          manufacturer_phone?: string | null
           notes?: string | null
           received_at?: string | null
           status?: string
@@ -774,6 +818,7 @@ export type Database = {
           created_at?: string
           id?: string
           manufacturer?: string
+          manufacturer_phone?: string | null
           notes?: string | null
           received_at?: string | null
           status?: string
