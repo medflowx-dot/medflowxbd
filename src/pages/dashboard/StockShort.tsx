@@ -1,65 +1,96 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus, ClipboardList } from 'lucide-react';
+import { useState } from 'react';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertTriangle, ClipboardList, Send, Calendar } from 'lucide-react';
+import { useMedicines, MedicineWithBatches } from '@/hooks/useMedicines';
+import { useStockOrders } from '@/hooks/useStockOrders';
+import { LowStockList } from '@/components/stock-short/LowStockList';
+import { OrderNotesList } from '@/components/stock-short/OrderNotesList';
+import { CreateOrderDialog } from '@/components/stock-short/CreateOrderDialog';
 
 export default function StockShort() {
+  const { medicines } = useMedicines();
+  const { pendingOrders, submittedOrders, thisWeekOrders } = useStockOrders();
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [selectedMedicines, setSelectedMedicines] = useState<MedicineWithBatches[]>([]);
+
+  const lowStockCount = medicines.filter(
+    (m) => m.min_stock_level && m.total_stock <= m.min_stock_level
+  ).length;
+
+  const handleCreateOrder = (medicines: MedicineWithBatches[]) => {
+    setSelectedMedicines(medicines);
+    setCreateDialogOpen(true);
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">Stock Short List</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage manufacturer-based order notes
-          </p>
-        </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Order Note
-        </Button>
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold">Stock Short List</h1>
+        <p className="text-muted-foreground mt-1">
+          Manage manufacturer-based order notes for low stock items
+        </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Pending Orders</CardDescription>
-            <CardTitle className="text-2xl">0</CardTitle>
+            <CardDescription className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              Low Stock Items
+            </CardDescription>
+            <CardTitle className="text-2xl">{lowStockCount}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Submitted Orders</CardDescription>
-            <CardTitle className="text-2xl">0</CardTitle>
+            <CardDescription className="flex items-center gap-2">
+              <ClipboardList className="h-4 w-4" />
+              Pending Orders
+            </CardDescription>
+            <CardTitle className="text-2xl">{pendingOrders.length}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>This Week</CardDescription>
-            <CardTitle className="text-2xl">0</CardTitle>
+            <CardDescription className="flex items-center gap-2">
+              <Send className="h-4 w-4" />
+              Submitted Orders
+            </CardDescription>
+            <CardTitle className="text-2xl">{submittedOrders.length}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              This Week
+            </CardDescription>
+            <CardTitle className="text-2xl">{thisWeekOrders.length}</CardTitle>
           </CardHeader>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Order Notes</CardTitle>
-          <CardDescription>Track stock orders by manufacturer</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="p-4 rounded-full bg-muted mb-4">
-              <ClipboardList className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="font-semibold text-lg">No order notes</h3>
-            <p className="text-muted-foreground text-sm max-w-sm mt-1">
-              Create order notes to track low stock items and submit to manufacturers.
-            </p>
-            <Button className="mt-4">
-              <Plus className="h-4 w-4 mr-2" />
-              Create First Order Note
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="low-stock" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="low-stock">Low Stock Items</TabsTrigger>
+          <TabsTrigger value="orders">Order Notes</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="low-stock">
+          <LowStockList onCreateOrder={handleCreateOrder} />
+        </TabsContent>
+
+        <TabsContent value="orders">
+          <OrderNotesList />
+        </TabsContent>
+      </Tabs>
+
+      <CreateOrderDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        medicines={selectedMedicines}
+      />
     </div>
   );
 }

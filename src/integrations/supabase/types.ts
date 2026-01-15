@@ -693,6 +693,96 @@ export type Database = {
           },
         ]
       }
+      stock_order_items: {
+        Row: {
+          created_at: string
+          current_stock: number
+          id: string
+          medicine_id: string
+          medicine_name: string
+          min_stock_level: number
+          notes: string | null
+          order_id: string
+          quantity_to_order: number
+          unit: string
+        }
+        Insert: {
+          created_at?: string
+          current_stock?: number
+          id?: string
+          medicine_id: string
+          medicine_name: string
+          min_stock_level?: number
+          notes?: string | null
+          order_id: string
+          quantity_to_order?: number
+          unit?: string
+        }
+        Update: {
+          created_at?: string
+          current_stock?: number
+          id?: string
+          medicine_id?: string
+          medicine_name?: string
+          min_stock_level?: number
+          notes?: string | null
+          order_id?: string
+          quantity_to_order?: number
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_order_items_medicine_id_fkey"
+            columns: ["medicine_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "stock_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_orders: {
+        Row: {
+          created_at: string
+          id: string
+          manufacturer: string
+          notes: string | null
+          received_at: string | null
+          status: string
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          manufacturer: string
+          notes?: string | null
+          received_at?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          manufacturer?: string
+          notes?: string | null
+          received_at?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           amount: number
