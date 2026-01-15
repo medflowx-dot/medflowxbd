@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DailySummaryReportView } from '@/components/reports/DailySummaryReport';
 import { SalesReportView } from '@/components/reports/SalesReport';
 import { SupplierDueReportView } from '@/components/reports/SupplierDueReport';
+import { CustomerDuesReportView } from '@/components/reports/CustomerDuesReport';
 import { getDateRangePresets, ReportDateRange } from '@/hooks/useReports';
-import { CalendarIcon, FileText, TrendingUp, Truck, BarChart3 } from 'lucide-react';
+import { CalendarIcon, FileText, TrendingUp, Truck, BarChart3, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -130,7 +131,7 @@ export default function Reports() {
 
       {/* Report Tabs */}
       <Tabs defaultValue="daily-summary" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="daily-summary" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             <span className="hidden sm:inline">Daily Summary</span>
@@ -146,6 +147,11 @@ export default function Reports() {
             <span className="hidden sm:inline">Supplier Due</span>
             <span className="sm:hidden">Supplier</span>
           </TabsTrigger>
+          <TabsTrigger value="customer-due" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">Customer Due</span>
+            <span className="sm:hidden">Customer</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="daily-summary">
@@ -158,6 +164,10 @@ export default function Reports() {
 
         <TabsContent value="supplier-due">
           <SupplierDueReportView />
+        </TabsContent>
+
+        <TabsContent value="customer-due">
+          <CustomerDuesReportView dateRange={dateRange} />
         </TabsContent>
       </Tabs>
     </div>
