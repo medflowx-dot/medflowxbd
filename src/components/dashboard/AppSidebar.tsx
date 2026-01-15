@@ -8,7 +8,8 @@ import {
   LayoutDashboard,
   Settings,
   Pill,
-  Shield
+  Shield,
+  Building2
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useIsOwnerAdmin } from '@/hooks/useAdminData';
@@ -31,6 +32,7 @@ const mainMenuItems = [
   { title: 'Medicines', url: '/dashboard/medicines', icon: Package },
   { title: 'Sales', url: '/dashboard/sales', icon: ShoppingCart },
   { title: 'Suppliers', url: '/dashboard/suppliers', icon: Truck },
+  { title: 'Manufacturers', url: '/dashboard/manufacturers', icon: Building2 },
   { title: 'Daily Cash', url: '/dashboard/daily-cash', icon: Wallet },
   { title: 'Stock Short', url: '/dashboard/stock-short', icon: ClipboardList },
   { title: 'Reports', url: '/dashboard/reports', icon: FileText },
