@@ -2,6 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import type { DailySummaryReport, SalesReportItem, CustomerDueItem, SupplierDueItem } from '@/hooks/useReports';
+import type { StockOrder } from '@/hooks/useStockOrders';
 
 const CURRENCY = '৳';
 
@@ -237,4 +238,179 @@ export function generateSupplierDuePDF(data: SupplierDueItem[]) {
 
   addFooter(doc);
   doc.save(`supplier-due-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+}
+
+export function generateStockOrderPDF(order: StockOrder) {
+  const doc = new jsPDF();
+  
+  // Header
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text('MedFlowx', 14, 20);
+  
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Stock Order Note', 14, 30);
+  
+  // Order info
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text(`Order Date: ${format(new Date(order.created_at), 'PPP')}`, 14, 40);
+  doc.text(`Status: ${order.status.toUpperCase()}`, 14, 46);
+  doc.setTextColor(0);
+  
+  // Manufacturer info box
+  doc.setFillColor(245, 247, 250);
+  doc.roundedRect(14, 52, 182, 30, 2, 2, 'F');
+  
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Manufacturer:', 18, 62);
+  doc.setFont('helvetica', 'normal');
+  doc.text(order.manufacturer, 55, 62);
+  
+  if (order.manufacturer_phone) {
+    doc.setFontSize(10);
+    doc.text(`Phone: ${order.manufacturer_phone}`, 18, 72);
+  }
+  
+  let startY = 90;
+  
+  // Notes if present
+  if (order.notes) {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Notes:', 14, startY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(order.notes, 14, startY + 6);
+    startY += 16;
+  }
+  
+  // Items table
+  if (order.items && order.items.length > 0) {
+    autoTable(doc, {
+      startY,
+      head: [['#', 'Medicine Name', 'Current Stock', 'Min Level', 'Order Qty', 'Unit']],
+      body: order.items.map((item, index) => [
+        (index + 1).toString(),
+        item.medicine_name,
+        item.current_stock.toString(),
+        item.min_stock_level.toString(),
+        item.quantity_to_order.toString(),
+        item.unit,
+      ]),
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [34, 197, 94] },
+      columnStyles: {
+        0: { cellWidth: 15 },
+        2: { halign: 'center' },
+        3: { halign: 'center' },
+        4: { halign: 'center', fontStyle: 'bold' },
+        5: { cellWidth: 25 },
+      },
+    });
+    
+    // Total items
+    const finalY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Total Items: ${order.items.length}`, 14, finalY + 10);
+    
+    const totalQty = order.items.reduce((sum, item) => sum + item.quantity_to_order, 0);
+    doc.text(`Total Quantity: ${totalQty}`, 80, finalY + 10);
+  }
+  
+  // Status timestamps
+  let statusY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable?.finalY + 25 || startY + 20;
+  
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100);
+  
+  if (order.submitted_at) {
+    doc.text(`Submitted: ${format(new Date(order.submitted_at), 'PPP p')}`, 14, statusY);
+    statusY += 5;
+  }
+  if (order.received_at) {
+    doc.text(`Received: ${format(new Date(order.received_at), 'PPP p')}`, 14, statusY);
+  }
+  
+  // Footer
+  doc.setFontSize(8);
+  doc.text(
+    `Generated: ${format(new Date(), 'PPP p')}`,
+    doc.internal.pageSize.width / 2,
+    doc.internal.pageSize.height - 10,
+    { align: 'center' }
+  );
+  
+  doc.save(`order-note-${order.manufacturer.replace(/\s+/g, '-').toLowerCase()}-${format(new Date(order.created_at), 'yyyy-MM-dd')}.pdf`);
+}
+
+export function generateAllOrdersPDF(orders: StockOrder[], statusFilter?: string) {
+  const doc = new jsPDF();
+  
+  const filteredOrders = statusFilter 
+    ? orders.filter(o => o.status === statusFilter)
+    : orders;
+  
+  // Header
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text('MedFlowx', 14, 20);
+  
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'normal');
+  const title = statusFilter 
+    ? `Stock Orders - ${statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}`
+    : 'All Stock Orders';
+  doc.text(title, 14, 30);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text(`Generated: ${format(new Date(), 'PPP p')}`, 14, 38);
+  doc.setTextColor(0);
+  
+  // Summary
+  const pending = orders.filter(o => o.status === 'pending').length;
+  const submitted = orders.filter(o => o.status === 'submitted').length;
+  const received = orders.filter(o => o.status === 'received').length;
+  
+  doc.setFontSize(9);
+  doc.text(`Pending: ${pending} | Submitted: ${submitted} | Received: ${received} | Total: ${orders.length}`, 14, 46);
+  
+  // Orders table
+  autoTable(doc, {
+    startY: 54,
+    head: [['Date', 'Manufacturer', 'Items', 'Status', 'Submitted', 'Received']],
+    body: filteredOrders.map(order => [
+      format(new Date(order.created_at), 'MMM dd, yyyy'),
+      order.manufacturer,
+      order.items?.length.toString() || '0',
+      order.status.toUpperCase(),
+      order.submitted_at ? format(new Date(order.submitted_at), 'MMM dd') : '-',
+      order.received_at ? format(new Date(order.received_at), 'MMM dd') : '-',
+    ]),
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [34, 197, 94] },
+    columnStyles: {
+      3: { fontStyle: 'bold' },
+    },
+  });
+  
+  // Footer with page numbers
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(100);
+    doc.text(
+      `Page ${i} of ${pageCount}`,
+      doc.internal.pageSize.width / 2,
+      doc.internal.pageSize.height - 10,
+      { align: 'center' }
+    );
+  }
+  
+  doc.save(`stock-orders-${statusFilter || 'all'}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 }
