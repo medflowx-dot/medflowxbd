@@ -3,12 +3,14 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { DashboardHeader } from './DashboardHeader';
 import { ImpersonationBanner } from './ImpersonationBanner';
+import { SubscriptionBanner } from './SubscriptionBanner';
 
 export function DashboardLayout() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex flex-col w-full">
         <ImpersonationBanner />
+        <SubscriptionBanner />
         <div className="flex flex-1">
           <AppSidebar />
           <SidebarInset className="flex flex-col flex-1">

@@ -5,10 +5,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { SubscriptionGuard } from "@/components/auth/SubscriptionGuard";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Billing from "./pages/Billing";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import Medicines from "./pages/dashboard/Medicines";
 import Sales from "./pages/dashboard/Sales";
@@ -45,13 +47,20 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/billing" element={
+              <ProtectedRoute>
+                <Billing />
+              </ProtectedRoute>
+            } />
             
-            {/* Client Dashboard */}
+            {/* Client Dashboard - Protected by Auth + Subscription */}
             <Route
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <DashboardLayout />
+                  <SubscriptionGuard>
+                    <DashboardLayout />
+                  </SubscriptionGuard>
                 </ProtectedRoute>
               }
             >
@@ -66,7 +75,7 @@ const App = () => (
               <Route path="admin" element={<AdminDashboard />} />
             </Route>
 
-            {/* Owner Panel - Separate Route */}
+            {/* Owner Panel - No subscription check (owner bypasses) */}
             <Route
               path="/owner"
               element={
