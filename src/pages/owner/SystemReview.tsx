@@ -5,15 +5,33 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useClients, Client } from '@/hooks/useOwnerData';
-import { Loader2, Search, Activity, Eye, ExternalLink, Package, ShoppingCart, Users, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Loader2, Search, Activity, Eye, ExternalLink, Package, ShoppingCart, CheckCircle, AlertCircle, Clock, Shield, Copy, CheckCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+
+interface ImpersonationSession {
+  sessionToken: string;
+  expiresAt: string;
+  targetUser: {
+    id: string;
+    email: string;
+    fullName: string | null;
+    pharmacyName: string | null;
+  };
+}
 
 export default function SystemReview() {
   const [search, setSearch] = useState('');
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
+  const [impersonationSession, setImpersonationSession] = useState<ImpersonationSession | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
+  const [loginLink, setLoginLink] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const { data: clients, isLoading } = useClients();
 
@@ -25,17 +43,103 @@ export default function SystemReview() {
   const handleLoginAsClient = (client: Client) => {
     setSelectedClient(client);
     setShowLoginDialog(true);
+    setImpersonationSession(null);
+    setLoginLink(null);
   };
 
-  const confirmLoginAsClient = () => {
-    // In a real implementation, this would create an impersonation session
-    // and redirect to the client's dashboard with temporary elevated access
-    toast.info('One-click login feature will be implemented with server-side session management');
+  const createImpersonationSession = async () => {
+    if (!selectedClient) return;
+
+    setIsCreatingSession(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      const response = await fetch(
+        `https://pjowmwyaribfewhbaazl.supabase.co/functions/v1/create-impersonation`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionData.session?.access_token}`,
+          },
+          body: JSON.stringify({ targetUserId: selectedClient.user_id }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create session');
+      }
+
+      setImpersonationSession(result);
+      toast.success('Impersonation session created');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to create impersonation session');
+    } finally {
+      setIsCreatingSession(false);
+    }
+  };
+
+  const validateAndGetLink = async () => {
+    if (!impersonationSession) return;
+
+    setIsValidating(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      const response = await fetch(
+        `https://pjowmwyaribfewhbaazl.supabase.co/functions/v1/validate-impersonation`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionData.session?.access_token}`,
+          },
+          body: JSON.stringify({ sessionToken: impersonationSession.sessionToken }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to validate session');
+      }
+
+      if (result.actionLink) {
+        setLoginLink(result.actionLink);
+        toast.success('Login link generated');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to generate login link');
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  const handleOpenLoginLink = () => {
+    if (loginLink) {
+      window.open(loginLink, '_blank');
+    }
+  };
+
+  const copyToClipboard = async () => {
+    if (loginLink) {
+      await navigator.clipboard.writeText(loginLink);
+      setCopied(true);
+      toast.success('Link copied to clipboard');
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleCloseDialog = () => {
     setShowLoginDialog(false);
+    setSelectedClient(null);
+    setImpersonationSession(null);
+    setLoginLink(null);
   };
 
   const getSystemStatus = (client: Client) => {
-    // Determine system status based on activity
     if (client.subscription?.status === 'suspended') {
       return { status: 'offline', icon: <AlertCircle className="h-4 w-4 text-red-500" />, label: 'Suspended' };
     }
@@ -62,17 +166,24 @@ export default function SystemReview() {
         </div>
         <div>
           <h1 className="text-2xl font-bold">System Review</h1>
-          <p className="text-muted-foreground">Monitor client systems and perform one-click reviews</p>
+          <p className="text-muted-foreground">Monitor client systems and perform secure one-click reviews</p>
         </div>
       </div>
 
       {/* Info Banner */}
       <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800">
         <CardContent className="py-4">
-          <p className="text-sm text-blue-800 dark:text-blue-200">
-            <strong>One-Click Login:</strong> Login as any client admin to review their system, debug issues, or validate updates. 
-            All actions are logged for security.
-          </p>
+          <div className="flex items-start gap-3">
+            <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div>
+              <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
+                Secure One-Click Login
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Login as any client admin to review their system. Sessions are time-limited (1 hour) and all actions are logged in the audit trail.
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -126,7 +237,7 @@ export default function SystemReview() {
             <div>
               <CardTitle>All Client Systems</CardTitle>
               <CardDescription>
-                Click "Login as Client" to access any system
+                Click "Login as Client" to access any system securely
               </CardDescription>
             </div>
             <div className="relative w-72">
@@ -210,40 +321,108 @@ export default function SystemReview() {
         </CardContent>
       </Card>
 
-      {/* Confirm Login Dialog */}
-      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
-        <DialogContent>
+      {/* Secure Login Dialog */}
+      <Dialog open={showLoginDialog} onOpenChange={handleCloseDialog}>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Login as Client</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Secure Client Login
+            </DialogTitle>
             <DialogDescription>
-              You are about to login as {selectedClient?.pharmacy_name || selectedClient?.full_name}
+              Login as {selectedClient?.pharmacy_name || selectedClient?.full_name}
             </DialogDescription>
           </DialogHeader>
+          
           <div className="space-y-4">
+            {/* Client Info */}
             <div className="p-4 bg-muted rounded-lg">
-              <p className="text-sm">
-                <strong>Client:</strong> {selectedClient?.pharmacy_name || '-'}
-              </p>
-              <p className="text-sm">
-                <strong>Owner:</strong> {selectedClient?.full_name || '-'}
-              </p>
-              <p className="text-sm">
-                <strong>Phone:</strong> {selectedClient?.phone || '-'}
-              </p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Client:</span>
+                  <p className="font-medium">{selectedClient?.pharmacy_name || '-'}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Owner:</span>
+                  <p className="font-medium">{selectedClient?.full_name || '-'}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Phone:</span>
+                  <p className="font-medium">{selectedClient?.phone || '-'}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Status:</span>
+                  <p className="font-medium capitalize">{selectedClient?.subscription?.status || '-'}</p>
+                </div>
+              </div>
             </div>
-            <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg border border-amber-200 dark:border-amber-800">
-              <p className="text-sm text-amber-800 dark:text-amber-200">
-                <strong>Security Notice:</strong> This action will be logged in the audit trail. 
-                You will have full access to the client's system.
-              </p>
-            </div>
+
+            {/* Step 1: Create Session */}
+            {!impersonationSession && (
+              <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-950">
+                <Shield className="h-4 w-4 text-amber-600" />
+                <AlertTitle className="text-amber-800 dark:text-amber-200">Security Notice</AlertTitle>
+                <AlertDescription className="text-amber-700 dark:text-amber-300">
+                  This action will be logged in the audit trail. The session will be valid for 1 hour.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Step 2: Session Created */}
+            {impersonationSession && !loginLink && (
+              <Alert className="border-green-200 bg-green-50 dark:bg-green-950">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertTitle className="text-green-800 dark:text-green-200">Session Created</AlertTitle>
+                <AlertDescription className="text-green-700 dark:text-green-300">
+                  Valid until: {format(new Date(impersonationSession.expiresAt), 'dd MMM yyyy HH:mm')}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Step 3: Login Link Generated */}
+            {loginLink && (
+              <div className="space-y-3">
+                <Alert className="border-green-200 bg-green-50 dark:bg-green-950">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertTitle className="text-green-800 dark:text-green-200">Login Link Ready</AlertTitle>
+                  <AlertDescription className="text-green-700 dark:text-green-300">
+                    Click the button below to open the client's dashboard in a new tab.
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="flex gap-2">
+                  <Button onClick={handleOpenLoginLink} className="flex-1">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open Client Dashboard
+                  </Button>
+                  <Button variant="outline" onClick={copyToClipboard}>
+                    {copied ? <CheckCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowLoginDialog(false)}>Cancel</Button>
-            <Button onClick={confirmLoginAsClient}>
-              <Eye className="h-4 w-4 mr-2" />
-              Confirm & Login
+            <Button variant="outline" onClick={handleCloseDialog}>
+              Close
             </Button>
+            
+            {!impersonationSession && (
+              <Button onClick={createImpersonationSession} disabled={isCreatingSession}>
+                {isCreatingSession && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                <Eye className="h-4 w-4 mr-2" />
+                Create Secure Session
+              </Button>
+            )}
+            
+            {impersonationSession && !loginLink && (
+              <Button onClick={validateAndGetLink} disabled={isValidating}>
+                {isValidating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Generate Login Link
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
