@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -19,6 +20,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import {
   Select,
@@ -40,6 +42,7 @@ const medicineSchema = z.object({
   unit: z.string().trim().min(1, 'Unit is required'),
   shelf_location: z.string().trim().max(50).optional(),
   min_stock_level: z.coerce.number().min(0).optional(),
+  is_tax_applicable: z.boolean().default(false),
 });
 
 type MedicineFormData = z.infer<typeof medicineSchema>;
@@ -82,6 +85,7 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
       unit: medicine?.unit || 'pcs',
       shelf_location: medicine?.shelf_location || '',
       min_stock_level: medicine?.min_stock_level || 10,
+      is_tax_applicable: medicine?.is_tax_applicable || false,
     },
   });
 
@@ -106,6 +110,7 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
       unit: data.unit,
       shelf_location: data.shelf_location || undefined,
       min_stock_level: data.min_stock_level,
+      is_tax_applicable: data.is_tax_applicable,
     };
 
     if (isEditing) {
@@ -276,6 +281,27 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="is_tax_applicable"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Tax Applicable</FormLabel>
+                    <FormDescription>
+                      Check if this medicine is subject to tax
+                    </FormDescription>
+                  </div>
+                </FormItem>
+              )}
+            />
 
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>

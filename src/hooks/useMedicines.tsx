@@ -14,6 +14,7 @@ export interface Medicine {
   unit: string;
   shelf_location: string | null;
   min_stock_level: number | null;
+  is_tax_applicable: boolean;
   is_active: boolean | null;
   created_at: string;
   updated_at: string;
@@ -50,6 +51,7 @@ export interface CreateMedicineData {
   unit?: string;
   shelf_location?: string;
   min_stock_level?: number;
+  is_tax_applicable?: boolean;
 }
 
 export interface CreateBatchData {
