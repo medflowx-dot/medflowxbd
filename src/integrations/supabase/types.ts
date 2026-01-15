@@ -14,6 +14,107 @@ export type Database = {
   }
   public: {
     Tables: {
+      medicine_batches: {
+        Row: {
+          batch_number: string
+          created_at: string
+          expiry_date: string
+          id: string
+          manufactured_date: string | null
+          medicine_id: string
+          notes: string | null
+          purchase_price: number
+          quantity: number
+          selling_price: number
+          supplier_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          batch_number: string
+          created_at?: string
+          expiry_date: string
+          id?: string
+          manufactured_date?: string | null
+          medicine_id: string
+          notes?: string | null
+          purchase_price?: number
+          quantity?: number
+          selling_price?: number
+          supplier_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          batch_number?: string
+          created_at?: string
+          expiry_date?: string
+          id?: string
+          manufactured_date?: string | null
+          medicine_id?: string
+          notes?: string | null
+          purchase_price?: number
+          quantity?: number
+          selling_price?: number
+          supplier_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medicine_batches_medicine_id_fkey"
+            columns: ["medicine_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medicines: {
+        Row: {
+          category: string | null
+          created_at: string
+          generic_name: string | null
+          id: string
+          is_active: boolean | null
+          manufacturer: string | null
+          min_stock_level: number | null
+          name: string
+          shelf_location: string | null
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          generic_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          manufacturer?: string | null
+          min_stock_level?: number | null
+          name: string
+          shelf_location?: string | null
+          unit?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          generic_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          manufacturer?: string | null
+          min_stock_level?: number | null
+          name?: string
+          shelf_location?: string | null
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
