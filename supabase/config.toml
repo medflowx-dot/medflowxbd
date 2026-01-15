@@ -1,1 +1,10 @@
 project_id = "pjowmwyaribfewhbaazl"
+
+[functions.create-impersonation]
+verify_jwt = false
+
+[functions.validate-impersonation]
+verify_jwt = false
+
+[functions.end-impersonation]
+verify_jwt = false
