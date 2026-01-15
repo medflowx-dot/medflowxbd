@@ -9,7 +9,9 @@ import {
   Settings,
   Pill,
   Shield,
-  Building2
+  Building2,
+  Users,
+  AlertTriangle
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { usePermissions, menuAccessByRole } from '@/hooks/usePermissions';
@@ -30,7 +32,9 @@ import {
 const mainMenuItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Medicines', url: '/dashboard/medicines', icon: Package },
+  { title: 'Expiry Monitor', url: '/dashboard/expiry', icon: AlertTriangle },
   { title: 'Sales', url: '/dashboard/sales', icon: ShoppingCart },
+  { title: 'Customer Dues', url: '/dashboard/customer-dues', icon: Users },
   { title: 'Suppliers', url: '/dashboard/suppliers', icon: Truck },
   { title: 'Manufacturers', url: '/dashboard/manufacturers', icon: Building2 },
   { title: 'Daily Cash', url: '/dashboard/daily-cash', icon: Wallet },
