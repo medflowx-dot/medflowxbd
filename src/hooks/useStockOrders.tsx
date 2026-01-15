@@ -7,6 +7,7 @@ export interface StockOrder {
   id: string;
   user_id: string;
   manufacturer: string;
+  manufacturer_phone: string | null;
   status: 'pending' | 'submitted' | 'received' | 'cancelled';
   notes: string | null;
   submitted_at: string | null;

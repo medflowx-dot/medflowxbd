@@ -35,10 +35,13 @@ import {
   XCircle,
   MessageCircle,
   Copy,
+  Phone,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { useStockOrders, StockOrder } from '@/hooks/useStockOrders';
+import { useManufacturers } from '@/hooks/useManufacturers';
+import { ManufacturerPhoneDialog } from './ManufacturerPhoneDialog';
 
 const statusColors: Record<StockOrder['status'], string> = {
   pending: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
@@ -49,8 +52,10 @@ const statusColors: Record<StockOrder['status'], string> = {
 
 export function OrderNotesList() {
   const { orders, isLoading, updateOrderStatus, deleteOrder } = useStockOrders();
+  const { manufacturers, getManufacturerByName } = useManufacturers();
   const [expandedOrders, setExpandedOrders] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [phoneDialogOrder, setPhoneDialogOrder] = useState<StockOrder | null>(null);
 
   const toggleExpand = (id: string) => {
     setExpandedOrders((prev) =>
@@ -93,6 +98,27 @@ export function OrderNotesList() {
       ? `https://wa.me/${phoneNumber.replace(/\D/g, '')}?text=${encodedMessage}`
       : `https://wa.me/?text=${encodedMessage}`;
     window.open(whatsappUrl, '_blank');
+  };
+
+  const handleWhatsAppClick = (order: StockOrder) => {
+    // Check if manufacturer has a saved phone number
+    const manufacturer = getManufacturerByName(order.manufacturer);
+    const savedPhone = manufacturer?.phone || order.manufacturer_phone;
+
+    if (savedPhone) {
+      // If phone exists, share directly
+      shareViaWhatsApp(order, savedPhone);
+    } else {
+      // Otherwise, open dialog to enter phone
+      setPhoneDialogOrder(order);
+    }
+  };
+
+  const handlePhoneShare = (phone: string) => {
+    if (phoneDialogOrder) {
+      shareViaWhatsApp(phoneDialogOrder, phone);
+      setPhoneDialogOrder(null);
+    }
   };
 
   const copyToClipboard = async (order: StockOrder) => {
@@ -176,9 +202,12 @@ export function OrderNotesList() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => shareViaWhatsApp(order)}>
+                          <DropdownMenuItem onClick={() => handleWhatsAppClick(order)}>
                             <MessageCircle className="h-4 w-4 mr-2" />
                             Share via WhatsApp
+                            {getManufacturerByName(order.manufacturer)?.phone && (
+                              <Phone className="h-3 w-3 ml-1 text-green-500" />
+                            )}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => copyToClipboard(order)}>
                             <Copy className="h-4 w-4 mr-2" />
@@ -277,11 +306,21 @@ export function OrderNotesList() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {phoneDialogOrder && (
+        <ManufacturerPhoneDialog
+          open={!!phoneDialogOrder}
+          onOpenChange={(open) => !open && setPhoneDialogOrder(null)}
+          manufacturerName={phoneDialogOrder.manufacturer}
+          existingPhone={phoneDialogOrder.manufacturer_phone || undefined}
+          onShare={handlePhoneShare}
+        />
+      )}
     </>
   );
 }
