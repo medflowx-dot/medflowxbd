@@ -1,5 +1,7 @@
 import { useAuth } from '@/hooks/useAuth';
+import { usePermissions } from '@/hooks/usePermissions';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
@@ -10,12 +12,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { LogOut, User, Bell } from 'lucide-react';
+import { LogOut, User, Bell, Shield, UserCog, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export function DashboardHeader() {
   const { user, signOut } = useAuth();
+  const { role, isLoading } = usePermissions();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -26,11 +29,59 @@ export function DashboardHeader() {
 
   const initials = user?.email?.slice(0, 2).toUpperCase() || 'U';
 
+  const getRoleBadge = () => {
+    if (isLoading) return null;
+    
+    switch (role) {
+      case 'owner_admin':
+        return (
+          <Badge variant="destructive" className="gap-1">
+            <Shield className="h-3 w-3" />
+            Owner
+          </Badge>
+        );
+      case 'client_admin':
+        return (
+          <Badge variant="default" className="gap-1">
+            <UserCog className="h-3 w-3" />
+            Admin
+          </Badge>
+        );
+      case 'client_staff':
+        return (
+          <Badge variant="secondary" className="gap-1">
+            <Users className="h-3 w-3" />
+            Staff
+          </Badge>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const getRoleLabel = () => {
+    switch (role) {
+      case 'owner_admin':
+        return 'Owner Admin';
+      case 'client_admin':
+        return 'Pharmacy Admin';
+      case 'client_staff':
+        return 'Staff Member';
+      default:
+        return 'User';
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
       <SidebarTrigger className="-ml-2" />
       
       <div className="flex-1" />
+
+      {/* Role Badge */}
+      <div className="hidden sm:block">
+        {getRoleBadge()}
+      </div>
 
       <Button variant="ghost" size="icon" className="relative">
         <Bell className="h-5 w-5" />
@@ -50,9 +101,15 @@ export function DashboardHeader() {
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">Account</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium leading-none">Account</p>
+                <span className="sm:hidden">{getRoleBadge()}</span>
+              </div>
               <p className="text-xs leading-none text-muted-foreground">
                 {user?.email}
+              </p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {getRoleLabel()}
               </p>
             </div>
           </DropdownMenuLabel>
