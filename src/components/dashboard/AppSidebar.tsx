@@ -12,7 +12,7 @@ import {
   Building2
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
-import { useIsOwnerAdmin } from '@/hooks/useAdminData';
+import { usePermissions, menuAccessByRole } from '@/hooks/usePermissions';
 import {
   Sidebar,
   SidebarContent,
@@ -49,7 +49,16 @@ const adminItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
-  const { isOwnerAdmin } = useIsOwnerAdmin();
+  const { role, isOwnerAdmin, canAccessRoute } = usePermissions();
+
+  // Filter menu items based on role permissions
+  const allowedRoutes = menuAccessByRole[role] || [];
+  const filteredMainMenuItems = mainMenuItems.filter(item => 
+    allowedRoutes.includes(item.url)
+  );
+  const filteredSettingsItems = settingsItems.filter(item =>
+    allowedRoutes.includes(item.url)
+  );
 
   return (
     <Sidebar collapsible="icon">
@@ -95,7 +104,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainMenuItems.map((item) => (
+              {filteredMainMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild tooltip={item.title}>
                     <NavLink 
@@ -114,27 +123,29 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>System</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {settingsItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <NavLink 
-                      to={item.url}
-                      className="flex items-center gap-2"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {filteredSettingsItems.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>System</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {filteredSettingsItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild tooltip={item.title}>
+                      <NavLink 
+                        to={item.url}
+                        className="flex items-center gap-2"
+                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">

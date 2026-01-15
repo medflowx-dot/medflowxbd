@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { SubscriptionGuard } from "@/components/auth/SubscriptionGuard";
+import { AdminRoute } from "@/components/auth/AdminRoute";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -68,13 +69,15 @@ const App = () => (
               <Route index element={<DashboardHome />} />
               <Route path="medicines" element={<Medicines />} />
               <Route path="sales" element={<Sales />} />
-              <Route path="suppliers" element={<Suppliers />} />
+              {/* Admin-only routes - staff will be redirected */}
+              <Route path="suppliers" element={<AdminRoute><Suppliers /></AdminRoute>} />
+              <Route path="stock-short" element={<AdminRoute><StockShort /></AdminRoute>} />
+              <Route path="manufacturers" element={<AdminRoute><Manufacturers /></AdminRoute>} />
+              <Route path="reports" element={<AdminRoute><Reports /></AdminRoute>} />
+              <Route path="settings" element={<AdminRoute><Settings /></AdminRoute>} />
+              <Route path="admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              {/* Staff-accessible routes */}
               <Route path="daily-cash" element={<DailyCash />} />
-              <Route path="stock-short" element={<StockShort />} />
-              <Route path="manufacturers" element={<Manufacturers />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="admin" element={<AdminDashboard />} />
             </Route>
 
             {/* Owner Panel - No subscription check (owner bypasses) */}

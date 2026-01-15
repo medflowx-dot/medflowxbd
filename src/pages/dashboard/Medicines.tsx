@@ -8,11 +8,15 @@ import { BulkImportDialog } from '@/components/medicines/BulkImportDialog';
 import { MedicineTable } from '@/components/medicines/MedicineTable';
 import { ExpiryAlerts } from '@/components/medicines/ExpiryAlerts';
 import { useMedicines, useExpiryAlerts } from '@/hooks/useMedicines';
+import { usePermissions } from '@/hooks/usePermissions';
 
 export default function Medicines() {
   const [searchTerm, setSearchTerm] = useState('');
   const { medicines, isLoading } = useMedicines();
   const { expired, expiring30, totalAlerts } = useExpiryAlerts();
+  const { hasPermission } = usePermissions();
+  
+  const canManageMedicines = hasPermission('manage_medicines');
 
   const totalStock = medicines.reduce((sum, m) => sum + m.total_stock, 0);
   const lowStockCount = medicines.filter(
@@ -26,13 +30,17 @@ export default function Medicines() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-display font-bold">Medicines</h1>
           <p className="text-muted-foreground mt-1">
-            Manage your medicine inventory and batches
+            {canManageMedicines 
+              ? 'Manage your medicine inventory and batches'
+              : 'View medicine inventory and stock levels'}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <BulkImportDialog />
-          <AddMedicineDialog />
-        </div>
+        {canManageMedicines && (
+          <div className="flex items-center gap-2">
+            <BulkImportDialog />
+            <AddMedicineDialog />
+          </div>
+        )}
       </div>
 
       {/* Stats Cards */}
@@ -110,7 +118,9 @@ export default function Medicines() {
                 <div>
                   <CardTitle>Medicine Inventory</CardTitle>
                   <CardDescription>
-                    Track all medicines, batches, and expiry dates
+                    {canManageMedicines 
+                      ? 'Track all medicines, batches, and expiry dates'
+                      : 'View medicines, batches, and expiry dates'}
                   </CardDescription>
                 </div>
                 <div className="relative w-full sm:w-64">
