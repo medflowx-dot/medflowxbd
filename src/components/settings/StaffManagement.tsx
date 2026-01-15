@@ -8,8 +8,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { usePermissions } from '@/hooks/usePermissions';
-import { usePharmacyStaff, useInviteStaff, useRemoveStaff, StaffMember } from '@/hooks/useStaffManagement';
-import { Users, UserPlus, Trash2, Loader2, Lock, Crown } from 'lucide-react';
+import { usePharmacyStaff, useInviteStaff, useRemoveStaff, useResetStaffPassword, StaffMember } from '@/hooks/useStaffManagement';
+import { Users, UserPlus, Trash2, Loader2, Lock, Crown, KeyRound } from 'lucide-react';
 import { format } from 'date-fns';
 import { z } from 'zod';
 
@@ -28,6 +28,7 @@ export function StaffManagement() {
   const { data: staff, isLoading } = usePharmacyStaff();
   const inviteStaff = useInviteStaff();
   const removeStaff = useRemoveStaff();
+  const resetPassword = useResetStaffPassword();
 
   const canManageStaff = canCreateStaff();
 
@@ -59,6 +60,10 @@ export function StaffManagement() {
 
   const handleRemove = (staffMember: StaffMember) => {
     removeStaff.mutate(staffMember.user_id);
+  };
+
+  const handleResetPassword = (staffMember: StaffMember) => {
+    resetPassword.mutate(staffMember.user_id);
   };
 
   // Only admins can see this section
@@ -181,35 +186,69 @@ export function StaffManagement() {
                   </TableCell>
                   <TableCell className="text-right">
                     {canManageStaff && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Remove Staff Member</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to remove {member.full_name || 'this staff member'}? 
-                              This action cannot be undone and will delete their account.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleRemove(member)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              {removeStaff.isPending ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                'Remove'
-                              )}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <div className="flex items-center justify-end gap-1">
+                        {/* Reset Password */}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="sm" className="text-amber-600 hover:text-amber-700 hover:bg-amber-50">
+                              <KeyRound className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Reset Password</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will generate a new password for {member.full_name || 'this staff member'}. 
+                                {' '}The new credentials will be sent via email if SMTP is configured.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleResetPassword(member)}
+                                className="bg-amber-600 text-white hover:bg-amber-700"
+                              >
+                                {resetPassword.isPending ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  'Reset Password'
+                                )}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+
+                        {/* Remove Staff */}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Remove Staff Member</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to remove {member.full_name || 'this staff member'}? 
+                                This action cannot be undone and will delete their account.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleRemove(member)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                {removeStaff.isPending ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  'Remove'
+                                )}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     )}
                   </TableCell>
                 </TableRow>

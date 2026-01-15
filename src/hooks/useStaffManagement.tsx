@@ -163,3 +163,54 @@ export function useRemoveStaff() {
     },
   });
 }
+
+export function useResetStaffPassword() {
+  return useMutation({
+    mutationFn: async (staffUserId: string) => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch(
+        `https://pjowmwyaribfewhbaazl.supabase.co/functions/v1/reset-staff-password`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            staff_user_id: staffUserId,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to reset password');
+      }
+
+      return result;
+    },
+    onSuccess: (data) => {
+      if (data.email_sent) {
+        toast.success('Password reset successfully!', {
+          description: 'New credentials have been sent via email.',
+          duration: 5000,
+        });
+      } else {
+        toast.success('Password reset successfully!', {
+          description: `New password: ${data.new_password}`,
+          duration: 15000,
+        });
+      }
+    },
+    onError: (error) => {
+      toast.error('Failed to reset password: ' + error.message);
+    },
+  });
+}
