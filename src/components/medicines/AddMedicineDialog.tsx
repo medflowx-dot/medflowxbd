@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -27,13 +27,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus } from 'lucide-react';
+import { Plus, Building2 } from 'lucide-react';
 import { useMedicines, type CreateMedicineData, type Medicine } from '@/hooks/useMedicines';
+import { useManufacturers } from '@/hooks/useManufacturers';
 
 const medicineSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(200, 'Name must be less than 200 characters'),
   generic_name: z.string().trim().max(200).optional(),
   category: z.string().trim().max(100).optional(),
+  manufacturer_id: z.string().optional(),
   manufacturer: z.string().trim().max(200).optional(),
   unit: z.string().trim().min(1, 'Unit is required'),
   shelf_location: z.string().trim().max(50).optional(),
@@ -66,6 +68,7 @@ interface AddMedicineDialogProps {
 export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineDialogProps) {
   const [open, setOpen] = useState(false);
   const { createMedicine, updateMedicine } = useMedicines();
+  const { manufacturers } = useManufacturers();
   const isEditing = !!medicine;
 
   const form = useForm<MedicineFormData>({
@@ -74,6 +77,7 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
       name: medicine?.name || '',
       generic_name: medicine?.generic_name || '',
       category: medicine?.category || '',
+      manufacturer_id: medicine?.manufacturer_id || '',
       manufacturer: medicine?.manufacturer || '',
       unit: medicine?.unit || 'pcs',
       shelf_location: medicine?.shelf_location || '',
@@ -81,11 +85,23 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
     },
   });
 
+  // When manufacturer_id changes, update the manufacturer name
+  const watchManufacturerId = form.watch('manufacturer_id');
+  useEffect(() => {
+    if (watchManufacturerId) {
+      const selectedManufacturer = manufacturers.find(m => m.id === watchManufacturerId);
+      if (selectedManufacturer) {
+        form.setValue('manufacturer', selectedManufacturer.name);
+      }
+    }
+  }, [watchManufacturerId, manufacturers, form]);
+
   const onSubmit = async (data: MedicineFormData) => {
     const cleanData: CreateMedicineData = {
       name: data.name,
       generic_name: data.generic_name || undefined,
       category: data.category || undefined,
+      manufacturer_id: data.manufacturer_id || undefined,
       manufacturer: data.manufacturer || undefined,
       unit: data.unit,
       shelf_location: data.shelf_location || undefined,
@@ -204,13 +220,28 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
 
             <FormField
               control={form.control}
-              name="manufacturer"
+              name="manufacturer_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Manufacturer</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Square Pharmaceuticals" {...field} />
-                  </FormControl>
+                  <FormLabel className="flex items-center gap-1">
+                    <Building2 className="h-3 w-3" />
+                    Manufacturer
+                  </FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select manufacturer" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      {manufacturers.map((m) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

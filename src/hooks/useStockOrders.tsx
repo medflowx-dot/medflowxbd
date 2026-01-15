@@ -32,6 +32,7 @@ export interface StockOrderItem {
 
 export interface CreateOrderData {
   manufacturer: string;
+  manufacturer_phone?: string;
   notes?: string;
   items: Array<{
     medicine_id: string;
@@ -86,6 +87,7 @@ export function useStockOrders() {
         .insert({
           user_id: user.id,
           manufacturer: data.manufacturer,
+          manufacturer_phone: data.manufacturer_phone || null,
           notes: data.notes || null,
         })
         .select()
