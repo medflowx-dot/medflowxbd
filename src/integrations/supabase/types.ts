@@ -104,6 +104,45 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_costs: {
+        Row: {
+          amount: number
+          category: string
+          cost_date: string
+          created_at: string
+          description: string
+          id: string
+          notes: string | null
+          payment_method: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          cost_date?: string
+          created_at?: string
+          description: string
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          cost_date?: string
+          created_at?: string
+          description?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       medicine_batches: {
         Row: {
           batch_number: string
@@ -200,6 +239,36 @@ export type Database = {
           name?: string
           shelf_location?: string | null
           unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      opening_cash: {
+        Row: {
+          amount: number
+          cash_date: string
+          created_at: string
+          id: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          cash_date?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          cash_date?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
           updated_at?: string
           user_id?: string
         }
