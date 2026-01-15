@@ -7,9 +7,11 @@ import {
   FileText,
   LayoutDashboard,
   Settings,
-  Pill
+  Pill,
+  Shield
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
+import { useIsOwnerAdmin } from '@/hooks/useAdminData';
 import {
   Sidebar,
   SidebarContent,
@@ -38,9 +40,14 @@ const settingsItems = [
   { title: 'Settings', url: '/dashboard/settings', icon: Settings },
 ];
 
+const adminItems = [
+  { title: 'Admin Dashboard', url: '/dashboard/admin', icon: Shield },
+];
+
 export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
+  const { isOwnerAdmin } = useIsOwnerAdmin();
 
   return (
     <Sidebar collapsible="icon">
@@ -58,6 +65,30 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
+        {isOwnerAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-destructive">Admin</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild tooltip={item.title}>
+                      <NavLink 
+                        to={item.url}
+                        className="flex items-center gap-2"
+                        activeClassName="bg-destructive/10 text-destructive font-medium"
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         <SidebarGroup>
           <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
           <SidebarGroupContent>
