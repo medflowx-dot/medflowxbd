@@ -17,6 +17,7 @@ import {
   Loader2,
   Shield,
   Crown,
+  Mail,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -62,6 +63,11 @@ const navItems = [
     title: 'CMS Manager',
     href: '/owner/cms',
     icon: Globe,
+  },
+  {
+    title: 'Email Templates',
+    href: '/owner/email-templates',
+    icon: Mail,
   },
   {
     title: 'Audit Logs',
