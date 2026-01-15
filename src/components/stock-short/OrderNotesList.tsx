@@ -42,6 +42,7 @@ import { format } from 'date-fns';
 import { useStockOrders, StockOrder } from '@/hooks/useStockOrders';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { ManufacturerPhoneDialog } from './ManufacturerPhoneDialog';
+import { ReceiveOrderDialog } from './ReceiveOrderDialog';
 
 const statusColors: Record<StockOrder['status'], string> = {
   pending: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
@@ -56,6 +57,7 @@ export function OrderNotesList() {
   const [expandedOrders, setExpandedOrders] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [phoneDialogOrder, setPhoneDialogOrder] = useState<StockOrder | null>(null);
+  const [receiveOrderDialog, setReceiveOrderDialog] = useState<StockOrder | null>(null);
 
   const toggleExpand = (id: string) => {
     setExpandedOrders((prev) =>
@@ -226,12 +228,10 @@ export function OrderNotesList() {
                           )}
                           {order.status === 'submitted' && (
                             <DropdownMenuItem
-                              onClick={() =>
-                                updateOrderStatus.mutate({ id: order.id, status: 'received' })
-                              }
+                              onClick={() => setReceiveOrderDialog(order)}
                             >
                               <PackageCheck className="h-4 w-4 mr-2" />
-                              Mark as Received
+                              Receive & Update Stock
                             </DropdownMenuItem>
                           )}
                           {(order.status === 'pending' || order.status === 'submitted') && (
@@ -319,6 +319,14 @@ export function OrderNotesList() {
           manufacturerName={phoneDialogOrder.manufacturer}
           existingPhone={phoneDialogOrder.manufacturer_phone || undefined}
           onShare={handlePhoneShare}
+        />
+      )}
+
+      {receiveOrderDialog && (
+        <ReceiveOrderDialog
+          open={!!receiveOrderDialog}
+          onOpenChange={(open) => !open && setReceiveOrderDialog(null)}
+          order={receiveOrderDialog}
         />
       )}
     </>
