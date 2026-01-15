@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { usePermissions } from '@/hooks/usePermissions';
+import { StaffManagement } from '@/components/settings/StaffManagement';
 import { Loader2, Save, User, Building2, Globe, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,6 +18,7 @@ export default function Settings() {
   const { data: profile, isLoading: profileLoading } = useProfile();
   const updateProfile = useUpdateProfile();
   const { planType, daysRemaining, isTrial, isExpired } = useSubscriptionStatus();
+  const { isAdmin } = usePermissions();
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -245,6 +248,9 @@ export default function Settings() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Staff Management - Only visible to admins */}
+        {isAdmin && <StaffManagement />}
 
         {/* Subscription */}
         <Card>
