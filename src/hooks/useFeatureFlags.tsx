@@ -16,7 +16,7 @@ export interface FeatureFlag {
 // Map feature keys to route paths
 const featureToRouteMap: Record<string, string[]> = {
   medicines: ['/dashboard/medicines'],
-  batches: ['/dashboard/medicines'],
+  batches: ['/dashboard/batches'],
   expiry_monitor: ['/dashboard/expiry'],
   alerts: ['/dashboard/alerts'],
   sales: ['/dashboard/sales'],

@@ -14,6 +14,7 @@ import Signup from "./pages/Signup";
 import Billing from "./pages/Billing";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import Medicines from "./pages/dashboard/Medicines";
+import Batches from "./pages/dashboard/Batches";
 import Sales from "./pages/dashboard/Sales";
 import Suppliers from "./pages/dashboard/Suppliers";
 import DailyCash from "./pages/dashboard/DailyCash";
@@ -72,6 +73,7 @@ const App = () => (
             >
               <Route index element={<DashboardHome />} />
               <Route path="medicines" element={<Medicines />} />
+              <Route path="batches" element={<Batches />} />
               <Route path="expiry" element={<ExpiryMonitoring />} />
               <Route path="alerts" element={<Alerts />} />
               <Route path="sales" element={<Sales />} />
