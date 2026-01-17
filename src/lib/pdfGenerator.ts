@@ -4,8 +4,9 @@ import { format } from 'date-fns';
 import type { DailySummaryReport, SalesReportItem, SupplierDueItem } from '@/hooks/useReports';
 import type { DailyCashSummary } from '@/hooks/useDailyCash';
 
-const CURRENCY = '৳';
-const CURRENCY_LABEL = 'BDT';
+// Use "Tk" for PDF as jsPDF doesn't support Bengali characters (৳)
+const CURRENCY = 'Tk ';
+const CURRENCY_LABEL = 'BDT (Taka)';
 
 export interface CustomerDueItem {
   id: string;
