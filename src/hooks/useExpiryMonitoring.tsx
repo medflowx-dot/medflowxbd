@@ -7,8 +7,6 @@ export interface ExpiryBatch {
   id: string;
   batch_number: string;
   expiry_date: string;
-  purchase_price: number;
-  selling_price: number;
   medicine_id: string;
   medicine_name: string;
   manufacturer: string | null;
@@ -33,8 +31,6 @@ export function useExpiryMonitoring(filter: ExpiryFilter, customRange?: { from: 
           id,
           batch_number,
           expiry_date,
-          purchase_price,
-          selling_price,
           medicine_id,
           medicines (
             name,
@@ -89,8 +85,6 @@ export function useExpiryMonitoring(filter: ExpiryFilter, customRange?: { from: 
           id: batch.id,
           batch_number: batch.batch_number,
           expiry_date: batch.expiry_date,
-          purchase_price: batch.purchase_price,
-          selling_price: batch.selling_price,
           medicine_id: batch.medicine_id,
           medicine_name: batch.medicines?.name || 'Unknown',
           manufacturer: batch.medicines?.manufacturer,
@@ -114,34 +108,28 @@ export function useExpirySummary() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('medicine_batches')
-        .select('expiry_date, selling_price');
+        .select('expiry_date');
 
       if (error) throw error;
 
-      let expired = { count: 0, value: 0 };
-      let within30Days = { count: 0, value: 0 };
-      let within60Days = { count: 0, value: 0 };
-      let within90Days = { count: 0, value: 0 };
+      let expired = { count: 0 };
+      let within30Days = { count: 0 };
+      let within60Days = { count: 0 };
+      let within90Days = { count: 0 };
 
       const in30Days = format(addDays(today, 30), 'yyyy-MM-dd');
       const in60Days = format(addDays(today, 60), 'yyyy-MM-dd');
       const in90Days = format(addDays(today, 90), 'yyyy-MM-dd');
 
       (data || []).forEach((batch) => {
-        const value = Number(batch.selling_price);
-
         if (batch.expiry_date < todayStr) {
           expired.count++;
-          expired.value += value;
         } else if (batch.expiry_date <= in30Days) {
           within30Days.count++;
-          within30Days.value += value;
         } else if (batch.expiry_date <= in60Days) {
           within60Days.count++;
-          within60Days.value += value;
         } else if (batch.expiry_date <= in90Days) {
           within90Days.count++;
-          within90Days.value += value;
         }
       });
 
@@ -151,7 +139,6 @@ export function useExpirySummary() {
         within60Days,
         within90Days,
         totalAtRisk: expired.count + within30Days.count + within60Days.count + within90Days.count,
-        totalValueAtRisk: expired.value + within30Days.value + within60Days.value + within90Days.value,
       };
     },
     enabled: !!user,

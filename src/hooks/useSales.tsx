@@ -17,7 +17,6 @@ export interface SaleItem {
   unit_price: number;
   total_price: number;
   sale_unit: SaleUnit;
-  purchase_price: number;
   created_at: string;
 }
 
@@ -276,11 +275,9 @@ export function useSales(dateFilter?: Date) {
   const quickTotal = quickSales.reduce((sum, s) => sum + Number(s.total_amount), 0);
   const detailedTotal = detailedSales.reduce((sum, s) => sum + Number(s.total_amount), 0);
 
-  // Calculate today's profit from detailed sales
+  // Today's revenue from detailed sales
   const todayItems = todayItemsQuery.data || [];
   const todayRevenue = todayItems.reduce((sum, item) => sum + Number(item.total_price), 0);
-  const todayCost = todayItems.reduce((sum, item) => sum + Number(item.purchase_price || 0), 0);
-  const todayProfit = todayRevenue - todayCost;
 
   return {
     sales: salesQuery.data || [],
@@ -298,8 +295,6 @@ export function useSales(dateFilter?: Date) {
       detailedTotal,
       quickCount: quickSales.length,
       detailedCount: detailedSales.length,
-      profit: todayProfit,
-      profitAvailable: todayItems.length > 0,
     },
   };
 }

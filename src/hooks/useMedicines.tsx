@@ -25,8 +25,6 @@ export interface MedicineBatch {
   medicine_id: string;
   user_id: string;
   batch_number: string;
-  purchase_price: number;
-  selling_price: number;
   expiry_date: string;
   manufactured_date: string | null;
   supplier_name: string | null;
@@ -55,8 +53,6 @@ export interface CreateMedicineData {
 export interface CreateBatchData {
   medicine_id: string;
   batch_number: string;
-  purchase_price: number;
-  selling_price: number;
   expiry_date: string;
   manufactured_date?: string;
   supplier_name?: string;

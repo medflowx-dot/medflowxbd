@@ -72,8 +72,6 @@ export function BatchTable({ batches, medicines, canManage }: BatchTableProps) {
           <TableRow>
             <TableHead>Medicine</TableHead>
             <TableHead>Batch #</TableHead>
-            <TableHead>Purchase Price</TableHead>
-            <TableHead>Selling Price</TableHead>
             <TableHead>Expiry Date</TableHead>
             <TableHead>Supplier</TableHead>
             {canManage && (
@@ -97,8 +95,6 @@ export function BatchTable({ batches, medicines, canManage }: BatchTableProps) {
                 <TableCell className="font-mono text-sm">
                   {batch.batch_number}
                 </TableCell>
-                <TableCell>৳{batch.purchase_price.toFixed(2)}</TableCell>
-                <TableCell>৳{batch.selling_price.toFixed(2)}</TableCell>
                 <TableCell>
                   <Badge
                     variant={
