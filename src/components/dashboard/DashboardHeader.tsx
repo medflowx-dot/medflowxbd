@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useProfile } from '@/hooks/useProfile';
@@ -5,6 +6,7 @@ import { useExpiryAlerts } from '@/hooks/useMedicines';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useCustomerDuesSummary } from '@/hooks/useCustomerDues';
 import { useSupplierDuesSummary } from '@/hooks/useSuppliers';
+import { useNotificationSound } from '@/hooks/useNotificationSound';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -30,6 +32,7 @@ export function DashboardHeader() {
   const { data: stats } = useDashboardStats();
   const { data: customerDuesData } = useCustomerDuesSummary();
   const { data: supplierDuesData } = useSupplierDuesSummary();
+  const { checkAndPlaySound } = useNotificationSound();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -46,6 +49,11 @@ export function DashboardHeader() {
   const suppliersWithDue = supplierDuesData?.suppliersWithDue || 0;
   const totalSupplierDues = supplierDuesData?.totalDue || 0;
   const totalNotifications = totalAlerts + lowStockCount + (customersWithDue > 0 ? 1 : 0) + (suppliersWithDue > 0 ? 1 : 0);
+
+  // Play sound when notifications increase
+  useEffect(() => {
+    checkAndPlaySound(totalNotifications);
+  }, [totalNotifications, checkAndPlaySound]);
 
   const getRoleBadge = () => {
     if (isLoading) return null;
