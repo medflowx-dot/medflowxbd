@@ -4,6 +4,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useExpiryAlerts } from '@/hooks/useMedicines';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useCustomerDuesSummary } from '@/hooks/useCustomerDues';
+import { useSupplierDuesSummary } from '@/hooks/useSuppliers';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -16,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { LogOut, User, Bell, Shield, UserCog, Users, AlertTriangle, Package, Clock, Wallet } from 'lucide-react';
+import { LogOut, User, Bell, Shield, UserCog, Users, AlertTriangle, Package, Clock, Wallet, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -28,6 +29,7 @@ export function DashboardHeader() {
   const { totalAlerts, expired, expiring30 } = useExpiryAlerts();
   const { data: stats } = useDashboardStats();
   const { data: customerDuesData } = useCustomerDuesSummary();
+  const { data: supplierDuesData } = useSupplierDuesSummary();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -41,7 +43,9 @@ export function DashboardHeader() {
   const lowStockCount = stats?.lowStockCount || 0;
   const customersWithDue = customerDuesData?.customersWithDue || 0;
   const totalCustomerDues = customerDuesData?.totalDue || 0;
-  const totalNotifications = totalAlerts + lowStockCount + (customersWithDue > 0 ? 1 : 0);
+  const suppliersWithDue = supplierDuesData?.suppliersWithDue || 0;
+  const totalSupplierDues = supplierDuesData?.totalDue || 0;
+  const totalNotifications = totalAlerts + lowStockCount + (customersWithDue > 0 ? 1 : 0) + (suppliersWithDue > 0 ? 1 : 0);
 
   const getRoleBadge = () => {
     if (isLoading) return null;
@@ -201,6 +205,27 @@ export function DashboardHeader() {
                     </div>
                     <Badge variant="outline" className="text-xs border-blue-500 text-blue-500">
                       Collect
+                    </Badge>
+                  </DropdownMenuItem>
+                )}
+
+                {/* Supplier Dues */}
+                {suppliersWithDue > 0 && (
+                  <DropdownMenuItem 
+                    className="flex items-start gap-3 p-3 cursor-pointer"
+                    onClick={() => navigate('/dashboard/suppliers')}
+                  >
+                    <div className="rounded-full bg-purple-500/10 p-2">
+                      <Truck className="h-4 w-4 text-purple-500" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <p className="text-sm font-medium">Supplier Dues</p>
+                      <p className="text-xs text-muted-foreground">
+                        {suppliersWithDue} supplier{suppliersWithDue > 1 ? 's' : ''} owed ৳{totalSupplierDues.toLocaleString()}
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-xs border-purple-500 text-purple-500">
+                      Pay
                     </Badge>
                   </DropdownMenuItem>
                 )}

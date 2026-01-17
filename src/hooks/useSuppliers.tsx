@@ -47,6 +47,34 @@ export interface SupplierPurchase {
   supplier?: Supplier;
 }
 
+export function useSupplierDuesSummary() {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['supplier-dues-summary', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('suppliers')
+        .select('id, name, phone, total_due')
+        .eq('is_active', true)
+        .gt('total_due', 0)
+        .order('total_due', { ascending: false });
+
+      if (error) throw error;
+      
+      const totalDue = data?.reduce((sum, s) => sum + Number(s.total_due), 0) || 0;
+      const suppliersWithDue = data?.length || 0;
+
+      return {
+        suppliers: data || [],
+        totalDue,
+        suppliersWithDue,
+      };
+    },
+    enabled: !!user,
+  });
+}
+
 export function useSuppliers() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
