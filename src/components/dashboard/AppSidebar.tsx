@@ -35,16 +35,25 @@ import {
 } from '@/components/ui/sidebar';
 
 const mainMenuItems = [
+  // Overview
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+  
+  // Inventory Management
   { title: 'Medicines', url: '/dashboard/medicines', icon: Package },
   { title: 'Batches', url: '/dashboard/batches', icon: Layers },
-  { title: 'Expiry Monitor', url: '/dashboard/expiry', icon: AlertTriangle },
-  { title: 'Alerts', url: '/dashboard/alerts', icon: Bell },
+  { title: 'Manufacturers', url: '/dashboard/manufacturers', icon: Building2 },
+  { title: 'Suppliers', url: '/dashboard/suppliers', icon: Truck },
+  
+  // Sales & Finance
   { title: 'Sales', url: '/dashboard/sales', icon: ShoppingCart },
   { title: 'Customer Dues', url: '/dashboard/customer-dues', icon: Users },
-  { title: 'Suppliers', url: '/dashboard/suppliers', icon: Truck },
-  { title: 'Manufacturers', url: '/dashboard/manufacturers', icon: Building2 },
   { title: 'Daily Cash', url: '/dashboard/daily-cash', icon: Wallet },
+  
+  // Monitoring & Alerts
+  { title: 'Expiry Monitor', url: '/dashboard/expiry', icon: AlertTriangle },
+  { title: 'Alerts', url: '/dashboard/alerts', icon: Bell },
+  
+  // Reports
   { title: 'Reports', url: '/dashboard/reports', icon: FileText },
 ];
 
