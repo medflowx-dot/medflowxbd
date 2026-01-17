@@ -66,9 +66,9 @@ export function AddCostDialog({ date }: AddCostDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Cost
+        <Button className="flex-1 sm:flex-none">
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Add Cost</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

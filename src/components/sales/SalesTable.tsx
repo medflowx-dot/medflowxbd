@@ -98,18 +98,18 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
   };
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            {showEntryType && <TableHead className="w-10"></TableHead>}
+            {showEntryType && <TableHead className="w-10 hidden sm:table-cell"></TableHead>}
             <TableHead>Entry ID</TableHead>
-            {showEntryType && <TableHead>Type</TableHead>}
-            <TableHead>Date</TableHead>
+            {showEntryType && <TableHead className="hidden md:table-cell">Type</TableHead>}
+            <TableHead className="hidden sm:table-cell">Date</TableHead>
             <TableHead className="text-right">Total</TableHead>
-            <TableHead className="text-right">Paid</TableHead>
-            <TableHead className="text-right">Balance</TableHead>
-            <TableHead>Method</TableHead>
+            <TableHead className="text-right hidden md:table-cell">Paid</TableHead>
+            <TableHead className="text-right">Due</TableHead>
+            <TableHead className="hidden lg:table-cell">Method</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -124,7 +124,7 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                 <>
                   <TableRow className={isExpanded ? 'border-b-0' : ''}>
                     {showEntryType && (
-                      <TableCell className="py-2">
+                      <TableCell className="py-2 hidden sm:table-cell">
                         {isDetailedSale && (
                           <CollapsibleTrigger asChild>
                             <Button
@@ -147,7 +147,7 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                       {sale.invoice_number}
                     </TableCell>
                     {showEntryType && (
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
                         {sale.entry_type === 'quick' ? (
                           <Badge variant="secondary" className="gap-1">
                             <Zap className="h-3 w-3" />
@@ -161,23 +161,23 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                         )}
                       </TableCell>
                     )}
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       {format(new Date(sale.sale_date), 'dd MMM yyyy')}
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      ৳{Number(sale.total_amount).toFixed(2)}
+                      ৳{Number(sale.total_amount).toFixed(0)}
                     </TableCell>
-                    <TableCell className="text-right text-green-600">
-                      ৳{Number(sale.paid_amount).toFixed(2)}
+                    <TableCell className="text-right text-green-600 hidden md:table-cell">
+                      ৳{Number(sale.paid_amount).toFixed(0)}
                     </TableCell>
                     <TableCell className="text-right">
                       {Number(sale.due_amount) > 0 ? (
-                        <span className="text-orange-600 font-medium">৳{Number(sale.due_amount).toFixed(2)}</span>
+                        <span className="text-orange-600 font-medium">৳{Number(sale.due_amount).toFixed(0)}</span>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden lg:table-cell">
                       <Badge variant="outline" className="capitalize">
                         {sale.payment_method}
                       </Badge>

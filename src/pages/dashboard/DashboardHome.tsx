@@ -81,10 +81,10 @@ export default function DashboardHome() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
             {expiryStats.map((stat) => (
-              <div key={stat.label} className={`text-center p-3 rounded-lg ${stat.color}`}>
-                <div className="text-2xl font-bold">{isLoading ? '...' : stat.value}</div>
+              <div key={stat.label} className={`text-center p-2 sm:p-3 rounded-lg ${stat.color}`}>
+                <div className="text-lg sm:text-2xl font-bold">{isLoading ? '...' : stat.value}</div>
                 <div className="text-xs">{stat.label}</div>
               </div>
             ))}

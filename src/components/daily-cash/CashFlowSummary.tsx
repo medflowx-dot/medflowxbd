@@ -18,18 +18,18 @@ export function CashFlowSummary({ date }: CashFlowSummaryProps) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
       {/* Opening Cash */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Opening Cash</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardTitle className="text-xs sm:text-sm font-medium">Opening Cash</CardTitle>
           <Wallet className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+          <div className="text-lg sm:text-2xl font-bold">
             ৳{summary?.openingCash?.toLocaleString() || 0}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground hidden sm:block">
             Starting balance
           </p>
         </CardContent>
@@ -37,15 +37,15 @@ export function CashFlowSummary({ date }: CashFlowSummaryProps) {
 
       {/* Cash In */}
       <Card className="border-green-200 dark:border-green-900">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-green-600">Cash In</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardTitle className="text-xs sm:text-sm font-medium text-green-600">Cash In</CardTitle>
           <ArrowDownLeft className="h-4 w-4 text-green-600" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-green-600">
+        <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+          <div className="text-lg sm:text-2xl font-bold text-green-600">
             +৳{summary?.totalIn?.toLocaleString() || 0}
           </div>
-          <div className="text-xs text-muted-foreground space-y-0.5 mt-1">
+          <div className="text-xs text-muted-foreground space-y-0.5 mt-1 hidden sm:block">
             <p>Sales: ৳{summary?.salesCashIn?.toLocaleString() || 0}</p>
             <p>Due Collected: ৳{summary?.dueCollected?.toLocaleString() || 0}</p>
           </div>
@@ -54,36 +54,36 @@ export function CashFlowSummary({ date }: CashFlowSummaryProps) {
 
       {/* Cash Out */}
       <Card className="border-red-200 dark:border-red-900">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-red-600">Cash Out</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardTitle className="text-xs sm:text-sm font-medium text-red-600">Cash Out</CardTitle>
           <ArrowUpRight className="h-4 w-4 text-red-600" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-red-600">
+        <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+          <div className="text-lg sm:text-2xl font-bold text-red-600">
             -৳{summary?.totalOut?.toLocaleString() || 0}
           </div>
-          <div className="text-xs text-muted-foreground space-y-0.5 mt-1">
-            <p>Supplier Payments: ৳{summary?.supplierPayments?.toLocaleString() || 0}</p>
-            <p>Daily Costs: ৳{summary?.dailyCosts?.toLocaleString() || 0}</p>
+          <div className="text-xs text-muted-foreground space-y-0.5 mt-1 hidden sm:block">
+            <p>Supplier: ৳{summary?.supplierPayments?.toLocaleString() || 0}</p>
+            <p>Costs: ৳{summary?.dailyCosts?.toLocaleString() || 0}</p>
           </div>
         </CardContent>
       </Card>
 
       {/* Closing Cash */}
       <Card className={summary && summary.closingCash >= 0 ? 'border-primary' : 'border-red-500'}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Closing Cash</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardTitle className="text-xs sm:text-sm font-medium">Closing Cash</CardTitle>
           {summary && summary.closingCash >= summary.openingCash ? (
             <TrendingUp className="h-4 w-4 text-green-600" />
           ) : (
             <TrendingDown className="h-4 w-4 text-red-600" />
           )}
         </CardHeader>
-        <CardContent>
-          <div className={`text-2xl font-bold ${summary && summary.closingCash >= 0 ? 'text-primary' : 'text-red-600'}`}>
+        <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+          <div className={`text-lg sm:text-2xl font-bold ${summary && summary.closingCash >= 0 ? 'text-primary' : 'text-red-600'}`}>
             ৳{summary?.closingCash?.toLocaleString() || 0}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground hidden sm:block">
             End of day balance
           </p>
         </CardContent>
