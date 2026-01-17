@@ -111,9 +111,38 @@ export default function ClientManagement() {
         waiveServiceCharge: false,
       });
     } else {
+      // Calculate proper dates and amounts based on plan
+      const now = new Date();
+      let currentPeriodEnd: Date;
+      let amount: number;
+
+      switch (newPlan) {
+        case 'monthly':
+          currentPeriodEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+          amount = 299;
+          break;
+        case 'yearly':
+          currentPeriodEnd = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+          amount = 2499;
+          break;
+        case 'trial':
+          currentPeriodEnd = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+          amount = 0;
+          break;
+        default:
+          currentPeriodEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+          amount = 299;
+      }
+
       await updateSubscription.mutateAsync({
         subscriptionId: selectedClient.subscription.id,
-        updates: { plan_type: newPlan, status: 'active' },
+        updates: { 
+          plan_type: newPlan, 
+          status: 'active',
+          amount,
+          current_period_end: currentPeriodEnd.toISOString(),
+          trial_ends_at: newPlan === 'trial' ? currentPeriodEnd.toISOString() : undefined,
+        },
       });
     }
     setDialogType(null);
