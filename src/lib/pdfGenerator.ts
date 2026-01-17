@@ -5,6 +5,7 @@ import type { DailySummaryReport, SalesReportItem, SupplierDueItem } from '@/hoo
 import type { DailyCashSummary } from '@/hooks/useDailyCash';
 
 const CURRENCY = '৳';
+const CURRENCY_LABEL = 'BDT';
 
 export interface CustomerDueItem {
   id: string;
@@ -20,13 +21,6 @@ export interface DailyTransaction {
   amount: number;
   payment_method: string;
   time: string;
-}
-
-export interface CustomerDueItem {
-  id: string;
-  name: string;
-  phone: string | null;
-  total_due: number;
 }
 
 function addHeader(doc: jsPDF, title: string, dateRange?: { start: Date; end: Date }) {
@@ -50,12 +44,15 @@ function addHeader(doc: jsPDF, title: string, dateRange?: { start: Date; end: Da
     );
   }
   
-  // Generated date
+  // Currency info
   doc.setFontSize(8);
-  doc.text(`Generated: ${format(new Date(), 'PPP p')}`, 14, 44);
+  doc.text(`Currency: ${CURRENCY_LABEL} (${CURRENCY})`, 14, dateRange ? 44 : 38);
+  
+  // Generated date
+  doc.text(`Generated: ${format(new Date(), 'PPP p')}`, 100, dateRange ? 44 : 38);
   doc.setTextColor(0);
   
-  return 50; // Return Y position for content to start
+  return dateRange ? 52 : 46; // Return Y position for content to start
 }
 
 function addFooter(doc: jsPDF) {
