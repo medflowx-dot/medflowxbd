@@ -17,7 +17,6 @@ import Medicines from "./pages/dashboard/Medicines";
 import Sales from "./pages/dashboard/Sales";
 import Suppliers from "./pages/dashboard/Suppliers";
 import DailyCash from "./pages/dashboard/DailyCash";
-import StockShort from "./pages/dashboard/StockShort";
 import Manufacturers from "./pages/dashboard/Manufacturers";
 import Reports from "./pages/dashboard/Reports";
 import Settings from "./pages/dashboard/Settings";
@@ -79,7 +78,6 @@ const App = () => (
               <Route path="customer-dues" element={<CustomerDues />} />
               {/* Admin-only routes - staff will be redirected */}
               <Route path="suppliers" element={<AdminRoute><Suppliers /></AdminRoute>} />
-              <Route path="stock-short" element={<AdminRoute><StockShort /></AdminRoute>} />
               <Route path="manufacturers" element={<AdminRoute><Manufacturers /></AdminRoute>} />
               <Route path="reports" element={<AdminRoute><Reports /></AdminRoute>} />
               <Route path="settings" element={<AdminRoute><Settings /></AdminRoute>} />

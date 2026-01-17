@@ -3,7 +3,6 @@ import {
   ShoppingCart, 
   Truck, 
   Wallet, 
-  ClipboardList, 
   FileText,
   LayoutDashboard,
   Settings,
@@ -44,7 +43,6 @@ const mainMenuItems = [
   { title: 'Suppliers', url: '/dashboard/suppliers', icon: Truck },
   { title: 'Manufacturers', url: '/dashboard/manufacturers', icon: Building2 },
   { title: 'Daily Cash', url: '/dashboard/daily-cash', icon: Wallet },
-  { title: 'Stock Short', url: '/dashboard/stock-short', icon: ClipboardList },
   { title: 'Reports', url: '/dashboard/reports', icon: FileText },
 ];
 
