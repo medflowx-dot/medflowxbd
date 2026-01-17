@@ -18,12 +18,12 @@ export default function Sales() {
   }, [sales, entryTypeFilter]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 max-w-full overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Sales Tracking</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold">Sales Tracking</h1>
+          <p className="text-sm text-muted-foreground">
             Internal revenue tracking and daily sales management
           </p>
         </div>
@@ -34,58 +34,60 @@ export default function Sales() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1">
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardDescription className="flex items-center gap-1 text-xs">
               <Zap className="h-3 w-3" />
-              Quick Sales Today
+              <span className="hidden sm:inline">Quick Sales</span>
+              <span className="sm:hidden">Quick</span>
             </CardDescription>
-            <CardTitle className="text-2xl">৳{todayStats.quickTotal.toLocaleString()}</CardTitle>
+            <CardTitle className="text-lg sm:text-2xl">৳{todayStats.quickTotal.toLocaleString()}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0">
             <p className="text-xs text-muted-foreground">
               {todayStats.quickCount} entries
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1">
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardDescription className="flex items-center gap-1 text-xs">
               <ClipboardList className="h-3 w-3" />
-              Detailed Sales Today
+              <span className="hidden sm:inline">Detailed Sales</span>
+              <span className="sm:hidden">Detailed</span>
             </CardDescription>
-            <CardTitle className="text-2xl">৳{todayStats.detailedTotal.toLocaleString()}</CardTitle>
+            <CardTitle className="text-lg sm:text-2xl">৳{todayStats.detailedTotal.toLocaleString()}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0">
             <p className="text-xs text-muted-foreground">
               {todayStats.detailedCount} entries
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1">
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardDescription className="flex items-center gap-1 text-xs">
               <TrendingUp className="h-3 w-3" />
-              Total Sales Today
+              Total Today
             </CardDescription>
-            <CardTitle className="text-2xl text-primary">৳{todayStats.total.toLocaleString()}</CardTitle>
+            <CardTitle className="text-lg sm:text-2xl text-primary">৳{todayStats.total.toLocaleString()}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0">
             <p className="text-xs text-muted-foreground">
-              {todayStats.count} total entries
+              {todayStats.count} entries
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1">
+          <CardHeader className="p-3 sm:p-4 pb-1 sm:pb-2">
+            <CardDescription className="flex items-center gap-1 text-xs">
               <Wallet className="h-3 w-3" />
               Cash Collected
             </CardDescription>
-            <CardTitle className="text-2xl text-green-600">৳{todayStats.cash.toLocaleString()}</CardTitle>
+            <CardTitle className="text-lg sm:text-2xl text-green-600">৳{todayStats.cash.toLocaleString()}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0">
             <p className="text-xs text-muted-foreground">
               {todayStats.due > 0 ? `৳${todayStats.due.toLocaleString()} unpaid` : 'All paid'}
             </p>
@@ -94,29 +96,31 @@ export default function Sales() {
       </div>
 
       {/* Sales List */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Sales Entries</CardTitle>
-            <CardDescription>Your latest transactions</CardDescription>
-          </div>
-          <div className="flex items-center gap-2">
-            <Select value={entryTypeFilter} onValueChange={(v) => setEntryTypeFilter(v as 'all' | EntryType)}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Filter by type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="quick">Quick Only</SelectItem>
-                <SelectItem value="detailed">Detailed Only</SelectItem>
-              </SelectContent>
-            </Select>
-            <Badge variant="secondary">
-              {filteredSales.length} {filteredSales.length === 1 ? 'entry' : 'entries'}
-            </Badge>
+      <Card className="overflow-hidden">
+        <CardHeader className="p-3 sm:p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <CardTitle className="text-base sm:text-lg">Sales Entries</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Your latest transactions</CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Select value={entryTypeFilter} onValueChange={(v) => setEntryTypeFilter(v as 'all' | EntryType)}>
+                <SelectTrigger className="w-[120px] sm:w-[150px] h-8 sm:h-9 text-xs sm:text-sm">
+                  <SelectValue placeholder="Filter" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="quick">Quick</SelectItem>
+                  <SelectItem value="detailed">Detailed</SelectItem>
+                </SelectContent>
+              </Select>
+              <Badge variant="secondary" className="text-xs">
+                {filteredSales.length}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 sm:p-4 md:p-6 pt-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />

@@ -98,19 +98,19 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
   };
 
   return (
-    <div className="rounded-md border overflow-x-auto">
-      <Table>
+    <div className="-mx-3 sm:mx-0 overflow-x-auto">
+      <Table className="min-w-[400px]">
         <TableHeader>
           <TableRow>
-            {showEntryType && <TableHead className="w-10 hidden sm:table-cell"></TableHead>}
-            <TableHead>Entry ID</TableHead>
-            {showEntryType && <TableHead className="hidden md:table-cell">Type</TableHead>}
-            <TableHead className="hidden sm:table-cell">Date</TableHead>
-            <TableHead className="text-right">Total</TableHead>
-            <TableHead className="text-right hidden md:table-cell">Paid</TableHead>
-            <TableHead className="text-right">Due</TableHead>
-            <TableHead className="hidden lg:table-cell">Method</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            {showEntryType && <TableHead className="w-8 hidden sm:table-cell"></TableHead>}
+            <TableHead className="text-xs sm:text-sm">ID</TableHead>
+            {showEntryType && <TableHead className="hidden md:table-cell text-xs sm:text-sm">Type</TableHead>}
+            <TableHead className="hidden sm:table-cell text-xs sm:text-sm">Date</TableHead>
+            <TableHead className="text-right text-xs sm:text-sm">Total</TableHead>
+            <TableHead className="text-right hidden md:table-cell text-xs sm:text-sm">Paid</TableHead>
+            <TableHead className="text-right text-xs sm:text-sm">Due</TableHead>
+            <TableHead className="hidden lg:table-cell text-xs sm:text-sm">Method</TableHead>
+            <TableHead className="text-right w-12"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -143,8 +143,8 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                         )}
                       </TableCell>
                     )}
-                    <TableCell className="font-mono text-sm">
-                      {sale.invoice_number}
+                    <TableCell className="font-mono text-xs">
+                      {sale.invoice_number.replace('INV-', '')}
                     </TableCell>
                     {showEntryType && (
                       <TableCell className="hidden md:table-cell">

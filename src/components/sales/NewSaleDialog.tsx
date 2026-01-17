@@ -163,13 +163,13 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button>
-            <ClipboardList className="h-4 w-4 mr-2" />
-            Detailed Sale
+          <Button size="sm" className="h-8 sm:h-9">
+            <ClipboardList className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Detailed Sale</span>
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-3 sm:p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ClipboardList className="h-5 w-5 text-primary" />
@@ -178,7 +178,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
           <DialogDescription>Add medicines to the cart and complete the sale</DialogDescription>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Left: Product Search & Cart */}
           <div className="space-y-4">
             <div className="relative">
