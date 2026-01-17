@@ -2,8 +2,25 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import type { DailySummaryReport, SalesReportItem, SupplierDueItem } from '@/hooks/useReports';
+import type { DailyCashSummary } from '@/hooks/useDailyCash';
 
 const CURRENCY = '৳';
+
+export interface CustomerDueItem {
+  id: string;
+  name: string;
+  phone: string | null;
+  total_due: number;
+}
+
+export interface DailyTransaction {
+  id: string;
+  type: 'sale' | 'collection' | 'supplier_payment' | 'cost';
+  description: string;
+  amount: number;
+  payment_method: string;
+  time: string;
+}
 
 export interface CustomerDueItem {
   id: string;
@@ -254,4 +271,114 @@ export function generateCustomerDuesPDF(data: CustomerDueItem[]) {
 
   addFooter(doc);
   doc.save(`customer-dues-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+}
+
+export function generateDailyClosingCashPDF(
+  summary: DailyCashSummary,
+  transactions: DailyTransaction[],
+  date: Date
+) {
+  const doc = new jsPDF();
+  const startY = addHeader(doc, 'Daily Closing Cash Report');
+
+  // Date
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Date: ${format(date, 'EEEE, MMMM dd, yyyy')}`, 14, startY);
+
+  // Summary Section
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Cash Flow Summary', 14, startY + 10);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  
+  const summaryStartY = startY + 16;
+  
+  // Opening Cash
+  doc.text('Opening Cash:', 14, summaryStartY);
+  doc.text(`${CURRENCY}${summary.openingCash.toLocaleString()}`, 80, summaryStartY);
+  
+  // Cash In Section
+  doc.setFont('helvetica', 'bold');
+  doc.text('Cash In:', 14, summaryStartY + 8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Sales (Cash):`, 20, summaryStartY + 14);
+  doc.text(`${CURRENCY}${summary.salesCashIn.toLocaleString()}`, 80, summaryStartY + 14);
+  doc.text(`Due Collections:`, 20, summaryStartY + 20);
+  doc.text(`${CURRENCY}${summary.dueCollected.toLocaleString()}`, 80, summaryStartY + 20);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Total In:`, 20, summaryStartY + 26);
+  doc.text(`${CURRENCY}${summary.totalIn.toLocaleString()}`, 80, summaryStartY + 26);
+  
+  // Cash Out Section
+  doc.setFont('helvetica', 'bold');
+  doc.text('Cash Out:', 14, summaryStartY + 36);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Supplier Payments:`, 20, summaryStartY + 42);
+  doc.text(`${CURRENCY}${summary.supplierPayments.toLocaleString()}`, 80, summaryStartY + 42);
+  doc.text(`Daily Costs:`, 20, summaryStartY + 48);
+  doc.text(`${CURRENCY}${summary.dailyCosts.toLocaleString()}`, 80, summaryStartY + 48);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Total Out:`, 20, summaryStartY + 54);
+  doc.text(`${CURRENCY}${summary.totalOut.toLocaleString()}`, 80, summaryStartY + 54);
+  
+  // Closing Cash (highlighted)
+  doc.setFillColor(240, 253, 244); // light green
+  doc.rect(14, summaryStartY + 62, 100, 12, 'F');
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CLOSING CASH:', 16, summaryStartY + 70);
+  doc.text(`${CURRENCY}${summary.closingCash.toLocaleString()}`, 80, summaryStartY + 70);
+
+  // Transactions Table
+  const tableStartY = summaryStartY + 82;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Transaction Details (Cash Only)', 14, tableStartY);
+
+  if (transactions.length > 0) {
+    autoTable(doc, {
+      startY: tableStartY + 6,
+      head: [['Time', 'Type', 'Description', 'In', 'Out']],
+      body: transactions.map(tx => {
+        const typeLabels: Record<string, string> = {
+          sale: 'Sale',
+          collection: 'Collection',
+          supplier_payment: 'Supplier',
+          cost: 'Cost',
+        };
+        const isIn = tx.type === 'sale' || tx.type === 'collection';
+        return [
+          tx.time,
+          typeLabels[tx.type] || tx.type,
+          tx.description,
+          isIn ? `${CURRENCY}${tx.amount.toLocaleString()}` : '-',
+          !isIn ? `${CURRENCY}${tx.amount.toLocaleString()}` : '-',
+        ];
+      }),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [59, 130, 246] },
+      columnStyles: {
+        3: { halign: 'right' },
+        4: { halign: 'right' },
+      },
+    });
+
+    // Footer totals
+    const finalY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Total Cash In: ${CURRENCY}${summary.totalIn.toLocaleString()}`, 14, finalY + 8);
+    doc.text(`Total Cash Out: ${CURRENCY}${summary.totalOut.toLocaleString()}`, 80, finalY + 8);
+    doc.text(`Net: ${CURRENCY}${(summary.totalIn - summary.totalOut).toLocaleString()}`, 146, finalY + 8);
+  } else {
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('No cash transactions for this date.', 14, tableStartY + 10);
+  }
+
+  addFooter(doc);
+  doc.save(`daily-cash-${format(date, 'yyyy-MM-dd')}.pdf`);
 }
