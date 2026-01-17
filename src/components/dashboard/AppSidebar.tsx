@@ -92,31 +92,29 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         {/* Pharmacy Info */}
-        {profile?.pharmacy_name && (
-          <div className="flex items-center gap-2 px-2 py-2 mx-2 mb-1 rounded-lg bg-sidebar-accent/50">
-            {profile?.pharmacy_logo ? (
-              <img 
-                src={profile.pharmacy_logo} 
-                alt={profile.pharmacy_name || 'Pharmacy logo'} 
-                className="h-8 w-8 rounded-md object-cover flex-shrink-0"
-              />
-            ) : (
-              <div className="p-1.5 rounded-md bg-primary/10 text-primary flex-shrink-0">
-                <Store className="h-4 w-4" />
-              </div>
-            )}
-            {!isCollapsed && (
-              <div className="flex flex-col min-w-0">
-                <span className="text-sm font-medium text-foreground truncate">
-                  {profile.pharmacy_name}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {role === 'owner_admin' ? 'Owner' : role === 'client_admin' ? 'Admin' : 'Staff'}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="flex items-center gap-2 px-2 py-2 mx-2 my-1 rounded-lg bg-sidebar-accent/50">
+          {profile?.pharmacy_logo ? (
+            <img 
+              src={profile.pharmacy_logo} 
+              alt={profile?.pharmacy_name || 'Pharmacy logo'} 
+              className="h-8 w-8 rounded-md object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="p-1.5 rounded-md bg-primary/10 text-primary flex-shrink-0">
+              <Store className="h-4 w-4" />
+            </div>
+          )}
+          {!isCollapsed && (
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-medium text-foreground truncate">
+                {profile?.pharmacy_name || 'My Pharmacy'}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {role === 'owner_admin' ? 'Owner' : role === 'client_admin' ? 'Admin' : 'Staff'}
+              </span>
+            </div>
+          )}
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
