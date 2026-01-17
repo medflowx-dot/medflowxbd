@@ -9,6 +9,7 @@ import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { usePermissions } from '@/hooks/usePermissions';
 import { StaffManagement } from '@/components/settings/StaffManagement';
+import { PharmacyLogoUpload } from '@/components/settings/PharmacyLogoUpload';
 import { Loader2, Save, User, Building2, Globe, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -163,7 +164,13 @@ export default function Settings() {
             </div>
             <CardDescription>Update your pharmacy details</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
+            {/* Logo Upload */}
+            <PharmacyLogoUpload 
+              currentLogo={profile?.pharmacy_logo || null} 
+              pharmacyName={formData.pharmacy_name} 
+            />
+            
             <div className="space-y-2">
               <Label htmlFor="pharmacyName">Pharmacy Name</Label>
               <Input 

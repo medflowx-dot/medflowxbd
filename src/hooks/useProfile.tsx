@@ -8,6 +8,7 @@ export interface Profile {
   user_id: string;
   full_name: string | null;
   pharmacy_name: string | null;
+  pharmacy_logo: string | null;
   phone: string | null;
   avatar_url: string | null;
   currency: string | null;
