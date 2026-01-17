@@ -91,22 +91,6 @@ export default function Sales() {
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1">
-              {todayStats.profit >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-              Today's Profit
-            </CardDescription>
-            <CardTitle className={`text-2xl ${todayStats.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {todayStats.profit >= 0 ? '+' : ''}৳{todayStats.profit.toLocaleString()}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">
-              {todayStats.profitAvailable ? 'From detailed sales' : 'No detailed sales yet'}
-            </p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Sales List */}

@@ -72,9 +72,7 @@ export default function ExpiryMonitoring() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{summary?.expired.count || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              ৳{summary?.expired.value.toFixed(0) || 0} at risk
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">batches</p>
           </CardContent>
         </Card>
 
@@ -84,9 +82,7 @@ export default function ExpiryMonitoring() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{summary?.within30Days.count || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              ৳{summary?.within30Days.value.toFixed(0) || 0} at risk
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">batches</p>
           </CardContent>
         </Card>
 
@@ -96,9 +92,7 @@ export default function ExpiryMonitoring() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">{summary?.within60Days.count || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              ৳{summary?.within60Days.value.toFixed(0) || 0} at risk
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">batches</p>
           </CardContent>
         </Card>
 
@@ -108,22 +102,20 @@ export default function ExpiryMonitoring() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{summary?.within90Days.count || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              ৳{summary?.within90Days.value.toFixed(0) || 0} at risk
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">batches</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total Value at Risk</CardDescription>
+            <CardDescription>Total at Risk</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">
-              ৳{summary?.totalValueAtRisk.toFixed(0) || 0}
+              {summary?.totalAtRisk || 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {summary?.totalAtRisk || 0} batches
+              total batches
             </p>
           </CardContent>
         </Card>
@@ -234,7 +226,7 @@ export default function ExpiryMonitoring() {
                             {getStatusBadge(batch.status, batch.daysUntilExpiry)}
                           </TableCell>
                           <TableCell className="text-right">
-                            ৳{batch.selling_price.toFixed(2)}
+                            {batch.batch_number}
                           </TableCell>
                         </TableRow>
                       ))}

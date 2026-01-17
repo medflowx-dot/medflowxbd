@@ -30,8 +30,6 @@ import { useMedicines, type CreateBatchData, type MedicineBatch } from '@/hooks/
 
 const batchSchema = z.object({
   batch_number: z.string().trim().min(1, 'Batch number is required').max(50, 'Batch number must be less than 50 characters'),
-  purchase_price: z.coerce.number().min(0, 'Purchase price must be 0 or more'),
-  selling_price: z.coerce.number().min(0, 'Selling price must be 0 or more'),
   expiry_date: z.date({ required_error: 'Expiry date is required' }),
   manufactured_date: z.date().optional(),
   supplier_name: z.string().trim().max(200).optional(),
@@ -63,8 +61,6 @@ export function AddBatchDialog({
     resolver: zodResolver(batchSchema),
     defaultValues: {
       batch_number: batch?.batch_number || '',
-      purchase_price: batch?.purchase_price || 0,
-      selling_price: batch?.selling_price || 0,
       expiry_date: batch?.expiry_date ? new Date(batch.expiry_date) : undefined,
       manufactured_date: batch?.manufactured_date ? new Date(batch.manufactured_date) : undefined,
       supplier_name: batch?.supplier_name || '',
@@ -76,8 +72,6 @@ export function AddBatchDialog({
     const cleanData: CreateBatchData = {
       medicine_id: medicineId,
       batch_number: data.batch_number,
-      purchase_price: data.purchase_price,
-      selling_price: data.selling_price,
       expiry_date: format(data.expiry_date, 'yyyy-MM-dd'),
       manufactured_date: data.manufactured_date ? format(data.manufactured_date, 'yyyy-MM-dd') : undefined,
       supplier_name: data.supplier_name || undefined,
@@ -127,36 +121,6 @@ export function AddBatchDialog({
                 </FormItem>
               )}
             />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="purchase_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Purchase Price (৳) *</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" min={0} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="selling_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Selling Price (৳) *</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" min={0} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
