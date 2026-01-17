@@ -12,12 +12,14 @@ import {
   Building2,
   Users,
   AlertTriangle,
-  Bell
+  Bell,
+  Store
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { usePermissions, menuAccessByRole } from '@/hooks/usePermissions';
 import { useEnabledFeatures } from '@/hooks/useFeatureFlags';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useProfile } from '@/hooks/useProfile';
 import {
   Sidebar,
   SidebarContent,
@@ -60,6 +62,7 @@ export function AppSidebar() {
   const { role, isOwnerAdmin, canAccessRoute } = usePermissions();
   const { isRouteEnabled } = useEnabledFeatures();
   const { isTrial, daysRemaining, planType } = useSubscriptionStatus();
+  const { data: profile } = useProfile();
 
   // Filter menu items based on role permissions AND feature flags
   const allowedRoutes = menuAccessByRole[role] || [];
@@ -88,6 +91,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
+        {/* App Branding */}
         <div className="flex items-center gap-2 px-2 py-2">
           <div className="p-1.5 rounded-lg bg-primary text-primary-foreground flex-shrink-0">
             <Pill className="h-5 w-5" />
@@ -98,6 +102,25 @@ export function AppSidebar() {
             </span>
           )}
         </div>
+        
+        {/* Pharmacy Info */}
+        {profile?.pharmacy_name && (
+          <div className="flex items-center gap-2 px-2 py-2 mx-2 mb-1 rounded-lg bg-sidebar-accent/50">
+            <div className="p-1.5 rounded-md bg-primary/10 text-primary flex-shrink-0">
+              <Store className="h-4 w-4" />
+            </div>
+            {!isCollapsed && (
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-medium text-foreground truncate">
+                  {profile.pharmacy_name}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {role === 'owner_admin' ? 'Owner' : role === 'client_admin' ? 'Admin' : 'Staff'}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
       </SidebarHeader>
 
       <SidebarContent>
