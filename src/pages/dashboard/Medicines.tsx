@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Package, Search, AlertTriangle, TrendingDown, MapPin } from 'lucide-react';
+import { Package, Search, AlertTriangle, MapPin } from 'lucide-react';
 import { AddMedicineDialog } from '@/components/medicines/AddMedicineDialog';
 import { BulkImportDialog } from '@/components/medicines/BulkImportDialog';
 import { MedicineTable } from '@/components/medicines/MedicineTable';
@@ -28,12 +28,6 @@ export default function Medicines() {
     return [...new Set(locations)].sort();
   }, [medicines]);
 
-  const totalStock = medicines.reduce((sum, m) => sum + m.total_stock, 0);
-  const lowStockCount = medicines.filter(
-    (m) => m.min_stock_level && m.total_stock <= m.min_stock_level && m.total_stock > 0
-  ).length;
-  const outOfStockCount = medicines.filter((m) => m.total_stock === 0).length;
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -54,7 +48,7 @@ export default function Medicines() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Medicines</CardTitle>
@@ -63,33 +57,7 @@ export default function Medicines() {
           <CardContent>
             <div className="text-2xl font-bold">{medicines.length}</div>
             <p className="text-xs text-muted-foreground">
-              {totalStock} total items in stock
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Low Stock</CardTitle>
-            <TrendingDown className="h-4 w-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{lowStockCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Below minimum stock level
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Out of Stock</CardTitle>
-            <Package className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">{outOfStockCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Needs immediate restocking
+              Registered in system
             </p>
           </CardContent>
         </Card>

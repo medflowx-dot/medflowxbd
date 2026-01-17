@@ -6,7 +6,6 @@ import {
   Edit,
   Trash2,
   Package,
-  AlertTriangle,
 } from 'lucide-react';
 import {
   Table,
@@ -94,11 +93,6 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
     return 'safe';
   };
 
-  const getStockStatus = (medicine: MedicineWithBatches) => {
-    if (medicine.total_stock === 0) return 'out';
-    if (medicine.min_stock_level && medicine.total_stock <= medicine.min_stock_level) return 'low';
-    return 'ok';
-  };
 
   if (filteredMedicines.length === 0) {
     return (
@@ -127,7 +121,6 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
             <TableHead>Medicine</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Shelf</TableHead>
-            <TableHead>Stock</TableHead>
             <TableHead>Earliest Expiry</TableHead>
             {canManageMedicines && (
               <TableHead className="text-right">Actions</TableHead>
@@ -138,7 +131,6 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
           {filteredMedicines.map((medicine) => {
             const isExpanded = expandedMedicines.has(medicine.id);
             const expiryStatus = getExpiryStatus(medicine.earliest_expiry);
-            const stockStatus = getStockStatus(medicine);
 
             return (
               <>
@@ -178,19 +170,6 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                     ) : (
                       <span className="text-muted-foreground text-sm">—</span>
                     )}
-                  </TableCell>
-                  <TableCell onClick={() => toggleExpand(medicine.id)}>
-                    <div className="flex items-center gap-2">
-                      <span className={stockStatus === 'out' ? 'text-destructive font-medium' : stockStatus === 'low' ? 'text-orange-600 font-medium' : ''}>
-                        {medicine.total_stock} {medicine.unit}
-                      </span>
-                      {stockStatus === 'low' && (
-                        <AlertTriangle className="h-4 w-4 text-orange-500" />
-                      )}
-                      {stockStatus === 'out' && (
-                        <Badge variant="destructive" className="text-xs">Out of Stock</Badge>
-                      )}
-                    </div>
                   </TableCell>
                   <TableCell onClick={() => toggleExpand(medicine.id)}>
                     {medicine.earliest_expiry ? (
@@ -268,7 +247,7 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                 {/* Expanded Batches */}
                 {isExpanded && medicine.batches.length > 0 && (
                   <TableRow className="bg-muted/30">
-                    <TableCell colSpan={canManageMedicines ? 7 : 6} className="p-0">
+                    <TableCell colSpan={canManageMedicines ? 6 : 5} className="p-0">
                       <div className="px-8 py-4">
                         <h4 className="font-medium text-sm mb-3">Batches ({medicine.batches.length})</h4>
                         <Table>
