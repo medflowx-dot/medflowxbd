@@ -137,7 +137,7 @@ export function DashboardHeader() {
                 {expired.length > 0 && (
                   <DropdownMenuItem 
                     className="flex items-start gap-3 p-3 cursor-pointer"
-                    onClick={() => navigate('/dashboard/expiry-monitoring')}
+                    onClick={() => navigate('/dashboard/expiry')}
                   >
                     <div className="rounded-full bg-destructive/10 p-2">
                       <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -158,7 +158,7 @@ export function DashboardHeader() {
                 {expiring30.length > 0 && (
                   <DropdownMenuItem 
                     className="flex items-start gap-3 p-3 cursor-pointer"
-                    onClick={() => navigate('/dashboard/expiry-monitoring')}
+                    onClick={() => navigate('/dashboard/expiry')}
                   >
                     <div className="rounded-full bg-orange-500/10 p-2">
                       <Clock className="h-4 w-4 text-orange-500" />
