@@ -10,17 +10,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useClients, useUpdateClientSubscription, useExtendSubscription, useConvertToLifetime, useSuspendAccount, useActivateAccount, Client } from '@/hooks/useOwnerData';
-import { Loader2, Search, MoreHorizontal, UserCheck, UserX, Clock, Crown, ArrowUpCircle, ArrowDownCircle, Eye, Calendar, Users, Package, ShoppingCart } from 'lucide-react';
+import { Loader2, Search, MoreHorizontal, UserCheck, UserX, Clock, Crown, ArrowUpCircle, ArrowDownCircle, Eye, Calendar, Users, Package, ShoppingCart, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { AddClientDialog } from '@/components/owner/AddClientDialog';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function ClientManagement() {
   const [search, setSearch] = useState('');
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [dialogType, setDialogType] = useState<'extend' | 'upgrade' | 'suspend' | 'view' | null>(null);
+  const [dialogType, setDialogType] = useState<'extend' | 'upgrade' | 'suspend' | 'view' | 'delete' | null>(null);
   const [extendDays, setExtendDays] = useState('30');
   const [newPlan, setNewPlan] = useState('monthly');
   const [suspendReason, setSuspendReason] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: clients, isLoading } = useClients();
   const updateSubscription = useUpdateClientSubscription();
@@ -28,6 +32,30 @@ export default function ClientManagement() {
   const convertToLifetime = useConvertToLifetime();
   const suspendAccount = useSuspendAccount();
   const activateAccount = useActivateAccount();
+  const queryClient = useQueryClient();
+
+  const handleDeleteClient = async () => {
+    if (!selectedClient) return;
+    
+    setIsDeleting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-client', {
+        body: { userId: selectedClient.user_id },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success('Client deleted successfully');
+      setDialogType(null);
+      queryClient.invalidateQueries({ queryKey: ['owner-clients'] });
+    } catch (error: any) {
+      console.error('Error deleting client:', error);
+      toast.error(error.message || 'Failed to delete client');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const filteredClients = clients?.filter(client =>
     client.pharmacy_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -234,6 +262,13 @@ export default function ClientManagement() {
                               Suspend Account
                             </DropdownMenuItem>
                           )}
+                          <DropdownMenuItem 
+                            onClick={() => { setSelectedClient(client); setDialogType('delete'); }} 
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Client
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -419,6 +454,38 @@ export default function ClientManagement() {
             <Button variant="destructive" onClick={handleSuspend} disabled={suspendAccount.isPending}>
               {suspendAccount.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Suspend Account
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Client Dialog */}
+      <Dialog open={dialogType === 'delete'} onOpenChange={() => setDialogType(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Client</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to permanently delete <span className="font-semibold">{selectedClient?.pharmacy_name || selectedClient?.full_name || 'this client'}</span>?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-sm">
+            <p className="text-destructive font-medium mb-2">⚠️ Warning: This action cannot be undone!</p>
+            <p className="text-muted-foreground">
+              This will permanently delete the client account and all associated data including:
+            </p>
+            <ul className="list-disc list-inside mt-2 text-muted-foreground space-y-1">
+              <li>All medicines and batches</li>
+              <li>All sales records</li>
+              <li>All customers and dues</li>
+              <li>All suppliers and purchases</li>
+              <li>Subscription and payment history</li>
+            </ul>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogType(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDeleteClient} disabled={isDeleting}>
+              {isDeleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Delete Permanently
             </Button>
           </DialogFooter>
         </DialogContent>
