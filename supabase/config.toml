@@ -1,5 +1,11 @@
 project_id = "pjowmwyaribfewhbaazl"
 
+[functions.create-client]
+verify_jwt = false
+
+[functions.delete-client]
+verify_jwt = false
+
 [functions.create-impersonation]
 verify_jwt = false
 
@@ -7,4 +13,16 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.end-impersonation]
+verify_jwt = false
+
+[functions.invite-staff]
+verify_jwt = false
+
+[functions.remove-staff]
+verify_jwt = false
+
+[functions.reset-staff-password]
+verify_jwt = false
+
+[functions.send-smtp-email]
 verify_jwt = false

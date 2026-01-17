@@ -80,30 +80,39 @@ Deno.serve(async (req) => {
 
     const newUserId = authData.user.id;
 
-    // Create profile
+    // Upsert profile (trigger may have created it already)
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
-      .insert({
+      .upsert({
         user_id: newUserId,
         full_name: fullName || null,
         pharmacy_name: pharmacyName || null,
         phone: phone || null,
-      });
+      }, { onConflict: 'user_id' });
 
     if (profileError) {
-      console.error("Error creating profile:", profileError);
+      console.error("Error upserting profile:", profileError);
     }
 
-    // Create user role (client_admin)
-    const { error: roleError } = await supabaseAdmin
+    // Check if role already exists before inserting
+    const { data: existingRole } = await supabaseAdmin
       .from("user_roles")
-      .insert({
-        user_id: newUserId,
-        role: "client_admin",
-      });
+      .select("id")
+      .eq("user_id", newUserId)
+      .eq("role", "client_admin")
+      .single();
 
-    if (roleError) {
-      console.error("Error creating role:", roleError);
+    if (!existingRole) {
+      const { error: roleError } = await supabaseAdmin
+        .from("user_roles")
+        .insert({
+          user_id: newUserId,
+          role: "client_admin",
+        });
+
+      if (roleError) {
+        console.error("Error creating role:", roleError);
+      }
     }
 
     // Calculate subscription dates based on plan type
