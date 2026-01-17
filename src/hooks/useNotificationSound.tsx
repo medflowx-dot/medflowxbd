@@ -1,11 +1,15 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { useNotificationSettings } from './useNotificationSettings';
 
 export function useNotificationSound() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const lastNotificationCount = useRef<number>(0);
   const hasPlayedInitial = useRef<boolean>(false);
+  const { soundEnabled } = useNotificationSettings();
 
   const playNotificationSound = useCallback(() => {
+    if (!soundEnabled) return;
+    
     try {
       // Create audio context on demand (required for browsers)
       if (!audioContextRef.current) {
@@ -43,7 +47,7 @@ export function useNotificationSound() {
     } catch (error) {
       console.warn('Could not play notification sound:', error);
     }
-  }, []);
+  }, [soundEnabled]);
 
   const checkAndPlaySound = useCallback((currentCount: number) => {
     // Skip initial load to avoid sound on page load
