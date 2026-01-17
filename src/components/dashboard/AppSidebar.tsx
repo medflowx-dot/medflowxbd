@@ -9,6 +9,7 @@ import {
   Pill,
   Shield,
   Building2,
+  Layers,
   Users,
   AlertTriangle,
   Bell,
@@ -36,6 +37,7 @@ import {
 const mainMenuItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Medicines', url: '/dashboard/medicines', icon: Package },
+  { title: 'Batches', url: '/dashboard/batches', icon: Layers },
   { title: 'Expiry Monitor', url: '/dashboard/expiry', icon: AlertTriangle },
   { title: 'Alerts', url: '/dashboard/alerts', icon: Bell },
   { title: 'Sales', url: '/dashboard/sales', icon: ShoppingCart },
