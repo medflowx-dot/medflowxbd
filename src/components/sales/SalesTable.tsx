@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Trash2, Receipt, ChevronDown, ChevronRight, Zap, ClipboardList, TrendingUp } from 'lucide-react';
+import { Trash2, Receipt, ChevronDown, ChevronRight, Zap, ClipboardList } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -48,18 +48,16 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
       
       const { data, error } = await supabase
         .from('sale_items')
-        .select('*, medicine_batches:batch_id(purchase_price)')
+        .select('*')
         .in('sale_id', Array.from(expandedRows));
       
       if (error) throw error;
       
-      // Group by sale_id and include purchase_price
-      const grouped: Record<string, Array<typeof data[number] & { purchase_price: number }>> = {};
+      // Group by sale_id
+      const grouped: Record<string, typeof data> = {};
       data.forEach((item) => {
-        const purchasePrice = item.purchase_price || (item.medicine_batches as any)?.purchase_price || 0;
-        const itemWithPrice = { ...item, purchase_price: purchasePrice };
         if (!grouped[item.sale_id]) grouped[item.sale_id] = [];
-        grouped[item.sale_id].push(itemWithPrice);
+        grouped[item.sale_id].push(item);
       });
       return grouped;
     },
@@ -120,10 +118,6 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
             const isExpanded = expandedRows.has(sale.id);
             const isDetailedSale = sale.entry_type === 'detailed';
             const items = saleItems?.[sale.id] || [];
-            
-            // Calculate profit for detailed sales
-            const totalCost = items.reduce((sum, item) => sum + Number(item.purchase_price || 0), 0);
-            const saleProfit = isDetailedSale && items.length > 0 ? Number(sale.total_amount) - totalCost : null;
 
             return (
               <Collapsible key={sale.id} open={isExpanded} asChild>
@@ -224,41 +218,17 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                           {items.length > 0 ? (
                             <div className="space-y-1">
                               <p className="text-xs font-medium text-muted-foreground mb-2">Sale Items:</p>
-                              {items.map((item) => {
-                                const itemProfit = Number(item.total_price) - Number(item.purchase_price || 0);
-                                return (
-                                  <div key={item.id} className="flex justify-between text-sm">
-                                    <span>
-                                      {item.medicine_name} 
-                                      <span className="text-muted-foreground ml-1">
-                                        ({getUnitLabel(item.sale_unit || 'piece')} @ ৳{Number(item.unit_price).toFixed(2)})
-                                      </span>
-                                    </span>
-                                    <div className="flex items-center gap-3">
-                                      <span className="font-medium">৳{Number(item.total_price).toFixed(2)}</span>
-                                      {Number(item.purchase_price) > 0 && (
-                                        <span className={`text-xs ${itemProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                          ({itemProfit >= 0 ? '+' : ''}৳{itemProfit.toFixed(2)})
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                              {saleProfit !== null && totalCost > 0 && (
-                                <div className="flex justify-between text-sm border-t pt-2 mt-2">
-                                  <span className="flex items-center gap-1 font-medium">
-                                    <TrendingUp className="h-3 w-3" />
-                                    Total Profit
-                                  </span>
-                                  <span className={`font-bold ${saleProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                    {saleProfit >= 0 ? '+' : ''}৳{saleProfit.toFixed(2)}
-                                    <span className="text-xs text-muted-foreground ml-1">
-                                      ({((saleProfit / totalCost) * 100).toFixed(1)}% margin)
+                              {items.map((item) => (
+                                <div key={item.id} className="flex justify-between text-sm">
+                                  <span>
+                                    {item.medicine_name} 
+                                    <span className="text-muted-foreground ml-1">
+                                      ({item.quantity} {getUnitLabel(item.sale_unit || 'piece')} @ ৳{Number(item.unit_price).toFixed(2)})
                                     </span>
                                   </span>
+                                  <span className="font-medium">৳{Number(item.total_price).toFixed(2)}</span>
                                 </div>
-                              )}
+                              ))}
                             </div>
                           ) : (
                             <p className="text-sm text-muted-foreground">Loading items...</p>

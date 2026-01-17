@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
-import type { DailySummaryReport, SalesReportItem, SupplierDueItem, MedicineProfitItem } from '@/hooks/useReports';
+import type { DailySummaryReport, SalesReportItem, SupplierDueItem } from '@/hooks/useReports';
 
 const CURRENCY = '৳';
 
@@ -135,13 +135,9 @@ export function generateSalesReportPDF(
       total: acc.total + row.total_amount,
       paid: acc.paid + row.paid_amount,
       due: acc.due + row.due_amount,
-      profit: acc.profit + (row.profit || 0),
-      cost: acc.cost + (row.cost || 0),
     }),
-    { total: 0, paid: 0, due: 0, profit: 0, cost: 0 }
+    { total: 0, paid: 0, due: 0 }
   );
-
-  const marginPercent = totals.cost > 0 ? ((totals.profit / totals.cost) * 100).toFixed(1) : '0';
 
   // Summary
   doc.setFontSize(10);
@@ -154,20 +150,19 @@ export function generateSalesReportPDF(
   doc.text(`Total Sales: ${CURRENCY}${totals.total.toLocaleString()}`, 14, summaryY);
   doc.text(`Total Paid: ${CURRENCY}${totals.paid.toLocaleString()}`, 70, summaryY);
   doc.text(`Unpaid Balance: ${CURRENCY}${totals.due.toLocaleString()}`, 126, summaryY);
-  doc.text(`Total Profit: ${CURRENCY}${totals.profit.toLocaleString()} (${marginPercent}% margin)`, 14, summaryY + 5);
-  doc.text(`Number of Entries: ${data.length}`, 126, summaryY + 5);
+  doc.text(`Number of Entries: ${data.length}`, 14, summaryY + 5);
 
   // Table
   autoTable(doc, {
     startY: summaryY + 12,
-    head: [['Entry ID', 'Type', 'Date', 'Total', 'Cost', 'Profit', 'Method']],
+    head: [['Entry ID', 'Type', 'Date', 'Total', 'Paid', 'Due', 'Method']],
     body: data.map(row => [
       row.invoice_number,
       row.entry_type === 'quick' ? 'Quick' : 'Detailed',
       format(new Date(row.sale_date), 'MMM dd, yyyy'),
       `${CURRENCY}${row.total_amount.toLocaleString()}`,
-      row.cost !== undefined ? `${CURRENCY}${row.cost.toLocaleString()}` : '-',
-      row.profit !== undefined ? `${row.profit >= 0 ? '+' : ''}${CURRENCY}${row.profit.toLocaleString()}` : '-',
+      `${CURRENCY}${row.paid_amount.toLocaleString()}`,
+      row.due_amount > 0 ? `${CURRENCY}${row.due_amount.toLocaleString()}` : '-',
       row.payment_method,
     ]),
     styles: { fontSize: 8 },
@@ -176,61 +171,6 @@ export function generateSalesReportPDF(
 
   addFooter(doc);
   doc.save(`sales-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-}
-
-export function generateProfitReportPDF(
-  data: MedicineProfitItem[],
-  dateRange: { start: Date; end: Date }
-) {
-  const doc = new jsPDF();
-  const startY = addHeader(doc, 'Profit Analysis by Medicine', dateRange);
-
-  // Calculate totals
-  const totals = data.reduce(
-    (acc, row) => ({
-      revenue: acc.revenue + row.total_revenue,
-      cost: acc.cost + row.total_cost,
-      profit: acc.profit + row.profit,
-      quantity: acc.quantity + row.total_quantity,
-    }),
-    { revenue: 0, cost: 0, profit: 0, quantity: 0 }
-  );
-
-  const overallMargin = totals.cost > 0 ? ((totals.profit / totals.cost) * 100).toFixed(1) : '0';
-
-  // Summary
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Summary', 14, startY);
-  
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  const summaryY = startY + 6;
-  doc.text(`Total Revenue: ${CURRENCY}${totals.revenue.toLocaleString()}`, 14, summaryY);
-  doc.text(`Total Cost: ${CURRENCY}${totals.cost.toLocaleString()}`, 70, summaryY);
-  doc.text(`Total Profit: ${CURRENCY}${totals.profit.toLocaleString()}`, 126, summaryY);
-  doc.text(`Overall Margin: ${overallMargin}%`, 14, summaryY + 5);
-  doc.text(`Items Sold: ${totals.quantity}`, 70, summaryY + 5);
-  doc.text(`Medicines: ${data.length}`, 126, summaryY + 5);
-
-  // Table
-  autoTable(doc, {
-    startY: summaryY + 12,
-    head: [['Medicine', 'Qty Sold', 'Revenue', 'Cost', 'Profit', 'Margin %']],
-    body: data.map(row => [
-      row.medicine_name,
-      row.total_quantity.toString(),
-      `${CURRENCY}${row.total_revenue.toLocaleString()}`,
-      `${CURRENCY}${row.total_cost.toLocaleString()}`,
-      `${row.profit >= 0 ? '+' : ''}${CURRENCY}${row.profit.toLocaleString()}`,
-      `${row.margin_percent.toFixed(1)}%`,
-    ]),
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [34, 197, 94] },
-  });
-
-  addFooter(doc);
-  doc.save(`profit-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 }
 
 export function generateSupplierDuePDF(data: SupplierDueItem[]) {
