@@ -4,13 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { usePermissions } from '@/hooks/usePermissions';
+import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 import { StaffManagement } from '@/components/settings/StaffManagement';
 import { PharmacyLogoUpload } from '@/components/settings/PharmacyLogoUpload';
-import { Loader2, Save, User, Building2, Globe, CreditCard } from 'lucide-react';
+import { Loader2, Save, User, Building2, Globe, CreditCard, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Settings() {
@@ -20,6 +22,7 @@ export default function Settings() {
   const updateProfile = useUpdateProfile();
   const { planType, daysRemaining, isTrial, isExpired } = useSubscriptionStatus();
   const { isAdmin } = usePermissions();
+  const { soundEnabled, setSoundEnabled } = useNotificationSettings();
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -253,6 +256,32 @@ export default function Settings() {
               <Save className="h-4 w-4 mr-2" />
               Save Preferences
             </Button>
+          </CardContent>
+        </Card>
+
+        {/* Notification Settings */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-primary" />
+              <CardTitle>Notifications</CardTitle>
+            </div>
+            <CardDescription>Manage notification preferences</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="sound-toggle" className="text-base">Notification Sound</Label>
+                <p className="text-sm text-muted-foreground">
+                  Play a sound when new alerts appear
+                </p>
+              </div>
+              <Switch
+                id="sound-toggle"
+                checked={soundEnabled}
+                onCheckedChange={setSoundEnabled}
+              />
+            </div>
           </CardContent>
         </Card>
 
