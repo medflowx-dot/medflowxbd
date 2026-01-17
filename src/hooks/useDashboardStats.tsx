@@ -13,9 +13,6 @@ export interface DashboardStats {
   expiringIn60Days: number;
   expiringIn90Days: number;
   expiredItems: number;
-  lowStockCount: number;
-  outOfStockCount: number;
-  pendingOrders: number;
 }
 
 export function useDashboardStats() {
@@ -40,8 +37,6 @@ export function useDashboardStats() {
         customerDuesResult,
         supplierDuesResult,
         batchesResult,
-        medicinesResult,
-        ordersResult,
       ] = await Promise.all([
         // Today's sales
         supabase
@@ -80,22 +75,6 @@ export function useDashboardStats() {
         supabase
           .from('medicine_batches')
           .select('expiry_date, quantity'),
-
-        // Medicines for stock tracking
-        supabase
-          .from('medicines')
-          .select(`
-            id,
-            min_stock_level,
-            medicine_batches (quantity)
-          `)
-          .eq('is_active', true),
-
-        // Pending stock orders
-        supabase
-          .from('stock_orders')
-          .select('id')
-          .eq('status', 'pending'),
       ]);
 
       // Calculate today's sales
@@ -147,26 +126,6 @@ export function useDashboardStats() {
         }
       });
 
-      // Calculate stock stats
-      let lowStockCount = 0;
-      let outOfStockCount = 0;
-
-      medicinesResult.data?.forEach((medicine) => {
-        const totalStock = medicine.medicine_batches?.reduce(
-          (sum: number, b: { quantity: number }) => sum + (b.quantity || 0), 0
-        ) || 0;
-        const minLevel = medicine.min_stock_level || 10;
-
-        if (totalStock === 0) {
-          outOfStockCount++;
-        } else if (totalStock < minLevel) {
-          lowStockCount++;
-        }
-      });
-
-      // Count pending orders
-      const pendingOrders = ordersResult.data?.length || 0;
-
       return {
         todaysSales,
         todaysProfit,
@@ -177,9 +136,6 @@ export function useDashboardStats() {
         expiringIn60Days,
         expiringIn90Days,
         expiredItems,
-        lowStockCount,
-        outOfStockCount,
-        pendingOrders,
       };
     },
     enabled: !!user,

@@ -5,11 +5,9 @@ import {
   ShoppingCart, 
   Truck, 
   Wallet, 
-  ClipboardList, 
   FileText,
   TrendingUp,
   AlertTriangle,
-  Clock,
   Users,
   Loader2
 } from 'lucide-react';
@@ -40,7 +38,6 @@ export default function DashboardHome() {
     { icon: ShoppingCart, title: 'Sales', description: 'Daily sales tracking', href: '/dashboard/sales', color: 'bg-green-500' },
     { icon: Users, title: 'Customer Dues', description: 'Track customer balances', href: '/dashboard/customer-dues', color: 'bg-amber-500' },
     { icon: Truck, title: 'Suppliers', description: 'Manage suppliers & payments', href: '/dashboard/suppliers', color: 'bg-purple-500' },
-    { icon: ClipboardList, title: 'Stock Short', description: 'Order management', href: '/dashboard/stock-short', color: 'bg-red-500' },
     { icon: FileText, title: 'Reports', description: 'Analytics & exports', href: '/dashboard/reports', color: 'bg-cyan-500' },
   ];
 

@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { LogOut, User, Bell, Shield, UserCog, Users, AlertTriangle, Package, Clock, Wallet, Truck } from 'lucide-react';
+import { LogOut, User, Bell, Shield, UserCog, Users, AlertTriangle, Clock, Wallet, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -43,12 +43,11 @@ export function DashboardHeader() {
 
   const initials = user?.email?.slice(0, 2).toUpperCase() || 'U';
   
-  const lowStockCount = stats?.lowStockCount || 0;
   const customersWithDue = customerDuesData?.customersWithDue || 0;
   const totalCustomerDues = customerDuesData?.totalDue || 0;
   const suppliersWithDue = supplierDuesData?.suppliersWithDue || 0;
   const totalSupplierDues = supplierDuesData?.totalDue || 0;
-  const totalNotifications = totalAlerts + lowStockCount + (customersWithDue > 0 ? 1 : 0) + (suppliersWithDue > 0 ? 1 : 0);
+  const totalNotifications = totalAlerts + (customersWithDue > 0 ? 1 : 0) + (suppliersWithDue > 0 ? 1 : 0);
 
   // Play sound when notifications increase
   useEffect(() => {
@@ -171,27 +170,6 @@ export function DashboardHeader() {
                     </div>
                     <Badge variant="outline" className="text-xs border-orange-500 text-orange-500">
                       Warning
-                    </Badge>
-                  </DropdownMenuItem>
-                )}
-
-                {/* Low Stock */}
-                {lowStockCount > 0 && (
-                  <DropdownMenuItem 
-                    className="flex items-start gap-3 p-3 cursor-pointer"
-                    onClick={() => navigate('/dashboard/stock-short')}
-                  >
-                    <div className="rounded-full bg-yellow-500/10 p-2">
-                      <Package className="h-4 w-4 text-yellow-500" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium">Low Stock Alert</p>
-                      <p className="text-xs text-muted-foreground">
-                        {lowStockCount} medicine{lowStockCount > 1 ? 's' : ''} below minimum level
-                      </p>
-                    </div>
-                    <Badge variant="outline" className="text-xs border-yellow-500 text-yellow-500">
-                      Restock
                     </Badge>
                   </DropdownMenuItem>
                 )}
