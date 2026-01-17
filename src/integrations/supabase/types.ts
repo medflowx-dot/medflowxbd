@@ -731,6 +731,7 @@ export type Database = {
           full_name: string | null
           id: string
           language: string | null
+          pharmacy_logo: string | null
           pharmacy_name: string | null
           phone: string | null
           updated_at: string
@@ -745,6 +746,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           language?: string | null
+          pharmacy_logo?: string | null
           pharmacy_name?: string | null
           phone?: string | null
           updated_at?: string
@@ -759,6 +761,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           language?: string | null
+          pharmacy_logo?: string | null
           pharmacy_name?: string | null
           phone?: string | null
           updated_at?: string
