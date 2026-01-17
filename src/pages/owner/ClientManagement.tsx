@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useClients, useUpdateClientSubscription, useExtendSubscription, useConvertToLifetime, useSuspendAccount, useActivateAccount, Client } from '@/hooks/useOwnerData';
 import { Loader2, Search, MoreHorizontal, UserCheck, UserX, Clock, Crown, ArrowUpCircle, ArrowDownCircle, Eye, Calendar, Users, Package, ShoppingCart } from 'lucide-react';
 import { format } from 'date-fns';
+import { AddClientDialog } from '@/components/owner/AddClientDialog';
 
 export default function ClientManagement() {
   const [search, setSearch] = useState('');
@@ -136,14 +137,17 @@ export default function ClientManagement() {
                 {filteredClients?.length || 0} clients found
               </CardDescription>
             </div>
-            <div className="relative w-72">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by name, pharmacy, phone..."
-                className="pl-10"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+            <div className="flex items-center gap-3">
+              <div className="relative w-72">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name, pharmacy, phone..."
+                  className="pl-10"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <AddClientDialog />
             </div>
           </div>
         </CardHeader>
