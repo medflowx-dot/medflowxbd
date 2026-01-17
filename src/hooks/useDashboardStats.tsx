@@ -1,11 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { addDays, format, startOfDay, endOfDay } from 'date-fns';
+import { addDays, format } from 'date-fns';
 
 export interface DashboardStats {
   todaysSales: number;
-  todaysProfit: number;
   todaysCosts: number;
   totalCustomerDues: number;
   totalSupplierDues: number;
@@ -22,8 +21,6 @@ export function useDashboardStats() {
   return useQuery({
     queryKey: ['dashboard-stats', user?.id, format(today, 'yyyy-MM-dd')],
     queryFn: async (): Promise<DashboardStats> => {
-      const todayStart = startOfDay(today).toISOString();
-      const todayEnd = endOfDay(today).toISOString();
       const todayDate = format(today, 'yyyy-MM-dd');
       const in30Days = format(addDays(today, 30), 'yyyy-MM-dd');
       const in60Days = format(addDays(today, 60), 'yyyy-MM-dd');
@@ -32,7 +29,6 @@ export function useDashboardStats() {
       // Fetch all data in parallel
       const [
         salesResult,
-        saleItemsResult,
         costsResult,
         customerDuesResult,
         supplierDuesResult,
@@ -43,13 +39,6 @@ export function useDashboardStats() {
           .from('sales')
           .select('total_amount')
           .eq('sale_date', todayDate),
-
-        // Today's sale items for profit calculation
-        supabase
-          .from('sale_items')
-          .select('total_price, purchase_price, sale_id')
-          .gte('created_at', todayStart)
-          .lte('created_at', todayEnd),
 
         // Today's costs
         supabase
@@ -81,13 +70,6 @@ export function useDashboardStats() {
       const todaysSales = salesResult.data?.reduce(
         (sum, s) => sum + Number(s.total_amount), 0
       ) || 0;
-
-      // Calculate today's profit
-      const todaysProfit = saleItemsResult.data?.reduce((sum, item) => {
-        const revenue = Number(item.total_price);
-        const cost = Number(item.purchase_price || 0);
-        return sum + (revenue - cost);
-      }, 0) || 0;
 
       // Calculate today's costs
       const todaysCosts = costsResult.data?.reduce(
@@ -128,7 +110,6 @@ export function useDashboardStats() {
 
       return {
         todaysSales,
-        todaysProfit,
         todaysCosts,
         totalCustomerDues,
         totalSupplierDues,

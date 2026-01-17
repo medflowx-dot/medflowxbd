@@ -21,7 +21,7 @@ export default function DashboardHome() {
 
   const quickStats = [
     { label: "Today's Sales", value: `৳${stats?.todaysSales.toFixed(2) || '0.00'}`, icon: TrendingUp, color: 'text-green-600' },
-    { label: "Today's Profit", value: `৳${stats?.todaysProfit.toFixed(2) || '0.00'}`, icon: Wallet, color: 'text-emerald-600' },
+    { label: "Today's Costs", value: `৳${stats?.todaysCosts.toFixed(2) || '0.00'}`, icon: Wallet, color: 'text-red-600' },
     { label: 'Customer Dues', value: `৳${stats?.totalCustomerDues.toFixed(0) || '0'}`, icon: Users, color: 'text-amber-600' },
     { label: 'Supplier Dues', value: `৳${stats?.totalSupplierDues.toFixed(0) || '0'}`, icon: Truck, color: 'text-purple-600' },
   ];
