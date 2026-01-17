@@ -2,8 +2,19 @@ import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Layers, Search, AlertTriangle, Package, X } from 'lucide-react';
+import { Layers, Search, AlertTriangle, Package, X, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { BatchTable } from '@/components/batches/BatchTable';
 import { AddBatchDialog } from '@/components/batches/AddBatchDialog';
 import { useMedicines } from '@/hooks/useMedicines';
@@ -13,7 +24,7 @@ export default function Batches() {
   const [selectedMedicineId, setSelectedMedicineId] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const { medicines, isLoading } = useMedicines();
+  const { medicines, isLoading, deleteExpiredBatches } = useMedicines();
   const { hasPermission } = usePermissions();
   
   const canManageMedicines = hasPermission('manage_medicines');
@@ -97,7 +108,38 @@ export default function Batches() {
           </p>
         </div>
         {canManageMedicines && (
-          <AddBatchDialog medicines={medicines} />
+          <div className="flex items-center gap-2">
+            {stats.expired > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete All Expired ({stats.expired})
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete All Expired Batches</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to permanently delete all {stats.expired} expired batches? 
+                      This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => deleteExpiredBatches.mutate()}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      disabled={deleteExpiredBatches.isPending}
+                    >
+                      {deleteExpiredBatches.isPending ? 'Deleting...' : 'Delete All'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            <AddBatchDialog medicines={medicines} />
+          </div>
         )}
       </div>
 

@@ -236,6 +236,26 @@ export function useMedicines() {
     },
   });
 
+  const deleteExpiredBatches = useMutation({
+    mutationFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
+      
+      const { error } = await supabase
+        .from('medicine_batches')
+        .delete()
+        .lt('expiry_date', today);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['medicines'] });
+      toast({ title: 'All expired batches deleted successfully' });
+    },
+    onError: (error) => {
+      toast({ title: 'Failed to delete expired batches', description: error.message, variant: 'destructive' });
+    },
+  });
+
   const bulkCreateMedicines = useMutation({
     mutationFn: async (medicines: CreateMedicineData[]) => {
       if (!user?.id) throw new Error('User not authenticated');
@@ -272,6 +292,7 @@ export function useMedicines() {
     createBatch,
     updateBatch,
     deleteBatch,
+    deleteExpiredBatches,
     bulkCreateMedicines,
   };
 }
