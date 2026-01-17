@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { LogOut, User, Bell, Shield, UserCog, Users, Building2 } from 'lucide-react';
+import { LogOut, User, Bell, Shield, UserCog, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -78,17 +78,6 @@ export function DashboardHeader() {
     <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
       <SidebarTrigger className="-ml-2" />
       
-      {/* Pharmacy Name & Role Indicator */}
-      <div className="hidden md:flex items-center gap-3 ml-2">
-        {profile?.pharmacy_name && (
-          <div className="flex items-center gap-2 text-sm">
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium text-foreground">{profile.pharmacy_name}</span>
-          </div>
-        )}
-        {getRoleBadge()}
-      </div>
-      
       <div className="flex-1" />
 
       <Button variant="ghost" size="icon" className="relative">
@@ -109,15 +98,8 @@ export function DashboardHeader() {
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              {profile?.pharmacy_name && (
-                <div className="flex items-center gap-2 md:hidden">
-                  <Building2 className="h-3 w-3 text-muted-foreground" />
-                  <p className="text-sm font-medium leading-none">{profile.pharmacy_name}</p>
-                </div>
-              )}
               <div className="flex items-center gap-2">
                 <p className="text-sm font-medium leading-none">{profile?.full_name || 'Account'}</p>
-                <span className="md:hidden">{getRoleBadge()}</span>
               </div>
               <p className="text-xs leading-none text-muted-foreground">
                 {user?.email}
