@@ -46,9 +46,9 @@ export function SetOpeningCashDialog({ date }: SetOpeningCashDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <Wallet className="h-4 w-4 mr-2" />
-          Set Opening Cash
+        <Button variant="outline" className="flex-1 sm:flex-none">
+          <Wallet className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Set Opening</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

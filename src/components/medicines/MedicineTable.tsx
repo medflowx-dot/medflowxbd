@@ -95,15 +95,15 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Medicine</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Shelf</TableHead>
-            <TableHead>Batches</TableHead>
-            <TableHead>Earliest Expiry</TableHead>
+            <TableHead className="hidden md:table-cell">Category</TableHead>
+            <TableHead className="hidden sm:table-cell">Shelf</TableHead>
+            <TableHead className="hidden lg:table-cell">Batches</TableHead>
+            <TableHead>Expiry</TableHead>
             {canManageMedicines && (
               <TableHead className="text-right">Actions</TableHead>
             )}
@@ -126,12 +126,12 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                     </p>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden md:table-cell">
                   {medicine.category && (
                     <Badge variant="secondary">{medicine.category}</Badge>
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   {medicine.shelf_location ? (
                     <Badge variant="outline" className="font-mono">
                       {medicine.shelf_location}
@@ -140,7 +140,7 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                     <span className="text-muted-foreground text-sm">—</span>
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden lg:table-cell">
                   <Badge variant="outline">
                     {medicine.batches.length}
                   </Badge>

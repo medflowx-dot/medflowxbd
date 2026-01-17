@@ -111,14 +111,14 @@ export default function DailyCash() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2">
           {/* Date Picker */}
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 className={cn(
-                  "w-[200px] justify-start text-left font-normal",
+                  "w-full sm:w-[200px] justify-start text-left font-normal",
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
@@ -135,30 +135,33 @@ export default function DailyCash() {
             </PopoverContent>
           </Popover>
 
-          <SetOpeningCashDialog date={selectedDate} />
-          <AddCostDialog date={selectedDate} />
-          
-          {/* Export PDF Button */}
-          <Button 
-            onClick={handleExportPDF} 
-            disabled={!summary || exporting}
-            variant="outline"
-          >
-            {exporting ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Download className="h-4 w-4 mr-2" />
-            )}
-            Export PDF
-          </Button>
+          <div className="grid grid-cols-3 sm:flex gap-2">
+            <SetOpeningCashDialog date={selectedDate} />
+            <AddCostDialog date={selectedDate} />
+            
+            {/* Export PDF Button */}
+            <Button 
+              onClick={handleExportPDF} 
+              disabled={!summary || exporting}
+              variant="outline"
+              className="flex-1 sm:flex-none"
+            >
+              {exporting ? (
+                <Loader2 className="h-4 w-4 sm:mr-2 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 sm:mr-2" />
+              )}
+              <span className="hidden sm:inline">Export PDF</span>
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Info Banner */}
-      <div className="bg-muted/50 rounded-lg p-4 border">
-        <p className="text-sm text-muted-foreground">
+      <div className="bg-muted/50 rounded-lg p-3 sm:p-4 border">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           <strong>Note:</strong> Cash flow is auto-calculated from sales, due collections, supplier payments, and daily costs. 
-          Only <strong>cash transactions</strong> are counted. You can only manually set the opening cash and add daily costs.
+          Only <strong>cash transactions</strong> are counted.
         </p>
       </div>
 

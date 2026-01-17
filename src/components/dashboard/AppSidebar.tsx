@@ -48,9 +48,7 @@ const mainMenuItems = [
   { title: 'Reports', url: '/dashboard/reports', icon: FileText },
 ];
 
-const settingsItems = [
-  { title: 'Settings', url: '/dashboard/settings', icon: Settings },
-];
+// Settings removed from sidebar - now accessed via profile dropdown in header
 
 const adminItems = [
   { title: 'Admin Dashboard', url: '/dashboard/admin', icon: Shield },
@@ -67,9 +65,6 @@ export function AppSidebar() {
   // Filter menu items based on role permissions AND feature flags
   const allowedRoutes = menuAccessByRole[role] || [];
   const filteredMainMenuItems = mainMenuItems.filter(item => 
-    allowedRoutes.includes(item.url) && isRouteEnabled(item.url)
-  );
-  const filteredSettingsItems = settingsItems.filter(item =>
     allowedRoutes.includes(item.url) && isRouteEnabled(item.url)
   );
 
@@ -165,29 +160,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {filteredSettingsItems.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>System</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {filteredSettingsItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.title}>
-                      <NavLink 
-                        to={item.url}
-                        className="flex items-center gap-2"
-                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                      >
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        {/* Settings moved to header profile dropdown */}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">

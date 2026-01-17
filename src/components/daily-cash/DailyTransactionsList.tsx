@@ -41,26 +41,26 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
 
   return (
     <Tabs defaultValue="sales" className="space-y-4">
-      <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="sales" className="flex items-center gap-2">
+      <TabsList className="grid w-full grid-cols-4 h-auto">
+        <TabsTrigger value="sales" className="flex items-center gap-1 px-2 py-2">
           <ShoppingCart className="h-4 w-4" />
-          <span className="hidden sm:inline">Sales</span>
-          <Badge variant="secondary" className="ml-1">{sales?.length || 0}</Badge>
+          <span className="hidden sm:inline text-xs">Sales</span>
+          <Badge variant="secondary" className="ml-1 h-5 px-1 text-xs">{sales?.length || 0}</Badge>
         </TabsTrigger>
-        <TabsTrigger value="due-collected" className="flex items-center gap-2">
+        <TabsTrigger value="due-collected" className="flex items-center gap-1 px-2 py-2">
           <CreditCard className="h-4 w-4" />
-          <span className="hidden sm:inline">Due Collected</span>
-          <Badge variant="secondary" className="ml-1">{customerPayments?.length || 0}</Badge>
+          <span className="hidden sm:inline text-xs">Due</span>
+          <Badge variant="secondary" className="ml-1 h-5 px-1 text-xs">{customerPayments?.length || 0}</Badge>
         </TabsTrigger>
-        <TabsTrigger value="supplier-payments" className="flex items-center gap-2">
+        <TabsTrigger value="supplier-payments" className="flex items-center gap-1 px-2 py-2">
           <Truck className="h-4 w-4" />
-          <span className="hidden sm:inline">Supplier</span>
-          <Badge variant="secondary" className="ml-1">{supplierPayments?.length || 0}</Badge>
+          <span className="hidden sm:inline text-xs">Supplier</span>
+          <Badge variant="secondary" className="ml-1 h-5 px-1 text-xs">{supplierPayments?.length || 0}</Badge>
         </TabsTrigger>
-        <TabsTrigger value="costs" className="flex items-center gap-2">
+        <TabsTrigger value="costs" className="flex items-center gap-1 px-2 py-2">
           <Receipt className="h-4 w-4" />
-          <span className="hidden sm:inline">Costs</span>
-          <Badge variant="secondary" className="ml-1">{costs?.length || 0}</Badge>
+          <span className="hidden sm:inline text-xs">Costs</span>
+          <Badge variant="secondary" className="ml-1 h-5 px-1 text-xs">{costs?.length || 0}</Badge>
         </TabsTrigger>
       </TabsList>
 
@@ -72,16 +72,16 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
             <CardDescription>All sales transactions for {format(date, 'MMMM d, yyyy')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Invoice</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead>Paid</TableHead>
-                    <TableHead>Due</TableHead>
-                    <TableHead>Method</TableHead>
+                    <TableHead className="hidden sm:table-cell">Customer</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-right hidden md:table-cell">Paid</TableHead>
+                    <TableHead className="text-right hidden md:table-cell">Due</TableHead>
+                    <TableHead className="hidden lg:table-cell">Method</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -94,14 +94,14 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
                   ) : (
                     sales.map((sale: any) => (
                       <TableRow key={sale.id}>
-                        <TableCell className="font-mono text-sm">{sale.invoice_number}</TableCell>
-                        <TableCell>{sale.customers?.name || 'Walk-in'}</TableCell>
-                        <TableCell>৳{Number(sale.total_amount).toLocaleString()}</TableCell>
-                        <TableCell className="text-green-600">৳{Number(sale.paid_amount).toLocaleString()}</TableCell>
-                        <TableCell className={Number(sale.due_amount) > 0 ? 'text-red-600' : ''}>
+                        <TableCell className="font-mono text-xs sm:text-sm">{sale.invoice_number}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{sale.customers?.name || 'Walk-in'}</TableCell>
+                        <TableCell className="text-right">৳{Number(sale.total_amount).toLocaleString()}</TableCell>
+                        <TableCell className="text-right text-green-600 hidden md:table-cell">৳{Number(sale.paid_amount).toLocaleString()}</TableCell>
+                        <TableCell className={`text-right hidden md:table-cell ${Number(sale.due_amount) > 0 ? 'text-red-600' : ''}`}>
                           ৳{Number(sale.due_amount).toLocaleString()}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden lg:table-cell">
                           <Badge variant={getPaymentMethodBadge(sale.payment_method)}>
                             {sale.payment_method}
                           </Badge>
@@ -124,14 +124,14 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
             <CardDescription>Customer due payments for {format(date, 'MMMM d, yyyy')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Customer</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Method</TableHead>
-                    <TableHead>Notes</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="hidden sm:table-cell">Method</TableHead>
+                    <TableHead className="hidden md:table-cell">Notes</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -145,15 +145,15 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
                     customerPayments.map((payment: any) => (
                       <TableRow key={payment.id}>
                         <TableCell>{payment.customers?.name || '-'}</TableCell>
-                        <TableCell className="text-green-600 font-medium">
+                        <TableCell className="text-right text-green-600 font-medium">
                           +৳{Number(payment.amount).toLocaleString()}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden sm:table-cell">
                           <Badge variant={getPaymentMethodBadge(payment.payment_method)}>
                             {payment.payment_method}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-muted-foreground">{payment.notes || '-'}</TableCell>
+                        <TableCell className="text-muted-foreground hidden md:table-cell">{payment.notes || '-'}</TableCell>
                       </TableRow>
                     ))
                   )}
@@ -172,14 +172,14 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
             <CardDescription>Payments made to suppliers on {format(date, 'MMMM d, yyyy')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Supplier</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Method</TableHead>
-                    <TableHead>Reference</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="hidden sm:table-cell">Method</TableHead>
+                    <TableHead className="hidden md:table-cell">Reference</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -193,15 +193,15 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
                     supplierPayments.map((payment: any) => (
                       <TableRow key={payment.id}>
                         <TableCell>{payment.suppliers?.name || '-'}</TableCell>
-                        <TableCell className="text-red-600 font-medium">
+                        <TableCell className="text-right text-red-600 font-medium">
                           -৳{Number(payment.amount).toLocaleString()}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden sm:table-cell">
                           <Badge variant={getPaymentMethodBadge(payment.payment_method)}>
                             {payment.payment_method}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-muted-foreground">{payment.reference_number || '-'}</TableCell>
+                        <TableCell className="text-muted-foreground hidden md:table-cell">{payment.reference_number || '-'}</TableCell>
                       </TableRow>
                     ))
                   )}
@@ -220,15 +220,15 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
             <CardDescription>Expenses recorded for {format(date, 'MMMM d, yyyy')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Category</TableHead>
+                    <TableHead className="hidden sm:table-cell">Category</TableHead>
                     <TableHead>Description</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Method</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="hidden md:table-cell">Method</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -241,19 +241,19 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
                   ) : (
                     costs.map((cost) => (
                       <TableRow key={cost.id}>
-                        <TableCell>
+                        <TableCell className="hidden sm:table-cell">
                           <Badge variant="outline">{cost.category}</Badge>
                         </TableCell>
-                        <TableCell>{cost.description}</TableCell>
-                        <TableCell className="text-red-600 font-medium">
+                        <TableCell className="max-w-[150px] truncate">{cost.description}</TableCell>
+                        <TableCell className="text-right text-red-600 font-medium">
                           -৳{Number(cost.amount).toLocaleString()}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden md:table-cell">
                           <Badge variant={getPaymentMethodBadge(cost.payment_method)}>
                             {cost.payment_method}
                           </Badge>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-right">
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="ghost" size="sm" className="text-red-600">

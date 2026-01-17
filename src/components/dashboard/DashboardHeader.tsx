@@ -259,7 +259,7 @@ export function DashboardHeader() {
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
             <User className="mr-2 h-4 w-4" />
-            Profile
+            Profile & Settings
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
