@@ -142,21 +142,47 @@ Deno.serve(async (req) => {
         break;
     }
 
-    // Create subscription
-    const { error: subError } = await supabaseAdmin
+    // Check if subscription already exists (created by trigger)
+    const { data: existingSub } = await supabaseAdmin
       .from("subscriptions")
-      .insert({
-        user_id: newUserId,
-        plan_type: planType,
-        status,
-        amount,
-        current_period_start: now.toISOString(),
-        current_period_end: currentPeriodEnd?.toISOString() || null,
-        trial_ends_at: trialEndsAt?.toISOString() || null,
-      });
+      .select("id")
+      .eq("user_id", newUserId)
+      .single();
 
-    if (subError) {
-      console.error("Error creating subscription:", subError);
+    if (existingSub) {
+      // Update the existing subscription with correct plan
+      const { error: updateSubError } = await supabaseAdmin
+        .from("subscriptions")
+        .update({
+          plan_type: planType,
+          status,
+          amount,
+          current_period_start: now.toISOString(),
+          current_period_end: currentPeriodEnd?.toISOString() || null,
+          trial_ends_at: trialEndsAt?.toISOString() || null,
+        })
+        .eq("id", existingSub.id);
+
+      if (updateSubError) {
+        console.error("Error updating subscription:", updateSubError);
+      }
+    } else {
+      // Create new subscription
+      const { error: subError } = await supabaseAdmin
+        .from("subscriptions")
+        .insert({
+          user_id: newUserId,
+          plan_type: planType,
+          status,
+          amount,
+          current_period_start: now.toISOString(),
+          current_period_end: currentPeriodEnd?.toISOString() || null,
+          trial_ends_at: trialEndsAt?.toISOString() || null,
+        });
+
+      if (subError) {
+        console.error("Error creating subscription:", subError);
+      }
     }
 
     return new Response(
