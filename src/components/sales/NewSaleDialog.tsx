@@ -81,7 +81,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
   });
 
   const subtotal = cart.reduce((sum, item) => sum + item.total_price, 0);
-  const totalCost = cart.reduce((sum, item) => sum + (item.purchase_price * item.quantity), 0);
+  const totalCost = cart.reduce((sum, item) => sum + item.purchase_price, 0);
   const discount = form.watch('discount') || 0;
   const total = subtotal - discount;
   const profit = total - totalCost;
@@ -98,45 +98,21 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
   }, [medicines, searchTerm]);
 
   const addToCart = (medicine: MedicineWithBatches, batch: MedicineBatch, unit: SaleUnit = 'piece') => {
-    const existingIndex = cart.findIndex((item) => item.batch_id === batch.id && item.sale_unit === unit);
-    
-    if (existingIndex >= 0) {
-      const updatedCart = [...cart];
-      updatedCart[existingIndex].quantity += 1;
-      updatedCart[existingIndex].total_price = 
-        updatedCart[existingIndex].quantity * updatedCart[existingIndex].unit_price;
-      setCart(updatedCart);
-    } else {
-      const newItem: CartItem = {
-        id: `${batch.id}-${unit}-${Date.now()}`,
-        medicine_id: medicine.id,
-        batch_id: batch.id,
-        medicine_name: medicine.name,
-        batch_number: batch.batch_number,
-        quantity: 1,
-        unit_price: batch.selling_price,
-        total_price: batch.selling_price,
-        sale_unit: unit,
-        purchase_price: batch.purchase_price,
-      };
-      setCart([...cart, newItem]);
-    }
+    const newItem: CartItem = {
+      id: `${batch.id}-${unit}-${Date.now()}`,
+      medicine_id: medicine.id,
+      batch_id: batch.id,
+      medicine_name: medicine.name,
+      batch_number: batch.batch_number,
+      unit_price: batch.selling_price,
+      total_price: batch.selling_price,
+      sale_unit: unit,
+      purchase_price: batch.purchase_price,
+    };
+    setCart([...cart, newItem]);
     
     setSearchTerm('');
     setSelectedMedicine(null);
-  };
-
-  const updateQuantity = (itemId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(itemId);
-      return;
-    }
-    
-    setCart(cart.map((item) =>
-      item.id === itemId
-        ? { ...item, quantity, total_price: quantity * item.unit_price }
-        : item
-    ));
   };
 
   const updateUnitPrice = (itemId: string, unitPrice: number) => {
@@ -144,7 +120,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
     
     setCart(cart.map((item) =>
       item.id === itemId
-        ? { ...item, unit_price: unitPrice, total_price: item.quantity * unitPrice }
+        ? { ...item, unit_price: unitPrice, total_price: unitPrice }
         : item
     ));
   };
@@ -225,7 +201,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                   <div key={medicine.id} className="p-2 hover:bg-muted border-b last:border-b-0">
                     <div className="font-medium text-sm">{medicine.name}</div>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {medicine.batches.filter((b) => b.quantity > 0).map((batch) => (
+                      {medicine.batches.map((batch) => (
                         <Button
                           key={batch.id}
                           size="sm"
@@ -233,11 +209,11 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                           className="h-7 text-xs"
                           onClick={() => addToCart(medicine, batch, 'piece')}
                         >
-                          {batch.batch_number} (৳{batch.selling_price}) - {batch.quantity} left
+                          {batch.batch_number} (৳{batch.selling_price})
                         </Button>
                       ))}
-                      {medicine.batches.filter((b) => b.quantity > 0).length === 0 && (
-                        <span className="text-xs text-muted-foreground">No stock available</span>
+                      {medicine.batches.length === 0 && (
+                        <span className="text-xs text-muted-foreground">No batches available</span>
                       )}
                     </div>
                   </div>
@@ -262,7 +238,6 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                         <TableHead>Item</TableHead>
                         <TableHead className="w-20">Unit</TableHead>
                         <TableHead className="w-20">Price</TableHead>
-                        <TableHead className="w-16">Qty</TableHead>
                         <TableHead className="text-right w-20">Total</TableHead>
                         <TableHead className="w-8"></TableHead>
                       </TableRow>
@@ -299,15 +274,6 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                               value={item.unit_price}
                               onChange={(e) => updateUnitPrice(item.id, parseFloat(e.target.value) || 0)}
                               className="h-7 w-16 text-xs"
-                            />
-                          </TableCell>
-                          <TableCell className="py-2">
-                            <Input
-                              type="number"
-                              min={1}
-                              value={item.quantity}
-                              onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 0)}
-                              className="h-7 w-14 text-xs"
                             />
                           </TableCell>
                           <TableCell className="py-2 text-right text-sm">

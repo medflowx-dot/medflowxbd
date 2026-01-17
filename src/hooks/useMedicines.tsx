@@ -25,7 +25,6 @@ export interface MedicineBatch {
   medicine_id: string;
   user_id: string;
   batch_number: string;
-  quantity: number;
   purchase_price: number;
   selling_price: number;
   expiry_date: string;
@@ -38,7 +37,6 @@ export interface MedicineBatch {
 
 export interface MedicineWithBatches extends Medicine {
   batches: MedicineBatch[];
-  total_stock: number;
   earliest_expiry: string | null;
 }
 
@@ -57,7 +55,6 @@ export interface CreateMedicineData {
 export interface CreateBatchData {
   medicine_id: string;
   batch_number: string;
-  quantity: number;
   purchase_price: number;
   selling_price: number;
   expiry_date: string;
@@ -92,7 +89,6 @@ export function useMedicines() {
 
       const medicinesWithBatches: MedicineWithBatches[] = medicines.map((medicine) => {
         const medicineBatches = batches.filter((b) => b.medicine_id === medicine.id);
-        const totalStock = medicineBatches.reduce((sum, b) => sum + b.quantity, 0);
         const earliestExpiry = medicineBatches.length > 0
           ? medicineBatches.reduce((earliest, b) => 
               b.expiry_date < earliest ? b.expiry_date : earliest, 
@@ -103,7 +99,6 @@ export function useMedicines() {
         return {
           ...medicine,
           batches: medicineBatches,
-          total_stock: totalStock,
           earliest_expiry: earliestExpiry,
         };
       });

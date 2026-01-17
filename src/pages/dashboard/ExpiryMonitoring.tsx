@@ -206,7 +206,6 @@ export default function ExpiryMonitoring() {
                         <TableHead>Batch No.</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead>Manufacturer</TableHead>
-                        <TableHead className="text-center">Qty</TableHead>
                         <TableHead>Expiry Date</TableHead>
                         <TableHead className="text-center">Status</TableHead>
                         <TableHead className="text-right">Value</TableHead>
@@ -225,7 +224,6 @@ export default function ExpiryMonitoring() {
                           <TableCell className="font-mono text-sm">{batch.batch_number}</TableCell>
                           <TableCell>{batch.category || '-'}</TableCell>
                           <TableCell>{batch.manufacturer || '-'}</TableCell>
-                          <TableCell className="text-center">{batch.quantity}</TableCell>
                           <TableCell>
                             <span className="flex items-center gap-2">
                               <Clock className="h-4 w-4 text-muted-foreground" />
@@ -236,7 +234,7 @@ export default function ExpiryMonitoring() {
                             {getStatusBadge(batch.status, batch.daysUntilExpiry)}
                           </TableCell>
                           <TableCell className="text-right">
-                            ৳{(batch.quantity * batch.selling_price).toFixed(2)}
+                            ৳{batch.selling_price.toFixed(2)}
                           </TableCell>
                         </TableRow>
                       ))}

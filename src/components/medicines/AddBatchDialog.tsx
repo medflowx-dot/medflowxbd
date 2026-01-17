@@ -30,7 +30,6 @@ import { useMedicines, type CreateBatchData, type MedicineBatch } from '@/hooks/
 
 const batchSchema = z.object({
   batch_number: z.string().trim().min(1, 'Batch number is required').max(50, 'Batch number must be less than 50 characters'),
-  quantity: z.coerce.number().min(1, 'Quantity must be at least 1'),
   purchase_price: z.coerce.number().min(0, 'Purchase price must be 0 or more'),
   selling_price: z.coerce.number().min(0, 'Selling price must be 0 or more'),
   expiry_date: z.date({ required_error: 'Expiry date is required' }),
@@ -64,7 +63,6 @@ export function AddBatchDialog({
     resolver: zodResolver(batchSchema),
     defaultValues: {
       batch_number: batch?.batch_number || '',
-      quantity: batch?.quantity || 1,
       purchase_price: batch?.purchase_price || 0,
       selling_price: batch?.selling_price || 0,
       expiry_date: batch?.expiry_date ? new Date(batch.expiry_date) : undefined,
@@ -78,7 +76,6 @@ export function AddBatchDialog({
     const cleanData: CreateBatchData = {
       medicine_id: medicineId,
       batch_number: data.batch_number,
-      quantity: data.quantity,
       purchase_price: data.purchase_price,
       selling_price: data.selling_price,
       expiry_date: format(data.expiry_date, 'yyyy-MM-dd'),
@@ -117,35 +114,19 @@ export function AddBatchDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="batch_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Batch Number *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., BT-2024-001" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantity *</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={1} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="batch_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Batch Number *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., BT-2024-001" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="grid grid-cols-2 gap-4">
               <FormField

@@ -254,7 +254,6 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                           <TableHeader>
                             <TableRow>
                               <TableHead>Batch #</TableHead>
-                              <TableHead>Quantity</TableHead>
                               <TableHead>Purchase Price</TableHead>
                               <TableHead>Selling Price</TableHead>
                               <TableHead>Expiry Date</TableHead>
@@ -271,9 +270,6 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                                 <TableRow key={batch.id}>
                                   <TableCell className="font-mono text-sm">
                                     {batch.batch_number}
-                                  </TableCell>
-                                  <TableCell>
-                                    {batch.quantity} {medicine.unit}
                                   </TableCell>
                                   <TableCell>৳{batch.purchase_price.toFixed(2)}</TableCell>
                                   <TableCell>৳{batch.selling_price.toFixed(2)}</TableCell>
