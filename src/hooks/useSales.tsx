@@ -14,7 +14,6 @@ export interface SaleItem {
   batch_id: string | null;
   medicine_name: string;
   batch_number: string | null;
-  quantity: number;
   unit_price: number;
   total_price: number;
   sale_unit: SaleUnit;
@@ -57,7 +56,6 @@ export interface CreateSaleItemData {
   batch_id?: string;
   medicine_name: string;
   batch_number?: string;
-  quantity: number;
   unit_price: number;
   total_price: number;
   sale_unit?: SaleUnit;
@@ -123,7 +121,7 @@ export function useSales(dateFilter?: Date) {
       
       const { data, error } = await supabase
         .from('sale_items')
-        .select('sale_id, quantity, total_price, purchase_price')
+        .select('sale_id, total_price, purchase_price')
         .in('sale_id', todaySaleIds);
       
       if (error) throw error;
@@ -172,7 +170,7 @@ export function useSales(dateFilter?: Date) {
           batch_id: item.batch_id || null,
           medicine_name: item.medicine_name,
           batch_number: item.batch_number || null,
-          quantity: item.quantity,
+          quantity: 1, // Fixed quantity for database compatibility
           unit_price: item.unit_price,
           total_price: item.total_price,
           sale_unit: item.sale_unit || 'piece',
@@ -281,7 +279,7 @@ export function useSales(dateFilter?: Date) {
   // Calculate today's profit from detailed sales
   const todayItems = todayItemsQuery.data || [];
   const todayRevenue = todayItems.reduce((sum, item) => sum + Number(item.total_price), 0);
-  const todayCost = todayItems.reduce((sum, item) => sum + (Number(item.purchase_price) * item.quantity), 0);
+  const todayCost = todayItems.reduce((sum, item) => sum + Number(item.purchase_price || 0), 0);
   const todayProfit = todayRevenue - todayCost;
 
   return {

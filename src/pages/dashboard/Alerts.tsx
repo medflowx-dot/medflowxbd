@@ -86,7 +86,7 @@ export default function Alerts() {
                 <div className="flex-1">
                   <div className="font-medium">{batch.medicine_name}</div>
                   <div className="text-sm text-muted-foreground">
-                    Batch: {batch.batch_number} · Qty: {batch.quantity}
+                    Batch: {batch.batch_number}
                   </div>
                 </div>
                 <div className="text-right">

@@ -7,7 +7,6 @@ export interface ExpiryBatch {
   id: string;
   batch_number: string;
   expiry_date: string;
-  quantity: number;
   purchase_price: number;
   selling_price: number;
   medicine_id: string;
@@ -34,7 +33,6 @@ export function useExpiryMonitoring(filter: ExpiryFilter, customRange?: { from: 
           id,
           batch_number,
           expiry_date,
-          quantity,
           purchase_price,
           selling_price,
           medicine_id,
@@ -44,7 +42,6 @@ export function useExpiryMonitoring(filter: ExpiryFilter, customRange?: { from: 
             category
           )
         `)
-        .gt('quantity', 0)
         .order('expiry_date', { ascending: true });
 
       // Apply date filters
@@ -92,7 +89,6 @@ export function useExpiryMonitoring(filter: ExpiryFilter, customRange?: { from: 
           id: batch.id,
           batch_number: batch.batch_number,
           expiry_date: batch.expiry_date,
-          quantity: batch.quantity,
           purchase_price: batch.purchase_price,
           selling_price: batch.selling_price,
           medicine_id: batch.medicine_id,
@@ -118,8 +114,7 @@ export function useExpirySummary() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('medicine_batches')
-        .select('expiry_date, quantity, selling_price')
-        .gt('quantity', 0);
+        .select('expiry_date, selling_price');
 
       if (error) throw error;
 
@@ -133,7 +128,7 @@ export function useExpirySummary() {
       const in90Days = format(addDays(today, 90), 'yyyy-MM-dd');
 
       (data || []).forEach((batch) => {
-        const value = Number(batch.quantity) * Number(batch.selling_price);
+        const value = Number(batch.selling_price);
 
         if (batch.expiry_date < todayStr) {
           expired.count++;

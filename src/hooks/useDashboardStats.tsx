@@ -47,7 +47,7 @@ export function useDashboardStats() {
         // Today's sale items for profit calculation
         supabase
           .from('sale_items')
-          .select('total_price, purchase_price, quantity, sale_id')
+          .select('total_price, purchase_price, sale_id')
           .gte('created_at', todayStart)
           .lte('created_at', todayEnd),
 
@@ -74,7 +74,7 @@ export function useDashboardStats() {
         // Medicine batches for expiry tracking
         supabase
           .from('medicine_batches')
-          .select('expiry_date, quantity'),
+          .select('expiry_date'),
       ]);
 
       // Calculate today's sales
@@ -85,7 +85,7 @@ export function useDashboardStats() {
       // Calculate today's profit
       const todaysProfit = saleItemsResult.data?.reduce((sum, item) => {
         const revenue = Number(item.total_price);
-        const cost = Number(item.purchase_price || 0) * Number(item.quantity);
+        const cost = Number(item.purchase_price || 0);
         return sum + (revenue - cost);
       }, 0) || 0;
 
@@ -111,7 +111,7 @@ export function useDashboardStats() {
       let expiredItems = 0;
 
       batchesResult.data?.forEach((batch) => {
-        if (!batch.expiry_date || batch.quantity <= 0) return;
+        if (!batch.expiry_date) return;
         
         const expiryDate = batch.expiry_date;
         

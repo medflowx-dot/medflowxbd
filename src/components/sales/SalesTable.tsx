@@ -122,7 +122,7 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
             const items = saleItems?.[sale.id] || [];
             
             // Calculate profit for detailed sales
-            const totalCost = items.reduce((sum, item) => sum + (Number(item.purchase_price) * item.quantity), 0);
+            const totalCost = items.reduce((sum, item) => sum + Number(item.purchase_price || 0), 0);
             const saleProfit = isDetailedSale && items.length > 0 ? Number(sale.total_amount) - totalCost : null;
 
             return (
@@ -225,13 +225,13 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                             <div className="space-y-1">
                               <p className="text-xs font-medium text-muted-foreground mb-2">Sale Items:</p>
                               {items.map((item) => {
-                                const itemProfit = Number(item.total_price) - (Number(item.purchase_price) * item.quantity);
+                                const itemProfit = Number(item.total_price) - Number(item.purchase_price || 0);
                                 return (
                                   <div key={item.id} className="flex justify-between text-sm">
                                     <span>
                                       {item.medicine_name} 
                                       <span className="text-muted-foreground ml-1">
-                                        ({item.quantity} {getUnitLabel(item.sale_unit || 'piece')} @ ৳{Number(item.unit_price).toFixed(2)})
+                                        ({getUnitLabel(item.sale_unit || 'piece')} @ ৳{Number(item.unit_price).toFixed(2)})
                                       </span>
                                     </span>
                                     <div className="flex items-center gap-3">

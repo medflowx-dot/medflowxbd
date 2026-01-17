@@ -59,7 +59,7 @@ export function ExpiryAlerts() {
                       <div>
                         <p className="font-medium text-sm">{batch.medicine_name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Batch: {batch.batch_number} • Qty: {batch.quantity} {batch.medicine_unit}
+                          Batch: {batch.batch_number}
                         </p>
                       </div>
                       <Badge variant="destructive">
@@ -87,7 +87,7 @@ export function ExpiryAlerts() {
                       <div>
                         <p className="font-medium text-sm">{batch.medicine_name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Batch: {batch.batch_number} • Qty: {batch.quantity} {batch.medicine_unit}
+                          Batch: {batch.batch_number}
                         </p>
                       </div>
                       <Badge className="bg-orange-500 hover:bg-orange-600">
@@ -115,7 +115,7 @@ export function ExpiryAlerts() {
                       <div>
                         <p className="font-medium text-sm">{batch.medicine_name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Batch: {batch.batch_number} • Qty: {batch.quantity} {batch.medicine_unit}
+                          Batch: {batch.batch_number}
                         </p>
                       </div>
                       <Badge className="bg-yellow-500 hover:bg-yellow-600 text-yellow-950">
@@ -143,7 +143,7 @@ export function ExpiryAlerts() {
                       <div>
                         <p className="font-medium text-sm">{batch.medicine_name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Batch: {batch.batch_number} • Qty: {batch.quantity} {batch.medicine_unit}
+                          Batch: {batch.batch_number}
                         </p>
                       </div>
                       <Badge className="bg-blue-500 hover:bg-blue-600">
