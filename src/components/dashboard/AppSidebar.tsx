@@ -91,18 +91,6 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
-        {/* App Branding */}
-        <div className="flex items-center gap-2 px-2 py-2">
-          <div className="p-1.5 rounded-lg bg-primary text-primary-foreground flex-shrink-0">
-            <Pill className="h-5 w-5" />
-          </div>
-          {!isCollapsed && (
-            <span className="text-lg font-display font-bold text-foreground">
-              Med<span className="text-primary">Flow</span>x
-            </span>
-          )}
-        </div>
-        
         {/* Pharmacy Info */}
         {profile?.pharmacy_name && (
           <div className="flex items-center gap-2 px-2 py-2 mx-2 mb-1 rounded-lg bg-sidebar-accent/50">
@@ -206,10 +194,17 @@ export function AppSidebar() {
 
       <SidebarFooter className="border-t border-sidebar-border">
         <div className="px-2 py-3">
-          {!isCollapsed && (
-            <div className="text-xs text-muted-foreground">
+          {!isCollapsed ? (
+            <div className="text-xs text-muted-foreground space-y-1">
               <p className="font-medium text-foreground">{getSubscriptionLabel()}</p>
               <p>{getSubscriptionSubtext()}</p>
+              <p className="pt-2 border-t border-sidebar-border mt-2">
+                © {new Date().getFullYear()} <span className="font-medium">MedFlowx</span>
+              </p>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <Pill className="h-4 w-4 text-primary" />
             </div>
           )}
         </div>
