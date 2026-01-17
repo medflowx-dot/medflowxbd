@@ -5,10 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { AlertTriangle, Clock, CalendarIcon, FileDown, Package } from 'lucide-react';
+import { AlertTriangle, Clock, CalendarIcon, FileDown, Package, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useExpiryMonitoring, useExpirySummary, ExpiryFilter } from '@/hooks/useExpiryMonitoring';
+import { generateExpiryReportPDF } from '@/lib/pdfGenerator';
 import {
   Table,
   TableBody,
@@ -23,6 +24,7 @@ export default function ExpiryMonitoring() {
   const [customRange, setCustomRange] = useState<{ from: Date; to: Date } | undefined>();
   const [dateFrom, setDateFrom] = useState<Date>();
   const [dateTo, setDateTo] = useState<Date>();
+  const [exporting, setExporting] = useState(false);
 
   const { data: batches, isLoading } = useExpiryMonitoring(filter, customRange);
   const { data: summary } = useExpirySummary();
@@ -31,6 +33,32 @@ export default function ExpiryMonitoring() {
     if (dateFrom && dateTo) {
       setCustomRange({ from: dateFrom, to: dateTo });
       setFilter('custom');
+    }
+  };
+
+  const getFilterLabel = () => {
+    switch (filter) {
+      case 'all': return 'All Batches at Risk';
+      case 'expired': return 'Expired Batches';
+      case '30days': return 'Expiring within 30 Days';
+      case '60days': return 'Expiring within 60 Days';
+      case '90days': return 'Expiring within 90 Days';
+      case 'custom': 
+        return customRange 
+          ? `${format(customRange.from, 'MMM dd, yyyy')} - ${format(customRange.to, 'MMM dd, yyyy')}`
+          : 'Custom Range';
+      default: return 'All Batches';
+    }
+  };
+
+  const handleExportPDF = () => {
+    if (!batches || batches.length === 0) return;
+    setExporting(true);
+    
+    try {
+      generateExpiryReportPDF(batches, getFilterLabel());
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -58,8 +86,16 @@ export default function ExpiryMonitoring() {
             Track medicine batch expiry dates and manage stock accordingly
           </p>
         </div>
-        <Button variant="outline" disabled>
-          <FileDown className="h-4 w-4 mr-2" />
+        <Button 
+          variant="outline" 
+          onClick={handleExportPDF}
+          disabled={!batches || batches.length === 0 || exporting}
+        >
+          {exporting ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <FileDown className="h-4 w-4 mr-2" />
+          )}
           Export PDF
         </Button>
       </div>
@@ -200,7 +236,6 @@ export default function ExpiryMonitoring() {
                         <TableHead>Manufacturer</TableHead>
                         <TableHead>Expiry Date</TableHead>
                         <TableHead className="text-center">Status</TableHead>
-                        <TableHead className="text-right">Value</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -224,9 +259,6 @@ export default function ExpiryMonitoring() {
                           </TableCell>
                           <TableCell className="text-center">
                             {getStatusBadge(batch.status, batch.daysUntilExpiry)}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {batch.batch_number}
                           </TableCell>
                         </TableRow>
                       ))}

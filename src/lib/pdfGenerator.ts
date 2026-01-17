@@ -380,3 +380,106 @@ export function generateDailyClosingCashPDF(
   addFooter(doc);
   doc.save(`daily-cash-${format(date, 'yyyy-MM-dd')}.pdf`);
 }
+
+export interface ExpiryReportItem {
+  id: string;
+  batch_number: string;
+  expiry_date: string;
+  medicine_name: string;
+  manufacturer: string | null;
+  category: string | null;
+  daysUntilExpiry: number;
+  status: string;
+}
+
+export function generateExpiryReportPDF(
+  data: ExpiryReportItem[],
+  filterLabel: string
+) {
+  const doc = new jsPDF();
+  const startY = addHeader(doc, 'Expiry Monitoring Report');
+
+  // Filter info
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Filter: ${filterLabel}`, 14, startY);
+
+  // Summary stats
+  const expired = data.filter(d => d.status === 'expired').length;
+  const critical = data.filter(d => d.status === 'critical').length;
+  const warning = data.filter(d => d.status === 'warning').length;
+  const caution = data.filter(d => d.status === 'caution').length;
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  const summaryY = startY + 8;
+  doc.text(`Total Batches: ${data.length}`, 14, summaryY);
+  doc.text(`Expired: ${expired}`, 60, summaryY);
+  doc.text(`Critical (30d): ${critical}`, 100, summaryY);
+  doc.text(`Warning (60d): ${warning}`, 145, summaryY);
+
+  // Table
+  if (data.length > 0) {
+    autoTable(doc, {
+      startY: summaryY + 8,
+      head: [['Medicine', 'Batch No.', 'Category', 'Manufacturer', 'Expiry Date', 'Days Left', 'Status']],
+      body: data.map(row => {
+        let statusLabel = '';
+        switch (row.status) {
+          case 'expired': statusLabel = 'EXPIRED'; break;
+          case 'critical': statusLabel = 'Critical'; break;
+          case 'warning': statusLabel = 'Warning'; break;
+          case 'caution': statusLabel = 'Caution'; break;
+          default: statusLabel = 'Safe';
+        }
+        return [
+          row.medicine_name,
+          row.batch_number,
+          row.category || '-',
+          row.manufacturer || '-',
+          format(new Date(row.expiry_date), 'MMM dd, yyyy'),
+          row.daysUntilExpiry < 0 ? `${Math.abs(row.daysUntilExpiry)} ago` : `${row.daysUntilExpiry}`,
+          statusLabel,
+        ];
+      }),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [239, 68, 68] }, // Red color for expiry
+      didParseCell: function(data) {
+        // Color code status column
+        if (data.column.index === 6 && data.section === 'body') {
+          const status = data.row.raw?.[6];
+          if (status === 'EXPIRED') {
+            data.cell.styles.textColor = [220, 38, 38];
+            data.cell.styles.fontStyle = 'bold';
+          } else if (status === 'Critical') {
+            data.cell.styles.textColor = [234, 88, 12];
+          } else if (status === 'Warning') {
+            data.cell.styles.textColor = [202, 138, 4];
+          }
+        }
+      },
+    });
+
+    // Summary footer
+    const finalY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    
+    if (expired > 0) {
+      doc.setTextColor(220, 38, 38);
+      doc.text(`! ${expired} batch(es) already expired - immediate action required`, 14, finalY + 10);
+      doc.setTextColor(0);
+    }
+    
+    if (critical > 0) {
+      doc.text(`${critical} batch(es) expiring within 30 days`, 14, finalY + (expired > 0 ? 16 : 10));
+    }
+  } else {
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('No batches found for the selected filter.', 14, summaryY + 10);
+  }
+
+  addFooter(doc);
+  doc.save(`expiry-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+}
