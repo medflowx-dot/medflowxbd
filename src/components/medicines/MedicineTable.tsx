@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { AddMedicineDialog } from './AddMedicineDialog';
 import { AddBatchDialog } from './AddBatchDialog';
+import { BatchListDialog } from './BatchListDialog';
 import { useMedicines, type MedicineWithBatches } from '@/hooks/useMedicines';
 import { usePermissions } from '@/hooks/usePermissions';
 
@@ -143,9 +144,19 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                   )}
                 </TableCell>
                 <TableCell className="hidden lg:table-cell">
-                  <Badge variant="outline">
-                    {medicine.batches.length}
-                  </Badge>
+                  <BatchListDialog
+                    medicineName={medicine.name}
+                    medicineId={medicine.id}
+                    batches={medicine.batches}
+                    trigger={
+                      <Badge 
+                        variant="outline" 
+                        className="cursor-pointer hover:bg-accent transition-colors"
+                      >
+                        {medicine.batches.length}
+                      </Badge>
+                    }
+                  />
                 </TableCell>
                 <TableCell>
                   {medicine.earliest_expiry ? (
