@@ -3,6 +3,7 @@ import {
   Edit,
   Trash2,
   Package,
+  Plus,
 } from 'lucide-react';
 import {
   Table,
@@ -26,6 +27,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { AddMedicineDialog } from './AddMedicineDialog';
+import { AddBatchDialog } from './AddBatchDialog';
 import { useMedicines, type MedicineWithBatches } from '@/hooks/useMedicines';
 import { usePermissions } from '@/hooks/usePermissions';
 
@@ -165,6 +167,21 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                     >
                       {format(new Date(medicine.earliest_expiry), 'dd MMM yyyy')}
                     </Badge>
+                  ) : canManageMedicines ? (
+                    <AddBatchDialog
+                      medicineId={medicine.id}
+                      medicineName={medicine.name}
+                      trigger={
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-muted-foreground hover:text-primary text-sm h-auto py-1 px-2"
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add batch
+                        </Button>
+                      }
+                    />
                   ) : (
                     <span className="text-muted-foreground text-sm">No batches</span>
                   )}
