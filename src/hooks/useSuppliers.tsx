@@ -8,6 +8,7 @@ export interface Supplier {
   user_id: string;
   name: string;
   phone: string | null;
+  whatsapp_number: string | null;
   email: string | null;
   address: string | null;
   contact_person: string | null;
@@ -15,8 +16,14 @@ export interface Supplier {
   total_due: number;
   total_paid: number;
   is_active: boolean | null;
+  manufacturer_id: string | null;
   created_at: string;
   updated_at: string;
+  manufacturer?: {
+    id: string;
+    name: string;
+    phone: string | null;
+  };
 }
 
 export interface SupplierPayment {
@@ -84,7 +91,10 @@ export function useSuppliers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('suppliers')
-        .select('*')
+        .select(`
+          *,
+          manufacturer:manufacturers(id, name, phone)
+        `)
         .order('name');
       
       if (error) throw error;
