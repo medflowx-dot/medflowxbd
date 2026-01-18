@@ -17,6 +17,11 @@ import Medicines from "./pages/dashboard/Medicines";
 import Batches from "./pages/dashboard/Batches";
 import Sales from "./pages/dashboard/Sales";
 import Suppliers from "./pages/dashboard/Suppliers";
+import SupplierList from "./pages/dashboard/suppliers/SupplierList";
+import StockShortList from "./pages/dashboard/suppliers/StockShortList";
+import PendingOrders from "./pages/dashboard/suppliers/PendingOrders";
+import OrderedOrders from "./pages/dashboard/suppliers/OrderedOrders";
+import ReceivedOrders from "./pages/dashboard/suppliers/ReceivedOrders";
 import DailyCash from "./pages/dashboard/DailyCash";
 import Manufacturers from "./pages/dashboard/Manufacturers";
 import Reports from "./pages/dashboard/Reports";
@@ -79,7 +84,13 @@ const App = () => (
               <Route path="sales" element={<Sales />} />
               <Route path="customer-dues" element={<CustomerDues />} />
               {/* Admin-only routes - staff will be redirected */}
-              <Route path="suppliers" element={<AdminRoute><Suppliers /></AdminRoute>} />
+              <Route path="suppliers" element={<AdminRoute><Suppliers /></AdminRoute>}>
+                <Route index element={<SupplierList />} />
+                <Route path="stock-short" element={<StockShortList />} />
+                <Route path="pending" element={<PendingOrders />} />
+                <Route path="ordered" element={<OrderedOrders />} />
+                <Route path="received" element={<ReceivedOrders />} />
+              </Route>
               <Route path="manufacturers" element={<AdminRoute><Manufacturers /></AdminRoute>} />
               <Route path="reports" element={<AdminRoute><Reports /></AdminRoute>} />
               <Route path="settings" element={<AdminRoute><Settings /></AdminRoute>} />
