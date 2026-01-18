@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { format } from 'date-fns';
 import {
   Edit,
   Trash2,
   Package,
   Plus,
+  Building2,
 } from 'lucide-react';
 import {
   Table,
@@ -26,10 +28,23 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { AddMedicineDialog } from './AddMedicineDialog';
 import { AddBatchDialog } from './AddBatchDialog';
 import { BatchListDialog } from './BatchListDialog';
 import { useMedicines, type MedicineWithBatches } from '@/hooks/useMedicines';
+import { useManufacturers } from '@/hooks/useManufacturers';
 import { usePermissions } from '@/hooks/usePermissions';
 
 interface MedicineTableProps {
@@ -39,10 +54,26 @@ interface MedicineTableProps {
 }
 
 export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: MedicineTableProps) {
-  const { deleteMedicine } = useMedicines();
+  const { deleteMedicine, updateMedicine } = useMedicines();
+  const { manufacturers } = useManufacturers();
   const { hasPermission } = usePermissions();
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
   
   const canManageMedicines = hasPermission('manage_medicines');
+
+  const handleManufacturerChange = async (medicineId: string, manufacturerId: string) => {
+    setUpdatingId(medicineId);
+    const manufacturer = manufacturers.find(m => m.id === manufacturerId);
+    try {
+      await updateMedicine.mutateAsync({
+        id: medicineId,
+        manufacturer_id: manufacturerId === 'none' ? undefined : manufacturerId,
+        manufacturer: manufacturer?.name || undefined,
+      });
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const filteredMedicines = medicines.filter((medicine) => {
     // Text search filter
@@ -103,9 +134,10 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
         <TableHeader>
           <TableRow>
             <TableHead>Medicine</TableHead>
-            <TableHead className="hidden md:table-cell">Category</TableHead>
+            <TableHead className="hidden md:table-cell">Manufacturer</TableHead>
+            <TableHead className="hidden lg:table-cell">Category</TableHead>
             <TableHead className="hidden sm:table-cell">Shelf</TableHead>
-            <TableHead className="hidden lg:table-cell">Batches</TableHead>
+            <TableHead className="hidden xl:table-cell">Batches</TableHead>
             <TableHead>Expiry</TableHead>
             {canManageMedicines && (
               <TableHead className="text-right">Actions</TableHead>
@@ -121,15 +153,62 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                 <TableCell>
                   <div>
                     <p className="font-medium">{medicine.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {medicine.generic_name && <span>{medicine.generic_name}</span>}
-                      {medicine.manufacturer && (
-                        <span className="ml-2">• {medicine.manufacturer}</span>
-                      )}
-                    </p>
+                    {medicine.generic_name && (
+                      <p className="text-sm text-muted-foreground">{medicine.generic_name}</p>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
+                  {canManageMedicines ? (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className={`h-auto py-1 px-2 ${!medicine.manufacturer_id ? 'text-muted-foreground' : ''}`}
+                          disabled={updatingId === medicine.id}
+                        >
+                          {updatingId === medicine.id ? (
+                            <span className="text-xs">Saving...</span>
+                          ) : medicine.manufacturer ? (
+                            <span className="flex items-center gap-1">
+                              <Building2 className="h-3 w-3" />
+                              {medicine.manufacturer}
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-xs">
+                              <Plus className="h-3 w-3" />
+                              Set Manufacturer
+                            </span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-56 p-2" align="start">
+                        <Select
+                          value={medicine.manufacturer_id || 'none'}
+                          onValueChange={(value) => handleManufacturerChange(medicine.id, value)}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select manufacturer" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            {manufacturers.map((m) => (
+                              <SelectItem key={m.id} value={m.id}>
+                                {m.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </PopoverContent>
+                    </Popover>
+                  ) : medicine.manufacturer ? (
+                    <span className="text-sm">{medicine.manufacturer}</span>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">—</span>
+                  )}
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
                   {medicine.category && (
                     <Badge variant="secondary">{medicine.category}</Badge>
                   )}
@@ -143,7 +222,7 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                     <span className="text-muted-foreground text-sm">—</span>
                   )}
                 </TableCell>
-                <TableCell className="hidden lg:table-cell">
+                <TableCell className="hidden xl:table-cell">
                   <BatchListDialog
                     medicineName={medicine.name}
                     medicineId={medicine.id}
