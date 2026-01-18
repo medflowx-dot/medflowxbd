@@ -6,15 +6,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MoreHorizontal, Pencil, Trash2, CreditCard, Phone, Mail, Building2, Plus, FileText, Loader2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, CreditCard, Phone, Mail, Building2, Plus, FileText } from 'lucide-react';
 import { Supplier, useSuppliers } from '@/hooks/useSuppliers';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { AddSupplierDialog } from './AddSupplierDialog';
 import { SupplierPaymentDialog } from './SupplierPaymentDialog';
+import { QuickReportDialog } from '@/components/reports/QuickReportDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { generateIndividualSupplierPDF } from '@/lib/pdfGenerator';
 import { toast } from 'sonner';
-import { startOfMonth, endOfMonth } from 'date-fns';
 
 interface SupplierTableProps {
   suppliers: Supplier[];
@@ -26,75 +26,69 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
   const { manufacturers } = useManufacturers();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [exportingId, setExportingId] = useState<string | null>(null);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
 
-  const handleQuickReport = async (supplier: Supplier) => {
-    setExportingId(supplier.id);
-    try {
-      const now = new Date();
-      const dateRange = {
-        start: startOfMonth(now),
-        end: endOfMonth(now),
-      };
+  const handleQuickReportClick = (supplier: Supplier) => {
+    setSelectedSupplier(supplier);
+    setReportDialogOpen(true);
+  };
 
-      const startDate = dateRange.start.toISOString().split('T')[0];
-      const endDate = dateRange.end.toISOString().split('T')[0];
+  const handleGenerateReport = async (dateRange: { start: Date; end: Date }) => {
+    if (!selectedSupplier) return;
 
-      // Fetch purchases in date range
-      const { data: purchases, error: purchasesError } = await supabase
-        .from('supplier_purchases')
-        .select('id, purchase_date, invoice_number, total_amount, paid_amount, due_amount, notes')
-        .eq('supplier_id', supplier.id)
-        .gte('purchase_date', startDate)
-        .lte('purchase_date', endDate)
-        .order('purchase_date', { ascending: false });
+    const startDate = dateRange.start.toISOString().split('T')[0];
+    const endDate = dateRange.end.toISOString().split('T')[0];
 
-      if (purchasesError) throw purchasesError;
+    // Fetch purchases in date range
+    const { data: purchases, error: purchasesError } = await supabase
+      .from('supplier_purchases')
+      .select('id, purchase_date, invoice_number, total_amount, paid_amount, due_amount, notes')
+      .eq('supplier_id', selectedSupplier.id)
+      .gte('purchase_date', startDate)
+      .lte('purchase_date', endDate)
+      .order('purchase_date', { ascending: false });
 
-      // Fetch payments in date range
-      const { data: payments, error: paymentsError } = await supabase
-        .from('supplier_payments')
-        .select('id, payment_date, amount, payment_method, reference_number, notes')
-        .eq('supplier_id', supplier.id)
-        .gte('payment_date', startDate)
-        .lte('payment_date', endDate)
-        .order('payment_date', { ascending: false });
+    if (purchasesError) throw purchasesError;
 
-      if (paymentsError) throw paymentsError;
+    // Fetch payments in date range
+    const { data: payments, error: paymentsError } = await supabase
+      .from('supplier_payments')
+      .select('id, payment_date, amount, payment_method, reference_number, notes')
+      .eq('supplier_id', selectedSupplier.id)
+      .gte('payment_date', startDate)
+      .lte('payment_date', endDate)
+      .order('payment_date', { ascending: false });
 
-      // Calculate summary
-      const totalPurchases = purchases?.reduce((sum, p) => sum + Number(p.total_amount), 0) || 0;
-      const totalPayments = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+    if (paymentsError) throw paymentsError;
 
-      const reportData = {
-        supplier: {
-          id: supplier.id,
-          name: supplier.name,
-          phone: supplier.phone,
-          address: supplier.address,
-          contact_person: supplier.contact_person,
-          total_due: supplier.total_due,
-          total_paid: supplier.total_paid,
-        },
-        purchases: purchases || [],
-        payments: payments || [],
-        summary: {
-          totalPurchases,
-          totalPayments,
-          currentDue: supplier.total_due,
-          purchaseCount: purchases?.length || 0,
-          paymentCount: payments?.length || 0,
-        },
-      };
+    // Calculate summary
+    const totalPurchases = purchases?.reduce((sum, p) => sum + Number(p.total_amount), 0) || 0;
+    const totalPayments = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
 
-      generateIndividualSupplierPDF(reportData, dateRange);
-      toast.success('PDF রিপোর্ট ডাউনলোড হয়েছে');
-    } catch (error) {
-      console.error('Error generating report:', error);
-      toast.error('রিপোর্ট তৈরিতে সমস্যা হয়েছে');
-    } finally {
-      setExportingId(null);
-    }
+    const reportData = {
+      supplier: {
+        id: selectedSupplier.id,
+        name: selectedSupplier.name,
+        phone: selectedSupplier.phone,
+        address: selectedSupplier.address,
+        contact_person: selectedSupplier.contact_person,
+        total_due: selectedSupplier.total_due,
+        total_paid: selectedSupplier.total_paid,
+      },
+      purchases: purchases || [],
+      payments: payments || [],
+      summary: {
+        totalPurchases,
+        totalPayments,
+        currentDue: selectedSupplier.total_due,
+        purchaseCount: purchases?.length || 0,
+        paymentCount: payments?.length || 0,
+      },
+    };
+
+    generateIndividualSupplierPDF(reportData, dateRange);
+    toast.success('PDF রিপোর্ট ডাউনলোড হয়েছে');
   };
 
   const filteredSuppliers = suppliers.filter((supplier) =>
@@ -227,15 +221,10 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                     <Button 
                       size="icon" 
                       variant="ghost" 
-                      title="Quick Report (This Month)"
-                      onClick={() => handleQuickReport(supplier)}
-                      disabled={exportingId === supplier.id}
+                      title="Quick Report"
+                      onClick={() => handleQuickReportClick(supplier)}
                     >
-                      {exportingId === supplier.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <FileText className="h-4 w-4" />
-                      )}
+                      <FileText className="h-4 w-4" />
                     </Button>
                     {supplier.total_due > 0 && (
                       <SupplierPaymentDialog
@@ -296,6 +285,14 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <QuickReportDialog
+        open={reportDialogOpen}
+        onOpenChange={setReportDialogOpen}
+        title={`Supplier Report: ${selectedSupplier?.name || ''}`}
+        description="Select a date range for the report"
+        onGenerate={handleGenerateReport}
+      />
     </>
   );
 }
