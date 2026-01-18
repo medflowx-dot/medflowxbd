@@ -34,6 +34,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { useNavigate } from 'react-router-dom';
 
 // Badge configuration for menu items
 const badgeConfig: Record<string, { key: 'expiryAlerts' | 'customerDues' | 'supplierDues'; variant: 'destructive' | 'secondary' | 'outline' }> = {
@@ -89,13 +90,26 @@ const adminItems = [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
+  const navigate = useNavigate();
   const isCollapsed = state === 'collapsed';
   const { role, isOwnerAdmin, canAccessRoute } = usePermissions();
   const { isRouteEnabled } = useEnabledFeatures();
   const { isTrial, daysRemaining, planType } = useSubscriptionStatus();
   const { data: profile } = useProfile();
   const { data: badges } = useSidebarBadges();
+
+  // Handle navigation with mobile sidebar close
+  const handleNavClick = (url: string) => (e: React.MouseEvent) => {
+    if (isMobile) {
+      e.preventDefault();
+      setOpenMobile(false);
+      // Small delay to let the sidebar close animation start
+      setTimeout(() => {
+        navigate(url);
+      }, 50);
+    }
+  };
 
   // Helper to get badge count for a menu item
   const getBadgeCount = (url: string): number => {
@@ -174,6 +188,7 @@ export function AppSidebar() {
                     <SidebarMenuButton asChild tooltip={item.title}>
                       <NavLink 
                         to={item.url}
+                        onClick={handleNavClick(item.url)}
                         className="flex items-center gap-2"
                         activeClassName="bg-destructive/10 text-destructive font-medium"
                       >
@@ -207,6 +222,7 @@ export function AppSidebar() {
                         <NavLink 
                           to={item.url} 
                           end={item.url === '/dashboard'}
+                          onClick={handleNavClick(item.url)}
                           className="flex items-center gap-2 justify-between w-full"
                           activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                         >
