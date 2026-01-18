@@ -34,9 +34,20 @@ export default function PendingOrders() {
 
     message += `\n_Please confirm this order._`;
 
-    // Open WhatsApp
-    const whatsappUrl = `https://wa.me/${order.supplier.whatsapp_number.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    // Clean phone number - remove all non-digits
+    const cleanPhone = order.supplier.whatsapp_number.replace(/\D/g, '');
+    
+    // Use wa.me link with proper encoding
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    
+    // Create a temporary link and click it to bypass iframe restrictions
+    const link = document.createElement('a');
+    link.href = whatsappUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (isLoading) {
