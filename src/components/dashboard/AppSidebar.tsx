@@ -5,7 +5,6 @@ import {
   Wallet, 
   FileText,
   LayoutDashboard,
-  Settings,
   Pill,
   Shield,
   Building2,
@@ -20,6 +19,8 @@ import { usePermissions, menuAccessByRole } from '@/hooks/usePermissions';
 import { useEnabledFeatures } from '@/hooks/useFeatureFlags';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useProfile } from '@/hooks/useProfile';
+import { useSidebarBadges } from '@/hooks/useSidebarBadges';
+import { Badge } from '@/components/ui/badge';
 import {
   Sidebar,
   SidebarContent,
@@ -33,6 +34,14 @@ import {
   SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
+
+// Badge configuration for menu items
+const badgeConfig: Record<string, { key: 'expiryAlerts' | 'customerDues' | 'supplierDues'; variant: 'destructive' | 'secondary' | 'outline' }> = {
+  '/dashboard/expiry': { key: 'expiryAlerts', variant: 'destructive' },
+  '/dashboard/alerts': { key: 'expiryAlerts', variant: 'destructive' },
+  '/dashboard/customer-dues': { key: 'customerDues', variant: 'secondary' },
+  '/dashboard/suppliers': { key: 'supplierDues', variant: 'outline' },
+};
 
 const menuGroups = [
   {
@@ -86,6 +95,18 @@ export function AppSidebar() {
   const { isRouteEnabled } = useEnabledFeatures();
   const { isTrial, daysRemaining, planType } = useSubscriptionStatus();
   const { data: profile } = useProfile();
+  const { data: badges } = useSidebarBadges();
+
+  // Helper to get badge count for a menu item
+  const getBadgeCount = (url: string): number => {
+    const config = badgeConfig[url];
+    if (!config || !badges) return 0;
+    return badges[config.key] || 0;
+  };
+
+  const getBadgeVariant = (url: string) => {
+    return badgeConfig[url]?.variant || 'secondary';
+  };
 
   // Get all allowed routes for filtering
   const allowedRoutes = menuAccessByRole[role] || [];
@@ -176,21 +197,36 @@ export function AppSidebar() {
             )}
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.title}>
-                      <NavLink 
-                        to={item.url} 
-                        end={item.url === '/dashboard'}
-                        className="flex items-center gap-2"
-                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                      >
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {group.items.map((item) => {
+                  const badgeCount = getBadgeCount(item.url);
+                  const badgeVariant = getBadgeVariant(item.url);
+                  
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild tooltip={item.title}>
+                        <NavLink 
+                          to={item.url} 
+                          end={item.url === '/dashboard'}
+                          className="flex items-center gap-2 justify-between w-full"
+                          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        >
+                          <div className="flex items-center gap-2">
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.title}</span>
+                          </div>
+                          {badgeCount > 0 && !isCollapsed && (
+                            <Badge 
+                              variant={badgeVariant} 
+                              className="h-5 min-w-5 px-1.5 text-xs font-medium"
+                            >
+                              {badgeCount > 99 ? '99+' : badgeCount}
+                            </Badge>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
