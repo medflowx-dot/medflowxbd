@@ -4,8 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { MoreHorizontal, Pencil, Trash2, CreditCard, Phone, Mail } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MoreHorizontal, Pencil, Trash2, CreditCard, Phone, Mail, Building2, Plus } from 'lucide-react';
 import { Supplier, useSuppliers } from '@/hooks/useSuppliers';
+import { useManufacturers } from '@/hooks/useManufacturers';
 import { AddSupplierDialog } from './AddSupplierDialog';
 import { SupplierPaymentDialog } from './SupplierPaymentDialog';
 
@@ -15,8 +18,10 @@ interface SupplierTableProps {
 }
 
 export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
-  const { deleteSupplier } = useSuppliers();
+  const { deleteSupplier, updateSupplier } = useSuppliers();
+  const { manufacturers } = useManufacturers();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const filteredSuppliers = suppliers.filter((supplier) =>
     supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -28,6 +33,15 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
     if (deleteId) {
       await deleteSupplier(deleteId);
       setDeleteId(null);
+    }
+  };
+
+  const handleManufacturerChange = async (supplierId: string, manufacturerId: string) => {
+    setUpdatingId(supplierId);
+    try {
+      await updateSupplier({ id: supplierId, manufacturer_id: manufacturerId === 'none' ? null : manufacturerId });
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -46,6 +60,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Supplier</TableHead>
+              <TableHead className="hidden md:table-cell">Manufacturer</TableHead>
               <TableHead className="hidden sm:table-cell">Contact</TableHead>
               <TableHead className="text-right">Total Paid</TableHead>
               <TableHead className="text-right">Total Due</TableHead>
@@ -62,6 +77,50 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                       <div className="text-sm text-muted-foreground">{supplier.contact_person}</div>
                     )}
                   </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className={`h-auto py-1 px-2 ${!supplier.manufacturer_id ? 'text-muted-foreground' : ''}`}
+                        disabled={updatingId === supplier.id}
+                      >
+                        {updatingId === supplier.id ? (
+                          <span className="text-xs">Saving...</span>
+                        ) : supplier.manufacturer?.name ? (
+                          <span className="flex items-center gap-1">
+                            <Building2 className="h-3 w-3" />
+                            {supplier.manufacturer.name}
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-xs">
+                            <Plus className="h-3 w-3" />
+                            Set Manufacturer
+                          </span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-56 p-2" align="start">
+                      <Select
+                        value={supplier.manufacturer_id || 'none'}
+                        onValueChange={(value) => handleManufacturerChange(supplier.id, value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select manufacturer" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">None</SelectItem>
+                          {manufacturers.map((m) => (
+                            <SelectItem key={m.id} value={m.id}>
+                              {m.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </PopoverContent>
+                  </Popover>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
                   <div className="space-y-1">
