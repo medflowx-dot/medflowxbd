@@ -42,11 +42,13 @@ export default function StockShortList() {
   const activeNotes = notes.filter(n => n.status === 'active');
   const completedNotes = notes.filter(n => n.status === 'completed');
 
-  // Get all active medicines (not filtered by manufacturer - user can order any medicine from any manufacturer)
-  const activeMedicines = medicines.filter(m => m.is_active !== false);
-  
   // Get active manufacturers
   const activeManufacturers = manufacturers.filter(m => m.is_active !== false);
+  
+  // Filter medicines by selected manufacturer
+  const filteredMedicines = newItem.manufacturer_id 
+    ? medicines.filter(m => m.manufacturer_id === newItem.manufacturer_id && m.is_active !== false)
+    : [];
 
   const handleCreateNote = async () => {
     try {
@@ -365,15 +367,16 @@ export default function StockShortList() {
               <Select
                 value={newItem.medicine_id}
                 onValueChange={(value) => setNewItem({ ...newItem, medicine_id: value })}
+                disabled={!newItem.manufacturer_id}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select medicine" />
+                  <SelectValue placeholder={newItem.manufacturer_id ? "Select medicine" : "Select manufacturer first"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {activeMedicines.length === 0 ? (
-                    <SelectItem value="" disabled>No medicines available</SelectItem>
+                  {filteredMedicines.length === 0 ? (
+                    <SelectItem value="" disabled>No medicines for this manufacturer</SelectItem>
                   ) : (
-                    activeMedicines.map((med) => (
+                    filteredMedicines.map((med) => (
                       <SelectItem key={med.id} value={med.id}>
                         {med.name} ({med.unit})
                       </SelectItem>
