@@ -350,7 +350,7 @@ export default function StockShortList() {
                 </SelectTrigger>
                 <SelectContent>
                   {activeManufacturers.length === 0 ? (
-                    <SelectItem value="" disabled>No manufacturers available</SelectItem>
+                    <div className="py-2 px-2 text-sm text-muted-foreground">No manufacturers available</div>
                   ) : (
                     activeManufacturers.map((mfg) => (
                       <SelectItem key={mfg.id} value={mfg.id}>
@@ -374,7 +374,7 @@ export default function StockShortList() {
                 </SelectTrigger>
                 <SelectContent>
                   {filteredMedicines.length === 0 ? (
-                    <SelectItem value="" disabled>No medicines for this manufacturer</SelectItem>
+                    <div className="py-2 px-2 text-sm text-muted-foreground">No medicines for this manufacturer</div>
                   ) : (
                     filteredMedicines.map((med) => (
                       <SelectItem key={med.id} value={med.id}>
