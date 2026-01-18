@@ -226,6 +226,89 @@ export function generateSupplierDuePDF(data: SupplierDueItem[]) {
   doc.save(`supplier-due-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 }
 
+export interface IndividualCustomerReportData {
+  customer: {
+    id: string;
+    name: string;
+    phone: string | null;
+    address: string | null;
+    total_due: number;
+  };
+  payments: {
+    id: string;
+    amount: number;
+    payment_date: string;
+    payment_method: string;
+    notes: string | null;
+  }[];
+  summary: {
+    totalPayments: number;
+    paymentCount: number;
+  };
+}
+
+export function generateIndividualCustomerPDF(
+  data: IndividualCustomerReportData,
+  dateRange: { start: Date; end: Date }
+) {
+  const doc = new jsPDF();
+  const startY = addHeader(doc, 'Customer Transaction Report', dateRange);
+
+  // Customer Info
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Customer Details', 14, startY);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.text(`Name: ${data.customer.name}`, 14, startY + 8);
+  doc.text(`Phone: ${data.customer.phone || '-'}`, 14, startY + 14);
+  doc.text(`Address: ${data.customer.address || '-'}`, 14, startY + 20);
+
+  // Summary Section
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Summary', 14, startY + 32);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.text(`Total Payments (Period): ${CURRENCY}${data.summary.totalPayments.toLocaleString()}`, 14, startY + 40);
+  doc.text(`Payment Count: ${data.summary.paymentCount}`, 100, startY + 40);
+  doc.text(`Current Outstanding: ${CURRENCY}${data.customer.total_due.toLocaleString()}`, 14, startY + 48);
+
+  // Payment History Table
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Payment History', 14, startY + 60);
+
+  if (data.payments.length > 0) {
+    autoTable(doc, {
+      startY: startY + 66,
+      head: [['#', 'Date', 'Amount', 'Method', 'Notes']],
+      body: data.payments.map((payment, index) => [
+        (index + 1).toString(),
+        format(new Date(payment.payment_date), 'MMM dd, yyyy'),
+        `${CURRENCY}${payment.amount.toLocaleString()}`,
+        payment.payment_method || 'Cash',
+        payment.notes || '-',
+      ]),
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [52, 211, 153] },
+      columnStyles: {
+        0: { cellWidth: 12 },
+        2: { halign: 'right' },
+      },
+    });
+  } else {
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(9);
+    doc.text('No payments in selected period', 14, startY + 66);
+  }
+
+  addFooter(doc);
+  doc.save(`customer-report-${data.customer.name.replace(/\s+/g, '-')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+}
+
 export function generateCustomerDuesPDF(data: CustomerDueItem[]) {
   const doc = new jsPDF();
   const startY = addHeader(doc, 'Customer Dues Report');
