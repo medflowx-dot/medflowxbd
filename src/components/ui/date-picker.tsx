@@ -31,30 +31,17 @@ export function DatePicker({
   showClearButton = true,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
-  const [tempDate, setTempDate] = React.useState<Date | undefined>(date);
-
-  // Sync temp date when date prop changes
-  React.useEffect(() => {
-    setTempDate(date);
-  }, [date]);
 
   const handleSelect = (selectedDate: Date | undefined) => {
-    setTempDate(selectedDate);
-  };
-
-  const handleConfirm = () => {
-    onDateChange(tempDate);
-    setOpen(false);
+    onDateChange(selectedDate);
+    // Close popover after selection
+    if (selectedDate) {
+      setOpen(false);
+    }
   };
 
   const handleClear = () => {
-    setTempDate(undefined);
     onDateChange(undefined);
-    setOpen(false);
-  };
-
-  const handleCancel = () => {
-    setTempDate(date);
     setOpen(false);
   };
 
@@ -62,6 +49,7 @@ export function DatePicker({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          type="button"
           variant="outline"
           className={cn(
             "w-full justify-start text-left font-normal",
@@ -77,17 +65,17 @@ export function DatePicker({
         {/* Header showing selected date */}
         <div className="bg-primary p-4 text-primary-foreground rounded-t-md">
           <p className="text-sm opacity-80">
-            {tempDate ? format(tempDate, "yyyy") : new Date().getFullYear()}
+            {date ? format(date, "yyyy") : new Date().getFullYear()}
           </p>
           <p className="text-xl font-semibold">
-            {tempDate ? format(tempDate, "EEE, MMM d") : "Select date"}
+            {date ? format(date, "EEE, MMM d") : "Select date"}
           </p>
         </div>
 
         {/* Calendar */}
         <Calendar
           mode="single"
-          selected={tempDate}
+          selected={date}
           onSelect={handleSelect}
           disabled={disabled}
           initialFocus
@@ -95,8 +83,8 @@ export function DatePicker({
         />
 
         {/* Action buttons */}
-        <div className="flex items-center justify-end gap-2 p-3 border-t">
-          {showClearButton && (
+        {showClearButton && date && (
+          <div className="flex items-center justify-center p-3 border-t">
             <Button
               type="button"
               variant="ghost"
@@ -106,25 +94,8 @@ export function DatePicker({
             >
               Clear
             </Button>
-          )}
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleCancel}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleConfirm}
-            className="text-primary font-medium"
-          >
-            Set
-          </Button>
-        </div>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );
