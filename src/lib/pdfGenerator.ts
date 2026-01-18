@@ -483,3 +483,204 @@ export function generateExpiryReportPDF(
   addFooter(doc);
   doc.save(`expiry-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 }
+
+// ============= Supplier Reports =============
+
+export interface IndividualSupplierReportData {
+  supplier: {
+    id: string;
+    name: string;
+    phone: string | null;
+    address: string | null;
+    contact_person: string | null;
+    total_due: number;
+    total_paid: number;
+  };
+  purchases: {
+    id: string;
+    purchase_date: string;
+    invoice_number: string | null;
+    total_amount: number;
+    paid_amount: number;
+    due_amount: number;
+  }[];
+  payments: {
+    id: string;
+    payment_date: string;
+    amount: number;
+    payment_method: string;
+    reference_number: string | null;
+  }[];
+  summary: {
+    totalPurchases: number;
+    totalPayments: number;
+    currentDue: number;
+    purchaseCount: number;
+    paymentCount: number;
+  };
+}
+
+export interface AllSuppliersReportData {
+  suppliers: {
+    id: string;
+    name: string;
+    phone: string | null;
+    purchaseAmount: number;
+    paidAmount: number;
+    dueAmount: number;
+    purchaseCount: number;
+    paymentCount: number;
+  }[];
+  summary: {
+    totalPurchases: number;
+    totalPayments: number;
+    totalDue: number;
+    supplierCount: number;
+  };
+}
+
+export function generateIndividualSupplierPDF(
+  data: IndividualSupplierReportData,
+  dateRange: { start: Date; end: Date }
+) {
+  const doc = new jsPDF();
+  const startY = addHeader(doc, 'Supplier Transaction Report', dateRange);
+
+  // Supplier Info
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Supplier: ${data.supplier.name}`, 14, startY);
+  
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  let infoY = startY + 6;
+  if (data.supplier.phone) {
+    doc.text(`Phone: ${data.supplier.phone}`, 14, infoY);
+    infoY += 5;
+  }
+  if (data.supplier.address) {
+    doc.text(`Address: ${data.supplier.address}`, 14, infoY);
+    infoY += 5;
+  }
+  if (data.supplier.contact_person) {
+    doc.text(`Contact: ${data.supplier.contact_person}`, 14, infoY);
+    infoY += 5;
+  }
+
+  // Summary Section
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Summary', 14, infoY + 4);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  const summaryY = infoY + 10;
+  doc.text(`Period Purchases: ${CURRENCY}${data.summary.totalPurchases.toLocaleString()} (${data.summary.purchaseCount} entries)`, 14, summaryY);
+  doc.text(`Period Payments: ${CURRENCY}${data.summary.totalPayments.toLocaleString()} (${data.summary.paymentCount} entries)`, 14, summaryY + 5);
+  doc.text(`Total Paid (All Time): ${CURRENCY}${data.supplier.total_paid.toLocaleString()}`, 14, summaryY + 10);
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Current Balance Due: ${CURRENCY}${data.summary.currentDue.toLocaleString()}`, 14, summaryY + 15);
+
+  // Purchase History Table
+  let tableY = summaryY + 24;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Purchase History (Selected Period)', 14, tableY);
+
+  if (data.purchases.length > 0) {
+    autoTable(doc, {
+      startY: tableY + 4,
+      head: [['Date', 'Invoice', 'Total', 'Paid', 'Due']],
+      body: data.purchases.map(p => [
+        format(new Date(p.purchase_date), 'MMM dd, yyyy'),
+        p.invoice_number || '-',
+        `${CURRENCY}${Number(p.total_amount).toLocaleString()}`,
+        `${CURRENCY}${Number(p.paid_amount).toLocaleString()}`,
+        `${CURRENCY}${Number(p.due_amount).toLocaleString()}`,
+      ]),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [59, 130, 246] },
+    });
+    tableY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
+  } else {
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('No purchases in selected period.', 14, tableY + 8);
+    tableY += 14;
+  }
+
+  // Payment History Table
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Payment History (Selected Period)', 14, tableY);
+
+  if (data.payments.length > 0) {
+    autoTable(doc, {
+      startY: tableY + 4,
+      head: [['Date', 'Amount', 'Method', 'Reference']],
+      body: data.payments.map(p => [
+        format(new Date(p.payment_date), 'MMM dd, yyyy'),
+        `${CURRENCY}${Number(p.amount).toLocaleString()}`,
+        p.payment_method,
+        p.reference_number || '-',
+      ]),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [34, 197, 94] }, // Green for payments
+    });
+  } else {
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('No payments in selected period.', 14, tableY + 8);
+  }
+
+  addFooter(doc);
+  doc.save(`supplier-report-${data.supplier.name.replace(/\s+/g, '-')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+}
+
+export function generateAllSuppliersPDF(
+  data: AllSuppliersReportData,
+  dateRange: { start: Date; end: Date }
+) {
+  const doc = new jsPDF();
+  const startY = addHeader(doc, 'All Suppliers Summary Report', dateRange);
+
+  // Summary Section
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Summary', 14, startY);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  const summaryY = startY + 6;
+  doc.text(`Total Suppliers: ${data.summary.supplierCount}`, 14, summaryY);
+  doc.text(`Period Purchases: ${CURRENCY}${data.summary.totalPurchases.toLocaleString()}`, 70, summaryY);
+  doc.text(`Period Payments: ${CURRENCY}${data.summary.totalPayments.toLocaleString()}`, 130, summaryY);
+  doc.text(`Total Outstanding: ${CURRENCY}${data.summary.totalDue.toLocaleString()}`, 14, summaryY + 5);
+
+  // Suppliers Table
+  autoTable(doc, {
+    startY: summaryY + 12,
+    head: [['Supplier', 'Phone', 'Purchases', 'Payments', 'Current Due']],
+    body: data.suppliers.map(s => [
+      s.name,
+      s.phone || '-',
+      `${CURRENCY}${s.purchaseAmount.toLocaleString()} (${s.purchaseCount})`,
+      `${CURRENCY}${s.paidAmount.toLocaleString()} (${s.paymentCount})`,
+      `${CURRENCY}${s.dueAmount.toLocaleString()}`,
+    ]),
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [245, 158, 11] }, // Orange
+    foot: [[
+      'TOTAL',
+      '',
+      `${CURRENCY}${data.summary.totalPurchases.toLocaleString()}`,
+      `${CURRENCY}${data.summary.totalPayments.toLocaleString()}`,
+      `${CURRENCY}${data.summary.totalDue.toLocaleString()}`,
+    ]],
+    footStyles: { fillColor: [243, 244, 246], fontStyle: 'bold', textColor: [0, 0, 0] },
+  });
+
+  addFooter(doc);
+  doc.save(`all-suppliers-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+}
