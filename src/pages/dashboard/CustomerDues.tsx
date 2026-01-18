@@ -3,8 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Users, Wallet, Plus, Search, Phone, MessageCircle, Trash2 } from 'lucide-react';
-import { useCustomers, useCustomerDuesSummary, useDeleteCustomer, shareViaWhatsApp } from '@/hooks/useCustomerDues';
+import { Users, Wallet, Plus, Search, Phone, MessageCircle, Trash2, FileText, Loader2 } from 'lucide-react';
+import { useCustomers, useCustomerDuesSummary, useDeleteCustomer, shareViaWhatsApp, Customer } from '@/hooks/useCustomerDues';
+import { supabase } from '@/integrations/supabase/client';
+import { generateIndividualCustomerPDF } from '@/lib/pdfGenerator';
+import { toast } from '@/hooks/use-toast';
+import { startOfMonth, endOfMonth } from 'date-fns';
 import { AddCustomerDialog } from '@/components/customer-dues/AddCustomerDialog';
 import { AddDueDialog } from '@/components/customer-dues/AddDueDialog';
 import { RecordPaymentDialog } from '@/components/customer-dues/RecordPaymentDialog';
@@ -37,10 +41,64 @@ export default function CustomerDues() {
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
+  const [exportingId, setExportingId] = useState<string | null>(null);
 
   const { data: customers, isLoading } = useCustomers();
   const { data: summary } = useCustomerDuesSummary();
   const deleteCustomer = useDeleteCustomer();
+
+  const handleQuickReport = async (customer: Customer) => {
+    try {
+      setExportingId(customer.id);
+      
+      const now = new Date();
+      const start = startOfMonth(now);
+      const end = endOfMonth(now);
+
+      // Fetch payments for this customer within date range
+      const { data: payments, error } = await supabase
+        .from('customer_payments')
+        .select('*')
+        .eq('customer_id', customer.id)
+        .gte('payment_date', start.toISOString())
+        .lte('payment_date', end.toISOString())
+        .order('payment_date', { ascending: false });
+
+      if (error) throw error;
+
+      const totalPayments = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+
+      const reportData = {
+        customer: {
+          id: customer.id,
+          name: customer.name,
+          phone: customer.phone,
+          address: customer.address,
+          total_due: Number(customer.total_due),
+        },
+        payments: payments || [],
+        summary: {
+          totalPayments,
+          paymentCount: payments?.length || 0,
+        },
+      };
+
+      generateIndividualCustomerPDF(reportData, { start, end });
+      toast({
+        title: 'Report Generated',
+        description: `PDF report for ${customer.name} has been downloaded.`,
+      });
+    } catch (error) {
+      console.error('Quick report error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to generate report.',
+        variant: 'destructive',
+      });
+    } finally {
+      setExportingId(null);
+    }
+  };
 
   const filteredCustomers = customers?.filter((c) =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -181,6 +239,19 @@ export default function CustomerDues() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleQuickReport(customer)}
+                            disabled={exportingId === customer.id}
+                            title="Quick Report (This Month)"
+                          >
+                            {exportingId === customer.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <FileText className="h-4 w-4" />
+                            )}
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"
