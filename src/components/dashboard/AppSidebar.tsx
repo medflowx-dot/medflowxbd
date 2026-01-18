@@ -34,27 +34,43 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 
-const mainMenuItems = [
-  // Overview
-  { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
-  
-  // Inventory Management
-  { title: 'Medicines', url: '/dashboard/medicines', icon: Package },
-  { title: 'Batches', url: '/dashboard/batches', icon: Layers },
-  { title: 'Manufacturers', url: '/dashboard/manufacturers', icon: Building2 },
-  { title: 'Suppliers', url: '/dashboard/suppliers', icon: Truck },
-  
-  // Sales & Finance
-  { title: 'Sales', url: '/dashboard/sales', icon: ShoppingCart },
-  { title: 'Customer Dues', url: '/dashboard/customer-dues', icon: Users },
-  { title: 'Daily Cash', url: '/dashboard/daily-cash', icon: Wallet },
-  
-  // Monitoring & Alerts
-  { title: 'Expiry Monitor', url: '/dashboard/expiry', icon: AlertTriangle },
-  { title: 'Alerts', url: '/dashboard/alerts', icon: Bell },
-  
-  // Reports
-  { title: 'Reports', url: '/dashboard/reports', icon: FileText },
+const menuGroups = [
+  {
+    label: null, // Overview - no label needed
+    items: [
+      { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+    ]
+  },
+  {
+    label: 'Inventory',
+    items: [
+      { title: 'Medicines', url: '/dashboard/medicines', icon: Package },
+      { title: 'Batches', url: '/dashboard/batches', icon: Layers },
+      { title: 'Manufacturers', url: '/dashboard/manufacturers', icon: Building2 },
+      { title: 'Suppliers', url: '/dashboard/suppliers', icon: Truck },
+    ]
+  },
+  {
+    label: 'Sales & Finance',
+    items: [
+      { title: 'Sales', url: '/dashboard/sales', icon: ShoppingCart },
+      { title: 'Customer Dues', url: '/dashboard/customer-dues', icon: Users },
+      { title: 'Daily Cash', url: '/dashboard/daily-cash', icon: Wallet },
+    ]
+  },
+  {
+    label: 'Monitoring',
+    items: [
+      { title: 'Expiry Monitor', url: '/dashboard/expiry', icon: AlertTriangle },
+      { title: 'Alerts', url: '/dashboard/alerts', icon: Bell },
+    ]
+  },
+  {
+    label: 'Analytics',
+    items: [
+      { title: 'Reports', url: '/dashboard/reports', icon: FileText },
+    ]
+  },
 ];
 
 // Settings removed from sidebar - now accessed via profile dropdown in header
@@ -71,11 +87,16 @@ export function AppSidebar() {
   const { isTrial, daysRemaining, planType } = useSubscriptionStatus();
   const { data: profile } = useProfile();
 
-  // Filter menu items based on role permissions AND feature flags
+  // Get all allowed routes for filtering
   const allowedRoutes = menuAccessByRole[role] || [];
-  const filteredMainMenuItems = mainMenuItems.filter(item => 
-    allowedRoutes.includes(item.url) && isRouteEnabled(item.url)
-  );
+  
+  // Filter menu groups based on role permissions AND feature flags
+  const filteredMenuGroups = menuGroups.map(group => ({
+    ...group,
+    items: group.items.filter(item => 
+      allowedRoutes.includes(item.url) && isRouteEnabled(item.url)
+    )
+  })).filter(group => group.items.length > 0);
 
   const getSubscriptionLabel = () => {
     if (isOwnerAdmin) return 'Owner Admin';
@@ -146,30 +167,34 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {filteredMainMenuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <NavLink 
-                      to={item.url} 
-                      end={item.url === '/dashboard'}
-                      className="flex items-center gap-2"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Settings moved to header profile dropdown */}
+        {filteredMenuGroups.map((group, groupIndex) => (
+          <SidebarGroup key={group.label || 'overview'}>
+            {group.label && (
+              <SidebarGroupLabel className="text-xs text-muted-foreground">
+                {group.label}
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild tooltip={item.title}>
+                      <NavLink 
+                        to={item.url} 
+                        end={item.url === '/dashboard'}
+                        className="flex items-center gap-2"
+                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
