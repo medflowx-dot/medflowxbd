@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
 import { useSuppliers, Supplier } from '@/hooks/useSuppliers';
+import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
 
 interface AddPurchaseDialogProps {
@@ -18,11 +19,11 @@ interface AddPurchaseDialogProps {
 export function AddPurchaseDialog({ suppliers, defaultSupplierId, trigger }: AddPurchaseDialogProps) {
   const [open, setOpen] = useState(false);
   const { addPurchase } = useSuppliers();
+  const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(new Date());
 
   const [formData, setFormData] = useState({
     supplier_id: defaultSupplierId ?? '',
     invoice_number: '',
-    purchase_date: format(new Date(), 'yyyy-MM-dd'),
     total_amount: '',
     paid_amount: '',
     notes: '',
@@ -38,17 +39,17 @@ export function AddPurchaseDialog({ suppliers, defaultSupplierId, trigger }: Add
       await addPurchase({
         supplier_id: formData.supplier_id,
         invoice_number: formData.invoice_number || null,
-        purchase_date: formData.purchase_date,
+        purchase_date: purchaseDate ? format(purchaseDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
         total_amount: totalAmount,
         paid_amount: paidAmount,
         due_amount: totalAmount - paidAmount,
         notes: formData.notes || null,
       });
       setOpen(false);
+      setPurchaseDate(new Date());
       setFormData({
         supplier_id: defaultSupplierId ?? '',
         invoice_number: '',
-        purchase_date: format(new Date(), 'yyyy-MM-dd'),
         total_amount: '',
         paid_amount: '',
         notes: '',
@@ -110,13 +111,12 @@ export function AddPurchaseDialog({ suppliers, defaultSupplierId, trigger }: Add
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="purchase_date">Purchase Date</Label>
-              <Input
-                id="purchase_date"
-                type="date"
-                value={formData.purchase_date}
-                onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
-                required
+              <Label>Purchase Date</Label>
+              <DatePicker
+                date={purchaseDate}
+                onDateChange={setPurchaseDate}
+                placeholder="Select date"
+                disabled={(date) => date > new Date()}
               />
             </div>
           </div>

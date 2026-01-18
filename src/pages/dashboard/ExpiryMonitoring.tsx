@@ -3,9 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { AlertTriangle, Clock, CalendarIcon, FileDown, Package, Loader2 } from 'lucide-react';
+import { DatePicker } from '@/components/ui/date-picker';
+import { AlertTriangle, Clock, FileDown, Package, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useExpiryMonitoring, useExpirySummary, ExpiryFilter } from '@/hooks/useExpiryMonitoring';
@@ -167,40 +166,20 @@ export default function ExpiryMonitoring() {
             </CardTitle>
             
             {/* Custom Date Range */}
-            <div className="flex items-center gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <CalendarIcon className="h-4 w-4 mr-2" />
-                    {dateFrom ? format(dateFrom, 'MMM dd') : 'From'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    mode="single"
-                    selected={dateFrom}
-                    onSelect={setDateFrom}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+            <div className="flex flex-wrap items-center gap-2">
+              <DatePicker
+                date={dateFrom}
+                onDateChange={setDateFrom}
+                placeholder="From"
+                className="w-[130px]"
+              />
               <span className="text-muted-foreground">to</span>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <CalendarIcon className="h-4 w-4 mr-2" />
-                    {dateTo ? format(dateTo, 'MMM dd') : 'To'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    mode="single"
-                    selected={dateTo}
-                    onSelect={setDateTo}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <DatePicker
+                date={dateTo}
+                onDateChange={setDateTo}
+                placeholder="To"
+                className="w-[130px]"
+              />
               <Button size="sm" onClick={handleCustomRangeApply} disabled={!dateFrom || !dateTo}>
                 Apply
               </Button>

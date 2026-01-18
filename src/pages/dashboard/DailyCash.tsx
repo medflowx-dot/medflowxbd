@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DatePicker } from '@/components/ui/date-picker';
 import { CashFlowSummary } from '@/components/daily-cash/CashFlowSummary';
 import { DailyTransactionsList } from '@/components/daily-cash/DailyTransactionsList';
 import { AddCostDialog } from '@/components/daily-cash/AddCostDialog';
 import { SetOpeningCashDialog } from '@/components/daily-cash/SetOpeningCashDialog';
-import { CalendarIcon, Wallet, Download, Loader2 } from 'lucide-react';
+import { Wallet, Download, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
 import { useDailyCashSummary, useDailySales, useDailyCustomerPayments, useDailySupplierPayments, useDailyCosts } from '@/hooks/useDailyCash';
 import { generateDailyClosingCashPDF, type DailyTransaction } from '@/lib/pdfGenerator';
 
@@ -113,27 +111,14 @@ export default function DailyCash() {
 
         <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2">
           {/* Date Picker */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full sm:w-[200px] justify-start text-left font-normal",
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {format(selectedDate, 'PPP')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={(date) => date && setSelectedDate(date)}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+          <div className="w-full sm:w-[200px]">
+            <DatePicker
+              date={selectedDate}
+              onDateChange={(date) => date && setSelectedDate(date)}
+              placeholder="Select date"
+              showClearButton={false}
+            />
+          </div>
 
           <div className="grid grid-cols-3 sm:flex gap-2">
             <SetOpeningCashDialog date={selectedDate} />

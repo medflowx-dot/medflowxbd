@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CreditCard } from 'lucide-react';
 import { useSuppliers, Supplier } from '@/hooks/useSuppliers';
+import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
 
 interface SupplierPaymentDialogProps {
@@ -17,10 +18,10 @@ interface SupplierPaymentDialogProps {
 export function SupplierPaymentDialog({ supplier, trigger }: SupplierPaymentDialogProps) {
   const [open, setOpen] = useState(false);
   const { addPayment } = useSuppliers();
+  const [paymentDate, setPaymentDate] = useState<Date | undefined>(new Date());
 
   const [formData, setFormData] = useState({
     amount: '',
-    payment_date: format(new Date(), 'yyyy-MM-dd'),
     payment_method: 'cash',
     reference_number: '',
     notes: '',
@@ -33,15 +34,15 @@ export function SupplierPaymentDialog({ supplier, trigger }: SupplierPaymentDial
       await addPayment({
         supplier_id: supplier.id,
         amount: parseFloat(formData.amount),
-        payment_date: formData.payment_date,
+        payment_date: paymentDate ? format(paymentDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
         payment_method: formData.payment_method,
         reference_number: formData.reference_number || null,
         notes: formData.notes || null,
       });
       setOpen(false);
+      setPaymentDate(new Date());
       setFormData({
         amount: '',
-        payment_date: format(new Date(), 'yyyy-MM-dd'),
         payment_method: 'cash',
         reference_number: '',
         notes: '',
@@ -96,13 +97,12 @@ export function SupplierPaymentDialog({ supplier, trigger }: SupplierPaymentDial
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="payment_date">Date</Label>
-              <Input
-                id="payment_date"
-                type="date"
-                value={formData.payment_date}
-                onChange={(e) => setFormData({ ...formData, payment_date: e.target.value })}
-                required
+              <Label>Date</Label>
+              <DatePicker
+                date={paymentDate}
+                onDateChange={setPaymentDate}
+                placeholder="Select date"
+                disabled={(date) => date > new Date()}
               />
             </div>
           </div>
