@@ -130,7 +130,7 @@ export function useMedicines() {
   });
 
   const updateMedicine = useMutation({
-    mutationFn: async ({ id, ...data }: CreateMedicineData & { id: string }) => {
+    mutationFn: async ({ id, ...data }: Partial<CreateMedicineData> & { id: string }) => {
       const { data: medicine, error } = await supabase
         .from('medicines')
         .update(data)
