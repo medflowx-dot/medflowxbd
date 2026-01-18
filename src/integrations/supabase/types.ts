@@ -991,6 +991,88 @@ export type Database = {
         }
         Relationships: []
       }
+      stock_short_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_tax_applicable: boolean
+          manufacturer_id: string
+          medicine_id: string
+          note_id: string
+          quantity: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_tax_applicable?: boolean
+          manufacturer_id: string
+          medicine_id: string
+          note_id: string
+          quantity?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_tax_applicable?: boolean
+          manufacturer_id?: string
+          medicine_id?: string
+          note_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_short_items_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_short_items_medicine_id_fkey"
+            columns: ["medicine_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_short_items_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "stock_short_notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_short_notes: {
+        Row: {
+          created_at: string
+          id: string
+          note_date: string
+          remarks: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note_date?: string
+          remarks?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note_date?: string
+          remarks?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           amount: number
@@ -1041,6 +1123,126 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      supplier_order_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_tax_applicable: boolean
+          medicine_id: string
+          medicine_name: string
+          order_id: string
+          quantity: number
+          unit: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_tax_applicable?: boolean
+          medicine_id: string
+          medicine_name: string
+          order_id: string
+          quantity?: number
+          unit?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_tax_applicable?: boolean
+          medicine_id?: string
+          medicine_name?: string
+          order_id?: string
+          quantity?: number
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_order_items_medicine_id_fkey"
+            columns: ["medicine_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_orders: {
+        Row: {
+          created_at: string
+          due_amount: number
+          id: string
+          note_id: string | null
+          notes: string | null
+          order_date: string
+          order_number: string
+          ordered_at: string | null
+          paid_amount: number
+          payment_method: string | null
+          received_at: string | null
+          status: string
+          supplier_id: string
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          due_amount?: number
+          id?: string
+          note_id?: string | null
+          notes?: string | null
+          order_date?: string
+          order_number: string
+          ordered_at?: string | null
+          paid_amount?: number
+          payment_method?: string | null
+          received_at?: string | null
+          status?: string
+          supplier_id: string
+          total_amount?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          due_amount?: number
+          id?: string
+          note_id?: string | null
+          notes?: string | null
+          order_date?: string
+          order_number?: string
+          ordered_at?: string | null
+          paid_amount?: number
+          payment_method?: string | null
+          received_at?: string | null
+          status?: string
+          supplier_id?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_orders_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "stock_short_notes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_orders_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       supplier_payments: {
         Row: {
@@ -1144,6 +1346,7 @@ export type Database = {
           email: string | null
           id: string
           is_active: boolean | null
+          manufacturer_id: string | null
           name: string
           notes: string | null
           phone: string | null
@@ -1151,6 +1354,7 @@ export type Database = {
           total_paid: number
           updated_at: string
           user_id: string
+          whatsapp_number: string | null
         }
         Insert: {
           address?: string | null
@@ -1159,6 +1363,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_active?: boolean | null
+          manufacturer_id?: string | null
           name: string
           notes?: string | null
           phone?: string | null
@@ -1166,6 +1371,7 @@ export type Database = {
           total_paid?: number
           updated_at?: string
           user_id: string
+          whatsapp_number?: string | null
         }
         Update: {
           address?: string | null
@@ -1174,6 +1380,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_active?: boolean | null
+          manufacturer_id?: string | null
           name?: string
           notes?: string | null
           phone?: string | null
@@ -1181,8 +1388,17 @@ export type Database = {
           total_paid?: number
           updated_at?: string
           user_id?: string
+          whatsapp_number?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "suppliers_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -1211,6 +1427,7 @@ export type Database = {
     }
     Functions: {
       generate_invoice_number: { Args: never; Returns: string }
+      generate_order_number: { Args: never; Returns: string }
       get_pharmacy_owner_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
