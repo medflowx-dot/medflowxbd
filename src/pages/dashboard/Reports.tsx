@@ -1,7 +1,4 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DailySummaryReportView } from '@/components/reports/DailySummaryReport';
@@ -9,9 +6,8 @@ import { SalesReportView } from '@/components/reports/SalesReport';
 import { SupplierDueReportView } from '@/components/reports/SupplierDueReport';
 import { CustomerDuesReportView } from '@/components/reports/CustomerDuesReport';
 import { getDateRangePresets, ReportDateRange } from '@/hooks/useReports';
-import { CalendarIcon, FileText, TrendingUp, Truck, BarChart3, Users } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { DatePicker } from '@/components/ui/date-picker';
+import { FileText, TrendingUp, Truck, BarChart3, Users } from 'lucide-react';
 
 export default function Reports() {
   const presets = getDateRangePresets();
@@ -78,53 +74,21 @@ export default function Reports() {
           </Select>
 
           {selectedPreset === 'custom' && (
-            <>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-[140px] justify-start text-left font-normal",
-                      !customStartDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {customStartDate ? format(customStartDate, 'MMM dd, yyyy') : 'Start'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={customStartDate}
-                    onSelect={(date) => handleCustomDateChange(date, customEndDate)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+            <div className="flex flex-wrap items-center gap-2">
+              <DatePicker
+                date={customStartDate}
+                onDateChange={(date) => handleCustomDateChange(date, customEndDate)}
+                placeholder="Start date"
+                className="w-[160px]"
+              />
               <span className="text-muted-foreground">to</span>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-[140px] justify-start text-left font-normal",
-                      !customEndDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {customEndDate ? format(customEndDate, 'MMM dd, yyyy') : 'End'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    mode="single"
-                    selected={customEndDate}
-                    onSelect={(date) => handleCustomDateChange(customStartDate, date)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </>
+              <DatePicker
+                date={customEndDate}
+                onDateChange={(date) => handleCustomDateChange(customStartDate, date)}
+                placeholder="End date"
+                className="w-[160px]"
+              />
+            </div>
           )}
         </div>
       </div>

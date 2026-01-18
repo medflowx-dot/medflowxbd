@@ -22,10 +22,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { FormDatePicker } from '@/components/ui/date-picker';
+import { Plus } from 'lucide-react';
 import { useMedicines, type CreateBatchData, type MedicineBatch } from '@/hooks/useMedicines';
 
 const batchSchema = z.object({
@@ -129,31 +127,14 @@ export function AddBatchDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Expiry Date *</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              'w-full pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            {field.value ? format(field.value, 'PPP') : 'Pick a date'}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date < new Date('1900-01-01')}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <FormControl>
+                      <FormDatePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Pick a date"
+                        disabled={(date) => date < new Date('1900-01-01')}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -165,31 +146,14 @@ export function AddBatchDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Manufactured Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              'w-full pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            {field.value ? format(field.value, 'PPP') : 'Pick a date'}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date > new Date()}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <FormControl>
+                      <FormDatePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Pick a date"
+                        disabled={(date) => date > new Date()}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
