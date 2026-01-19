@@ -858,6 +858,55 @@ export const en = {
     expiringWithin90Days: 'Expiring within 90 Days',
     customRange: 'Custom Range',
   },
+
+  // Alerts Page
+  alerts: {
+    title: 'Expiry Alerts',
+    subtitle: 'Monitor and manage batch expiry notifications',
+    generateAlerts: 'Generate Alerts',
+    alertsRefreshed: 'Alerts refreshed',
+    alertsRefreshedDesc: 'Expiry alerts have been updated with the latest data.',
+    // Summary cards
+    expired: 'Expired',
+    within30Days: '≤30 Days',
+    within60Days: '31-60 Days',
+    within90Days: '61-90 Days',
+    pending: 'Pending',
+    // Tabs
+    expiringBatches: 'Expiring Batches',
+    alertHistory: 'Alert History',
+    // Batch status
+    expiredBadge: 'Expired',
+    daysLeft: 'd left',
+    batch: 'Batch',
+    // Batch groups
+    expiredGroup: 'Expired',
+    criticalGroup: 'Critical – Within 30 Days',
+    warningGroup: 'Warning – 31 to 60 Days',
+    cautionGroup: 'Caution – 61 to 90 Days',
+    // Empty states
+    loadingAlerts: 'Loading expiry alerts...',
+    allClear: 'All Clear!',
+    noExpiringBatches: 'No expiring or expired batches at this time.',
+    // Alert history
+    alertHistoryTitle: 'Alert History',
+    alertHistoryDesc: 'Record of past expiry alerts and actions taken',
+    alertHistoryComingSoon: 'Alert history will be available in a future update.',
+    alertHistoryNote: 'This will track when alerts were generated and any actions taken.',
+  },
+
+  // Expiry Alerts Component (Dashboard)
+  expiryAlerts: {
+    title: 'Expiry Alerts',
+    noAlerts: 'No expiry alerts at this time',
+    allSafe: 'All medicines are within safe expiry dates ✓',
+    expiringSoon: 'Medicines expiring soon or already expired',
+    expired: 'Expired',
+    expiring30: 'Expiring in 30 Days',
+    expiring60: 'Expiring in 60 Days',
+    expiring90: 'Expiring in 90 Days',
+    batch: 'Batch',
+  },
 };
 
 export type TranslationKeys = typeof en;
