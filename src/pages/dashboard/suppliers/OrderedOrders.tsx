@@ -9,12 +9,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Package, Eye, PackageCheck, ShoppingCart } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Package, Eye, PackageCheck, ShoppingCart, Trash2, Undo2 } from 'lucide-react';
 import { useStockShortList } from '@/hooks/useStockShortList';
 import { format } from 'date-fns';
 
 export default function OrderedOrders() {
-  const { orderedOrders, isLoading, receiveOrder } = useStockShortList();
+  const { orderedOrders, isLoading, receiveOrder, deleteOrder, revertToPending } = useStockShortList();
   const [viewingOrder, setViewingOrder] = useState<string | null>(null);
   const [receivingOrder, setReceivingOrder] = useState<string | null>(null);
   
@@ -137,6 +138,29 @@ export default function OrderedOrders() {
                       </DialogContent>
                     </Dialog>
 
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Undo2 className="h-4 w-4 mr-1" />
+                          Revert
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Revert to Pending?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will move order {order.order_number} back to Pending status.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => revertToPending(order.id)}>
+                            Revert
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+
                     <Dialog 
                       open={receivingOrder === order.id} 
                       onOpenChange={(open) => {
@@ -243,6 +267,31 @@ export default function OrderedOrders() {
                         </div>
                       </DialogContent>
                     </Dialog>
+
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Order?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently delete order {order.order_number}. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => deleteOrder(order.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               </CardHeader>
