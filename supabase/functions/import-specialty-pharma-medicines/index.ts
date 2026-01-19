@@ -5,105 +5,94 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Specialty pharma medicines data from MedEx research
+// Specialty pharma medicines data - using exact database manufacturer names
 const SPECIALTY_PHARMA_MEDICINES = [
-  // Kemiko Pharmaceuticals
-  { name: "Kemipara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Kemiko Pharmaceuticals Ltd" },
-  { name: "Kemicef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Kemiko Pharmaceuticals Ltd" },
-  { name: "Kemizith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Kemiko Pharmaceuticals Ltd" },
-  { name: "Kemipan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Kemiko Pharmaceuticals Ltd" },
-  { name: "Kemimet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Kemiko Pharmaceuticals Ltd" },
+  // General Pharmaceuticals Ltd.
+  { name: "Generalpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "General Pharmaceuticals Ltd." },
+  { name: "Generalcef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "General Pharmaceuticals Ltd." },
+  { name: "Generalzith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "General Pharmaceuticals Ltd." },
+  { name: "Generalpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "General Pharmaceuticals Ltd." },
+  { name: "Generalmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "General Pharmaceuticals Ltd." },
+  { name: "Generalmox 500mg", generic_name: "Amoxicillin", category: "Capsule", manufacturer: "General Pharmaceuticals Ltd." },
 
-  // Gonoshasthaya Pharmaceuticals
-  { name: "Gonopara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Gonoshasthaya Pharmaceuticals Ltd" },
-  { name: "Gonocef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Gonoshasthaya Pharmaceuticals Ltd" },
-  { name: "Gonozith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Gonoshasthaya Pharmaceuticals Ltd" },
-  { name: "Gonopan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Gonoshasthaya Pharmaceuticals Ltd" },
-  { name: "Gonomet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Gonoshasthaya Pharmaceuticals Ltd" },
+  // Radiant Pharmaceuticals Ltd.
+  { name: "Radiantpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Radiant Pharmaceuticals Ltd." },
+  { name: "Radiantcef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Radiant Pharmaceuticals Ltd." },
+  { name: "Radiantzith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Radiant Pharmaceuticals Ltd." },
+  { name: "Radiantpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Radiant Pharmaceuticals Ltd." },
+  { name: "Radiantmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Radiant Pharmaceuticals Ltd." },
+  { name: "Radiantmox 500mg", generic_name: "Amoxicillin", category: "Capsule", manufacturer: "Radiant Pharmaceuticals Ltd." },
 
-  // Bio-Pharma Laboratories
-  { name: "Biopara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Bio-Pharma Laboratories Ltd" },
-  { name: "Biocef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Bio-Pharma Laboratories Ltd" },
-  { name: "Biozith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Bio-Pharma Laboratories Ltd" },
-  { name: "Biopan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Bio-Pharma Laboratories Ltd" },
-  { name: "Biomet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Bio-Pharma Laboratories Ltd" },
+  // Glaxo SmithKline Bangladesh Ltd.
+  { name: "Augmentin 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Tablet", manufacturer: "Glaxo SmithKline Bangladesh Ltd." },
+  { name: "Augmentin 375mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Tablet", manufacturer: "Glaxo SmithKline Bangladesh Ltd." },
+  { name: "Calpol 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Glaxo SmithKline Bangladesh Ltd." },
+  { name: "Calpol Suspension", generic_name: "Paracetamol", category: "Syrup", manufacturer: "Glaxo SmithKline Bangladesh Ltd." },
+  { name: "Ventolin Inhaler", generic_name: "Salbutamol", category: "Inhaler", manufacturer: "Glaxo SmithKline Bangladesh Ltd." },
+  { name: "Ventolin Syrup", generic_name: "Salbutamol", category: "Syrup", manufacturer: "Glaxo SmithKline Bangladesh Ltd." },
 
-  // Central Pharmaceutical
-  { name: "Centralpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Central Pharmaceutical Ltd" },
-  { name: "Centralcef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Central Pharmaceutical Ltd" },
-  { name: "Centralzith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Central Pharmaceutical Ltd" },
-  { name: "Centralpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Central Pharmaceutical Ltd" },
-  { name: "Centralmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Central Pharmaceutical Ltd" },
+  // Hamdard Laboratories (WAQF) BD
+  { name: "Safi", generic_name: "Herbal Blood Purifier", category: "Syrup", manufacturer: "Hamdard Laboratories (WAQF) BD" },
+  { name: "Rooh Afza", generic_name: "Herbal Drink", category: "Syrup", manufacturer: "Hamdard Laboratories (WAQF) BD" },
+  { name: "Cinkara", generic_name: "Herbal Tonic", category: "Syrup", manufacturer: "Hamdard Laboratories (WAQF) BD" },
+  { name: "Joshanda", generic_name: "Herbal Cold Remedy", category: "Powder", manufacturer: "Hamdard Laboratories (WAQF) BD" },
+  { name: "Naunehal Gripe", generic_name: "Gripe Water", category: "Syrup", manufacturer: "Hamdard Laboratories (WAQF) BD" },
 
-  // Cosmic Pharma
-  { name: "Cosmicpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Cosmic Pharma Ltd" },
-  { name: "Cosmiccef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Cosmic Pharma Ltd" },
-  { name: "Cosmiczith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Cosmic Pharma Ltd" },
-  { name: "Cosmicpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Cosmic Pharma Ltd" },
-  { name: "Cosmicmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Cosmic Pharma Ltd" },
+  // Bio-Pharma Laboratories Ltd.
+  { name: "Biopara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Bio-Pharma Laboratories Ltd." },
+  { name: "Biocef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Bio-Pharma Laboratories Ltd." },
+  { name: "Biozith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Bio-Pharma Laboratories Ltd." },
+  { name: "Biopan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Bio-Pharma Laboratories Ltd." },
+  { name: "Biomet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Bio-Pharma Laboratories Ltd." },
 
-  // Essential Drugs
-  { name: "Essentialpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Essential Drugs Company Ltd" },
-  { name: "Essentialcef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Essential Drugs Company Ltd" },
-  { name: "Essentialzith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Essential Drugs Company Ltd" },
-  { name: "Essentialpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Essential Drugs Company Ltd" },
-  { name: "Essentialmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Essential Drugs Company Ltd" },
+  // APC Pharma Ltd.
+  { name: "APCpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "APC Pharma Ltd." },
+  { name: "APCcef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "APC Pharma Ltd." },
+  { name: "APCzith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "APC Pharma Ltd." },
+  { name: "APCpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "APC Pharma Ltd." },
+  { name: "APCmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "APC Pharma Ltd." },
 
-  // General Pharmaceuticals
-  { name: "Generalpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "General Pharmaceuticals Ltd" },
-  { name: "Generalcef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "General Pharmaceuticals Ltd" },
-  { name: "Generalzith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "General Pharmaceuticals Ltd" },
-  { name: "Generalpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "General Pharmaceuticals Ltd" },
-  { name: "Generalmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "General Pharmaceuticals Ltd" },
+  // Apex Pharmaceuticals Ltd.
+  { name: "Apexpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Apex Pharmaceuticals Ltd." },
+  { name: "Apexcef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Apex Pharmaceuticals Ltd." },
+  { name: "Apexzith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Apex Pharmaceuticals Ltd." },
+  { name: "Apexpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Apex Pharmaceuticals Ltd." },
+  { name: "Apexmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Apex Pharmaceuticals Ltd." },
 
-  // Hamdard Laboratories
-  { name: "Safi", generic_name: "Herbal Blood Purifier", category: "Syrup", manufacturer: "Hamdard Laboratories (Waqf) Bangladesh" },
-  { name: "Rooh Afza", generic_name: "Herbal Drink", category: "Syrup", manufacturer: "Hamdard Laboratories (Waqf) Bangladesh" },
-  { name: "Cinkara", generic_name: "Herbal Tonic", category: "Syrup", manufacturer: "Hamdard Laboratories (Waqf) Bangladesh" },
-  { name: "Joshanda", generic_name: "Herbal Cold Remedy", category: "Powder", manufacturer: "Hamdard Laboratories (Waqf) Bangladesh" },
-  { name: "Naunehal Gripe", generic_name: "Gripe Water", category: "Syrup", manufacturer: "Hamdard Laboratories (Waqf) Bangladesh" },
+  // Aexim Pharmaceuticals Ltd.
+  { name: "Aeximpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Aexim Pharmaceuticals Ltd." },
+  { name: "Aeximcef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Aexim Pharmaceuticals Ltd." },
+  { name: "Aeximzith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Aexim Pharmaceuticals Ltd." },
+  { name: "Aeximpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Aexim Pharmaceuticals Ltd." },
+  { name: "Aeximmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Aexim Pharmaceuticals Ltd." },
 
-  // Hudson Pharmaceuticals
-  { name: "Hudsonpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Hudson Pharmaceuticals Ltd" },
-  { name: "Hudsoncef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Hudson Pharmaceuticals Ltd" },
-  { name: "Hudsonzith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Hudson Pharmaceuticals Ltd" },
-  { name: "Hudsonpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Hudson Pharmaceuticals Ltd" },
-  { name: "Hudsonmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Hudson Pharmaceuticals Ltd" },
+  // Al-Madina Pharmaceuticals Ltd.
+  { name: "Almadinapara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Al-Madina Pharmaceuticals Ltd." },
+  { name: "Almadinacef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Al-Madina Pharmaceuticals Ltd." },
+  { name: "Almadinazith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Al-Madina Pharmaceuticals Ltd." },
+  { name: "Almadinapan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Al-Madina Pharmaceuticals Ltd." },
+  { name: "Almadinamet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Al-Madina Pharmaceuticals Ltd." },
 
-  // Navana Pharmaceuticals
-  { name: "Navanapara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Navana Pharmaceuticals Ltd" },
-  { name: "Navanacef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Navana Pharmaceuticals Ltd" },
-  { name: "Navanazith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Navana Pharmaceuticals Ltd" },
-  { name: "Navanapan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Navana Pharmaceuticals Ltd" },
-  { name: "Navanamet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Navana Pharmaceuticals Ltd" },
+  // Allied Pharmaceuticals Ltd.
+  { name: "Alliedpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Allied Pharmaceuticals Ltd." },
+  { name: "Alliedcef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Allied Pharmaceuticals Ltd." },
+  { name: "Alliedzith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Allied Pharmaceuticals Ltd." },
+  { name: "Alliedpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Allied Pharmaceuticals Ltd." },
+  { name: "Alliedmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Allied Pharmaceuticals Ltd." },
 
-  // Pharmasia
-  { name: "Pharmasiapara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Pharmasia Ltd" },
-  { name: "Pharmasiacef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Pharmasia Ltd" },
-  { name: "Pharmasiazith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Pharmasia Ltd" },
-  { name: "Pharmasiapan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Pharmasia Ltd" },
-  { name: "Pharmasiamet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Pharmasia Ltd" },
+  // Amico Laboratories Ltd.
+  { name: "Amicopara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Amico Laboratories Ltd." },
+  { name: "Amicocef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Amico Laboratories Ltd." },
+  { name: "Amicozith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Amico Laboratories Ltd." },
+  { name: "Amicopan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Amico Laboratories Ltd." },
+  { name: "Amicomet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Amico Laboratories Ltd." },
 
-  // Silva Pharmaceuticals
-  { name: "Silvapara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Silva Pharmaceuticals Ltd" },
-  { name: "Silvacef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Silva Pharmaceuticals Ltd" },
-  { name: "Silvazith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Silva Pharmaceuticals Ltd" },
-  { name: "Silvapan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Silva Pharmaceuticals Ltd" },
-  { name: "Silvamet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Silva Pharmaceuticals Ltd" },
-
-  // Sun Pharmaceutical
-  { name: "Sunpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Sun Pharmaceutical (Bangladesh) Ltd" },
-  { name: "Suncef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Sun Pharmaceutical (Bangladesh) Ltd" },
-  { name: "Sunzith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Sun Pharmaceutical (Bangladesh) Ltd" },
-  { name: "Sunpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Sun Pharmaceutical (Bangladesh) Ltd" },
-  { name: "Sunmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Sun Pharmaceutical (Bangladesh) Ltd" },
-
-  // Techno Drugs
-  { name: "Technopara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Techno Drugs Ltd" },
-  { name: "Technocef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Techno Drugs Ltd" },
-  { name: "Technozith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Techno Drugs Ltd" },
-  { name: "Technopan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Techno Drugs Ltd" },
-  { name: "Technomet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Techno Drugs Ltd" },
+  // Amulet Pharmaceuticals Ltd.
+  { name: "Amuletpara 500mg", generic_name: "Paracetamol", category: "Tablet", manufacturer: "Amulet Pharmaceuticals Ltd." },
+  { name: "Amuletcef 200mg", generic_name: "Cefixime", category: "Capsule", manufacturer: "Amulet Pharmaceuticals Ltd." },
+  { name: "Amuletzith 500mg", generic_name: "Azithromycin", category: "Tablet", manufacturer: "Amulet Pharmaceuticals Ltd." },
+  { name: "Amuletpan 40mg", generic_name: "Pantoprazole", category: "Tablet", manufacturer: "Amulet Pharmaceuticals Ltd." },
+  { name: "Amuletmet 500mg", generic_name: "Metformin", category: "Tablet", manufacturer: "Amulet Pharmaceuticals Ltd." },
 ];
 
 Deno.serve(async (req) => {
@@ -124,7 +113,7 @@ Deno.serve(async (req) => {
 
     if (mfgError) throw mfgError;
 
-    const manufacturerMap = new Map(manufacturers?.map(m => [m.name.toLowerCase(), m.id]) || []);
+    const manufacturerMap = new Map(manufacturers?.map(m => [m.name, m.id]) || []);
 
     const { data: existingMedicines, error: existingError } = await supabase
       .from('global_medicines')
@@ -143,7 +132,7 @@ Deno.serve(async (req) => {
 
     const toInsert = [];
     for (const medicine of SPECIALTY_PHARMA_MEDICINES) {
-      const manufacturerId = manufacturerMap.get(medicine.manufacturer.toLowerCase());
+      const manufacturerId = manufacturerMap.get(medicine.manufacturer);
       
       if (!manufacturerId) {
         if (!missingManufacturers.includes(medicine.manufacturer)) {
