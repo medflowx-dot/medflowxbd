@@ -6,6 +6,7 @@ import Features from '@/components/landing/Features';
 import WhyChooseUs from '@/components/landing/WhyChooseUs';
 import SpecialFeatures from '@/components/landing/SpecialFeatures';
 import HowItWorks from '@/components/landing/HowItWorks';
+import MobileAppComingSoon from '@/components/landing/MobileAppComingSoon';
 import Testimonials from '@/components/landing/Testimonials';
 import Pricing from '@/components/landing/Pricing';
 import FAQ from '@/components/landing/FAQ';
@@ -23,6 +24,7 @@ const Index = () => {
       <WhyChooseUs />
       <SpecialFeatures />
       <HowItWorks />
+      <MobileAppComingSoon />
       <Testimonials />
       <Pricing />
       <FAQ />
