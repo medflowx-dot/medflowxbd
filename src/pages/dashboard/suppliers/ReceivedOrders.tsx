@@ -5,13 +5,79 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Package, Eye, PackageCheck } from 'lucide-react';
+import { Package, Eye, PackageCheck, Download, Share2 } from 'lucide-react';
 import { useStockShortList } from '@/hooks/useStockShortList';
 import { format } from 'date-fns';
+import { generateOrderPDF, OrderPDFData } from '@/lib/pdfGenerator';
+import { toast } from 'sonner';
 
 export default function ReceivedOrders() {
   const { receivedOrders, isLoading } = useStockShortList();
   const [viewingOrder, setViewingOrder] = useState<string | null>(null);
+
+  const handleDownloadPDF = (order: typeof receivedOrders[0]) => {
+    const pdfData: OrderPDFData = {
+      order_number: order.order_number,
+      order_date: order.order_date,
+      supplier_name: order.supplier?.name || 'Unknown',
+      supplier_phone: order.supplier?.phone || null,
+      items: order.items?.map(item => ({
+        medicine_name: item.medicine_name,
+        quantity: item.quantity,
+        unit: item.unit || 'pcs',
+        is_tax_applicable: item.is_tax_applicable,
+      })) || [],
+      status: 'Received',
+      total_amount: order.total_amount,
+      paid_amount: order.paid_amount,
+      due_amount: order.due_amount,
+    };
+    
+    generateOrderPDF(pdfData);
+    toast.success('PDF downloaded successfully');
+  };
+
+  const handleShareOrder = async (order: typeof receivedOrders[0]) => {
+    const pdfData: OrderPDFData = {
+      order_number: order.order_number,
+      order_date: order.order_date,
+      supplier_name: order.supplier?.name || 'Unknown',
+      supplier_phone: order.supplier?.phone || null,
+      items: order.items?.map(item => ({
+        medicine_name: item.medicine_name,
+        quantity: item.quantity,
+        unit: item.unit || 'pcs',
+        is_tax_applicable: item.is_tax_applicable,
+      })) || [],
+      status: 'Received',
+      total_amount: order.total_amount,
+      paid_amount: order.paid_amount,
+      due_amount: order.due_amount,
+    };
+    
+    const doc = generateOrderPDF(pdfData, false);
+    const pdfBlob = doc.output('blob');
+    const file = new File([pdfBlob], `order-${order.order_number}.pdf`, { 
+      type: 'application/pdf' 
+    });
+
+    if (navigator.share && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          title: `Order ${order.order_number}`,
+          text: `Purchase Order for ${order.supplier?.name}`,
+          files: [file],
+        });
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          toast.error('Failed to share');
+        }
+      }
+    } else {
+      doc.save(`order-${order.order_number}.pdf`);
+      toast.info('Share not supported - PDF downloaded instead');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -137,6 +203,16 @@ export default function ReceivedOrders() {
                       </div>
                     </DialogContent>
                   </Dialog>
+
+                  <Button variant="outline" size="sm" onClick={() => handleDownloadPDF(order)}>
+                    <Download className="h-4 w-4 mr-1" />
+                    PDF
+                  </Button>
+
+                  <Button variant="outline" size="sm" onClick={() => handleShareOrder(order)}>
+                    <Share2 className="h-4 w-4 mr-1" />
+                    Share
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent>

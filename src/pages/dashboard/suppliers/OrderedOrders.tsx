@@ -10,9 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Package, Eye, PackageCheck, ShoppingCart, Trash2, Undo2 } from 'lucide-react';
+import { Package, Eye, PackageCheck, ShoppingCart, Trash2, Undo2, Download, Share2 } from 'lucide-react';
 import { useStockShortList } from '@/hooks/useStockShortList';
 import { format } from 'date-fns';
+import { generateOrderPDF, OrderPDFData } from '@/lib/pdfGenerator';
+import { toast } from 'sonner';
 
 export default function OrderedOrders() {
   const { orderedOrders, isLoading, receiveOrder, deleteOrder, revertToPending } = useStockShortList();
@@ -39,6 +41,64 @@ export default function OrderedOrders() {
       setReceiveForm({ totalAmount: 0, paidAmount: 0, paymentMethod: 'cash', notes: '' });
     } catch (error) {
       // handled in hook
+    }
+  };
+
+  const handleDownloadPDF = (order: typeof orderedOrders[0]) => {
+    const pdfData: OrderPDFData = {
+      order_number: order.order_number,
+      order_date: order.order_date,
+      supplier_name: order.supplier?.name || 'Unknown',
+      supplier_phone: order.supplier?.phone || null,
+      items: order.items?.map(item => ({
+        medicine_name: item.medicine_name,
+        quantity: item.quantity,
+        unit: item.unit || 'pcs',
+        is_tax_applicable: item.is_tax_applicable,
+      })) || [],
+      status: 'Ordered',
+    };
+    
+    generateOrderPDF(pdfData);
+    toast.success('PDF downloaded successfully');
+  };
+
+  const handleShareOrder = async (order: typeof orderedOrders[0]) => {
+    const pdfData: OrderPDFData = {
+      order_number: order.order_number,
+      order_date: order.order_date,
+      supplier_name: order.supplier?.name || 'Unknown',
+      supplier_phone: order.supplier?.phone || null,
+      items: order.items?.map(item => ({
+        medicine_name: item.medicine_name,
+        quantity: item.quantity,
+        unit: item.unit || 'pcs',
+        is_tax_applicable: item.is_tax_applicable,
+      })) || [],
+      status: 'Ordered',
+    };
+    
+    const doc = generateOrderPDF(pdfData, false);
+    const pdfBlob = doc.output('blob');
+    const file = new File([pdfBlob], `order-${order.order_number}.pdf`, { 
+      type: 'application/pdf' 
+    });
+
+    if (navigator.share && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          title: `Order ${order.order_number}`,
+          text: `Purchase Order for ${order.supplier?.name}`,
+          files: [file],
+        });
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          toast.error('Failed to share');
+        }
+      }
+    } else {
+      doc.save(`order-${order.order_number}.pdf`);
+      toast.info('Share not supported - PDF downloaded instead');
     }
   };
 
@@ -137,6 +197,16 @@ export default function OrderedOrders() {
                         </Table>
                       </DialogContent>
                     </Dialog>
+
+                    <Button variant="outline" size="sm" onClick={() => handleDownloadPDF(order)}>
+                      <Download className="h-4 w-4 mr-1" />
+                      PDF
+                    </Button>
+
+                    <Button variant="outline" size="sm" onClick={() => handleShareOrder(order)}>
+                      <Share2 className="h-4 w-4 mr-1" />
+                      Share
+                    </Button>
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
