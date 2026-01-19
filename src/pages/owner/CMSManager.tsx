@@ -17,6 +17,7 @@ import {
   TestimonialsEditor,
   ContactEditor,
   ManufacturersEditor,
+  FeaturesEditor,
 } from '@/components/owner/cms-editors';
 
 export default function CMSManager() {
@@ -102,7 +103,7 @@ export default function CMSManager() {
   };
 
   const hasFormEditor = (sectionKey: string) => {
-    return ['hero', 'statistics', 'pricing', 'faq', 'testimonials', 'contact', 'manufacturers'].includes(sectionKey);
+    return ['hero', 'statistics', 'pricing', 'faq', 'testimonials', 'contact', 'manufacturers', 'features'].includes(sectionKey);
   };
 
   const renderFormEditor = () => {
@@ -163,6 +164,14 @@ export default function CMSManager() {
       case 'manufacturers':
         return (
           <ManufacturersEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'features':
+        return (
+          <FeaturesEditor
             content={content}
             onSave={handleSaveWithContent}
             isSaving={updateSection.isPending}

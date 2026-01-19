@@ -34,6 +34,8 @@ export default function SectionPreview({ sectionKey, content }: SectionPreviewPr
       return <ContactPreview content={content} />;
     case 'manufacturers':
       return <ManufacturersPreview content={content} />;
+    case 'features':
+      return <FeaturesPreview content={content} />;
     default:
       return (
         <div className="p-4 bg-muted/50 rounded-lg">
@@ -424,6 +426,68 @@ function ManufacturersPreview({ content }: { content: any }) {
         <span className="text-primary font-semibold">{content.highlightNumber}</span>
         {' '}{content.bottomText}
       </div>
+    </div>
+  );
+}
+
+function FeaturesPreview({ content }: { content: any }) {
+  const items = content.items || [];
+  const highlights = content.highlights || [];
+
+  return (
+    <div className="rounded-lg bg-muted/30 p-6 space-y-4">
+      {/* Header */}
+      <div className="text-center">
+        <Badge variant="secondary" className="mb-2">
+          {content.badge || 'শক্তিশালী ফিচার'}
+        </Badge>
+        <h2 className="text-lg font-bold">{content.title}</h2>
+        <p className="text-xs text-muted-foreground">{content.subtitle}</p>
+      </div>
+
+      {/* Features Grid */}
+      <div className="grid grid-cols-3 gap-2">
+        {items.slice(0, 6).map((feature: any, i: number) => (
+          <Card key={i} className="p-3">
+            <CardContent className="p-0 space-y-1">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${
+                feature.color === 'primary' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'
+              }`}>
+                {feature.icon?.charAt(0) || '?'}
+              </div>
+              <p className="font-medium text-xs truncate">{feature.title}</p>
+              <p className="text-[10px] text-muted-foreground line-clamp-2">{feature.description}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {items.length > 6 && (
+        <p className="text-center text-xs text-muted-foreground">
+          +{items.length - 6} more features
+        </p>
+      )}
+
+      {/* Highlights */}
+      {highlights.length > 0 && (
+        <div className="grid grid-cols-3 gap-2 pt-2">
+          {highlights.slice(0, 3).map((h: any, i: number) => (
+            <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-accent/50 text-xs">
+              <div className={`w-6 h-6 rounded flex items-center justify-center text-[10px] ${
+                h.color === 'warning' ? 'bg-yellow-500/20 text-yellow-600' :
+                h.color === 'success' ? 'bg-green-500/20 text-green-600' :
+                'bg-primary/20 text-primary'
+              }`}>
+                {h.icon?.charAt(0) || '!'}
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium truncate">{h.title}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{h.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

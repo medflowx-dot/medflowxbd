@@ -5,6 +5,7 @@ export { default as FAQEditor } from './FAQEditor';
 export { default as TestimonialsEditor } from './TestimonialsEditor';
 export { default as ContactEditor } from './ContactEditor';
 export { default as ManufacturersEditor } from './ManufacturersEditor';
+export { default as FeaturesEditor } from './FeaturesEditor';
 export { default as MediaLibrary } from './MediaLibrary';
 export { default as ImagePicker } from './ImagePicker';
 export { default as SectionPreview } from './SectionPreview';
