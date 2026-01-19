@@ -39,13 +39,21 @@ export default function StockShortList() {
   });
   const [medicineSearch, setMedicineSearch] = useState('');
   const [medicinePopoverOpen, setMedicinePopoverOpen] = useState(false);
+  const [manufacturerSearch, setManufacturerSearch] = useState('');
+  const [manufacturerPopoverOpen, setManufacturerPopoverOpen] = useState(false);
 
   // Filter active notes
   const activeNotes = notes.filter(n => n.status === 'active');
   const completedNotes = notes.filter(n => n.status === 'completed');
 
-  // Get active manufacturers
-  const activeManufacturers = manufacturers.filter(m => m.is_active !== false);
+  // Get active manufacturers filtered by search
+  const activeManufacturers = manufacturers.filter(m => 
+    m.is_active !== false && 
+    m.name.toLowerCase().includes(manufacturerSearch.toLowerCase())
+  );
+
+  // Get selected manufacturer name
+  const selectedManufacturer = manufacturers.find(m => m.id === newItem.manufacturer_id);
   
   // Filter medicines by selected manufacturer and search
   const filteredMedicines = newItem.manufacturer_id 
@@ -363,29 +371,49 @@ export default function StockShortList() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Manufacturer *</Label>
-              <Select
-                value={newItem.manufacturer_id}
-                onValueChange={(value) => setNewItem({ 
-                  ...newItem, 
-                  manufacturer_id: value,
-                  medicine_id: '' // Reset medicine when manufacturer changes
-                })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select manufacturer" />
-                </SelectTrigger>
-                <SelectContent>
-                  {activeManufacturers.length === 0 ? (
-                    <div className="py-2 px-2 text-sm text-muted-foreground">No manufacturers available</div>
-                  ) : (
-                    activeManufacturers.map((mfg) => (
-                      <SelectItem key={mfg.id} value={mfg.id}>
-                        {mfg.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+              <Popover open={manufacturerPopoverOpen} onOpenChange={setManufacturerPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={manufacturerPopoverOpen}
+                    className="w-full justify-between font-normal"
+                  >
+                    {selectedManufacturer 
+                      ? selectedManufacturer.name
+                      : "Search manufacturer..."
+                    }
+                    <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0" align="start">
+                  <Command>
+                    <CommandInput 
+                      placeholder="Search manufacturer..." 
+                      value={manufacturerSearch}
+                      onValueChange={setManufacturerSearch}
+                    />
+                    <CommandList>
+                      <CommandEmpty>No manufacturer found.</CommandEmpty>
+                      <CommandGroup>
+                        {activeManufacturers.slice(0, 50).map((mfg) => (
+                          <CommandItem
+                            key={mfg.id}
+                            value={mfg.name}
+                            onSelect={() => {
+                              setNewItem({ ...newItem, manufacturer_id: mfg.id, medicine_id: '' });
+                              setManufacturerPopoverOpen(false);
+                              setManufacturerSearch('');
+                            }}
+                          >
+                            {mfg.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="space-y-2">
