@@ -216,12 +216,12 @@ Deno.serve(async (req) => {
     }
 
     const existingNames = new Set(
-      (existingMedicines || []).map(m => m.name.toLowerCase())
+      (existingMedicines || []).map(m => m.name.toLowerCase().trim())
     );
 
     // Filter out duplicates and prepare for insert
     const newMedicines = MEDEX_HERBAL_MEDICINES
-      .filter(med => !existingNames.has(med.name.toLowerCase()))
+      .filter(med => !existingNames.has(med.name.toLowerCase().trim()))
       .map(med => ({
         name: med.name,
         generic_name: med.generic_name,

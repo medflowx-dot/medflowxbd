@@ -708,14 +708,14 @@ Deno.serve(async (req) => {
     }
 
     const existingNames = new Set(
-      existingMedicines?.map(m => m.name.toLowerCase()) || []
+      existingMedicines?.map(m => m.name.toLowerCase().trim()) || []
     );
 
     console.log(`Found ${existingNames.size} existing medicines`);
 
     // Prepare medicines for insertion (skip duplicates)
     const medicinesToInsert = MEDICINES_DATA
-      .filter(med => !existingNames.has(med.name.toLowerCase()))
+      .filter(med => !existingNames.has(med.name.toLowerCase().trim()))
       .map(med => ({
         name: med.name,
         generic_name: med.generic_name,
