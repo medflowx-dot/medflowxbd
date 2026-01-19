@@ -99,7 +99,7 @@ export function useStockShortList() {
     enabled: !!user,
   });
 
-  // Fetch supplier orders
+  // Fetch supplier orders - RLS handles user_id filtering via get_pharmacy_owner_id
   const ordersQuery = useQuery({
     queryKey: ['supplier-orders', user?.id],
     queryFn: async () => {
@@ -111,7 +111,6 @@ export function useStockShortList() {
           supplier:suppliers(id, name, phone, whatsapp_number, manufacturer_id),
           items:supplier_order_items(*)
         `)
-        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
