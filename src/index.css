@@ -375,6 +375,42 @@
     }
   }
 
+  /* Popular badge animation */
+  .popular-badge {
+    animation: badge-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes badge-pulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  /* Sparkle icon animation */
+  .sparkle-icon {
+    animation: sparkle-rotate 3s ease-in-out infinite;
+  }
+
+  @keyframes sparkle-rotate {
+    0%, 100% {
+      transform: rotate(0deg) scale(1);
+    }
+    25% {
+      transform: rotate(15deg) scale(1.1);
+    }
+    50% {
+      transform: rotate(0deg) scale(1);
+    }
+    75% {
+      transform: rotate(-15deg) scale(1.1);
+    }
+  }
+
   .shadow-glow {
     box-shadow: var(--shadow-glow);
   }
