@@ -57,7 +57,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 export function useLanguage() {
   const context = useContext(LanguageContext);
   if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
+    // Return default values if provider is not available yet
+    // This can happen during initial render before providers are mounted
+    return {
+      language: 'en' as const,
+      setLanguage: () => {},
+      t: translations.en,
+      isLoading: true,
+    };
   }
   return context;
 }
