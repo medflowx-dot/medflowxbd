@@ -2,17 +2,29 @@ import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Pill } from 'lucide-react';
+import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
+
+// Default navigation links
+const defaultNavLinks = [
+  { href: '#features', label: 'সুবিধাসমূহ' },
+  { href: '#how-it-works', label: 'কিভাবে কাজ করে' },
+  { href: '#pricing', label: 'প্যাকেজ' },
+  { href: '#faq', label: 'জিজ্ঞাসা' },
+  { href: '#contact', label: 'যোগাযোগ' },
+];
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: cmsContent } = useCMSContent('navbar');
 
-  const navLinks = [
-    { href: '#features', label: 'সুবিধাসমূহ' },
-    { href: '#how-it-works', label: 'কিভাবে কাজ করে' },
-    { href: '#pricing', label: 'প্যাকেজ' },
-    { href: '#faq', label: 'জিজ্ঞাসা' },
-    { href: '#contact', label: 'যোগাযোগ' },
-  ];
+  const logoText = getCMSValue(cmsContent, 'logoText', 'MedFlowx');
+  const logoHighlight = getCMSValue(cmsContent, 'logoHighlight', 'Flow');
+  const loginText = getCMSValue(cmsContent, 'loginText', 'লগইন');
+  const signupText = getCMSValue(cmsContent, 'signupText', 'ফ্রি ট্রায়াল শুরু করুন');
+  const navLinks = getCMSValue(cmsContent, 'navLinks', defaultNavLinks);
+
+  // Split logo text for styling
+  const logoPrefix = logoText.replace(logoHighlight, '');
 
   const scrollToSection = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -43,13 +55,13 @@ const Navbar = () => {
               <Pill className="w-5 h-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-display font-bold text-foreground">
-              Med<span className="text-primary">Flow</span>x
+              {logoPrefix}<span className="text-primary">{logoHighlight}</span>x
             </span>
           </a>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
+            {navLinks.map((link: any) => (
               <a
                 key={link.href}
                 href={link.href}
@@ -64,10 +76,10 @@ const Navbar = () => {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
             <Button variant="ghost" size="default" asChild>
-              <Link to="/login">লগইন</Link>
+              <Link to="/login">{loginText}</Link>
             </Button>
             <Button variant="default" size="default" asChild>
-              <Link to="/signup">ফ্রি ট্রায়াল শুরু করুন</Link>
+              <Link to="/signup">{signupText}</Link>
             </Button>
           </div>
 
@@ -85,7 +97,7 @@ const Navbar = () => {
         {isOpen && (
           <div className="md:hidden py-4 border-t border-border/50 animate-fade-in">
             <div className="flex flex-col gap-4">
-              {navLinks.map((link) => (
+              {navLinks.map((link: any) => (
                 <a
                   key={link.href}
                   href={link.href}
@@ -97,10 +109,10 @@ const Navbar = () => {
               ))}
               <div className="flex flex-col gap-3 pt-4 border-t border-border/50">
                 <Button variant="outline" className="w-full" asChild>
-                  <Link to="/login">লগইন</Link>
+                  <Link to="/login">{loginText}</Link>
                 </Button>
                 <Button variant="default" className="w-full" asChild>
-                  <Link to="/signup">ফ্রি ট্রায়াল শুরু করুন</Link>
+                  <Link to="/signup">{signupText}</Link>
                 </Button>
               </div>
             </div>
