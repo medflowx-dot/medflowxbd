@@ -103,6 +103,7 @@ export function useStockShortList() {
   const ordersQuery = useQuery({
     queryKey: ['supplier-orders', user?.id],
     queryFn: async () => {
+      if (!user) return [];
       const { data, error } = await supabase
         .from('supplier_orders')
         .select(`
@@ -110,6 +111,7 @@ export function useStockShortList() {
           supplier:suppliers(id, name, phone, whatsapp_number, manufacturer_id),
           items:supplier_order_items(*)
         `)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -299,9 +301,10 @@ export function useStockShortList() {
 
       return ordersToCreate.length;
     },
-    onSuccess: (count) => {
-      queryClient.invalidateQueries({ queryKey: ['stock-short-notes'] });
-      queryClient.invalidateQueries({ queryKey: ['supplier-orders'] });
+    onSuccess: async (count) => {
+      await queryClient.invalidateQueries({ queryKey: ['stock-short-notes'] });
+      await queryClient.invalidateQueries({ queryKey: ['supplier-orders'] });
+      await queryClient.refetchQueries({ queryKey: ['supplier-orders'] });
       toast.success(`${count} order(s) created successfully`);
     },
     onError: (error) => {
