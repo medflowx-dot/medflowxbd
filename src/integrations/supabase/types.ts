@@ -367,6 +367,77 @@ export type Database = {
         }
         Relationships: []
       }
+      global_manufacturers: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      global_medicines: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          generic_name: string | null
+          id: string
+          is_active: boolean | null
+          is_tax_applicable: boolean | null
+          manufacturer_id: string | null
+          name: string
+          unit: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          generic_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_tax_applicable?: boolean | null
+          manufacturer_id?: string | null
+          name: string
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          generic_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_tax_applicable?: boolean | null
+          manufacturer_id?: string | null
+          name?: string
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "global_medicines_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "global_manufacturers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       impersonation_sessions: {
         Row: {
           admin_user_id: string
