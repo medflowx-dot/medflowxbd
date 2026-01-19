@@ -5,3 +5,4 @@ export { default as FAQEditor } from './FAQEditor';
 export { default as TestimonialsEditor } from './TestimonialsEditor';
 export { default as MediaLibrary } from './MediaLibrary';
 export { default as ImagePicker } from './ImagePicker';
+export { default as SectionPreview } from './SectionPreview';
