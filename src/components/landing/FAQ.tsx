@@ -5,8 +5,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
 
-const faqs = [
+// Fallback FAQs
+const fallbackFaqs = [
   {
     question: '৭ দিনের ফ্রি ট্রায়াল কিভাবে কাজ করে?',
     answer: 'শুধু ইমেইল ও ফোন নম্বর দিয়ে সাইনআপ করুন — কোনো ক্রেডিট কার্ড লাগবে না। ৭ দিন সব ফিচার ব্যবহার করুন। শুধু স্টাফ অ্যাকাউন্ট তৈরি করা যাবে না। ট্রায়াল শেষে যেকোনো প্যাকেজ বেছে নিন।',
@@ -42,6 +44,12 @@ const faqs = [
 ];
 
 const FAQ = () => {
+  const { data: cmsContent } = useCMSContent('faq');
+  
+  const title = getCMSValue(cmsContent, 'title', 'সচরাচর জিজ্ঞাসা');
+  const subtitle = getCMSValue(cmsContent, 'subtitle', 'MedFlowx সম্পর্কে আপনার সব প্রশ্নের উত্তর।');
+  const faqs = getCMSValue(cmsContent, 'items', fallbackFaqs);
+
   return (
     <section id="faq" className="py-16 md:py-24 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
       {/* Background Decorations */}
@@ -56,17 +64,17 @@ const FAQ = () => {
             <span className="text-primary text-sm font-semibold">প্রশ্ন আছে?</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
-            সচরাচর জিজ্ঞাসা
+            {title}
           </h2>
           <p className="text-lg text-muted-foreground">
-            MedFlowx সম্পর্কে আপনার সব প্রশ্নের উত্তর।
+            {subtitle}
           </p>
         </div>
 
         {/* FAQ Accordion */}
         <div className="max-w-3xl mx-auto">
           <Accordion type="single" collapsible className="space-y-4">
-            {faqs.map((faq, index) => (
+            {faqs.map((faq: any, index: number) => (
               <AccordionItem
                 key={index}
                 value={`item-${index}`}

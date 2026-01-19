@@ -1,8 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MessageCircle, Pill, Sparkles } from 'lucide-react';
+import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
 
 const CTA = () => {
+  const { data: cmsContent } = useCMSContent('cta');
+  
+  const title = getCMSValue(cmsContent, 'title', 'আপনার ফার্মেসি ব্যবসা বদলে দিতে প্রস্তুত?');
+  const subtitle = getCMSValue(cmsContent, 'subtitle', 'বাংলাদেশের শত শত ফার্মেসি ইতিমধ্যে MedFlowx দিয়ে সময় বাঁচাচ্ছে, ভুল কমাচ্ছে এবং ব্যবসা বাড়াচ্ছে।');
+  const ctaPrimary = getCMSValue(cmsContent, 'cta_primary', { text: 'ফ্রি ট্রায়াল শুরু করুন', link: '/signup' });
+  const ctaSecondary = getCMSValue(cmsContent, 'cta_secondary', { text: 'যোগাযোগ করুন', link: '#contact' });
+  const trustItems = getCMSValue(cmsContent, 'trust_items', ['ক্রেডিট কার্ড লাগবে না', '৭ দিন ফ্রি', 'যেকোনো সময় বাতিল করুন']);
+
   return (
     <section className="py-16 md:py-24 relative overflow-hidden">
       {/* Background */}
@@ -45,41 +54,36 @@ const CTA = () => {
               </div>
 
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-primary-foreground mb-6">
-                আপনার ফার্মেসি ব্যবসা বদলে দিতে প্রস্তুত?
+                {title}
               </h2>
               <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto leading-relaxed">
-                বাংলাদেশের শত শত ফার্মেসি ইতিমধ্যে MedFlowx দিয়ে সময় বাঁচাচ্ছে, 
-                ভুল কমাচ্ছে এবং ব্যবসা বাড়াচ্ছে।
+                {subtitle}
               </p>
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
                 <Button variant="hero" size="xl" className="group shadow-2xl shadow-secondary/30" asChild>
-                  <Link to="/signup">
-                    ফ্রি ট্রায়াল শুরু করুন
+                  <Link to={ctaPrimary.link}>
+                    {ctaPrimary.text}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
-                <Button variant="hero-outline" size="xl" className="group backdrop-blur-sm">
-                  <MessageCircle className="w-5 h-5" />
-                  যোগাযোগ করুন
+                <Button variant="hero-outline" size="xl" className="group backdrop-blur-sm" asChild>
+                  <a href={ctaSecondary.link}>
+                    <MessageCircle className="w-5 h-5" />
+                    {ctaSecondary.text}
+                  </a>
                 </Button>
               </div>
 
               {/* Trust Line */}
               <div className="flex items-center justify-center gap-6 flex-wrap text-primary-foreground/60 text-sm">
-                <span className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-success" />
-                  কোনো ক্রেডিট কার্ড লাগবে না
-                </span>
-                <span className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-success" />
-                  ৭ দিন ফ্রি
-                </span>
-                <span className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-success" />
-                  যেকোনো সময় বাতিল করুন
-                </span>
+                {trustItems.map((item: string, index: number) => (
+                  <span key={index} className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-success" />
+                    {item}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
