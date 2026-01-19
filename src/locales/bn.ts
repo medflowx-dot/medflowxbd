@@ -89,6 +89,36 @@ export const bn: TranslationKeys = {
     copyright: '©',
   },
 
+  // Dashboard Home
+  dashboard: {
+    title: 'ড্যাশবোর্ড',
+    welcome: 'স্বাগতম! এখানে আপনার ফার্মেসির সারসংক্ষেপ।',
+    todaysSales: 'আজকের বিক্রয়',
+    todaysCosts: 'আজকের খরচ',
+    customerDues: 'গ্রাহক বকেয়া',
+    supplierDues: 'সরবরাহকারী বকেয়া',
+    expiryAlerts: 'মেয়াদ সতর্কতা',
+    viewAll: 'সব দেখুন',
+    expired: 'মেয়াদোত্তীর্ণ',
+    days30: '৩০ দিন',
+    days60: '৬০ দিন',
+    days90: '৯০ দিন',
+    quickAccess: 'দ্রুত প্রবেশ',
+    medicines: 'ঔষধ',
+    medicinesDesc: 'ইনভেন্টরি ও ব্যাচ ব্যবস্থাপনা',
+    sales: 'বিক্রয়',
+    salesDesc: 'দৈনিক বিক্রয় ট্র্যাকিং',
+    customerDuesTitle: 'গ্রাহক বকেয়া',
+    customerDuesDesc: 'গ্রাহকদের ব্যালেন্স ট্র্যাক',
+    suppliers: 'সরবরাহকারী',
+    suppliersDesc: 'সরবরাহকারী ও পেমেন্ট ব্যবস্থাপনা',
+    reports: 'রিপোর্ট',
+    reportsDesc: 'বিশ্লেষণ ও এক্সপোর্ট',
+    trialTitle: '🎉 আপনি ফ্রি ট্রায়ালে আছেন',
+    trialDesc: 'দিন বাকি। যেকোনো সময় আপগ্রেড করুন।',
+    upgradeNow: 'এখনই আপগ্রেড করুন',
+  },
+
   // Common Actions
   actions: {
     add: 'যোগ করুন',

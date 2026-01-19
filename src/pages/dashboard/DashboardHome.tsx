@@ -14,31 +14,33 @@ import {
 import { Link } from 'react-router-dom';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function DashboardHome() {
   const { data: stats, isLoading } = useDashboardStats();
   const subscription = useSubscriptionStatus();
+  const { t } = useLanguage();
 
   const quickStats = [
-    { label: "Today's Sales", value: `৳${stats?.todaysSales.toFixed(2) || '0.00'}`, icon: TrendingUp, color: 'text-green-600' },
-    { label: "Today's Costs", value: `৳${stats?.todaysCosts.toFixed(2) || '0.00'}`, icon: Wallet, color: 'text-red-600' },
-    { label: 'Customer Dues', value: `৳${stats?.totalCustomerDues.toFixed(0) || '0'}`, icon: Users, color: 'text-amber-600' },
-    { label: 'Supplier Dues', value: `৳${stats?.totalSupplierDues.toFixed(0) || '0'}`, icon: Truck, color: 'text-purple-600' },
+    { label: t.dashboard.todaysSales, value: `৳${stats?.todaysSales.toFixed(2) || '0.00'}`, icon: TrendingUp, color: 'text-green-600' },
+    { label: t.dashboard.todaysCosts, value: `৳${stats?.todaysCosts.toFixed(2) || '0.00'}`, icon: Wallet, color: 'text-red-600' },
+    { label: t.dashboard.customerDues, value: `৳${stats?.totalCustomerDues.toFixed(0) || '0'}`, icon: Users, color: 'text-amber-600' },
+    { label: t.dashboard.supplierDues, value: `৳${stats?.totalSupplierDues.toFixed(0) || '0'}`, icon: Truck, color: 'text-purple-600' },
   ];
 
   const expiryStats = [
-    { label: 'Expired', value: stats?.expiredItems || 0, color: 'text-red-600 bg-red-50' },
-    { label: '30 Days', value: stats?.expiringIn30Days || 0, color: 'text-orange-600 bg-orange-50' },
-    { label: '60 Days', value: stats?.expiringIn60Days || 0, color: 'text-yellow-600 bg-yellow-50' },
-    { label: '90 Days', value: stats?.expiringIn90Days || 0, color: 'text-blue-600 bg-blue-50' },
+    { label: t.dashboard.expired, value: stats?.expiredItems || 0, color: 'text-red-600 bg-red-50' },
+    { label: t.dashboard.days30, value: stats?.expiringIn30Days || 0, color: 'text-orange-600 bg-orange-50' },
+    { label: t.dashboard.days60, value: stats?.expiringIn60Days || 0, color: 'text-yellow-600 bg-yellow-50' },
+    { label: t.dashboard.days90, value: stats?.expiringIn90Days || 0, color: 'text-blue-600 bg-blue-50' },
   ];
 
   const modules = [
-    { icon: Package, title: 'Medicines', description: 'Manage inventory & batches', href: '/dashboard/medicines', color: 'bg-blue-500' },
-    { icon: ShoppingCart, title: 'Sales', description: 'Daily sales tracking', href: '/dashboard/sales', color: 'bg-green-500' },
-    { icon: Users, title: 'Customer Dues', description: 'Track customer balances', href: '/dashboard/customer-dues', color: 'bg-amber-500' },
-    { icon: Truck, title: 'Suppliers', description: 'Manage suppliers & payments', href: '/dashboard/suppliers', color: 'bg-purple-500' },
-    { icon: FileText, title: 'Reports', description: 'Analytics & exports', href: '/dashboard/reports', color: 'bg-cyan-500' },
+    { icon: Package, title: t.dashboard.medicines, description: t.dashboard.medicinesDesc, href: '/dashboard/medicines', color: 'bg-blue-500' },
+    { icon: ShoppingCart, title: t.dashboard.sales, description: t.dashboard.salesDesc, href: '/dashboard/sales', color: 'bg-green-500' },
+    { icon: Users, title: t.dashboard.customerDuesTitle, description: t.dashboard.customerDuesDesc, href: '/dashboard/customer-dues', color: 'bg-amber-500' },
+    { icon: Truck, title: t.dashboard.suppliers, description: t.dashboard.suppliersDesc, href: '/dashboard/suppliers', color: 'bg-purple-500' },
+    { icon: FileText, title: t.dashboard.reports, description: t.dashboard.reportsDesc, href: '/dashboard/reports', color: 'bg-cyan-500' },
   ];
 
   const trialDaysRemaining = subscription.daysRemaining || 0;
@@ -46,9 +48,9 @@ export default function DashboardHome() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-display font-bold">Dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.dashboard.title}</h1>
         <p className="text-muted-foreground mt-1">
-          Welcome back! Here's your pharmacy overview.
+          {t.dashboard.welcome}
         </p>
       </div>
 
@@ -73,10 +75,10 @@ export default function DashboardHome() {
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-500" />
-              Expiry Alerts
+              {t.dashboard.expiryAlerts}
             </CardTitle>
             <Link to="/dashboard/expiry">
-              <Button variant="ghost" size="sm">View All</Button>
+              <Button variant="ghost" size="sm">{t.dashboard.viewAll}</Button>
             </Link>
           </div>
         </CardHeader>
@@ -94,7 +96,7 @@ export default function DashboardHome() {
 
       {/* Quick Access Modules */}
       <div>
-        <h2 className="text-lg font-display font-semibold mb-4">Quick Access</h2>
+        <h2 className="text-lg font-display font-semibold mb-4">{t.dashboard.quickAccess}</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {modules.map((module) => (
             <Link key={module.title} to={module.href}>
@@ -122,13 +124,13 @@ export default function DashboardHome() {
           <CardContent className="py-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h3 className="font-display font-semibold text-lg">🎉 You're on the Free Trial</h3>
+                <h3 className="font-display font-semibold text-lg">{t.dashboard.trialTitle}</h3>
                 <p className="text-muted-foreground text-sm">
-                  {trialDaysRemaining} days remaining. Upgrade anytime to continue.
+                  {trialDaysRemaining} {t.dashboard.trialDesc}
                 </p>
               </div>
               <Link to="/billing">
-                <Button>Upgrade Now</Button>
+                <Button>{t.dashboard.upgradeNow}</Button>
               </Link>
             </div>
           </CardContent>

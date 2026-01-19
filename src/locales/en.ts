@@ -87,6 +87,36 @@ export const en = {
     copyright: '©',
   },
 
+  // Dashboard Home
+  dashboard: {
+    title: 'Dashboard',
+    welcome: "Welcome back! Here's your pharmacy overview.",
+    todaysSales: "Today's Sales",
+    todaysCosts: "Today's Costs",
+    customerDues: 'Customer Dues',
+    supplierDues: 'Supplier Dues',
+    expiryAlerts: 'Expiry Alerts',
+    viewAll: 'View All',
+    expired: 'Expired',
+    days30: '30 Days',
+    days60: '60 Days',
+    days90: '90 Days',
+    quickAccess: 'Quick Access',
+    medicines: 'Medicines',
+    medicinesDesc: 'Manage inventory & batches',
+    sales: 'Sales',
+    salesDesc: 'Daily sales tracking',
+    customerDuesTitle: 'Customer Dues',
+    customerDuesDesc: 'Track customer balances',
+    suppliers: 'Suppliers',
+    suppliersDesc: 'Manage suppliers & payments',
+    reports: 'Reports',
+    reportsDesc: 'Analytics & exports',
+    trialTitle: "🎉 You're on the Free Trial",
+    trialDesc: 'days remaining. Upgrade anytime to continue.',
+    upgradeNow: 'Upgrade Now',
+  },
+
   // Common Actions
   actions: {
     add: 'Add',
