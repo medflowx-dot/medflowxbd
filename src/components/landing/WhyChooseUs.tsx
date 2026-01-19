@@ -1,43 +1,40 @@
-import { XCircle, CheckCircle2, AlertTriangle, Calculator, Users, Truck } from 'lucide-react';
+import { XCircle, CheckCircle2, AlertTriangle, Calculator, Users, Truck, ArrowRight } from 'lucide-react';
 
 const problems = [
   {
     icon: AlertTriangle,
     problem: 'ওষুধ এক্সপায়ার হয়ে যায়, টাকা নষ্ট হয়',
     solution: '৩০/৬০/৯০ দিন আগে এলার্ট পান, সময় মতো বিক্রি করুন',
-    color: 'destructive',
-    solutionColor: 'success',
   },
   {
     icon: Calculator,
     problem: 'দৈনিক হিসাব মেলানো কঠিন',
     solution: 'স্বয়ংক্রিয় ক্যাশ ফ্লো — ওপেনিং থেকে ক্লোজিং পর্যন্ত',
-    color: 'destructive',
-    solutionColor: 'success',
   },
   {
     icon: Users,
     problem: 'কাস্টমার বাকি মনে রাখা যায় না',
     solution: 'সব বাকি এক জায়গায়, পেমেন্ট হিস্ট্রি সহ',
-    color: 'destructive',
-    solutionColor: 'success',
   },
   {
     icon: Truck,
     problem: 'সাপ্লায়ার পেমেন্ট গোলমাল হয়',
     solution: 'সাপ্লায়ার ড্যাশবোর্ড — কত দিলাম, কত বাকি সব পরিষ্কার',
-    color: 'destructive',
-    solutionColor: 'success',
   },
 ];
 
 const WhyChooseUs = () => {
   return (
-    <section className="py-20 md:py-32 bg-muted/30">
-      <div className="container mx-auto px-4">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute top-1/4 left-0 w-72 h-72 bg-destructive/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-success/5 rounded-full blur-3xl" />
+      
+      <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 mb-6">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-secondary/15 to-secondary/5 border border-secondary/20 backdrop-blur-sm mb-6">
+            <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
             <span className="text-secondary-foreground text-sm font-semibold">কেন MedFlowx?</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
@@ -53,29 +50,36 @@ const WhyChooseUs = () => {
           {problems.map((item, index) => (
             <div
               key={index}
-              className="bg-card rounded-2xl border border-border shadow-card overflow-hidden"
+              className="group glass-card rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-500 hover:-translate-y-1"
             >
-              {/* Problem */}
-              <div className="p-6 bg-destructive/5 border-b border-border">
+              {/* Problem Section */}
+              <div className="p-6 bg-gradient-to-r from-destructive/10 to-destructive/5 border-b border-destructive/10">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-destructive/10 flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/10 flex items-center justify-center flex-shrink-0 shadow-lg shadow-destructive/10">
                     <XCircle className="w-6 h-6 text-destructive" />
                   </div>
                   <div>
-                    <span className="text-xs font-semibold text-destructive uppercase tracking-wide">সমস্যা</span>
+                    <span className="text-xs font-bold text-destructive uppercase tracking-wider">সমস্যা</span>
                     <p className="text-foreground font-medium mt-1">{item.problem}</p>
                   </div>
                 </div>
               </div>
+
+              {/* Arrow Connector */}
+              <div className="flex justify-center -my-3 relative z-10">
+                <div className="w-10 h-10 rounded-full bg-card border-2 border-border flex items-center justify-center shadow-md group-hover:border-success/50 transition-colors">
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-success transition-colors" />
+                </div>
+              </div>
               
-              {/* Solution */}
-              <div className="p-6 bg-success/5">
+              {/* Solution Section */}
+              <div className="p-6 bg-gradient-to-r from-success/10 to-success/5">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center flex-shrink-0 shadow-lg shadow-success/10 group-hover:scale-110 transition-transform">
                     <CheckCircle2 className="w-6 h-6 text-success" />
                   </div>
                   <div>
-                    <span className="text-xs font-semibold text-success uppercase tracking-wide">MedFlowx সমাধান</span>
+                    <span className="text-xs font-bold text-success uppercase tracking-wider">MedFlowx সমাধান</span>
                     <p className="text-foreground font-medium mt-1">{item.solution}</p>
                   </div>
                 </div>

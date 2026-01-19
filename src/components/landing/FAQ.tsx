@@ -1,3 +1,4 @@
+import { HelpCircle } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -42,11 +43,16 @@ const faqs = [
 
 const FAQ = () => {
   return (
-    <section id="faq" className="py-20 md:py-32 bg-muted/30">
-      <div className="container mx-auto px-4">
+    <section id="faq" className="py-20 md:py-32 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute top-1/3 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/3 right-0 w-72 h-72 bg-secondary/5 rounded-full blur-3xl" />
+      
+      <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 mb-6">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/15 to-primary/5 border border-primary/20 backdrop-blur-sm mb-6">
+            <HelpCircle className="w-4 h-4 text-primary" />
             <span className="text-primary text-sm font-semibold">প্রশ্ন আছে?</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
@@ -64,12 +70,17 @@ const FAQ = () => {
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
-                className="bg-card border border-border rounded-xl px-6 shadow-card data-[state=open]:shadow-lg transition-all"
+                className="glass-card rounded-xl px-6 overflow-hidden data-[state=open]:shadow-lg transition-all duration-300 data-[state=open]:border-primary/30"
               >
-                <AccordionTrigger className="text-left font-display font-semibold text-foreground hover:text-primary py-5">
-                  {faq.question}
+                <AccordionTrigger className="text-left font-display font-semibold text-foreground hover:text-primary py-5 gap-4">
+                  <span className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-sm font-bold flex-shrink-0">
+                      {index + 1}
+                    </span>
+                    {faq.question}
+                  </span>
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
+                <AccordionContent className="text-muted-foreground pb-5 pl-11 leading-relaxed">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

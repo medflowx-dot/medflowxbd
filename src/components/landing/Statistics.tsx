@@ -37,6 +37,7 @@ const Statistics = () => {
       {/* Decorative Elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-primary-foreground/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-secondary/10 rounded-full blur-3xl" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-light/5 rounded-full blur-3xl" />
       
       {/* Pattern Overlay */}
       <div 
@@ -65,16 +66,19 @@ const Statistics = () => {
               key={stat.label}
               className="relative group"
             >
-              <div className="bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 rounded-2xl p-6 md:p-8 text-center hover:bg-primary-foreground/15 transition-all duration-300 hover:scale-105">
+              <div className="glass-stats-card rounded-2xl p-6 md:p-8 text-center transition-all duration-500">
+                {/* Glow Effect */}
+                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-b from-white/10 to-transparent" />
+                
                 {/* Icon */}
-                <div className={`w-12 h-12 md:w-14 md:h-14 mx-auto mb-4 rounded-xl flex items-center justify-center ${
+                <div className={`relative w-14 h-14 md:w-16 md:h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 ${
                   stat.color === 'primary' 
-                    ? 'bg-primary-foreground/20' 
+                    ? 'bg-gradient-to-br from-primary-foreground/25 to-primary-foreground/10' 
                     : stat.color === 'secondary'
-                    ? 'bg-secondary/30'
-                    : 'bg-success/30'
+                    ? 'bg-gradient-to-br from-secondary/40 to-secondary/20'
+                    : 'bg-gradient-to-br from-success/40 to-success/20'
                 }`}>
-                  <stat.icon className={`w-6 h-6 md:w-7 md:h-7 ${
+                  <stat.icon className={`w-7 h-7 md:w-8 md:h-8 ${
                     stat.color === 'primary' 
                       ? 'text-primary-foreground' 
                       : stat.color === 'secondary'
@@ -84,7 +88,7 @@ const Statistics = () => {
                 </div>
 
                 {/* Value */}
-                <h3 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-primary-foreground mb-2">
+                <h3 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-primary-foreground mb-2 transition-transform duration-300 group-hover:scale-105">
                   {stat.value}
                 </h3>
 
@@ -106,7 +110,7 @@ const Statistics = () => {
         <div className="mt-12 text-center">
           <p className="text-primary-foreground/80 text-lg">
             আপনিও এই পরিবারের অংশ হতে পারেন — 
-            <a href="/signup" className="text-secondary font-semibold hover:underline ml-1">
+            <a href="/signup" className="text-secondary font-semibold hover:underline ml-1 transition-all hover:text-secondary-light">
               আজই শুরু করুন
             </a>
           </p>
