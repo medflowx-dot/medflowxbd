@@ -1,12 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDailyCashSummary } from '@/hooks/useDailyCash';
-import { ArrowDownLeft, ArrowUpRight, Wallet, TrendingUp, TrendingDown, Loader2 } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Wallet, TrendingUp, TrendingDown, Loader2, Pencil } from 'lucide-react';
 
 interface CashFlowSummaryProps {
   date: Date;
+  onEditOpeningCash?: () => void;
 }
 
-export function CashFlowSummary({ date }: CashFlowSummaryProps) {
+export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProps) {
   const { data: summary, isLoading } = useDailyCashSummary(date);
 
   if (isLoading) {
@@ -20,9 +21,15 @@ export function CashFlowSummary({ date }: CashFlowSummaryProps) {
   return (
     <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
       {/* Opening Cash */}
-      <Card>
+      <Card 
+        className="cursor-pointer hover:bg-muted/50 transition-colors group"
+        onClick={onEditOpeningCash}
+      >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
-          <CardTitle className="text-xs sm:text-sm font-medium">Opening Cash</CardTitle>
+          <CardTitle className="text-xs sm:text-sm font-medium flex items-center gap-1">
+            Opening Cash
+            <Pencil className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          </CardTitle>
           <Wallet className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
@@ -30,7 +37,7 @@ export function CashFlowSummary({ date }: CashFlowSummaryProps) {
             ৳{summary?.openingCash?.toLocaleString() || 0}
           </div>
           <p className="text-xs text-muted-foreground hidden sm:block">
-            Starting balance
+            Tap to edit
           </p>
         </CardContent>
       </Card>
