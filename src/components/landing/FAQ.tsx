@@ -43,7 +43,7 @@ const faqs = [
 
 const FAQ = () => {
   return (
-    <section id="faq" className="py-20 md:py-32 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
+    <section id="faq" className="py-16 md:py-24 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
       {/* Background Decorations */}
       <div className="absolute top-1/3 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-1/3 right-0 w-72 h-72 bg-secondary/5 rounded-full blur-3xl" />

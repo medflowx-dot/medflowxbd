@@ -4,7 +4,7 @@ import { ArrowRight, MessageCircle, Pill, Sparkles } from 'lucide-react';
 
 const CTA = () => {
   return (
-    <section className="py-20 md:py-32 relative overflow-hidden">
+    <section className="py-16 md:py-24 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-hero-gradient" />
       

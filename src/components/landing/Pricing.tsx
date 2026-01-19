@@ -74,7 +74,7 @@ const plans = [
 
 const Pricing = () => {
   return (
-    <section id="pricing" className="py-20 md:py-32 bg-gradient-to-b from-muted/30 via-background to-background relative overflow-hidden">
+    <section id="pricing" className="py-16 md:py-24 bg-gradient-to-b from-muted/30 via-background to-background relative overflow-hidden">
       {/* Background Decorations */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-secondary/5 rounded-full blur-3xl" />

@@ -57,7 +57,7 @@ const features = [
 
 const Features = () => {
   return (
-    <section id="features" className="py-20 md:py-32 bg-gradient-to-b from-background via-background to-muted/30 relative overflow-hidden">
+    <section id="features" className="py-16 md:py-24 bg-gradient-to-b from-background via-background to-muted/30 relative overflow-hidden">
       {/* Background Decorations */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />

@@ -33,7 +33,7 @@ const stats = [
 
 const Statistics = () => {
   return (
-    <section className="pt-8 pb-16 md:pt-12 md:pb-24 bg-hero-gradient relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-hero-gradient relative overflow-hidden">
       
       {/* Decorative Elements */}
       <div className="absolute top-20 left-0 w-64 h-64 bg-primary-foreground/5 rounded-full blur-3xl" />
@@ -49,7 +49,7 @@ const Statistics = () => {
         }}
       />
 
-      <div className="container mx-auto px-4 relative z-10 pt-16 md:pt-24">
+      <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-display font-bold text-primary-foreground mb-4">
