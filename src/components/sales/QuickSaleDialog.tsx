@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useSales } from '@/hooks/useSales';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const quickSaleSchema = z.object({
   sale_date: z.date().default(() => new Date()),
@@ -50,6 +51,7 @@ interface QuickSaleDialogProps {
 export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
   const [open, setOpen] = useState(false);
   const { createQuickSale } = useSales();
+  const { t } = useLanguage();
 
   const form = useForm<QuickSaleFormData>({
     resolver: zodResolver(quickSaleSchema),
@@ -94,7 +96,7 @@ export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
         {trigger || (
           <Button variant="outline" size="sm" className="h-8 sm:h-9">
             <Zap className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Quick Entry</span>
+            <span className="hidden sm:inline">{t.sales.quickEntry}</span>
           </Button>
         )}
       </DialogTrigger>
@@ -102,10 +104,10 @@ export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Zap className="h-5 w-5 text-primary" />
-            Quick Sale Entry
+            {t.sales.quickSaleEntry}
           </DialogTitle>
           <DialogDescription>
-            Record total daily sales without itemizing medicines
+            {t.sales.quickSaleDesc}
           </DialogDescription>
         </DialogHeader>
 
@@ -116,12 +118,12 @@ export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
               name="sale_date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Date</FormLabel>
+                  <FormLabel>{t.sales.date}</FormLabel>
                   <FormControl>
                     <FormDatePicker
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Pick a date"
+                      placeholder={t.sales.pickDate}
                       disabled={(date) => date > new Date()}
                     />
                   </FormControl>
@@ -135,13 +137,13 @@ export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
               name="total_amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Total Sales Amount (৳)</FormLabel>
+                  <FormLabel>{t.sales.totalSalesAmount}</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       min={0}
                       step="0.01"
-                      placeholder="Enter total sales"
+                      placeholder={t.sales.enterTotalSales}
                       {...field}
                     />
                   </FormControl>
@@ -156,13 +158,13 @@ export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
                 name="paid_amount"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Received Amount (৳)</FormLabel>
+                    <FormLabel>{t.sales.receivedAmount}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         min={0}
                         step="0.01"
-                        placeholder="Amount received"
+                        placeholder={t.sales.amountReceived}
                         {...field}
                       />
                     </FormControl>
@@ -177,14 +179,14 @@ export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
                 onClick={handleSetFullPayment}
                 className="mb-0.5"
               >
-                Full
+                {t.sales.full}
               </Button>
             </div>
 
             {paidAmount < totalAmount && totalAmount > 0 && (
               <div className="p-3 bg-orange-100 dark:bg-orange-950 rounded-lg border border-orange-200 dark:border-orange-900">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-orange-800 dark:text-orange-200">Unaccounted:</span>
+                  <span className="text-orange-800 dark:text-orange-200">{t.sales.unaccounted}:</span>
                   <span className="font-bold text-orange-800 dark:text-orange-200">
                     ৳{(totalAmount - paidAmount).toFixed(2)}
                   </span>
@@ -197,7 +199,7 @@ export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
               name="payment_method"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Payment Method</FormLabel>
+                  <FormLabel>{t.sales.paymentMethod}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -205,11 +207,11 @@ export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="cash">Cash</SelectItem>
-                      <SelectItem value="bkash">bKash</SelectItem>
-                      <SelectItem value="nagad">Nagad</SelectItem>
-                      <SelectItem value="card">Card</SelectItem>
-                      <SelectItem value="mixed">Mixed</SelectItem>
+                      <SelectItem value="cash">{t.sales.cash}</SelectItem>
+                      <SelectItem value="bkash">{t.sales.bkash}</SelectItem>
+                      <SelectItem value="nagad">{t.sales.nagad}</SelectItem>
+                      <SelectItem value="card">{t.sales.card}</SelectItem>
+                      <SelectItem value="mixed">{t.sales.mixed}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -222,10 +224,10 @@ export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes (Optional)</FormLabel>
+                  <FormLabel>{t.sales.notesOptional}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Any notes about today's sales..."
+                      placeholder={t.sales.notesPlaceholder}
                       {...field}
                     />
                   </FormControl>
@@ -236,10 +238,10 @@ export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
 
             <div className="flex justify-end gap-2 pt-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                Cancel
+                {t.actions.cancel}
               </Button>
               <Button type="submit" disabled={createQuickSale.isPending}>
-                {createQuickSale.isPending ? 'Saving...' : 'Record Sale'}
+                {createQuickSale.isPending ? t.sales.saving : t.sales.recordSale}
               </Button>
             </div>
           </form>

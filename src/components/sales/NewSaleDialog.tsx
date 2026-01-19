@@ -41,6 +41,7 @@ import { useSales, type CreateSaleItemData, type SaleUnit } from '@/hooks/useSal
 import { useMedicines, type MedicineWithBatches, type MedicineBatch } from '@/hooks/useMedicines';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const saleSchema = z.object({
   discount: z.coerce.number().min(0).default(0),
@@ -67,6 +68,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMedicine, setSelectedMedicine] = useState<MedicineWithBatches | null>(null);
+  const { t } = useLanguage();
   
   const { createSale } = useSales();
   const { medicines } = useMedicines();
@@ -108,7 +110,6 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
       sale_unit: unit,
     };
     setCart([...cart, newItem]);
-    
     setSearchTerm('');
     setSelectedMedicine(null);
   };
@@ -116,7 +117,6 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
   const updateUnitPrice = (itemId: string, unitPriceStr: string) => {
     const unitPrice = parseFloat(unitPriceStr) || 0;
     if (unitPrice < 0) return;
-    
     setCart(cart.map((item) =>
       item.id === itemId
         ? { ...item, unit_price: unitPriceStr, total_price: unitPrice }
@@ -158,9 +158,9 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
 
   const getUnitLabel = (unit: SaleUnit) => {
     switch (unit) {
-      case 'piece': return 'Pcs';
-      case 'strip': return 'Strip';
-      case 'box': return 'Box';
+      case 'piece': return t.sales.pcs;
+      case 'strip': return t.sales.strip;
+      case 'box': return t.sales.box;
       default: return unit;
     }
   };
@@ -171,7 +171,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
         {trigger || (
           <Button size="sm" className="h-8 sm:h-9">
             <ClipboardList className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Detailed Sale</span>
+            <span className="hidden sm:inline">{t.sales.detailedSale}</span>
           </Button>
         )}
       </DialogTrigger>
@@ -179,18 +179,17 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ClipboardList className="h-5 w-5 text-primary" />
-            Detailed Sale Entry
+            {t.sales.detailedSaleEntry}
           </DialogTitle>
-          <DialogDescription>Add medicines to the cart and complete the sale</DialogDescription>
+          <DialogDescription>{t.sales.detailedSaleDesc}</DialogDescription>
         </DialogHeader>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          {/* Left: Product Search & Cart */}
           <div className="space-y-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search medicines..."
+                placeholder={t.sales.searchMedicines}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
@@ -215,7 +214,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                         </Button>
                       ))}
                       {medicine.batches.length === 0 && (
-                        <span className="text-xs text-muted-foreground">No batches available</span>
+                        <span className="text-xs text-muted-foreground">{t.sales.noBatchesAvailable}</span>
                       )}
                     </div>
                   </div>
@@ -226,21 +225,21 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
             <div className="border rounded-md">
               <div className="p-2 bg-muted font-medium text-sm flex items-center gap-2">
                 <ShoppingCart className="h-4 w-4" />
-                Cart ({cart.length} items)
+                {t.sales.cart} ({cart.length} {t.sales.items})
               </div>
               <ScrollArea className="h-64">
                 {cart.length === 0 ? (
                   <div className="p-4 text-center text-muted-foreground text-sm">
-                    Search and add medicines to cart
+                    {t.sales.searchAndAdd}
                   </div>
                 ) : (
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Item</TableHead>
-                        <TableHead className="w-20">Unit</TableHead>
-                        <TableHead className="w-20">Price</TableHead>
-                        <TableHead className="text-right w-20">Total</TableHead>
+                        <TableHead>{t.sales.item}</TableHead>
+                        <TableHead className="w-20">{t.sales.unit}</TableHead>
+                        <TableHead className="w-20">{t.sales.price}</TableHead>
+                        <TableHead className="text-right w-20">{t.sales.total}</TableHead>
                         <TableHead className="w-8"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -249,9 +248,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                         <TableRow key={item.id}>
                           <TableCell className="py-2">
                             <div className="text-sm font-medium">{item.medicine_name}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {item.batch_number}
-                            </div>
+                            <div className="text-xs text-muted-foreground">{item.batch_number}</div>
                           </TableCell>
                           <TableCell className="py-2">
                             <Select
@@ -262,9 +259,9 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="piece">Pcs</SelectItem>
-                                <SelectItem value="strip">Strip</SelectItem>
-                                <SelectItem value="box">Box</SelectItem>
+                                <SelectItem value="piece">{t.sales.pcs}</SelectItem>
+                                <SelectItem value="strip">{t.sales.strip}</SelectItem>
+                                <SelectItem value="box">{t.sales.box}</SelectItem>
                               </SelectContent>
                             </Select>
                           </TableCell>
@@ -300,13 +297,12 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
             </div>
           </div>
 
-          {/* Right: Sale Details */}
           <div className="space-y-4">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2 p-4 bg-muted rounded-lg">
                   <div className="flex justify-between text-sm">
-                    <span>Subtotal:</span>
+                    <span>{t.sales.subtotal}:</span>
                     <span>৳{subtotal.toFixed(2)}</span>
                   </div>
                   
@@ -316,7 +312,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center justify-between">
-                          <FormLabel className="text-sm">Discount:</FormLabel>
+                          <FormLabel className="text-sm">{t.sales.discount}:</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -333,7 +329,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                   />
 
                   <div className="flex justify-between font-bold text-lg border-t pt-2">
-                    <span>Total:</span>
+                    <span>{t.sales.total}:</span>
                     <span>৳{total.toFixed(2)}</span>
                   </div>
                 </div>
@@ -344,7 +340,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                     name="paid_amount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Paid Amount (৳)</FormLabel>
+                        <FormLabel>{t.sales.paidAmount}</FormLabel>
                         <FormControl>
                           <Input type="number" min={0} max={total} {...field} />
                         </FormControl>
@@ -358,7 +354,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                     name="payment_method"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Payment Method</FormLabel>
+                        <FormLabel>{t.sales.paymentMethod}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -366,10 +362,10 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="cash">Cash</SelectItem>
-                            <SelectItem value="bkash">bKash</SelectItem>
-                            <SelectItem value="nagad">Nagad</SelectItem>
-                            <SelectItem value="card">Card</SelectItem>
+                            <SelectItem value="cash">{t.sales.cash}</SelectItem>
+                            <SelectItem value="bkash">{t.sales.bkash}</SelectItem>
+                            <SelectItem value="nagad">{t.sales.nagad}</SelectItem>
+                            <SelectItem value="card">{t.sales.card}</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -381,13 +377,13 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                 {dueAmount > 0 && (
                   <div className="p-3 bg-orange-100 dark:bg-orange-950 rounded-lg border border-orange-200 dark:border-orange-900">
                     <div className="flex justify-between items-center">
-                      <span className="font-medium text-orange-800 dark:text-orange-200">Unpaid Balance:</span>
+                      <span className="font-medium text-orange-800 dark:text-orange-200">{t.sales.unpaidBalance}:</span>
                       <Badge variant="destructive" className="text-lg px-3">
                         ৳{dueAmount.toFixed(2)}
                       </Badge>
                     </div>
                     <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">
-                      This amount will be tracked as internal unpaid balance
+                      {t.sales.unpaidTracking}
                     </p>
                   </div>
                 )}
@@ -397,9 +393,9 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                   name="notes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Notes</FormLabel>
+                      <FormLabel>{t.sales.notes}</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Any notes..." {...field} />
+                        <Textarea placeholder={t.sales.anyNotes} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -408,10 +404,10 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
 
                 <div className="flex justify-end gap-2 pt-4">
                   <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                    Cancel
+                    {t.actions.cancel}
                   </Button>
                   <Button type="submit" disabled={cart.length === 0 || createSale.isPending}>
-                    {createSale.isPending ? 'Processing...' : `Complete Sale (৳${total.toFixed(2)})`}
+                    {createSale.isPending ? t.sales.processing : `${t.sales.completeSale} (৳${total.toFixed(2)})`}
                   </Button>
                 </div>
               </form>

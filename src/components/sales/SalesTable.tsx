@@ -30,6 +30,7 @@ import {
 import { useSales, type Sale } from '@/hooks/useSales';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SalesTableProps {
   sales: Sale[];
@@ -39,8 +40,8 @@ interface SalesTableProps {
 export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
   const { deleteSale } = useSales();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const { t } = useLanguage();
 
-  // Fetch sale items for expanded rows
   const { data: saleItems } = useQuery({
     queryKey: ['sale-items', Array.from(expandedRows)],
     queryFn: async () => {
@@ -53,7 +54,6 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
       
       if (error) throw error;
       
-      // Group by sale_id
       const grouped: Record<string, typeof data> = {};
       data.forEach((item) => {
         if (!grouped[item.sale_id]) grouped[item.sale_id] = [];
@@ -80,9 +80,9 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
         <div className="p-4 rounded-full bg-muted mb-4">
           <Receipt className="h-8 w-8 text-muted-foreground" />
         </div>
-        <h3 className="font-semibold text-lg">No sales yet</h3>
+        <h3 className="font-semibold text-lg">{t.sales.noSalesYet}</h3>
         <p className="text-muted-foreground text-sm max-w-sm mt-1">
-          Create your first sale to start tracking transactions.
+          {t.sales.createFirstSale}
         </p>
       </div>
     );
@@ -90,9 +90,9 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
 
   const getUnitLabel = (unit: string) => {
     switch (unit) {
-      case 'piece': return 'Pcs';
-      case 'strip': return 'Strip';
-      case 'box': return 'Box';
+      case 'piece': return t.sales.pcs;
+      case 'strip': return t.sales.strip;
+      case 'box': return t.sales.box;
       default: return unit;
     }
   };
@@ -103,13 +103,13 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
         <TableHeader>
           <TableRow>
             {showEntryType && <TableHead className="w-8 hidden sm:table-cell"></TableHead>}
-            <TableHead className="text-xs sm:text-sm">ID</TableHead>
-            {showEntryType && <TableHead className="hidden md:table-cell text-xs sm:text-sm">Type</TableHead>}
-            <TableHead className="hidden sm:table-cell text-xs sm:text-sm">Date</TableHead>
-            <TableHead className="text-right text-xs sm:text-sm">Total</TableHead>
-            <TableHead className="text-right hidden md:table-cell text-xs sm:text-sm">Paid</TableHead>
-            <TableHead className="text-right text-xs sm:text-sm">Due</TableHead>
-            <TableHead className="hidden lg:table-cell text-xs sm:text-sm">Method</TableHead>
+            <TableHead className="text-xs sm:text-sm">{t.sales.id}</TableHead>
+            {showEntryType && <TableHead className="hidden md:table-cell text-xs sm:text-sm">{t.sales.type}</TableHead>}
+            <TableHead className="hidden sm:table-cell text-xs sm:text-sm">{t.sales.date}</TableHead>
+            <TableHead className="text-right text-xs sm:text-sm">{t.sales.total}</TableHead>
+            <TableHead className="text-right hidden md:table-cell text-xs sm:text-sm">{t.sales.paid}</TableHead>
+            <TableHead className="text-right text-xs sm:text-sm">{t.sales.due}</TableHead>
+            <TableHead className="hidden lg:table-cell text-xs sm:text-sm">{t.sales.method}</TableHead>
             <TableHead className="text-right w-12"></TableHead>
           </TableRow>
         </TableHeader>
@@ -151,12 +151,12 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                         {sale.entry_type === 'quick' ? (
                           <Badge variant="secondary" className="gap-1">
                             <Zap className="h-3 w-3" />
-                            Quick
+                            {t.sales.quick}
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="gap-1">
                             <ClipboardList className="h-3 w-3" />
-                            Detailed
+                            {t.sales.detailed}
                           </Badge>
                         )}
                       </TableCell>
@@ -192,18 +192,18 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Sale</AlertDialogTitle>
+                              <AlertDialogTitle>{t.sales.deleteSale}</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete entry "{sale.invoice_number}"? This action cannot be undone.
+                                {t.sales.deleteSaleConfirm} "{sale.invoice_number}"? {t.sales.cannotBeUndone}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => deleteSale.mutate(sale.id)}
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
-                                Delete
+                                {t.actions.delete}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -217,7 +217,7 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                         <TableCell colSpan={showEntryType ? 9 : 7} className="py-2 px-6">
                           {items.length > 0 ? (
                             <div className="space-y-1">
-                              <p className="text-xs font-medium text-muted-foreground mb-2">Sale Items:</p>
+                              <p className="text-xs font-medium text-muted-foreground mb-2">{t.sales.saleItems}:</p>
                               {items.map((item) => (
                                 <div key={item.id} className="flex justify-between text-sm">
                                   <span>
@@ -231,7 +231,7 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                               ))}
                             </div>
                           ) : (
-                            <p className="text-sm text-muted-foreground">Loading items...</p>
+                            <p className="text-sm text-muted-foreground">{t.sales.loadingItems}</p>
                           )}
                         </TableCell>
                       </TableRow>
