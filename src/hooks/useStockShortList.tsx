@@ -452,6 +452,28 @@ export function useStockShortList() {
     },
   });
 
+  // Revert order to pending
+  const revertToPendingMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      const { error } = await supabase
+        .from('supplier_orders')
+        .update({ 
+          status: 'pending',
+          ordered_at: null,
+        })
+        .eq('id', orderId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['supplier-orders'] });
+      toast.success('Order reverted to pending');
+    },
+    onError: (error) => {
+      toast.error('Failed to revert order: ' + error.message);
+    },
+  });
+
   // Filter orders by status
   const pendingOrders = ordersQuery.data?.filter(o => o.status === 'pending') || [];
   const orderedOrders = ordersQuery.data?.filter(o => o.status === 'ordered') || [];
@@ -472,5 +494,6 @@ export function useStockShortList() {
     markAsOrdered: markAsOrderedMutation.mutateAsync,
     receiveOrder: receiveOrderMutation.mutateAsync,
     deleteOrder: deleteOrderMutation.mutateAsync,
+    revertToPending: revertToPendingMutation.mutateAsync,
   };
 }
