@@ -2,22 +2,22 @@ import { UserPlus, Settings, Rocket } from 'lucide-react';
 
 const steps = [
   {
-    number: '01',
+    number: '০১',
     icon: UserPlus,
-    title: 'Sign Up in Seconds',
-    description: 'Create your account with just an email and phone number. No credit card required for the 7-day free trial.',
+    title: 'অ্যাকাউন্ট তৈরি করুন',
+    description: 'শুধু ইমেইল ও ফোন নম্বর দিন। কোনো ক্রেডিট কার্ড লাগবে না।',
   },
   {
-    number: '02',
+    number: '০২',
     icon: Settings,
-    title: 'Configure Your Pharmacy',
-    description: 'Add your medicines, set up batches, configure suppliers, and customize settings to match your workflow.',
+    title: 'ফার্মেসি সেটআপ করুন',
+    description: 'ওষুধ, সাপ্লায়ার যোগ করুন। আপনার কাজের ধরন অনুযায়ী কাস্টমাইজ করুন।',
   },
   {
-    number: '03',
+    number: '০৩',
     icon: Rocket,
-    title: 'Start Managing & Growing',
-    description: 'Track sales, monitor cash flow, generate reports, and watch your pharmacy business thrive.',
+    title: 'ব্যবসা শুরু করুন',
+    description: 'বিক্রয় ট্র্যাক করুন, রিপোর্ট দেখুন, ব্যবসা বাড়ান।',
   },
 ];
 
@@ -28,14 +28,13 @@ const HowItWorks = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 mb-6">
-            <span className="text-primary text-sm font-semibold">Simple Process</span>
+            <span className="text-primary text-sm font-semibold">সহজ প্রক্রিয়া</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
-            Get Started in 3 Easy Steps
+            মাত্র ৩টি ধাপে শুরু করুন
           </h2>
           <p className="text-lg text-muted-foreground">
-            From signup to fully operational in just minutes. 
-            We've made it incredibly simple to get your pharmacy online.
+            সাইনআপ থেকে পূর্ণ কার্যক্ষম — মাত্র কয়েক মিনিটে।
           </p>
         </div>
 
@@ -56,7 +55,7 @@ const HowItWorks = () => {
                   
                   {/* Step Number */}
                   <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-bold mb-4">
-                    Step {step.number}
+                    ধাপ {step.number}
                   </span>
                   
                   <h3 className="text-xl font-display font-bold text-foreground mb-3">

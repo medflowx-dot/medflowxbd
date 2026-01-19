@@ -1,72 +1,73 @@
 import { Check, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const plans = [
   {
-    name: 'Free Trial',
-    price: '0',
-    period: '7 days',
-    description: 'Try all features risk-free',
+    name: 'ফ্রি ট্রায়াল',
+    price: '০',
+    period: '৭ দিন',
+    description: 'সব ফিচার ফ্রিতে ট্রাই করুন',
     features: [
-      'Full access to all features',
-      'Unlimited medicines & batches',
-      'Sales & due tracking',
-      'Supplier management',
-      'Daily cash flow',
-      'PDF reports',
+      'সব ফিচারে পূর্ণ একসেস',
+      'আনলিমিটেড ওষুধ ও ব্যাচ',
+      'বিক্রয় ও বাকি ট্র্যাকিং',
+      'সাপ্লায়ার ম্যানেজমেন্ট',
+      'দৈনিক ক্যাশ ফ্লো',
+      'PDF রিপোর্ট',
     ],
-    limitations: ['Staff accounts disabled'],
-    cta: 'Start Free Trial',
+    limitations: ['স্টাফ অ্যাকাউন্ট ডিজেবল'],
+    cta: 'ফ্রি ট্রায়াল শুরু করুন',
     popular: false,
   },
   {
-    name: 'Monthly',
-    price: '999',
-    period: '/month',
-    description: 'Perfect for growing pharmacies',
+    name: 'মাসিক',
+    price: '৯৯৯',
+    period: '/মাস',
+    description: 'ছোট ফার্মেসির জন্য পারফেক্ট',
     features: [
-      'Everything in Free Trial',
-      'Unlimited staff accounts',
-      'Role-based permissions',
-      'WhatsApp sharing',
-      'Priority support',
-      'Auto-renewal',
+      'ফ্রি ট্রায়ালের সব কিছু',
+      'আনলিমিটেড স্টাফ অ্যাকাউন্ট',
+      'রোল-ভিত্তিক পারমিশন',
+      'হোয়াটসঅ্যাপ শেয়ারিং',
+      'প্রায়োরিটি সাপোর্ট',
+      'অটো-রিনিউয়াল',
     ],
     limitations: [],
-    cta: 'Subscribe Monthly',
+    cta: 'মাসিক সাবস্ক্রাইব করুন',
     popular: true,
   },
   {
-    name: 'Yearly',
-    price: '9,999',
-    period: '/year',
-    description: 'Best value — Save 17%',
+    name: 'বার্ষিক',
+    price: '৯,৯৯৯',
+    period: '/বছর',
+    description: 'সেরা মূল্য — ১৭% সাশ্রয় করুন',
     features: [
-      'Everything in Monthly',
-      '2 months free',
-      'Dedicated support',
-      'Early access to features',
-      'Custom reports',
-      'Auto-renewal',
+      'মাসিকের সব কিছু',
+      '২ মাস ফ্রি',
+      'ডেডিকেটেড সাপোর্ট',
+      'নতুন ফিচার আগে পান',
+      'কাস্টম রিপোর্ট',
+      'অটো-রিনিউয়াল',
     ],
     limitations: [],
-    cta: 'Subscribe Yearly',
+    cta: 'বার্ষিক সাবস্ক্রাইব করুন',
     popular: false,
   },
   {
-    name: 'Lifetime',
-    price: '29,999',
-    period: 'one-time',
-    description: 'Own it forever',
+    name: 'লাইফটাইম',
+    price: '২৯,৯৯৯',
+    period: 'এককালীন',
+    description: 'চিরকালের জন্য আপনার',
     features: [
-      'Permanent license',
-      'All current features',
-      'All future updates',
-      'Unlimited everything',
-      'VIP support',
+      'স্থায়ী লাইসেন্স',
+      'সব বর্তমান ফিচার',
+      'ভবিষ্যত সব আপডেট',
+      'আনলিমিটেড সবকিছু',
+      'VIP সাপোর্ট',
     ],
-    limitations: ['৳500-700/year service charge'],
-    cta: 'Buy Lifetime',
+    limitations: ['বার্ষিক ৳৫০০-৭০০ সার্ভিস চার্জ'],
+    cta: 'লাইফটাইম কিনুন',
     popular: false,
   },
 ];
@@ -78,14 +79,13 @@ const Pricing = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 mb-6">
-            <span className="text-secondary-foreground text-sm font-semibold">Simple Pricing</span>
+            <span className="text-secondary-foreground text-sm font-semibold">সহজ প্রাইসিং</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
-            Choose Your Plan
+            আপনার জন্য সঠিক প্যাকেজ বেছে নিন
           </h2>
           <p className="text-lg text-muted-foreground">
-            Transparent pricing in Bangladeshi Taka. No hidden fees. 
-            Start with a free trial and upgrade when you're ready.
+            বাংলাদেশি টাকায় স্বচ্ছ প্রাইসিং। কোনো লুকানো চার্জ নেই।
           </p>
         </div>
 
@@ -105,7 +105,7 @@ const Pricing = () => {
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-bold shadow-lg">
                     <Sparkles className="w-3 h-3" />
-                    Most Popular
+                    সবচেয়ে জনপ্রিয়
                   </div>
                 </div>
               )}
@@ -151,8 +151,9 @@ const Pricing = () => {
                 variant={plan.popular ? 'hero' : 'default'}
                 className="w-full"
                 size="lg"
+                asChild
               >
-                {plan.cta}
+                <Link to="/signup">{plan.cta}</Link>
               </Button>
             </div>
           ))}
@@ -160,16 +161,16 @@ const Pricing = () => {
 
         {/* Payment Methods */}
         <div className="mt-16 text-center">
-          <p className="text-muted-foreground mb-4">Secure payments via</p>
+          <p className="text-muted-foreground mb-4">নিরাপদ পেমেন্ট মাধ্যম</p>
           <div className="flex items-center justify-center gap-8 flex-wrap">
             <div className="px-4 py-2 rounded-lg bg-card border border-border text-foreground font-semibold">
-              bKash
+              বিকাশ
             </div>
             <div className="px-4 py-2 rounded-lg bg-card border border-border text-foreground font-semibold">
-              Nagad
+              নগদ
             </div>
             <div className="px-4 py-2 rounded-lg bg-card border border-border text-foreground font-semibold">
-              SSLCommerz
+              এসএসএল কমার্স
             </div>
           </div>
         </div>

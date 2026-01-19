@@ -13,38 +13,38 @@ import {
 const features = [
   {
     icon: Package,
-    title: 'Expiry & Batch Tracking',
-    description: 'Track medicines with batch numbers, expiry dates, and get alerts 30/60/90 days before expiration.',
+    title: 'মেয়াদ ও ব্যাচ ট্র্যাকিং',
+    description: '৩০/৬০/৯০ দিন আগে এক্সপায়ারি এলার্ট পান। ব্যাচ নম্বর সহ প্রতিটি ওষুধ ট্র্যাক করুন।',
     color: 'primary',
   },
   {
     icon: ShoppingCart,
-    title: 'Sales & Due Management',
-    description: 'Record daily cash and credit sales. Track customer dues with partial payments and send reminders.',
+    title: 'বিক্রয় ও বাকি হিসাব',
+    description: 'ক্যাশ ও বাকি বিক্রয় রেকর্ড করুন। কাস্টমার বাকি আংশিক পেমেন্ট সহ ট্র্যাক করুন।',
     color: 'secondary',
   },
   {
     icon: Truck,
-    title: 'Supplier Management',
-    description: 'Manage supplier payments, track dues, and generate comprehensive supplier reports.',
+    title: 'সাপ্লায়ার ম্যানেজমেন্ট',
+    description: 'সাপ্লায়ার পেমেন্ট, বাকি হিসাব এবং বিস্তারিত রিপোর্ট এক জায়গায়।',
     color: 'primary',
   },
   {
     icon: Wallet,
-    title: 'Daily Cash Flow',
-    description: 'Auto-calculated daily cash tracking. See opening balance, inflows, outflows, and closing balance.',
+    title: 'দৈনিক ক্যাশ ফ্লো',
+    description: 'স্বয়ংক্রিয় হিসাব — ওপেনিং, আয়, খরচ এবং ক্লোজিং ব্যালেন্স দেখুন।',
     color: 'secondary',
   },
   {
     icon: FileText,
-    title: 'Stock Short Lists',
-    description: 'Create manufacturer-based order lists. Track order status and share via WhatsApp.',
+    title: 'স্টক শর্ট লিস্ট',
+    description: 'ম্যানুফ্যাকচারার ভিত্তিক অর্ডার লিস্ট তৈরি করুন। হোয়াটসঅ্যাপে শেয়ার করুন।',
     color: 'primary',
   },
   {
     icon: TrendingUp,
-    title: 'Reports & Analytics',
-    description: 'Generate PDF reports for sales, suppliers, and cash flow with beautiful Bangladeshi Taka formatting.',
+    title: 'রিপোর্ট ও বিশ্লেষণ',
+    description: 'PDF রিপোর্ট — বিক্রয়, সাপ্লায়ার, ক্যাশ ফ্লো সবকিছু বাংলাদেশি টাকায় (৳)।',
     color: 'secondary',
   },
 ];
@@ -56,14 +56,14 @@ const Features = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent mb-6">
-            <span className="text-accent-foreground text-sm font-semibold">Powerful Features</span>
+            <span className="text-accent-foreground text-sm font-semibold">শক্তিশালী ফিচার</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
-            Complete Expiry & Financial Tracking
+            সম্পূর্ণ মেয়াদ ও আর্থিক ট্র্যাকিং
           </h2>
           <p className="text-lg text-muted-foreground">
-            A complete solution designed specifically for Bangladesh pharmacies. 
-            Track expiry, manage earnings, and control your finances from one dashboard.
+            বাংলাদেশি ফার্মেসির জন্য বিশেষভাবে তৈরি সম্পূর্ণ সমাধান। 
+            মেয়াদ ট্র্যাক করুন, আয় ম্যানেজ করুন, এক ড্যাশবোর্ড থেকে সব নিয়ন্ত্রণ করুন।
           </p>
         </div>
 
@@ -97,22 +97,22 @@ const Features = () => {
           <div className="flex items-center gap-4 p-5 rounded-xl bg-accent/50 border border-accent">
             <AlertTriangle className="w-8 h-8 text-warning" />
             <div>
-              <h4 className="font-semibold text-foreground">Expiry Alerts</h4>
-              <p className="text-sm text-muted-foreground">Never lose stock to expiration</p>
+              <h4 className="font-semibold text-foreground">এক্সপায়ারি এলার্ট</h4>
+              <p className="text-sm text-muted-foreground">স্টক নষ্ট হওয়ার আগেই জানুন</p>
             </div>
           </div>
           <div className="flex items-center gap-4 p-5 rounded-xl bg-accent/50 border border-accent">
             <Users className="w-8 h-8 text-primary" />
             <div>
-              <h4 className="font-semibold text-foreground">Staff Roles</h4>
-              <p className="text-sm text-muted-foreground">Granular permission control</p>
+              <h4 className="font-semibold text-foreground">স্টাফ রোল</h4>
+              <p className="text-sm text-muted-foreground">কে কী দেখতে পারবে সেটা নিয়ন্ত্রণ করুন</p>
             </div>
           </div>
           <div className="flex items-center gap-4 p-5 rounded-xl bg-accent/50 border border-accent">
             <Clock className="w-8 h-8 text-success" />
             <div>
-              <h4 className="font-semibold text-foreground">Real-time Sync</h4>
-              <p className="text-sm text-muted-foreground">Data updates instantly</p>
+              <h4 className="font-semibold text-foreground">রিয়েল-টাইম সিঙ্ক</h4>
+              <p className="text-sm text-muted-foreground">সব ডিভাইসে তাৎক্ষণিক আপডেট</p>
             </div>
           </div>
         </div>
