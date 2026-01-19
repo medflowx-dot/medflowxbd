@@ -6,17 +6,26 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Trash2, CheckCircle, ClipboardList, Package, Search } from 'lucide-react';
+import { Plus, Trash2, CheckCircle, ClipboardList, Package, Search, X } from 'lucide-react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useStockShortList } from '@/hooks/useStockShortList';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { useMedicines } from '@/hooks/useMedicines';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
+
+// Type for pending items in batch add
+interface PendingItem {
+  medicine_id: string;
+  medicine_name: string;
+  medicine_unit: string;
+  quantity: number;
+}
 
 export default function StockShortList() {
   const { notes, isLoading, createNote, addItem, deleteItem, completeNote, deleteNote } = useStockShortList();
@@ -26,6 +35,7 @@ export default function StockShortList() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [addItemDialogOpen, setAddItemDialogOpen] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const [isAddingItems, setIsAddingItems] = useState(false);
   
   const [newNote, setNewNote] = useState({
     note_date: new Date().toISOString().split('T')[0],
@@ -41,6 +51,9 @@ export default function StockShortList() {
   const [medicinePopoverOpen, setMedicinePopoverOpen] = useState(false);
   const [manufacturerSearch, setManufacturerSearch] = useState('');
   const [manufacturerPopoverOpen, setManufacturerPopoverOpen] = useState(false);
+
+  // Pending items for batch adding
+  const [pendingItems, setPendingItems] = useState<PendingItem[]>([]);
 
   // Filter active notes
   const activeNotes = notes.filter(n => n.status === 'active');
@@ -77,20 +90,71 @@ export default function StockShortList() {
     }
   };
 
-  const handleAddItem = async () => {
-    if (!selectedNoteId || !newItem.manufacturer_id || !newItem.medicine_id) return;
+  // Add medicine to pending list
+  const handleAddToPending = () => {
+    if (!newItem.medicine_id) return;
+    const medicine = medicines.find(m => m.id === newItem.medicine_id);
+    if (!medicine) return;
     
-    try {
-      await addItem({
-        note_id: selectedNoteId,
-        manufacturer_id: newItem.manufacturer_id,
-        medicine_id: newItem.medicine_id,
+    // Check if already exists, update quantity if so
+    const existingIndex = pendingItems.findIndex(
+      item => item.medicine_id === newItem.medicine_id
+    );
+    
+    if (existingIndex >= 0) {
+      const updated = [...pendingItems];
+      updated[existingIndex].quantity += newItem.quantity;
+      setPendingItems(updated);
+    } else {
+      setPendingItems([...pendingItems, {
+        medicine_id: medicine.id,
+        medicine_name: medicine.name,
+        medicine_unit: medicine.unit || 'pcs',
         quantity: newItem.quantity,
-      });
-      setAddItemDialogOpen(false);
-      setNewItem({ manufacturer_id: '', medicine_id: '', quantity: 1 });
+      }]);
+    }
+    
+    // Reset medicine selection but keep manufacturer
+    setNewItem({ ...newItem, medicine_id: '', quantity: 1 });
+    setMedicineSearch('');
+  };
+
+  // Remove from pending list
+  const handleRemoveFromPending = (medicineId: string) => {
+    setPendingItems(pendingItems.filter(item => item.medicine_id !== medicineId));
+  };
+
+  // Add all pending items to note
+  const handleAddAllItems = async () => {
+    if (!selectedNoteId || !newItem.manufacturer_id || pendingItems.length === 0) return;
+    
+    setIsAddingItems(true);
+    try {
+      for (const item of pendingItems) {
+        await addItem({
+          note_id: selectedNoteId,
+          manufacturer_id: newItem.manufacturer_id,
+          medicine_id: item.medicine_id,
+          quantity: item.quantity,
+        });
+      }
+      toast.success(`${pendingItems.length} টি আইটেম যোগ করা হয়েছে`);
+      handleDialogClose(false);
     } catch (error) {
       // handled in hook
+    } finally {
+      setIsAddingItems(false);
+    }
+  };
+
+  // Dialog close handler - reset all states
+  const handleDialogClose = (open: boolean) => {
+    setAddItemDialogOpen(open);
+    if (!open) {
+      setPendingItems([]);
+      setNewItem({ manufacturer_id: '', medicine_id: '', quantity: 1 });
+      setMedicineSearch('');
+      setManufacturerSearch('');
     }
   };
 
@@ -359,16 +423,17 @@ export default function StockShortList() {
         </div>
       )}
 
-      {/* Add Item Dialog */}
-      <Dialog open={addItemDialogOpen} onOpenChange={setAddItemDialogOpen}>
-        <DialogContent>
+      {/* Add Item Dialog - Batch Add */}
+      <Dialog open={addItemDialogOpen} onOpenChange={handleDialogClose}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Add Item to Note</DialogTitle>
+            <DialogTitle>Add Items to Note</DialogTitle>
             <DialogDescription>
-              Select manufacturer and medicine to add
+              একটি Manufacturer সিলেক্ট করে একাধিক Medicine যোগ করুন
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Manufacturer Selection */}
             <div className="space-y-2">
               <Label>Manufacturer *</Label>
               <Popover open={manufacturerPopoverOpen} onOpenChange={setManufacturerPopoverOpen}>
@@ -378,6 +443,7 @@ export default function StockShortList() {
                     role="combobox"
                     aria-expanded={manufacturerPopoverOpen}
                     className="w-full justify-between font-normal"
+                    disabled={pendingItems.length > 0}
                   >
                     {selectedManufacturer 
                       ? selectedManufacturer.name
@@ -404,6 +470,7 @@ export default function StockShortList() {
                               setNewItem({ ...newItem, manufacturer_id: mfg.id, medicine_id: '' });
                               setManufacturerPopoverOpen(false);
                               setManufacturerSearch('');
+                              setPendingItems([]); // Clear pending when manufacturer changes
                             }}
                           >
                             {mfg.name}
@@ -416,75 +483,126 @@ export default function StockShortList() {
               </Popover>
             </div>
 
-            <div className="space-y-2">
-              <Label>Medicine *</Label>
-              <Popover open={medicinePopoverOpen} onOpenChange={setMedicinePopoverOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={medicinePopoverOpen}
-                    className="w-full justify-between font-normal"
-                    disabled={!newItem.manufacturer_id}
-                  >
-                    {selectedMedicine 
-                      ? `${selectedMedicine.name} (${selectedMedicine.unit})`
-                      : newItem.manufacturer_id 
-                        ? "Search medicine..." 
-                        : "Select manufacturer first"
-                    }
-                    <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[300px] p-0" align="start">
-                  <Command>
-                    <CommandInput 
-                      placeholder="Search medicine..." 
-                      value={medicineSearch}
-                      onValueChange={setMedicineSearch}
-                    />
-                    <CommandList>
-                      <CommandEmpty>No medicine found.</CommandEmpty>
-                      <CommandGroup>
-                        {filteredMedicines.slice(0, 50).map((med) => (
-                          <CommandItem
-                            key={med.id}
-                            value={med.name}
-                            onSelect={() => {
-                              setNewItem({ ...newItem, medicine_id: med.id });
-                              setMedicinePopoverOpen(false);
-                              setMedicineSearch('');
-                            }}
+            {/* Medicine Add Section - Only show when manufacturer is selected */}
+            {newItem.manufacturer_id && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Add Medicines</Label>
+                  
+                  {/* Medicine + Quantity Row */}
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <Popover open={medicinePopoverOpen} onOpenChange={setMedicinePopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={medicinePopoverOpen}
+                            className="w-full justify-between font-normal text-sm h-9"
                           >
-                            {med.name} ({med.unit})
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
+                            {selectedMedicine 
+                              ? `${selectedMedicine.name}`
+                              : "Search medicine..."
+                            }
+                            <Search className="ml-1 h-3 w-3 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[280px] p-0" align="start">
+                          <Command>
+                            <CommandInput 
+                              placeholder="Search medicine..." 
+                              value={medicineSearch}
+                              onValueChange={setMedicineSearch}
+                            />
+                            <CommandList>
+                              <CommandEmpty>No medicine found.</CommandEmpty>
+                              <CommandGroup>
+                                {filteredMedicines.slice(0, 50).map((med) => (
+                                  <CommandItem
+                                    key={med.id}
+                                    value={med.name}
+                                    onSelect={() => {
+                                      setNewItem({ ...newItem, medicine_id: med.id });
+                                      setMedicinePopoverOpen(false);
+                                      setMedicineSearch('');
+                                    }}
+                                  >
+                                    {med.name} ({med.unit})
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={newItem.quantity}
+                      onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })}
+                      className="w-16 h-9 text-center"
+                      placeholder="Qty"
+                    />
+                    <Button 
+                      size="sm"
+                      className="h-9 px-3"
+                      onClick={handleAddToPending}
+                      disabled={!newItem.medicine_id}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <Label>Required Quantity *</Label>
-              <Input
-                type="number"
-                min={1}
-                value={newItem.quantity}
-                onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })}
-              />
-            </div>
+                {/* Pending Items List */}
+                {pendingItems.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium">
+                        Added Items ({pendingItems.length})
+                      </Label>
+                    </div>
+                    <div className="border rounded-md divide-y max-h-[200px] overflow-y-auto">
+                      {pendingItems.map((item) => (
+                        <div 
+                          key={item.medicine_id} 
+                          className="flex items-center justify-between px-3 py-2 text-sm"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <span className="font-medium truncate block">{item.medicine_name}</span>
+                            <span className="text-xs text-muted-foreground">({item.medicine_unit})</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary">{item.quantity}</Badge>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleRemoveFromPending(item.medicine_id)}
+                            >
+                              <X className="h-3 w-3 text-destructive" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
 
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setAddItemDialogOpen(false)}>
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => handleDialogClose(false)}>
                 Cancel
               </Button>
               <Button 
-                onClick={handleAddItem}
-                disabled={!newItem.manufacturer_id || !newItem.medicine_id}
+                onClick={handleAddAllItems}
+                disabled={pendingItems.length === 0 || isAddingItems}
               >
-                Add Item
+                {isAddingItems ? 'Adding...' : `Add All (${pendingItems.length})`}
               </Button>
             </div>
           </div>
