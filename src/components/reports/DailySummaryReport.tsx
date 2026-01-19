@@ -6,6 +6,7 @@ import { useDailySummaryReport, ReportDateRange } from '@/hooks/useReports';
 import { generateDailySummaryPDF } from '@/lib/pdfGenerator';
 import { Loader2, Download } from 'lucide-react';
 import { format } from 'date-fns';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DailySummaryReportProps {
   dateRange: ReportDateRange;
@@ -14,6 +15,7 @@ interface DailySummaryReportProps {
 export function DailySummaryReportView({ dateRange }: DailySummaryReportProps) {
   const { data, isLoading } = useDailySummaryReport(dateRange);
   const [exporting, setExporting] = useState(false);
+  const { t } = useLanguage();
 
   const handleExport = () => {
     if (!data) return;
@@ -61,33 +63,33 @@ export function DailySummaryReportView({ dateRange }: DailySummaryReportProps) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Daily Summary Report</CardTitle>
+          <CardTitle>{t.reports.dailySummaryReport}</CardTitle>
           <CardDescription>
             {format(dateRange.start, 'MMM dd, yyyy')} - {format(dateRange.end, 'MMM dd, yyyy')}
           </CardDescription>
         </div>
         <Button onClick={handleExport} disabled={!data?.length || exporting}>
           {exporting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-          Export PDF
+          {t.reports.exportPDF}
         </Button>
       </CardHeader>
       <CardContent>
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-4 mb-6">
           <div className="p-4 rounded-lg bg-primary/10">
-            <p className="text-sm text-muted-foreground">Total Sales</p>
+            <p className="text-sm text-muted-foreground">{t.reports.totalSales}</p>
             <p className="text-xl font-bold">৳{totals.totalSales.toLocaleString()}</p>
           </div>
           <div className="p-4 rounded-lg bg-green-500/10">
-            <p className="text-sm text-muted-foreground">Total Paid</p>
+            <p className="text-sm text-muted-foreground">{t.reports.totalPaid}</p>
             <p className="text-xl font-bold text-green-600">৳{totals.totalPaid.toLocaleString()}</p>
           </div>
           <div className="p-4 rounded-lg bg-red-500/10">
-            <p className="text-sm text-muted-foreground">Total Due</p>
+            <p className="text-sm text-muted-foreground">{t.reports.totalDue}</p>
             <p className="text-xl font-bold text-red-600">৳{totals.totalDue.toLocaleString()}</p>
           </div>
           <div className="p-4 rounded-lg bg-blue-500/10">
-            <p className="text-sm text-muted-foreground">Net Cash Flow</p>
+            <p className="text-sm text-muted-foreground">{t.reports.netCashFlow}</p>
             <p className={`text-xl font-bold ${totals.netCashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               ৳{totals.netCashFlow.toLocaleString()}
             </p>
@@ -99,21 +101,21 @@ export function DailySummaryReportView({ dateRange }: DailySummaryReportProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Sales</TableHead>
-                <TableHead className="text-right">Paid</TableHead>
-                <TableHead className="text-right">Due</TableHead>
-                <TableHead className="text-right">Due Collected</TableHead>
-                <TableHead className="text-right">Supplier Pay</TableHead>
-                <TableHead className="text-right">Costs</TableHead>
-                <TableHead className="text-right">Net Flow</TableHead>
+                <TableHead>{t.reports.date}</TableHead>
+                <TableHead className="text-right">{t.reports.sales}</TableHead>
+                <TableHead className="text-right">{t.reports.paid}</TableHead>
+                <TableHead className="text-right">{t.reports.due}</TableHead>
+                <TableHead className="text-right">{t.reports.dueCollected}</TableHead>
+                <TableHead className="text-right">{t.reports.supplierPay}</TableHead>
+                <TableHead className="text-right">{t.reports.costs}</TableHead>
+                <TableHead className="text-right">{t.reports.netFlow}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {!data?.length ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                    No data for selected period
+                    {t.reports.noDataForPeriod}
                   </TableCell>
                 </TableRow>
               ) : (

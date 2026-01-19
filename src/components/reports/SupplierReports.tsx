@@ -17,6 +17,7 @@ import {
   generateIndividualSupplierPDF, 
   generateAllSuppliersPDF 
 } from '@/lib/pdfGenerator';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SupplierReportsProps {
   dateRange: ReportDateRange;
@@ -24,6 +25,7 @@ interface SupplierReportsProps {
 
 export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
   const [selectedSupplierId, setSelectedSupplierId] = useState<string>('');
+  const { t } = useLanguage();
   
   const { data: suppliers, isLoading: suppliersLoading } = useSuppliersList();
   const { data: individualReport, isLoading: individualLoading } = useIndividualSupplierReport(
@@ -44,24 +46,15 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
     }
   };
 
-  const handleExportSingleFromList = async (supplierId: string) => {
-    // Fetch individual report for this supplier
-    const supplier = allSuppliersReport?.suppliers.find(s => s.id === supplierId);
-    if (!supplier) return;
-
-    // For quick export from list, we'll generate a simplified report
-    setSelectedSupplierId(supplierId);
-  };
-
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
-          সাপ্লায়ার রিপোর্ট
+          {t.reports.supplierReportsTitle}
         </CardTitle>
         <CardDescription>
-          প্রতিটি সাপ্লায়ারের আলাদা রিপোর্ট বা সকল সাপ্লায়ারের সামারি রিপোর্ট বের করুন
+          {t.reports.supplierReportsDesc}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -69,11 +62,11 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="individual" className="flex items-center gap-2">
               <User className="h-4 w-4" />
-              Individual Report
+              {t.reports.individualReport}
             </TabsTrigger>
             <TabsTrigger value="all" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              All Suppliers
+              {t.reports.allSuppliers}
             </TabsTrigger>
           </TabsList>
 
@@ -82,11 +75,11 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
             <div className="flex flex-wrap items-center gap-4">
               <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
                 <SelectTrigger className="w-[250px]">
-                  <SelectValue placeholder="সাপ্লায়ার নির্বাচন করুন" />
+                  <SelectValue placeholder={t.reports.selectSupplier} />
                 </SelectTrigger>
                 <SelectContent>
                   {suppliersLoading ? (
-                    <SelectItem value="loading" disabled>Loading...</SelectItem>
+                    <SelectItem value="loading" disabled>{t.reports.loading}</SelectItem>
                   ) : (
                     suppliers?.map((supplier) => (
                       <SelectItem key={supplier.id} value={supplier.id}>
@@ -103,7 +96,7 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                 className="gap-2"
               >
                 <Download className="h-4 w-4" />
-                Export PDF
+                {t.reports.exportPDF}
               </Button>
             </div>
 
@@ -129,29 +122,29 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <Card>
                     <CardContent className="pt-4">
-                      <p className="text-sm text-muted-foreground">Period Purchase</p>
+                      <p className="text-sm text-muted-foreground">{t.reports.periodPurchase}</p>
                       <p className="text-xl font-bold text-blue-600">
                         ৳{individualReport.summary.totalPurchases.toLocaleString()}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {individualReport.summary.purchaseCount} entries
+                        {individualReport.summary.purchaseCount} {t.reports.entries}
                       </p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="pt-4">
-                      <p className="text-sm text-muted-foreground">Period Payment</p>
+                      <p className="text-sm text-muted-foreground">{t.reports.periodPayment}</p>
                       <p className="text-xl font-bold text-green-600">
                         ৳{individualReport.summary.totalPayments.toLocaleString()}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {individualReport.summary.paymentCount} entries
+                        {individualReport.summary.paymentCount} {t.reports.entries}
                       </p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="pt-4">
-                      <p className="text-sm text-muted-foreground">Total Paid</p>
+                      <p className="text-sm text-muted-foreground">{t.reports.totalPaid}</p>
                       <p className="text-xl font-bold">
                         ৳{individualReport.supplier.total_paid.toLocaleString()}
                       </p>
@@ -159,7 +152,7 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                   </Card>
                   <Card>
                     <CardContent className="pt-4">
-                      <p className="text-sm text-muted-foreground">Current Due</p>
+                      <p className="text-sm text-muted-foreground">{t.reports.currentDue}</p>
                       <p className="text-xl font-bold text-red-600">
                         ৳{individualReport.summary.currentDue.toLocaleString()}
                       </p>
@@ -169,19 +162,19 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
 
                 {/* Purchase History */}
                 <div>
-                  <h4 className="font-semibold mb-2">Purchase History (Selected Period)</h4>
+                  <h4 className="font-semibold mb-2">{t.reports.purchaseHistory}</h4>
                   {individualReport.purchases.length === 0 ? (
-                    <p className="text-sm text-muted-foreground py-4">No purchases in selected period</p>
+                    <p className="text-sm text-muted-foreground py-4">{t.reports.noPurchasesInPeriod}</p>
                   ) : (
                     <div className="border rounded-lg overflow-hidden">
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Invoice</TableHead>
-                            <TableHead className="text-right">Amount</TableHead>
-                            <TableHead className="text-right">Paid</TableHead>
-                            <TableHead className="text-right">Due</TableHead>
+                            <TableHead>{t.reports.date}</TableHead>
+                            <TableHead>{t.reports.invoice}</TableHead>
+                            <TableHead className="text-right">{t.reports.amount}</TableHead>
+                            <TableHead className="text-right">{t.reports.paid}</TableHead>
+                            <TableHead className="text-right">{t.reports.due}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -202,18 +195,18 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
 
                 {/* Payment History */}
                 <div>
-                  <h4 className="font-semibold mb-2">Payment History (Selected Period)</h4>
+                  <h4 className="font-semibold mb-2">{t.reports.paymentHistory}</h4>
                   {individualReport.payments.length === 0 ? (
-                    <p className="text-sm text-muted-foreground py-4">No payments in selected period</p>
+                    <p className="text-sm text-muted-foreground py-4">{t.reports.noPaymentsInPeriod}</p>
                   ) : (
                     <div className="border rounded-lg overflow-hidden">
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Date</TableHead>
-                            <TableHead className="text-right">Amount</TableHead>
-                            <TableHead>Method</TableHead>
-                            <TableHead>Reference</TableHead>
+                            <TableHead>{t.reports.date}</TableHead>
+                            <TableHead className="text-right">{t.reports.amount}</TableHead>
+                            <TableHead>{t.reports.method}</TableHead>
+                            <TableHead>{t.reports.reference}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -238,7 +231,7 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
             {!selectedSupplierId && (
               <div className="text-center py-8 text-muted-foreground">
                 <User className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>সাপ্লায়ার নির্বাচন করুন রিপোর্ট দেখতে</p>
+                <p>{t.reports.selectSupplierToView}</p>
               </div>
             )}
           </TabsContent>
@@ -252,7 +245,7 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                 className="gap-2"
               >
                 <Download className="h-4 w-4" />
-                Export All PDF
+                {t.reports.exportAllPDF}
               </Button>
             </div>
 
@@ -266,13 +259,13 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <Card>
                     <CardContent className="pt-4">
-                      <p className="text-sm text-muted-foreground">Total Suppliers</p>
+                      <p className="text-sm text-muted-foreground">{t.reports.totalSuppliers}</p>
                       <p className="text-2xl font-bold">{allSuppliersReport.summary.supplierCount}</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="pt-4">
-                      <p className="text-sm text-muted-foreground">Period Purchase</p>
+                      <p className="text-sm text-muted-foreground">{t.reports.periodPurchase}</p>
                       <p className="text-2xl font-bold text-blue-600">
                         ৳{allSuppliersReport.summary.totalPurchases.toLocaleString()}
                       </p>
@@ -280,7 +273,7 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                   </Card>
                   <Card>
                     <CardContent className="pt-4">
-                      <p className="text-sm text-muted-foreground">Period Payment</p>
+                      <p className="text-sm text-muted-foreground">{t.reports.periodPayment}</p>
                       <p className="text-2xl font-bold text-green-600">
                         ৳{allSuppliersReport.summary.totalPayments.toLocaleString()}
                       </p>
@@ -288,7 +281,7 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                   </Card>
                   <Card>
                     <CardContent className="pt-4">
-                      <p className="text-sm text-muted-foreground">Total Due</p>
+                      <p className="text-sm text-muted-foreground">{t.reports.totalDue}</p>
                       <p className="text-2xl font-bold text-red-600">
                         ৳{allSuppliersReport.summary.totalDue.toLocaleString()}
                       </p>
@@ -301,12 +294,12 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Supplier</TableHead>
-                        <TableHead>Phone</TableHead>
-                        <TableHead className="text-right">Purchases</TableHead>
-                        <TableHead className="text-right">Payments</TableHead>
-                        <TableHead className="text-right">Current Due</TableHead>
-                        <TableHead className="text-center">Actions</TableHead>
+                        <TableHead>{t.reports.supplier}</TableHead>
+                        <TableHead>{t.reports.phone}</TableHead>
+                        <TableHead className="text-right">{t.reports.purchases}</TableHead>
+                        <TableHead className="text-right">{t.reports.payments}</TableHead>
+                        <TableHead className="text-right">{t.reports.currentDue}</TableHead>
+                        <TableHead className="text-center">{t.reports.actions}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -330,7 +323,7 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                             {supplier.dueAmount > 0 ? (
                               <span className="text-red-600 font-medium">৳{supplier.dueAmount.toLocaleString()}</span>
                             ) : (
-                              <Badge variant="outline" className="bg-green-50 text-green-700">Paid</Badge>
+                              <Badge variant="outline" className="bg-green-50 text-green-700">{t.reports.paid}</Badge>
                             )}
                           </TableCell>
                           <TableCell className="text-center">
@@ -341,7 +334,7 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                               className="gap-1"
                             >
                               <FileText className="h-4 w-4" />
-                              View
+                              {t.reports.view}
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -353,7 +346,7 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                 {allSuppliersReport.suppliers.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
                     <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>No suppliers found</p>
+                    <p>{t.reports.noSuppliersFound}</p>
                   </div>
                 )}
               </div>
