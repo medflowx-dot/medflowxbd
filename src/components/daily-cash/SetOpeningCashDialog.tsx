@@ -10,10 +10,28 @@ import { format } from 'date-fns';
 
 interface SetOpeningCashDialogProps {
   date: Date;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
 }
 
-export function SetOpeningCashDialog({ date }: SetOpeningCashDialogProps) {
-  const [open, setOpen] = useState(false);
+export function SetOpeningCashDialog({ 
+  date, 
+  open: externalOpen, 
+  onOpenChange: externalOnOpenChange,
+  showTrigger = true 
+}: SetOpeningCashDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  const isControlled = externalOpen !== undefined;
+  const open = isControlled ? externalOpen : internalOpen;
+  const setOpen = (value: boolean) => {
+    if (isControlled && externalOnOpenChange) {
+      externalOnOpenChange(value);
+    } else {
+      setInternalOpen(value);
+    }
+  };
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
 
@@ -45,12 +63,14 @@ export function SetOpeningCashDialog({ date }: SetOpeningCashDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="flex-1 sm:flex-none">
-          <Wallet className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">Set Opening</span>
-        </Button>
-      </DialogTrigger>
+      {showTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="outline" className="flex-1 sm:flex-none">
+            <Wallet className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Set Opening</span>
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>

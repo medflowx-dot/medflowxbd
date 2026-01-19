@@ -13,6 +13,7 @@ import { generateDailyClosingCashPDF, type DailyTransaction } from '@/lib/pdfGen
 export default function DailyCash() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [exporting, setExporting] = useState(false);
+  const [openingCashDialogOpen, setOpeningCashDialogOpen] = useState(false);
 
   const { data: summary } = useDailyCashSummary(selectedDate);
   const { data: sales } = useDailySales(selectedDate);
@@ -121,7 +122,11 @@ export default function DailyCash() {
           </div>
 
           <div className="grid grid-cols-3 sm:flex gap-2">
-            <SetOpeningCashDialog date={selectedDate} />
+            <SetOpeningCashDialog 
+              date={selectedDate} 
+              open={openingCashDialogOpen}
+              onOpenChange={setOpeningCashDialogOpen}
+            />
             <AddCostDialog date={selectedDate} />
             
             {/* Export PDF Button */}
@@ -151,7 +156,7 @@ export default function DailyCash() {
       </div>
 
       {/* Cash Flow Summary Cards */}
-      <CashFlowSummary date={selectedDate} />
+      <CashFlowSummary date={selectedDate} onEditOpeningCash={() => setOpeningCashDialogOpen(true)} />
 
       {/* Transactions List */}
       <DailyTransactionsList date={selectedDate} />
