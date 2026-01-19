@@ -34,10 +34,15 @@ export function useSubscriptionStatus() {
         };
       }
 
+      // Get the pharmacy owner ID (for staff, this returns their admin's ID)
+      const { data: ownerIdResult } = await supabase.rpc('get_pharmacy_owner_id', { _user_id: user.id });
+      
+      const ownerId = ownerIdResult || user.id;
+
       const { data: subscription, error } = await supabase
         .from('subscriptions')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', ownerId)
         .single();
 
       if (error || !subscription) {
