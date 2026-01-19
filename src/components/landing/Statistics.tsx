@@ -33,7 +33,7 @@ const stats = [
 
 const Statistics = () => {
   return (
-    <section className="py-16 md:py-24 bg-hero-gradient relative overflow-hidden">
+    <section className="pt-8 pb-16 md:pt-12 md:pb-24 bg-hero-gradient relative overflow-hidden">
       
       {/* Decorative Elements */}
       <div className="absolute top-20 left-0 w-64 h-64 bg-primary-foreground/5 rounded-full blur-3xl" />
