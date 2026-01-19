@@ -1,17 +1,18 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-
-const supplierTabs = [
-  { label: 'Supplier List', path: '/dashboard/suppliers' },
-  { label: 'Stock Short', path: '/dashboard/suppliers/stock-short' },
-  { label: 'Pending', path: '/dashboard/suppliers/pending' },
-  { label: 'Ordered', path: '/dashboard/suppliers/ordered' },
-  { label: 'Received', path: '/dashboard/suppliers/received' },
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Suppliers() {
   const location = useLocation();
+  const { t } = useLanguage();
+
+  const supplierTabs = [
+    { label: t.suppliers.supplierList, path: '/dashboard/suppliers' },
+    { label: t.suppliers.stockShort, path: '/dashboard/suppliers/stock-short' },
+    { label: t.suppliers.pending, path: '/dashboard/suppliers/pending' },
+    { label: t.suppliers.ordered, path: '/dashboard/suppliers/ordered' },
+    { label: t.suppliers.received, path: '/dashboard/suppliers/received' },
+  ];
 
   return (
     <div className="space-y-6">

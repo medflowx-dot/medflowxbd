@@ -313,6 +313,71 @@ export const en = {
     processing: 'Processing...',
     completeSale: 'Complete Sale',
   },
+
+  // Suppliers Page
+  suppliers: {
+    // Tabs
+    supplierList: 'Supplier List',
+    stockShort: 'Stock Short',
+    pending: 'Pending',
+    ordered: 'Ordered',
+    received: 'Received',
+    // Page title
+    title: 'Supplier List',
+    subtitle: 'Manage your medicine suppliers',
+    // Stats cards
+    totalSuppliers: 'Total Suppliers',
+    withDue: 'With Due',
+    totalPaid: 'Total Paid',
+    totalDue: 'Total Due',
+    // Table section
+    allSuppliers: 'All Suppliers',
+    supplierDetails: 'Your medicine suppliers and their details',
+    searchSuppliers: 'Search suppliers...',
+    // Table headers
+    supplier: 'Supplier',
+    manufacturer: 'Manufacturer',
+    contact: 'Contact',
+    actions: 'Actions',
+    // Empty states
+    noSuppliersAdded: 'No suppliers added',
+    addSuppliersDesc: 'Add your medicine suppliers to track orders and payments.',
+    noSuppliersMatch: 'No suppliers found matching your search.',
+    noSuppliersYet: 'No suppliers added yet.',
+    // Actions
+    setManufacturer: 'Set Manufacturer',
+    saving: 'Saving...',
+    quickReport: 'Quick Report',
+    recordPayment: 'Record Payment',
+    // Delete dialog
+    deleteSupplier: 'Delete Supplier',
+    deleteSupplierDesc: 'This will permanently delete this supplier and all their payment history. This action cannot be undone.',
+    // Add/Edit dialog
+    addSupplier: 'Add Supplier',
+    editSupplier: 'Edit Supplier',
+    addNewSupplier: 'Add New Supplier',
+    updateSupplierInfo: 'Update supplier information',
+    addMedicineSupplier: 'Add a new medicine supplier',
+    supplierName: 'Supplier Name',
+    enterSupplierName: 'Enter supplier name',
+    selectManufacturer: 'Select manufacturer',
+    manufacturerRequired: 'Manufacturer *',
+    noManufacturersFound: 'No manufacturers found',
+    eachSupplierLinked: 'Each supplier is linked to one manufacturer',
+    whatsapp: 'WhatsApp',
+    whatsappNumber: 'WhatsApp number',
+    phoneNumber: 'Phone number',
+    emailAddress: 'Email address',
+    contactPerson: 'Contact Person',
+    contactPersonName: 'Contact person name',
+    supplierAddress: 'Supplier address',
+    additionalNotes: 'Additional notes',
+    updateSupplier: 'Update Supplier',
+    // Report
+    supplierReport: 'Supplier Report',
+    selectDateRange: 'Select a date range for the report',
+    pdfDownloaded: 'PDF রিপোর্ট ডাউনলোড হয়েছে',
+  },
 };
 
 export type TranslationKeys = typeof en;

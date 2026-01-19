@@ -315,4 +315,69 @@ export const bn: TranslationKeys = {
     processing: 'প্রসেসিং...',
     completeSale: 'বিক্রয় সম্পন্ন করুন',
   },
+
+  // Suppliers Page
+  suppliers: {
+    // Tabs
+    supplierList: 'সরবরাহকারী তালিকা',
+    stockShort: 'স্টক শর্ট',
+    pending: 'পেন্ডিং',
+    ordered: 'অর্ডারকৃত',
+    received: 'প্রাপ্ত',
+    // Page title
+    title: 'সরবরাহকারী তালিকা',
+    subtitle: 'আপনার ঔষধ সরবরাহকারীদের ব্যবস্থাপনা করুন',
+    // Stats cards
+    totalSuppliers: 'মোট সরবরাহকারী',
+    withDue: 'বকেয়াসহ',
+    totalPaid: 'মোট পরিশোধিত',
+    totalDue: 'মোট বকেয়া',
+    // Table section
+    allSuppliers: 'সব সরবরাহকারী',
+    supplierDetails: 'আপনার ঔষধ সরবরাহকারী এবং তাদের বিবরণ',
+    searchSuppliers: 'সরবরাহকারী খুঁজুন...',
+    // Table headers
+    supplier: 'সরবরাহকারী',
+    manufacturer: 'প্রস্তুতকারক',
+    contact: 'যোগাযোগ',
+    actions: 'অ্যাকশন',
+    // Empty states
+    noSuppliersAdded: 'কোনো সরবরাহকারী যোগ করা হয়নি',
+    addSuppliersDesc: 'অর্ডার ও পেমেন্ট ট্র্যাক করতে আপনার ঔষধ সরবরাহকারী যোগ করুন।',
+    noSuppliersMatch: 'আপনার অনুসন্ধানের সাথে কোনো সরবরাহকারী মেলেনি।',
+    noSuppliersYet: 'এখনো কোনো সরবরাহকারী যোগ করা হয়নি।',
+    // Actions
+    setManufacturer: 'প্রস্তুতকারক সেট করুন',
+    saving: 'সংরক্ষণ হচ্ছে...',
+    quickReport: 'কুইক রিপোর্ট',
+    recordPayment: 'পেমেন্ট রেকর্ড করুন',
+    // Delete dialog
+    deleteSupplier: 'সরবরাহকারী মুছুন',
+    deleteSupplierDesc: 'এটি স্থায়ীভাবে এই সরবরাহকারী এবং তাদের সমস্ত পেমেন্ট ইতিহাস মুছে ফেলবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।',
+    // Add/Edit dialog
+    addSupplier: 'সরবরাহকারী যোগ করুন',
+    editSupplier: 'সরবরাহকারী সম্পাদনা',
+    addNewSupplier: 'নতুন সরবরাহকারী যোগ করুন',
+    updateSupplierInfo: 'সরবরাহকারীর তথ্য আপডেট করুন',
+    addMedicineSupplier: 'নতুন ঔষধ সরবরাহকারী যোগ করুন',
+    supplierName: 'সরবরাহকারীর নাম',
+    enterSupplierName: 'সরবরাহকারীর নাম লিখুন',
+    selectManufacturer: 'প্রস্তুতকারক নির্বাচন করুন',
+    manufacturerRequired: 'প্রস্তুতকারক *',
+    noManufacturersFound: 'কোনো প্রস্তুতকারক পাওয়া যায়নি',
+    eachSupplierLinked: 'প্রতিটি সরবরাহকারী একটি প্রস্তুতকারকের সাথে সংযুক্ত',
+    whatsapp: 'হোয়াটসঅ্যাপ',
+    whatsappNumber: 'হোয়াটসঅ্যাপ নম্বর',
+    phoneNumber: 'ফোন নম্বর',
+    emailAddress: 'ইমেইল ঠিকানা',
+    contactPerson: 'যোগাযোগ ব্যক্তি',
+    contactPersonName: 'যোগাযোগ ব্যক্তির নাম',
+    supplierAddress: 'সরবরাহকারীর ঠিকানা',
+    additionalNotes: 'অতিরিক্ত নোট',
+    updateSupplier: 'সরবরাহকারী আপডেট করুন',
+    // Report
+    supplierReport: 'সরবরাহকারী রিপোর্ট',
+    selectDateRange: 'রিপোর্টের জন্য তারিখ পরিসীমা নির্বাচন করুন',
+    pdfDownloaded: 'PDF রিপোর্ট ডাউনলোড হয়েছে',
+  },
 };

@@ -15,6 +15,7 @@ import { QuickReportDialog } from '@/components/reports/QuickReportDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { generateIndividualSupplierPDF } from '@/lib/pdfGenerator';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SupplierTableProps {
   suppliers: Supplier[];
@@ -28,6 +29,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const { t } = useLanguage();
 
   const handleQuickReportClick = (supplier: Supplier) => {
     setSelectedSupplier(supplier);
@@ -40,7 +42,6 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
     const startDate = dateRange.start.toISOString().split('T')[0];
     const endDate = dateRange.end.toISOString().split('T')[0];
 
-    // Fetch purchases in date range
     const { data: purchases, error: purchasesError } = await supabase
       .from('supplier_purchases')
       .select('id, purchase_date, invoice_number, total_amount, paid_amount, due_amount, notes')
@@ -51,7 +52,6 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
 
     if (purchasesError) throw purchasesError;
 
-    // Fetch payments in date range
     const { data: payments, error: paymentsError } = await supabase
       .from('supplier_payments')
       .select('id, payment_date, amount, payment_method, reference_number, notes')
@@ -62,7 +62,6 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
 
     if (paymentsError) throw paymentsError;
 
-    // Calculate summary
     const totalPurchases = purchases?.reduce((sum, p) => sum + Number(p.total_amount), 0) || 0;
     const totalPayments = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
 
@@ -88,7 +87,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
     };
 
     generateIndividualSupplierPDF(reportData, dateRange);
-    toast.success('PDF রিপোর্ট ডাউনলোড হয়েছে');
+    toast.success(t.suppliers.pdfDownloaded);
   };
 
   const filteredSuppliers = suppliers.filter((supplier) =>
@@ -116,7 +115,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
   if (filteredSuppliers.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        {searchQuery ? 'No suppliers found matching your search.' : 'No suppliers added yet.'}
+        {searchQuery ? t.suppliers.noSuppliersMatch : t.suppliers.noSuppliersYet}
       </div>
     );
   }
@@ -127,12 +126,12 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Supplier</TableHead>
-              <TableHead className="hidden md:table-cell">Manufacturer</TableHead>
-              <TableHead className="hidden sm:table-cell">Contact</TableHead>
-              <TableHead className="text-right">Total Paid</TableHead>
-              <TableHead className="text-right">Total Due</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
+              <TableHead>{t.suppliers.supplier}</TableHead>
+              <TableHead className="hidden md:table-cell">{t.suppliers.manufacturer}</TableHead>
+              <TableHead className="hidden sm:table-cell">{t.suppliers.contact}</TableHead>
+              <TableHead className="text-right">{t.suppliers.totalPaid}</TableHead>
+              <TableHead className="text-right">{t.suppliers.totalDue}</TableHead>
+              <TableHead className="w-[100px]">{t.suppliers.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -156,7 +155,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                         disabled={updatingId === supplier.id}
                       >
                         {updatingId === supplier.id ? (
-                          <span className="text-xs">Saving...</span>
+                          <span className="text-xs">{t.suppliers.saving}</span>
                         ) : supplier.manufacturer?.name ? (
                           <span className="flex items-center gap-1">
                             <Building2 className="h-3 w-3" />
@@ -165,7 +164,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                         ) : (
                           <span className="flex items-center gap-1 text-xs">
                             <Plus className="h-3 w-3" />
-                            Set Manufacturer
+                            {t.suppliers.setManufacturer}
                           </span>
                         )}
                       </Button>
@@ -176,10 +175,10 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                         onValueChange={(value) => handleManufacturerChange(supplier.id, value)}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select manufacturer" />
+                          <SelectValue placeholder={t.suppliers.selectManufacturer} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
+                          <SelectItem value="none">{t.medicines.none}</SelectItem>
                           {manufacturers.map((m) => (
                             <SelectItem key={m.id} value={m.id}>
                               {m.name}
@@ -221,7 +220,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                     <Button 
                       size="icon" 
                       variant="ghost" 
-                      title="Quick Report"
+                      title={t.suppliers.quickReport}
                       onClick={() => handleQuickReportClick(supplier)}
                     >
                       <FileText className="h-4 w-4" />
@@ -230,7 +229,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                       <SupplierPaymentDialog
                         supplier={supplier}
                         trigger={
-                          <Button size="icon" variant="ghost" title="Record Payment">
+                          <Button size="icon" variant="ghost" title={t.suppliers.recordPayment}>
                             <CreditCard className="h-4 w-4" />
                           </Button>
                         }
@@ -248,7 +247,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                           trigger={
                             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                               <Pencil className="h-4 w-4 mr-2" />
-                              Edit
+                              {t.actions.edit}
                             </DropdownMenuItem>
                           }
                         />
@@ -257,7 +256,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                           onClick={() => setDeleteId(supplier.id)}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
+                          {t.actions.delete}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -272,15 +271,15 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Supplier</AlertDialogTitle>
+            <AlertDialogTitle>{t.suppliers.deleteSupplier}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this supplier and all their payment history. This action cannot be undone.
+              {t.suppliers.deleteSupplierDesc}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              {t.actions.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -289,8 +288,8 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
       <QuickReportDialog
         open={reportDialogOpen}
         onOpenChange={setReportDialogOpen}
-        title={`Supplier Report: ${selectedSupplier?.name || ''}`}
-        description="Select a date range for the report"
+        title={`${t.suppliers.supplierReport}: ${selectedSupplier?.name || ''}`}
+        description={t.suppliers.selectDateRange}
         onGenerate={handleGenerateReport}
       />
     </>

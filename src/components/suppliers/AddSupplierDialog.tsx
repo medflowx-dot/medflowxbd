@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus } from 'lucide-react';
 import { useSuppliers, Supplier } from '@/hooks/useSuppliers';
 import { useManufacturers } from '@/hooks/useManufacturers';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AddSupplierDialogProps {
   supplier?: Supplier;
@@ -19,6 +20,7 @@ export function AddSupplierDialog({ supplier, trigger, onSuccess }: AddSupplierD
   const [open, setOpen] = useState(false);
   const { addSupplier, updateSupplier } = useSuppliers();
   const { manufacturers, isLoading: loadingManufacturers } = useManufacturers();
+  const { t } = useLanguage();
   const isEditing = !!supplier;
 
   const [formData, setFormData] = useState({
@@ -32,7 +34,6 @@ export function AddSupplierDialog({ supplier, trigger, onSuccess }: AddSupplierD
     manufacturer_id: supplier?.manufacturer_id ?? '',
   });
 
-  // Reset form when supplier prop changes
   useEffect(() => {
     if (supplier) {
       setFormData({
@@ -90,45 +91,45 @@ export function AddSupplierDialog({ supplier, trigger, onSuccess }: AddSupplierD
         {trigger ?? (
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Add Supplier
+            {t.suppliers.addSupplier}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Supplier' : 'Add New Supplier'}</DialogTitle>
+          <DialogTitle>{isEditing ? t.suppliers.editSupplier : t.suppliers.addNewSupplier}</DialogTitle>
           <DialogDescription>
-            {isEditing ? 'Update supplier information' : 'Add a new medicine supplier'}
+            {isEditing ? t.suppliers.updateSupplierInfo : t.suppliers.addMedicineSupplier}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Supplier Name *</Label>
+            <Label htmlFor="name">{t.suppliers.supplierName} *</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Enter supplier name"
+              placeholder={t.suppliers.enterSupplierName}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="manufacturer_id">Manufacturer *</Label>
+            <Label htmlFor="manufacturer_id">{t.suppliers.manufacturerRequired}</Label>
             <Select
               value={formData.manufacturer_id}
               onValueChange={(value) => setFormData({ ...formData, manufacturer_id: value })}
               required
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select manufacturer" />
+                <SelectValue placeholder={t.suppliers.selectManufacturer} />
               </SelectTrigger>
               <SelectContent>
                 {loadingManufacturers ? (
-                  <SelectItem value="" disabled>Loading...</SelectItem>
+                  <SelectItem value="" disabled>{t.messages.loading}</SelectItem>
                 ) : manufacturers.length === 0 ? (
-                  <SelectItem value="" disabled>No manufacturers found</SelectItem>
+                  <SelectItem value="" disabled>{t.suppliers.noManufacturersFound}</SelectItem>
                 ) : (
                   manufacturers.map((mfg) => (
                     <SelectItem key={mfg.id} value={mfg.id}>
@@ -139,80 +140,80 @@ export function AddSupplierDialog({ supplier, trigger, onSuccess }: AddSupplierD
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Each supplier is linked to one manufacturer
+              {t.suppliers.eachSupplierLinked}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{t.labels.phone}</Label>
               <Input
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="Phone number"
+                placeholder={t.suppliers.phoneNumber}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="whatsapp_number">WhatsApp</Label>
+              <Label htmlFor="whatsapp_number">{t.suppliers.whatsapp}</Label>
               <Input
                 id="whatsapp_number"
                 value={formData.whatsapp_number}
                 onChange={(e) => setFormData({ ...formData, whatsapp_number: e.target.value })}
-                placeholder="WhatsApp number"
+                placeholder={t.suppliers.whatsappNumber}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t.labels.email}</Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="Email address"
+              placeholder={t.suppliers.emailAddress}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="contact_person">Contact Person</Label>
+            <Label htmlFor="contact_person">{t.suppliers.contactPerson}</Label>
             <Input
               id="contact_person"
               value={formData.contact_person}
               onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
-              placeholder="Contact person name"
+              placeholder={t.suppliers.contactPersonName}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address">Address</Label>
+            <Label htmlFor="address">{t.labels.address}</Label>
             <Textarea
               id="address"
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              placeholder="Supplier address"
+              placeholder={t.suppliers.supplierAddress}
               rows={2}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">{t.labels.notes}</Label>
             <Textarea
               id="notes"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Additional notes"
+              placeholder={t.suppliers.additionalNotes}
               rows={2}
             />
           </div>
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+              {t.actions.cancel}
             </Button>
             <Button type="submit" disabled={!formData.manufacturer_id}>
-              {isEditing ? 'Update Supplier' : 'Add Supplier'}
+              {isEditing ? t.suppliers.updateSupplier : t.suppliers.addSupplier}
             </Button>
           </div>
         </form>
