@@ -35,7 +35,10 @@ export function useSubscriptionStatus() {
       }
 
       // Get the pharmacy owner ID (for staff, this returns their admin's ID)
-      const { data: ownerIdResult } = await supabase.rpc('get_pharmacy_owner_id', { _user_id: user.id });
+      const { data: ownerIdResult, error: rpcError } = await supabase.rpc('get_pharmacy_owner_id', { _user_id: user.id });
+      
+      console.log('[Subscription] User ID:', user.id);
+      console.log('[Subscription] Owner ID Result:', ownerIdResult, 'RPC Error:', rpcError);
       
       const ownerId = ownerIdResult || user.id;
 
@@ -45,7 +48,10 @@ export function useSubscriptionStatus() {
         .eq('user_id', ownerId)
         .single();
 
+      console.log('[Subscription] Subscription data:', subscription, 'Error:', error);
+
       if (error || !subscription) {
+        console.log('[Subscription] No subscription found, returning expired status');
         return {
           isActive: false,
           isTrial: false,
