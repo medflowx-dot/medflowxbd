@@ -8,6 +8,7 @@ import { useCustomers, useCustomerDuesSummary, useDeleteCustomer, shareViaWhatsA
 import { supabase } from '@/integrations/supabase/client';
 import { generateIndividualCustomerPDF } from '@/lib/pdfGenerator';
 import { toast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { AddCustomerDialog } from '@/components/customer-dues/AddCustomerDialog';
 import { AddDueDialog } from '@/components/customer-dues/AddDueDialog';
 import { RecordPaymentDialog } from '@/components/customer-dues/RecordPaymentDialog';
@@ -47,6 +48,7 @@ export default function CustomerDues() {
   const { data: customers, isLoading } = useCustomers();
   const { data: summary } = useCustomerDuesSummary();
   const deleteCustomer = useDeleteCustomer();
+  const { t } = useLanguage();
 
   const handleQuickReportClick = (customer: Customer) => {
     setReportCustomer(customer);
@@ -86,8 +88,8 @@ export default function CustomerDues() {
 
     generateIndividualCustomerPDF(reportData, dateRange);
     toast({
-      title: 'Report Generated',
-      description: `PDF report for ${reportCustomer.name} has been downloaded.`,
+      title: t.customerDues.reportGenerated,
+      description: t.customerDues.pdfDownloaded.replace('{name}', reportCustomer.name),
     });
   };
 
@@ -127,14 +129,14 @@ export default function CustomerDues() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">Customer Dues</h1>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.customerDues.title}</h1>
           <p className="text-muted-foreground mt-1">
-            Track customer outstanding balances and payments
+            {t.customerDues.subtitle}
           </p>
         </div>
         <Button onClick={() => setAddCustomerOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Customer
+          {t.customerDues.addCustomer}
         </Button>
       </div>
 
@@ -142,7 +144,7 @@ export default function CustomerDues() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>Total Due Amount</CardDescription>
+            <CardDescription>{t.customerDues.totalDueAmount}</CardDescription>
             <Wallet className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
@@ -154,7 +156,7 @@ export default function CustomerDues() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>Customers with Dues</CardDescription>
+            <CardDescription>{t.customerDues.customersWithDues}</CardDescription>
             <Users className="h-4 w-4 text-amber-600" />
           </CardHeader>
           <CardContent>
@@ -164,7 +166,7 @@ export default function CustomerDues() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>Total Customers</CardDescription>
+            <CardDescription>{t.customerDues.totalCustomers}</CardDescription>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -177,11 +179,11 @@ export default function CustomerDues() {
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle>All Customers</CardTitle>
+            <CardTitle>{t.customerDues.allCustomers}</CardTitle>
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by name or phone..."
+                placeholder={t.customerDues.searchByNamePhone}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
@@ -191,20 +193,20 @@ export default function CustomerDues() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Loading...</div>
+            <div className="text-center py-8 text-muted-foreground">{t.customerDues.loading}</div>
           ) : filteredCustomers?.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              {searchTerm ? 'No customers found' : 'No customers yet. Add your first customer!'}
+              {searchTerm ? t.customerDues.noCustomersFound : t.customerDues.noCustomersYet}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead className="text-right">Due Amount</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t.customerDues.name}</TableHead>
+                    <TableHead>{t.customerDues.phone}</TableHead>
+                    <TableHead className="text-right">{t.customerDues.dueAmount}</TableHead>
+                    <TableHead className="text-right">{t.medicines.actions}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -225,7 +227,7 @@ export default function CustomerDues() {
                         {Number(customer.total_due) > 0 ? (
                           <Badge variant="destructive">৳{Number(customer.total_due).toFixed(2)}</Badge>
                         ) : (
-                          <Badge variant="outline" className="text-green-600">Paid</Badge>
+                          <Badge variant="outline" className="text-green-600">{t.customerDues.paid}</Badge>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -234,7 +236,7 @@ export default function CustomerDues() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleQuickReportClick(customer)}
-                            title="Quick Report"
+                            title={t.customerDues.quickReport}
                           >
                             <FileText className="h-4 w-4" />
                           </Button>
@@ -242,7 +244,7 @@ export default function CustomerDues() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleAddDue(customer)}
-                            title="Add Due"
+                            title={t.customerDues.addDue}
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
@@ -251,7 +253,7 @@ export default function CustomerDues() {
                             size="sm"
                             onClick={() => handleRecordPayment(customer)}
                             disabled={Number(customer.total_due) <= 0}
-                            title="Record Payment"
+                            title={t.customerDues.recordPayment}
                           >
                             <Wallet className="h-4 w-4" />
                           </Button>
@@ -259,7 +261,7 @@ export default function CustomerDues() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleViewHistory(customer)}
-                            title="View History"
+                            title={t.customerDues.viewHistory}
                           >
                             <Search className="h-4 w-4" />
                           </Button>
@@ -268,7 +270,7 @@ export default function CustomerDues() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleWhatsApp(customer)}
-                              title="Send WhatsApp Reminder"
+                              title={t.customerDues.sendWhatsApp}
                               className="text-green-600 hover:text-green-700"
                             >
                               <MessageCircle className="h-4 w-4" />
@@ -281,7 +283,7 @@ export default function CustomerDues() {
                               setCustomerToDelete(customer.id);
                               setDeleteConfirmOpen(true);
                             }}
-                            title="Delete Customer"
+                            title={t.customerDues.deleteCustomer}
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -322,15 +324,15 @@ export default function CustomerDues() {
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Customer</AlertDialogTitle>
+            <AlertDialogTitle>{t.customerDues.deleteConfirmTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this customer? This action cannot be undone.
+              {t.customerDues.deleteConfirmDesc}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground">
-              Delete
+              {t.actions.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -339,8 +341,8 @@ export default function CustomerDues() {
       <QuickReportDialog
         open={reportDialogOpen}
         onOpenChange={setReportDialogOpen}
-        title={`Customer Report: ${reportCustomer?.name || ''}`}
-        description="Select a date range for the report"
+        title={`${t.customerDues.customerReport}: ${reportCustomer?.name || ''}`}
+        description={t.customerDues.selectDateRange}
         onGenerate={handleGenerateReport}
       />
     </div>

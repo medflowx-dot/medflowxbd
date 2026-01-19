@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAddCustomer } from '@/hooks/useCustomerDues';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AddCustomerDialogProps {
   open: boolean;
@@ -26,6 +27,7 @@ export function AddCustomerDialog({ open, onOpenChange }: AddCustomerDialogProps
   const [notes, setNotes] = useState('');
 
   const addCustomer = useAddCustomer();
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,45 +61,45 @@ export function AddCustomerDialog({ open, onOpenChange }: AddCustomerDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add New Customer</DialogTitle>
+          <DialogTitle>{t.customerDues.addNewCustomer}</DialogTitle>
           <DialogDescription>
-            Add a customer to track their dues and payments.
+            {t.customerDues.addCustomerDesc}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Customer Name *</Label>
+            <Label htmlFor="name">{t.customerDues.customerName} *</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter customer name"
+              placeholder={t.customerDues.enterCustomerName}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
+            <Label htmlFor="phone">{t.customerDues.phoneNumber}</Label>
             <Input
               id="phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="e.g., 01XXXXXXXXX"
+              placeholder={t.customerDues.phonePlaceholder}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address">Address</Label>
+            <Label htmlFor="address">{t.customerDues.address}</Label>
             <Input
               id="address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="Customer address"
+              placeholder={t.customerDues.customerAddress}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="initialDue">Initial Due Amount (৳)</Label>
+            <Label htmlFor="initialDue">{t.customerDues.initialDueAmount}</Label>
             <Input
               id="initialDue"
               type="number"
@@ -110,22 +112,22 @@ export function AddCustomerDialog({ open, onOpenChange }: AddCustomerDialogProps
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">{t.customerDues.notes}</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Any additional notes..."
+              placeholder={t.customerDues.additionalNotes}
               rows={2}
             />
           </div>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t.actions.cancel}
             </Button>
             <Button type="submit" disabled={!name || addCustomer.isPending}>
-              {addCustomer.isPending ? 'Adding...' : 'Add Customer'}
+              {addCustomer.isPending ? t.customerDues.adding : t.customerDues.addCustomer}
             </Button>
           </DialogFooter>
         </form>
