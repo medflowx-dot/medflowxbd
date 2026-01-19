@@ -30,6 +30,7 @@ import {
 import { Plus, Building2 } from 'lucide-react';
 import { useMedicines, type CreateMedicineData, type Medicine } from '@/hooks/useMedicines';
 import { useManufacturers } from '@/hooks/useManufacturers';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const medicineSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(200, 'Name must be less than 200 characters'),
@@ -68,6 +69,7 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
   const [open, setOpen] = useState(false);
   const { createMedicine, updateMedicine } = useMedicines();
   const { manufacturers } = useManufacturers();
+  const { t } = useLanguage();
   const isEditing = !!medicine;
 
   const form = useForm<MedicineFormData>({
@@ -122,15 +124,15 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
         {trigger || (
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Add Medicine
+            {t.medicines.addMedicine}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Medicine' : 'Add New Medicine'}</DialogTitle>
+          <DialogTitle>{isEditing ? t.medicines.editMedicine : t.medicines.addNewMedicine}</DialogTitle>
           <DialogDescription>
-            {isEditing ? 'Update medicine details.' : 'Add a new medicine to your inventory.'}
+            {isEditing ? t.medicines.editMedicineDesc : t.medicines.addMedicineDesc}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -140,9 +142,9 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Medicine Name *</FormLabel>
+                  <FormLabel>{t.medicines.medicineNameLabel} *</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Paracetamol 500mg" {...field} />
+                    <Input placeholder={t.medicines.medicineNamePlaceholder} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -154,9 +156,9 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
               name="generic_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Generic Name</FormLabel>
+                  <FormLabel>{t.medicines.genericNameLabel}</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Acetaminophen" {...field} />
+                    <Input placeholder={t.medicines.genericNamePlaceholder} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -169,11 +171,11 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>{t.medicines.categoryLabel}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
+                          <SelectValue placeholder={t.medicines.selectCategory} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -194,11 +196,11 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
                 name="unit"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Unit *</FormLabel>
+                    <FormLabel>{t.medicines.unitLabel} *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select unit" />
+                          <SelectValue placeholder={t.medicines.selectUnit} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -222,16 +224,16 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
                 <FormItem>
                   <FormLabel className="flex items-center gap-1">
                     <Building2 className="h-3 w-3" />
-                    Manufacturer
+                    {t.medicines.manufacturerLabel}
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select manufacturer" />
+                        <SelectValue placeholder={t.medicines.selectManufacturer} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="none">{t.medicines.none}</SelectItem>
                       {manufacturers.map((m) => (
                         <SelectItem key={m.id} value={m.id}>
                           {m.name}
@@ -249,9 +251,9 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
               name="shelf_location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Shelf Location</FormLabel>
+                  <FormLabel>{t.medicines.shelfLocation}</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., A1-B2" {...field} />
+                    <Input placeholder={t.medicines.shelfPlaceholder} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -260,17 +262,17 @@ export function AddMedicineDialog({ medicine, trigger, onSuccess }: AddMedicineD
 
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                Cancel
+                {t.actions.cancel}
               </Button>
               <Button
                 type="submit"
                 disabled={createMedicine.isPending || updateMedicine.isPending}
               >
                 {createMedicine.isPending || updateMedicine.isPending
-                  ? 'Saving...'
+                  ? t.medicines.savingBtn
                   : isEditing
-                  ? 'Update Medicine'
-                  : 'Add Medicine'}
+                  ? t.medicines.updateMedicine
+                  : t.medicines.addMedicine}
               </Button>
             </div>
           </form>
