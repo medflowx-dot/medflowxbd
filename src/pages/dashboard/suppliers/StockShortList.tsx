@@ -15,7 +15,6 @@ import { useStockShortList } from '@/hooks/useStockShortList';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { useMedicines } from '@/hooks/useMedicines';
 import { format } from 'date-fns';
-import { Checkbox } from '@/components/ui/checkbox';
 
 export default function StockShortList() {
   const { notes, isLoading, createNote, addItem, deleteItem, completeNote, deleteNote } = useStockShortList();
@@ -35,7 +34,6 @@ export default function StockShortList() {
     manufacturer_id: '',
     medicine_id: '',
     quantity: 1,
-    is_tax_applicable: false,
   });
 
   // Filter active notes
@@ -69,10 +67,9 @@ export default function StockShortList() {
         manufacturer_id: newItem.manufacturer_id,
         medicine_id: newItem.medicine_id,
         quantity: newItem.quantity,
-        is_tax_applicable: newItem.is_tax_applicable,
       });
       setAddItemDialogOpen(false);
-      setNewItem({ manufacturer_id: '', medicine_id: '', quantity: 1, is_tax_applicable: false });
+      setNewItem({ manufacturer_id: '', medicine_id: '', quantity: 1 });
     } catch (error) {
       // handled in hook
     }
@@ -257,7 +254,6 @@ export default function StockShortList() {
                         <TableHead>Medicine</TableHead>
                         <TableHead className="hidden sm:table-cell">Manufacturer</TableHead>
                         <TableHead className="text-center">Qty</TableHead>
-                        <TableHead className="text-center hidden sm:table-cell">Tax</TableHead>
                         <TableHead className="w-12"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -274,13 +270,6 @@ export default function StockShortList() {
                             {item.manufacturer?.name || 'Unknown'}
                           </TableCell>
                           <TableCell className="text-center">{item.quantity}</TableCell>
-                          <TableCell className="text-center hidden sm:table-cell">
-                            {item.is_tax_applicable ? (
-                              <Badge variant="secondary">Yes</Badge>
-                            ) : (
-                              <span className="text-muted-foreground">No</span>
-                            )}
-                          </TableCell>
                           <TableCell>
                             <Button 
                               variant="ghost" 
@@ -420,15 +409,6 @@ export default function StockShortList() {
                 value={newItem.quantity}
                 onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })}
               />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="tax"
-                checked={newItem.is_tax_applicable}
-                onCheckedChange={(checked) => setNewItem({ ...newItem, is_tax_applicable: !!checked })}
-              />
-              <Label htmlFor="tax" className="cursor-pointer">Tax Applicable</Label>
             </div>
 
             <div className="flex justify-end gap-2">

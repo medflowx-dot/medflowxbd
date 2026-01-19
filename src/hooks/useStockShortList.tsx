@@ -152,11 +152,13 @@ export function useStockShortList() {
       manufacturer_id: string;
       medicine_id: string;
       quantity: number;
-      is_tax_applicable: boolean;
     }) => {
       const { data: item, error } = await supabase
         .from('stock_short_items')
-        .insert(data)
+        .insert({
+          ...data,
+          is_tax_applicable: false,
+        })
         .select()
         .single();
       
