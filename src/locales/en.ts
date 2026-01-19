@@ -376,7 +376,58 @@ export const en = {
     // Report
     supplierReport: 'Supplier Report',
     selectDateRange: 'Select a date range for the report',
-    pdfDownloaded: 'PDF রিপোর্ট ডাউনলোড হয়েছে',
+    pdfDownloaded: 'PDF report downloaded',
+  },
+
+  // Settings Page
+  settings: {
+    title: 'Settings',
+    subtitle: 'Manage your account and pharmacy settings',
+    // Profile
+    profileInfo: 'Profile Information',
+    updatePersonalInfo: 'Update your personal information',
+    fullName: 'Full Name',
+    yourName: 'Your name',
+    email: 'Email',
+    phoneNumber: 'Phone Number',
+    saveChanges: 'Save Changes',
+    // Pharmacy
+    pharmacyInfo: 'Pharmacy Information',
+    updatePharmacyDetails: 'Update your pharmacy details',
+    pharmacyName: 'Pharmacy Name',
+    pharmacyNamePlaceholder: 'City Pharmacy',
+    address: 'Address',
+    addressPlaceholder: '123 Main Street, Dhaka',
+    // Preferences
+    preferences: 'Preferences',
+    customizeExperience: 'Customize your experience',
+    currency: 'Currency',
+    selectCurrency: 'Select currency',
+    dateFormat: 'Date Format',
+    selectFormat: 'Select format',
+    language: 'Language',
+    selectLanguage: 'Select language',
+    savePreferences: 'Save Preferences',
+    // Notifications
+    notifications: 'Notifications',
+    manageNotifications: 'Manage notification preferences',
+    notificationSound: 'Notification Sound',
+    playSoundOnAlerts: 'Play a sound when new alerts appear',
+    // Subscription
+    subscription: 'Subscription',
+    manageSubscription: 'Manage your subscription plan',
+    freeTrial: 'Free Trial',
+    monthlyPlan: 'Monthly Plan',
+    yearlyPlan: 'Yearly Plan',
+    lifetimePlan: 'Lifetime Plan',
+    noPlan: 'No Plan',
+    expired: 'Expired',
+    daysRemaining: 'days remaining',
+    renewsIn: 'Renews in',
+    days: 'days',
+    active: 'Active',
+    upgradePlan: 'Upgrade Plan',
+    managePlan: 'Manage Plan',
   },
 };
 

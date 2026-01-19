@@ -10,6 +10,7 @@ import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useNotificationSettings } from '@/hooks/useNotificationSettings';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { StaffManagement } from '@/components/settings/StaffManagement';
 import { PharmacyLogoUpload } from '@/components/settings/PharmacyLogoUpload';
 import { Loader2, Save, User, Building2, Globe, CreditCard, Bell } from 'lucide-react';
@@ -23,6 +24,7 @@ export default function Settings() {
   const { planType, daysRemaining, isTrial, isExpired } = useSubscriptionStatus();
   const { isAdmin } = usePermissions();
   const { soundEnabled, setSoundEnabled } = useNotificationSettings();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -92,26 +94,26 @@ export default function Settings() {
   }
 
   const getSubscriptionLabel = () => {
-    if (isTrial) return 'Free Trial';
-    if (planType === 'monthly') return 'Monthly Plan';
-    if (planType === 'yearly') return 'Yearly Plan';
-    if (planType === 'lifetime') return 'Lifetime Plan';
-    return planType || 'No Plan';
+    if (isTrial) return t.settings.freeTrial;
+    if (planType === 'monthly') return t.settings.monthlyPlan;
+    if (planType === 'yearly') return t.settings.yearlyPlan;
+    if (planType === 'lifetime') return t.settings.lifetimePlan;
+    return planType || t.settings.noPlan;
   };
 
   const getSubscriptionStatus = () => {
-    if (isExpired) return 'Expired';
-    if (isTrial && daysRemaining) return `${daysRemaining} days remaining`;
-    if (daysRemaining) return `Renews in ${daysRemaining} days`;
-    return 'Active';
+    if (isExpired) return t.settings.expired;
+    if (isTrial && daysRemaining) return `${daysRemaining} ${t.settings.daysRemaining}`;
+    if (daysRemaining) return `${t.settings.renewsIn} ${daysRemaining} ${t.settings.days}`;
+    return t.settings.active;
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-display font-bold">Settings</h1>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.settings.title}</h1>
         <p className="text-muted-foreground mt-1">
-          Manage your account and pharmacy settings
+          {t.settings.subtitle}
         </p>
       </div>
 
@@ -121,28 +123,28 @@ export default function Settings() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-primary" />
-              <CardTitle>Profile Information</CardTitle>
+              <CardTitle>{t.settings.profileInfo}</CardTitle>
             </div>
-            <CardDescription>Update your personal information</CardDescription>
+            <CardDescription>{t.settings.updatePersonalInfo}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="fullName">{t.settings.fullName}</Label>
                 <Input 
                   id="fullName" 
-                  placeholder="Your name" 
+                  placeholder={t.settings.yourName}
                   value={formData.full_name}
                   onChange={(e) => handleChange('full_name', e.target.value)}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t.settings.email}</Label>
                 <Input id="email" type="email" value={user?.email || ''} disabled />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor="phone">{t.settings.phoneNumber}</Label>
               <Input 
                 id="phone" 
                 placeholder="+880" 
@@ -153,7 +155,7 @@ export default function Settings() {
             <Button onClick={handleSaveProfile} disabled={updateProfile.isPending}>
               {updateProfile.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               <Save className="h-4 w-4 mr-2" />
-              Save Changes
+              {t.settings.saveChanges}
             </Button>
           </CardContent>
         </Card>
@@ -163,9 +165,9 @@ export default function Settings() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Building2 className="h-5 w-5 text-primary" />
-              <CardTitle>Pharmacy Information</CardTitle>
+              <CardTitle>{t.settings.pharmacyInfo}</CardTitle>
             </div>
-            <CardDescription>Update your pharmacy details</CardDescription>
+            <CardDescription>{t.settings.updatePharmacyDetails}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Logo Upload */}
@@ -175,19 +177,19 @@ export default function Settings() {
             />
             
             <div className="space-y-2">
-              <Label htmlFor="pharmacyName">Pharmacy Name</Label>
+              <Label htmlFor="pharmacyName">{t.settings.pharmacyName}</Label>
               <Input 
                 id="pharmacyName" 
-                placeholder="City Pharmacy" 
+                placeholder={t.settings.pharmacyNamePlaceholder}
                 value={formData.pharmacy_name}
                 onChange={(e) => handleChange('pharmacy_name', e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address">{t.settings.address}</Label>
               <Input 
                 id="address" 
-                placeholder="123 Main Street, Dhaka" 
+                placeholder={t.settings.addressPlaceholder}
                 value={formData.address}
                 onChange={(e) => handleChange('address', e.target.value)}
               />
@@ -195,7 +197,7 @@ export default function Settings() {
             <Button onClick={handleSavePharmacy} disabled={updateProfile.isPending}>
               {updateProfile.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               <Save className="h-4 w-4 mr-2" />
-              Save Changes
+              {t.settings.saveChanges}
             </Button>
           </CardContent>
         </Card>
@@ -205,17 +207,17 @@ export default function Settings() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Globe className="h-5 w-5 text-primary" />
-              <CardTitle>Preferences</CardTitle>
+              <CardTitle>{t.settings.preferences}</CardTitle>
             </div>
-            <CardDescription>Customize your experience</CardDescription>
+            <CardDescription>{t.settings.customizeExperience}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
-                <Label htmlFor="currency">Currency</Label>
+                <Label htmlFor="currency">{t.settings.currency}</Label>
                 <Select value={formData.currency} onValueChange={(v) => handleChange('currency', v)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select currency" />
+                    <SelectValue placeholder={t.settings.selectCurrency} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="BDT">BDT (৳)</SelectItem>
@@ -226,10 +228,10 @@ export default function Settings() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="dateFormat">Date Format</Label>
+                <Label htmlFor="dateFormat">{t.settings.dateFormat}</Label>
                 <Select value={formData.date_format} onValueChange={(v) => handleChange('date_format', v)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select format" />
+                    <SelectValue placeholder={t.settings.selectFormat} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
@@ -239,10 +241,10 @@ export default function Settings() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="language">Language</Label>
+                <Label htmlFor="language">{t.settings.language}</Label>
                 <Select value={formData.language} onValueChange={(v) => handleChange('language', v)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select language" />
+                    <SelectValue placeholder={t.settings.selectLanguage} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="en">English</SelectItem>
@@ -254,7 +256,7 @@ export default function Settings() {
             <Button onClick={handleSavePreferences} disabled={updateProfile.isPending}>
               {updateProfile.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               <Save className="h-4 w-4 mr-2" />
-              Save Preferences
+              {t.settings.savePreferences}
             </Button>
           </CardContent>
         </Card>
@@ -264,16 +266,16 @@ export default function Settings() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Bell className="h-5 w-5 text-primary" />
-              <CardTitle>Notifications</CardTitle>
+              <CardTitle>{t.settings.notifications}</CardTitle>
             </div>
-            <CardDescription>Manage notification preferences</CardDescription>
+            <CardDescription>{t.settings.manageNotifications}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="sound-toggle" className="text-base">Notification Sound</Label>
+                <Label htmlFor="sound-toggle" className="text-base">{t.settings.notificationSound}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Play a sound when new alerts appear
+                  {t.settings.playSoundOnAlerts}
                 </p>
               </div>
               <Switch
@@ -293,9 +295,9 @@ export default function Settings() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-primary" />
-              <CardTitle>Subscription</CardTitle>
+              <CardTitle>{t.settings.subscription}</CardTitle>
             </div>
-            <CardDescription>Manage your subscription plan</CardDescription>
+            <CardDescription>{t.settings.manageSubscription}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between p-4 rounded-lg bg-muted">
@@ -304,7 +306,7 @@ export default function Settings() {
                 <p className="text-sm text-muted-foreground">{getSubscriptionStatus()}</p>
               </div>
               <Button onClick={() => navigate('/billing')}>
-                {isTrial || isExpired ? 'Upgrade Plan' : 'Manage Plan'}
+                {isTrial || isExpired ? t.settings.upgradePlan : t.settings.managePlan}
               </Button>
             </div>
           </CardContent>
