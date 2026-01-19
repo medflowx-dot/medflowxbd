@@ -8,31 +8,46 @@ import { useGlobalManufacturers, GlobalManufacturer } from '@/hooks/useGlobalMan
 import { AddManufacturerDialog } from '@/components/manufacturers/AddManufacturerDialog';
 import { ManufacturerTable } from '@/components/manufacturers/ManufacturerTable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
 export default function Manufacturers() {
   const { manufacturers, isLoading } = useManufacturers();
-  const { manufacturers: globalManufacturers, isLoading: globalLoading, copyToLocal } = useGlobalManufacturers();
+  const { manufacturers: globalManufacturers, isLoading: globalLoading, copyToLocal, bulkCopyToLocal } = useGlobalManufacturers();
   const [searchTerm, setSearchTerm] = useState('');
   const [globalSearchTerm, setGlobalSearchTerm] = useState('');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const filteredGlobalManufacturers = globalManufacturers.filter(m =>
     m.name.toLowerCase().includes(globalSearchTerm.toLowerCase())
   );
 
-  // Check if a global manufacturer is already in local list
   const isAlreadyCopied = (globalMfr: GlobalManufacturer) => {
-    return manufacturers.some(m => 
-      m.name.toLowerCase() === globalMfr.name.toLowerCase()
-    );
+    return manufacturers.some(m => m.name.toLowerCase() === globalMfr.name.toLowerCase());
+  };
+
+  // Get manufacturers that can be copied (not already in local list)
+  const copyableManufacturers = filteredGlobalManufacturers.filter(m => !isAlreadyCopied(m));
+  const allCopyableSelected = copyableManufacturers.length > 0 && 
+    copyableManufacturers.every(m => selectedIds.has(m.id));
+
+  const toggleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (allCopyableSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(copyableManufacturers.map(m => m.id)));
+    }
   };
 
   const handleCopy = async (manufacturer: GlobalManufacturer) => {
@@ -43,14 +58,29 @@ export default function Manufacturers() {
     await copyToLocal.mutateAsync(manufacturer);
   };
 
+  const handleBulkCopy = async () => {
+    const selectedManufacturers = globalManufacturers.filter(m => 
+      selectedIds.has(m.id) && !isAlreadyCopied(m)
+    );
+    if (selectedManufacturers.length === 0) {
+      toast.info('No new manufacturers selected');
+      return;
+    }
+    await bulkCopyToLocal.mutateAsync(selectedManufacturers);
+    setSelectedIds(new Set());
+  };
+
+  const selectedCount = Array.from(selectedIds).filter(id => {
+    const mfr = globalManufacturers.find(m => m.id === id);
+    return mfr && !isAlreadyCopied(mfr);
+  }).length;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-display font-bold">Manufacturers</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage manufacturer list for medicines
-          </p>
+          <p className="text-muted-foreground mt-1">Manage manufacturer list for medicines</p>
         </div>
         <AddManufacturerDialog />
       </div>
@@ -86,18 +116,10 @@ export default function Manufacturers() {
             <CardContent className="space-y-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search manufacturers..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
-                />
+                <Input placeholder="Search manufacturers..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
               </div>
-
               {isLoading ? (
-                <div className="py-8 text-center text-muted-foreground">
-                  Loading manufacturers...
-                </div>
+                <div className="py-8 text-center text-muted-foreground">Loading manufacturers...</div>
               ) : (
                 <ManufacturerTable manufacturers={manufacturers} searchTerm={searchTerm} />
               )}
@@ -118,26 +140,27 @@ export default function Manufacturers() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Global Manufacturers</CardTitle>
-              <CardDescription>
-                Browse and copy manufacturers from the master list to your inventory
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Global Manufacturers</CardTitle>
+                  <CardDescription>Browse and copy manufacturers from the master list</CardDescription>
+                </div>
+                {selectedCount > 0 && (
+                  <Button onClick={handleBulkCopy} disabled={bulkCopyToLocal.isPending}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    {bulkCopyToLocal.isPending ? 'Copying...' : `Copy Selected (${selectedCount})`}
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search global manufacturers..."
-                  value={globalSearchTerm}
-                  onChange={(e) => setGlobalSearchTerm(e.target.value)}
-                  className="pl-9"
-                />
+                <Input placeholder="Search global manufacturers..." value={globalSearchTerm} onChange={(e) => setGlobalSearchTerm(e.target.value)} className="pl-9" />
               </div>
 
               {globalLoading ? (
-                <div className="py-8 text-center text-muted-foreground">
-                  Loading global manufacturers...
-                </div>
+                <div className="py-8 text-center text-muted-foreground">Loading...</div>
               ) : filteredGlobalManufacturers.length === 0 ? (
                 <div className="py-8 text-center text-muted-foreground">
                   <Globe className="h-12 w-12 mx-auto mb-2 opacity-20" />
@@ -148,6 +171,13 @@ export default function Manufacturers() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-[50px]">
+                          <Checkbox
+                            checked={allCopyableSelected && copyableManufacturers.length > 0}
+                            onCheckedChange={toggleSelectAll}
+                            disabled={copyableManufacturers.length === 0}
+                          />
+                        </TableHead>
                         <TableHead>Company Name</TableHead>
                         <TableHead className="w-[120px]">Actions</TableHead>
                       </TableRow>
@@ -157,6 +187,13 @@ export default function Manufacturers() {
                         const alreadyCopied = isAlreadyCopied(manufacturer);
                         return (
                           <TableRow key={manufacturer.id}>
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedIds.has(manufacturer.id)}
+                                onCheckedChange={() => toggleSelect(manufacturer.id)}
+                                disabled={alreadyCopied}
+                              />
+                            </TableCell>
                             <TableCell className="font-medium">{manufacturer.name}</TableCell>
                             <TableCell>
                               <Button
