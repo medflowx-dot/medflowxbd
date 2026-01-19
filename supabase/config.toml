@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.send-smtp-email]
 verify_jwt = false
+
+[functions.seed-global-medicines]
+verify_jwt = false

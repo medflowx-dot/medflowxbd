@@ -2,7 +2,8 @@ import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Pill, Search, Plus, Upload, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Pill, Search, Plus, Upload, MoreHorizontal, Pencil, Trash2, Database, Download, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useGlobalMedicines, GlobalMedicine, CreateGlobalMedicineData } from '@/hooks/useGlobalMedicines';
 import { useGlobalManufacturers } from '@/hooks/useGlobalManufacturers';
 import {
@@ -71,6 +72,7 @@ export default function GlobalMedicines() {
     unit: 'pcs',
     is_tax_applicable: false,
   });
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const filteredMedicines = medicines.filter(m => {
     const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -160,6 +162,30 @@ export default function GlobalMedicines() {
     }
     
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleGenerateMasterData = async () => {
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('seed-global-medicines');
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        toast.success(`${data.inserted} medicines added, ${data.skipped} skipped (already exist)`);
+      } else {
+        toast.error(data.error || 'Failed to generate medicines');
+      }
+    } catch (error: any) {
+      console.error('Error generating medicines:', error);
+      toast.error(error.message || 'Failed to generate master data');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    window.open('/templates/global-medicines-template.csv', '_blank');
   };
 
   const MedicineForm = ({ onSubmit, submitLabel, isLoading: formLoading }: { onSubmit: () => void; submitLabel: string; isLoading: boolean }) => (
@@ -264,7 +290,7 @@ export default function GlobalMedicines() {
             Master list of medicines for all clients
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <input
             ref={fileInputRef}
             type="file"
@@ -272,9 +298,25 @@ export default function GlobalMedicines() {
             className="hidden"
             onChange={handleFileUpload}
           />
+          <Button variant="outline" onClick={handleDownloadTemplate}>
+            <Download className="h-4 w-4 mr-2" />
+            Template
+          </Button>
           <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
             <Upload className="h-4 w-4 mr-2" />
             Bulk Import
+          </Button>
+          <Button 
+            variant="secondary" 
+            onClick={handleGenerateMasterData}
+            disabled={isGenerating}
+          >
+            {isGenerating ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Database className="h-4 w-4 mr-2" />
+            )}
+            {isGenerating ? 'Generating...' : 'Generate Master Data'}
           </Button>
           <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
