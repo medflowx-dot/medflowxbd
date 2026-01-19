@@ -62,6 +62,7 @@ export default function GlobalMedicines() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [manufacturerDeleteDialogOpen, setManufacturerDeleteDialogOpen] = useState(false);
   const [selectedMedicine, setSelectedMedicine] = useState<GlobalMedicine | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -163,6 +164,22 @@ export default function GlobalMedicines() {
       setSelectedIds(new Set(filteredMedicines.map(m => m.id)));
     }
   };
+
+  const handleDeleteByManufacturer = async () => {
+    if (manufacturerFilter === 'all') return;
+    const medicineIds = medicines
+      .filter(m => m.manufacturer_id === manufacturerFilter)
+      .map(m => m.id);
+    if (medicineIds.length === 0) return;
+    await bulkDelete.mutateAsync(medicineIds);
+    setManufacturerDeleteDialogOpen(false);
+    setManufacturerFilter('all');
+  };
+
+  const selectedManufacturerName = manufacturers.find(m => m.id === manufacturerFilter)?.name;
+  const medicinesCountByManufacturer = manufacturerFilter !== 'all' 
+    ? medicines.filter(m => m.manufacturer_id === manufacturerFilter).length 
+    : 0;
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -484,6 +501,17 @@ export default function GlobalMedicines() {
                 ))}
               </SelectContent>
             </Select>
+            {manufacturerFilter !== 'all' && medicinesCountByManufacturer > 0 && (
+              <Button 
+                variant="outline" 
+                className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                onClick={() => setManufacturerDeleteDialogOpen(true)}
+                disabled={bulkDelete.isPending}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete All {selectedManufacturerName} ({medicinesCountByManufacturer})
+              </Button>
+            )}
             {selectedIds.size > 0 && (
               <Button 
                 variant="destructive" 
@@ -626,6 +654,28 @@ export default function GlobalMedicines() {
               disabled={bulkDelete.isPending}
             >
               {bulkDelete.isPending ? 'Deleting...' : `Delete ${selectedIds.size} Medicines`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Manufacturer Delete Confirmation */}
+      <AlertDialog open={manufacturerDeleteDialogOpen} onOpenChange={setManufacturerDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete All {selectedManufacturerName} Medicines?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove all {medicinesCountByManufacturer} medicines from {selectedManufacturerName} from the global list. Clients who have already copied these medicines will not be affected.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteByManufacturer} 
+              className="bg-destructive text-destructive-foreground"
+              disabled={bulkDelete.isPending}
+            >
+              {bulkDelete.isPending ? 'Deleting...' : `Delete All ${medicinesCountByManufacturer} Medicines`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
