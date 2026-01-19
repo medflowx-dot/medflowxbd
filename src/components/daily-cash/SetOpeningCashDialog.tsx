@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useSetOpeningCash, useOpeningCash } from '@/hooks/useDailyCash';
-import { Wallet, Loader2 } from 'lucide-react';
+import { useSetOpeningCash, useOpeningCash, usePreviousDayClosingCash } from '@/hooks/useDailyCash';
+import { Wallet, Loader2, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface SetOpeningCashDialogProps {
@@ -36,14 +36,28 @@ export function SetOpeningCashDialog({
   const [notes, setNotes] = useState('');
 
   const { data: existingCash } = useOpeningCash(date);
+  const { previousDayClosingCash, previousDate, isLoading: isPreviousDayLoading } = usePreviousDayClosingCash(date);
   const setOpeningCash = useSetOpeningCash();
+
+  // Show suggestion only if no existing cash is set for this date
+  const showSuggestion = !existingCash && previousDayClosingCash !== null && previousDayClosingCash > 0;
 
   useEffect(() => {
     if (existingCash) {
       setAmount(existingCash.amount.toString());
       setNotes(existingCash.notes || '');
+    } else {
+      setAmount('');
+      setNotes('');
     }
   }, [existingCash]);
+
+  const handleUsePreviousClosing = () => {
+    if (previousDayClosingCash !== null) {
+      setAmount(previousDayClosingCash.toString());
+      setNotes(`Carried forward from ${format(previousDate, 'MMM d, yyyy')}`);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,6 +107,33 @@ export function SetOpeningCashDialog({
                 required
               />
             </div>
+            
+            {/* Previous Day Suggestion */}
+            {showSuggestion && (
+              <div className="rounded-lg border border-dashed border-primary/50 bg-primary/5 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm">
+                    <p className="font-medium text-primary">
+                      Previous day closing: ৳{previousDayClosingCash?.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(previousDate, 'MMM d, yyyy')}
+                    </p>
+                  </div>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleUsePreviousClosing}
+                    className="shrink-0"
+                  >
+                    Use this
+                    <ArrowRight className="h-3 w-3 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             <div className="grid gap-2">
               <Label htmlFor="notes">Notes</Label>
               <Textarea
