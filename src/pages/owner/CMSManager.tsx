@@ -6,8 +6,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { useCMSPages, useCMSSections, useUpdateCMSSection, usePublishCMSPage, CMSSection } from '@/hooks/useOwnerData';
-import { Loader2, Globe, Edit, Eye, EyeOff, Save, FileText, Layout, List, HelpCircle, Phone, Image, MessageSquare, BarChart3, DollarSign, Star, Building2 } from 'lucide-react';
+import { useCMSPages, useCMSSections, useUpdateCMSSection, usePublishCMSPage, useSeedCMSContent, CMSSection } from '@/hooks/useOwnerData';
+import { Loader2, Globe, Edit, Eye, EyeOff, Save, FileText, Layout, List, HelpCircle, Phone, Image, MessageSquare, BarChart3, DollarSign, Star, Building2, Database } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   HeroEditor,
@@ -36,6 +36,7 @@ export default function CMSManager() {
   const { data: sections, isLoading: sectionsLoading } = useCMSSections(selectedPageId || pages?.[0]?.id);
   const updateSection = useUpdateCMSSection();
   const publishPage = usePublishCMSPage();
+  const seedContent = useSeedCMSContent();
 
   // Auto-select first page
   const currentPageId = selectedPageId || pages?.[0]?.id;
@@ -267,24 +268,35 @@ export default function CMSManager() {
           </div>
         </div>
         {currentPage && (
-          <Button 
-            variant={currentPage.is_published ? 'outline' : 'default'}
-            onClick={handlePublish}
-            disabled={publishPage.isPending}
-          >
-            {publishPage.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            {currentPage.is_published ? (
-              <>
-                <EyeOff className="h-4 w-4 mr-2" />
-                Unpublish
-              </>
-            ) : (
-              <>
-                <Eye className="h-4 w-4 mr-2" />
-                Publish
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => seedContent.mutate(currentPage.id)}
+              disabled={seedContent.isPending}
+            >
+              {seedContent.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              <Database className="h-4 w-4 mr-2" />
+              Seed Default Content
+            </Button>
+            <Button 
+              variant={currentPage.is_published ? 'outline' : 'default'}
+              onClick={handlePublish}
+              disabled={publishPage.isPending}
+            >
+              {publishPage.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {currentPage.is_published ? (
+                <>
+                  <EyeOff className="h-4 w-4 mr-2" />
+                  Unpublish
+                </>
+              ) : (
+                <>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Publish
+                </>
+              )}
+            </Button>
+          </div>
         )}
       </div>
 
