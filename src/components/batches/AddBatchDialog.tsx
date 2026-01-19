@@ -39,6 +39,7 @@ import { FormDatePicker } from '@/components/ui/date-picker';
 import { Plus, Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useMedicines, type CreateBatchData, type MedicineBatch, type MedicineWithBatches } from '@/hooks/useMedicines';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const batchSchema = z.object({
   medicine_id: z.string().min(1, 'Please select a medicine'),
@@ -66,6 +67,7 @@ export function AddBatchDialog({
   trigger, 
   onSuccess 
 }: AddBatchDialogProps) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [medicineOpen, setMedicineOpen] = useState(false);
   const { createBatch, updateBatch } = useMedicines();
@@ -127,17 +129,17 @@ export function AddBatchDialog({
         {trigger || (
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Add Batch
+            {t.batches.addBatch}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Batch' : 'Add New Batch'}</DialogTitle>
+          <DialogTitle>{isEditing ? t.batches.editBatch : t.batches.addNewBatch}</DialogTitle>
           <DialogDescription>
             {isEditing 
-              ? 'Update batch information' 
-              : 'Select a medicine and add batch details'}
+              ? t.batches.updateBatchInfo
+              : t.batches.selectMedicineAndAdd}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -148,7 +150,7 @@ export function AddBatchDialog({
               name="medicine_id"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Medicine *</FormLabel>
+                  <FormLabel>{t.batches.medicineLabel}</FormLabel>
                   <Popover open={medicineOpen} onOpenChange={setMedicineOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -162,16 +164,16 @@ export function AddBatchDialog({
                           )}
                           disabled={isEditing}
                         >
-                          {selectedMedicine?.name || 'Select medicine...'}
+                          {selectedMedicine?.name || t.batches.selectMedicine}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0" align="start">
                       <Command>
-                        <CommandInput placeholder="Search medicines..." />
+                        <CommandInput placeholder={t.batches.searchMedicines} />
                         <CommandList>
-                          <CommandEmpty>No medicine found.</CommandEmpty>
+                          <CommandEmpty>{t.batches.noMedicineFound}</CommandEmpty>
                           <CommandGroup>
                             {medicines.map((medicine) => (
                               <CommandItem
@@ -213,9 +215,9 @@ export function AddBatchDialog({
               name="batch_number"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Batch Number *</FormLabel>
+                  <FormLabel>{t.batches.batchNumber}</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., BT-2024-001" {...field} />
+                    <Input placeholder={t.batches.batchNumberPlaceholder} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -228,12 +230,12 @@ export function AddBatchDialog({
                 name="expiry_date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Expiry Date *</FormLabel>
+                    <FormLabel>{t.batches.expiryDateLabel}</FormLabel>
                     <FormControl>
                       <FormDatePicker
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Pick a date"
+                        placeholder={t.batches.pickDate}
                         disabled={(date) => date < new Date('1900-01-01')}
                       />
                     </FormControl>
@@ -247,12 +249,12 @@ export function AddBatchDialog({
                 name="manufactured_date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Manufactured Date</FormLabel>
+                    <FormLabel>{t.batches.manufacturedDate}</FormLabel>
                     <FormControl>
                       <FormDatePicker
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Pick a date"
+                        placeholder={t.batches.pickDate}
                         disabled={(date) => date > new Date()}
                       />
                     </FormControl>
@@ -267,9 +269,9 @@ export function AddBatchDialog({
               name="supplier_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Supplier Name</FormLabel>
+                  <FormLabel>{t.batches.supplierName}</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., ABC Distributors" {...field} />
+                    <Input placeholder={t.batches.supplierPlaceholder} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -281,9 +283,9 @@ export function AddBatchDialog({
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes</FormLabel>
+                  <FormLabel>{t.batches.notes}</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Any additional notes..." {...field} />
+                    <Textarea placeholder={t.batches.notesPlaceholder} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -292,17 +294,17 @@ export function AddBatchDialog({
 
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                Cancel
+                {t.actions.cancel}
               </Button>
               <Button
                 type="submit"
                 disabled={createBatch.isPending || updateBatch.isPending}
               >
                 {createBatch.isPending || updateBatch.isPending
-                  ? 'Saving...'
+                  ? t.batches.saving
                   : isEditing
-                  ? 'Update Batch'
-                  : 'Add Batch'}
+                  ? t.batches.updateBatch
+                  : t.batches.addBatch}
               </Button>
             </div>
           </form>

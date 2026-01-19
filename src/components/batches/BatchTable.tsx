@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { AddBatchDialog } from './AddBatchDialog';
 import { useMedicines, type MedicineWithBatches, type MedicineBatch } from '@/hooks/useMedicines';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BatchWithMedicine extends MedicineBatch {
   medicine_name: string;
@@ -37,6 +38,7 @@ interface BatchTableProps {
 }
 
 export function BatchTable({ batches, medicines, canManage }: BatchTableProps) {
+  const { t } = useLanguage();
   const { deleteBatch } = useMedicines();
 
   const getExpiryStatus = (expiryDate: string) => {
@@ -57,9 +59,9 @@ export function BatchTable({ batches, medicines, canManage }: BatchTableProps) {
         <div className="p-4 rounded-full bg-muted mb-4">
           <Layers className="h-8 w-8 text-muted-foreground" />
         </div>
-        <h3 className="font-semibold text-lg">No batches found</h3>
+        <h3 className="font-semibold text-lg">{t.batches.noBatchesFound}</h3>
         <p className="text-muted-foreground text-sm max-w-sm mt-1">
-          Try adjusting your filters or add a new batch.
+          {t.batches.tryAdjustingFilters}
         </p>
       </div>
     );
@@ -70,12 +72,12 @@ export function BatchTable({ batches, medicines, canManage }: BatchTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Medicine</TableHead>
-            <TableHead>Batch #</TableHead>
-            <TableHead>Expiry Date</TableHead>
-            <TableHead>Supplier</TableHead>
+            <TableHead>{t.batches.medicine}</TableHead>
+            <TableHead>{t.batches.batchNo}</TableHead>
+            <TableHead>{t.batches.expiryDate}</TableHead>
+            <TableHead>{t.batches.supplier}</TableHead>
             {canManage && (
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-right">{t.batches.actions}</TableHead>
             )}
           </TableRow>
         </TableHeader>
@@ -112,7 +114,7 @@ export function BatchTable({ batches, medicines, canManage }: BatchTableProps) {
                         : ''
                     }
                   >
-                    {isExpired ? 'Expired: ' : ''}
+                    {isExpired ? `${t.batches.expired}: ` : ''}
                     {format(new Date(batch.expiry_date), 'dd MMM yyyy')}
                   </Badge>
                 </TableCell>
@@ -145,22 +147,22 @@ export function BatchTable({ batches, medicines, canManage }: BatchTableProps) {
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>
-                              {isExpired ? 'Delete Expired Batch' : 'Delete Batch'}
+                              {isExpired ? t.batches.deleteExpiredBatch : t.batches.deleteBatch}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
                               {isExpired 
-                                ? `This batch "${batch.batch_number}" has expired. Are you sure you want to permanently delete it?`
-                                : `Are you sure you want to delete batch "${batch.batch_number}"? This action cannot be undone.`
+                                ? t.batches.deleteExpiredBatchDesc.replace('{batch}', batch.batch_number)
+                                : t.batches.deleteBatchDesc.replace('{batch}', batch.batch_number)
                               }
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => deleteBatch.mutate(batch.id)}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
-                              Delete
+                              {t.actions.delete}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>

@@ -73,6 +73,69 @@ export const bn: TranslationKeys = {
     addBtn: 'প্রস্তুতকারক যোগ করুন',
   },
 
+  // Batches Page
+  batches: {
+    title: 'ব্যাচ',
+    subtitle: 'ঔষধের ব্যাচ ব্যবস্থাপনা এবং মেয়াদ ট্র্যাক করুন',
+    subtitleView: 'ঔষধের ব্যাচ ও মেয়াদ তথ্য দেখুন',
+    // Stats cards
+    totalBatches: 'মোট ব্যাচ',
+    acrossMedicines: '{count}টি ঔষধ জুড়ে',
+    expired: 'মেয়াদোত্তীর্ণ',
+    needToBeRemoved: 'সরিয়ে ফেলা দরকার',
+    expiringSoon: 'শীঘ্রই মেয়াদ শেষ',
+    within30Days: '৩০ দিনের মধ্যে',
+    // Actions
+    deleteAllExpired: 'সব মেয়াদোত্তীর্ণ মুছুন',
+    deleteAllExpiredTitle: 'সব মেয়াদোত্তীর্ণ ব্যাচ মুছুন',
+    deleteAllExpiredDesc: 'আপনি কি নিশ্চিত {count}টি মেয়াদোত্তীর্ণ ব্যাচ স্থায়ীভাবে মুছে ফেলতে চান? এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।',
+    deleting: 'মুছে ফেলা হচ্ছে...',
+    deleteAll: 'সব মুছুন',
+    // Filters
+    batchList: 'ব্যাচ তালিকা',
+    searchOrFilter: 'ঔষধ খুঁজুন বা স্ট্যাটাস দিয়ে ফিল্টার করুন',
+    searchPlaceholder: 'ঔষধ বা ব্যাচ খুঁজুন...',
+    allMedicines: 'সব ঔষধ',
+    allStatus: 'সব স্ট্যাটাস',
+    active: 'সক্রিয়',
+    expiring: 'শীঘ্রই মেয়াদ শেষ',
+    // Table headers
+    medicine: 'ঔষধ',
+    batchNo: 'ব্যাচ #',
+    expiryDate: 'মেয়াদ শেষ',
+    supplier: 'সরবরাহকারী',
+    actions: 'অ্যাকশন',
+    // Empty state
+    noBatchesFound: 'কোনো ব্যাচ পাওয়া যায়নি',
+    tryAdjustingFilters: 'আপনার ফিল্টার পরিবর্তন করুন বা নতুন ব্যাচ যোগ করুন।',
+    // Delete dialog
+    deleteBatch: 'ব্যাচ মুছুন',
+    deleteExpiredBatch: 'মেয়াদোত্তীর্ণ ব্যাচ মুছুন',
+    deleteExpiredBatchDesc: 'এই ব্যাচ "{batch}" মেয়াদোত্তীর্ণ হয়েছে। আপনি কি স্থায়ীভাবে মুছে ফেলতে চান?',
+    deleteBatchDesc: 'আপনি কি নিশ্চিত ব্যাচ "{batch}" মুছে ফেলতে চান? এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।',
+    // Add/Edit dialog
+    addBatch: 'ব্যাচ যোগ করুন',
+    editBatch: 'ব্যাচ সম্পাদনা',
+    addNewBatch: 'নতুন ব্যাচ যোগ করুন',
+    updateBatchInfo: 'ব্যাচ তথ্য আপডেট করুন',
+    selectMedicineAndAdd: 'একটি ঔষধ নির্বাচন করুন এবং ব্যাচ বিবরণ যোগ করুন',
+    medicineLabel: 'ঔষধ *',
+    selectMedicine: 'ঔষধ নির্বাচন করুন...',
+    searchMedicines: 'ঔষধ খুঁজুন...',
+    noMedicineFound: 'কোনো ঔষধ পাওয়া যায়নি।',
+    batchNumber: 'ব্যাচ নম্বর *',
+    batchNumberPlaceholder: 'যেমন, BT-2024-001',
+    expiryDateLabel: 'মেয়াদ শেষের তারিখ *',
+    manufacturedDate: 'উৎপাদন তারিখ',
+    pickDate: 'তারিখ নির্বাচন করুন',
+    supplierName: 'সরবরাহকারীর নাম',
+    supplierPlaceholder: 'যেমন, ABC Distributors',
+    notes: 'নোট',
+    notesPlaceholder: 'অতিরিক্ত নোট...',
+    saving: 'সংরক্ষণ হচ্ছে...',
+    updateBatch: 'ব্যাচ আপডেট করুন',
+  },
+
   // Menu Groups
   menuGroups: {
     inventory: 'ইনভেন্টরি',

@@ -19,8 +19,10 @@ import { BatchTable } from '@/components/batches/BatchTable';
 import { AddBatchDialog } from '@/components/batches/AddBatchDialog';
 import { useMedicines } from '@/hooks/useMedicines';
 import { usePermissions } from '@/hooks/usePermissions';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Batches() {
+  const { t } = useLanguage();
   const [selectedMedicineId, setSelectedMedicineId] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -100,11 +102,11 @@ export default function Batches() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">Batches</h1>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.batches.title}</h1>
           <p className="text-muted-foreground mt-1">
             {canManageMedicines 
-              ? 'Manage medicine batches and track expiry dates'
-              : 'View medicine batches and expiry information'}
+              ? t.batches.subtitle
+              : t.batches.subtitleView}
           </p>
         </div>
         {canManageMedicines && (
@@ -114,25 +116,24 @@ export default function Batches() {
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive">
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Delete All Expired ({stats.expired})
+                    {t.batches.deleteAllExpired} ({stats.expired})
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete All Expired Batches</AlertDialogTitle>
+                    <AlertDialogTitle>{t.batches.deleteAllExpiredTitle}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Are you sure you want to permanently delete all {stats.expired} expired batches? 
-                      This action cannot be undone.
+                      {t.batches.deleteAllExpiredDesc.replace('{count}', String(stats.expired))}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => deleteExpiredBatches.mutate()}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       disabled={deleteExpiredBatches.isPending}
                     >
-                      {deleteExpiredBatches.isPending ? 'Deleting...' : 'Delete All'}
+                      {deleteExpiredBatches.isPending ? t.batches.deleting : t.batches.deleteAll}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -147,39 +148,39 @@ export default function Batches() {
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Batches</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.batches.totalBatches}</CardTitle>
             <Layers className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
             <p className="text-xs text-muted-foreground">
-              Across {medicines.length} medicines
+              {t.batches.acrossMedicines.replace('{count}', String(medicines.length))}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expired</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.batches.expired}</CardTitle>
             <AlertTriangle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">{stats.expired}</div>
             <p className="text-xs text-muted-foreground">
-              Need to be removed
+              {t.batches.needToBeRemoved}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expiring Soon</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.batches.expiringSoon}</CardTitle>
             <Package className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-500">{stats.expiringSoon}</div>
             <p className="text-xs text-muted-foreground">
-              Within 30 days
+              {t.batches.within30Days}
             </p>
           </CardContent>
         </Card>
@@ -190,16 +191,16 @@ export default function Batches() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle>Batch List</CardTitle>
+              <CardTitle>{t.batches.batchList}</CardTitle>
               <CardDescription>
-                Search for medicines or filter by status
+                {t.batches.searchOrFilter}
               </CardDescription>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search medicines or batches..."
+                  placeholder={t.batches.searchPlaceholder}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-9"
@@ -207,10 +208,10 @@ export default function Batches() {
               </div>
               <Select value={selectedMedicineId} onValueChange={setSelectedMedicineId}>
                 <SelectTrigger className="w-full sm:w-48">
-                  <SelectValue placeholder="All Medicines" />
+                  <SelectValue placeholder={t.batches.allMedicines} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Medicines</SelectItem>
+                  <SelectItem value="all">{t.batches.allMedicines}</SelectItem>
                   {medicines.map((medicine) => (
                     <SelectItem key={medicine.id} value={medicine.id}>
                       {medicine.name}
@@ -220,13 +221,13 @@ export default function Batches() {
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full sm:w-36">
-                  <SelectValue placeholder="All Status" />
+                  <SelectValue placeholder={t.batches.allStatus} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="expiring">Expiring Soon</SelectItem>
-                  <SelectItem value="expired">Expired</SelectItem>
+                  <SelectItem value="all">{t.batches.allStatus}</SelectItem>
+                  <SelectItem value="active">{t.batches.active}</SelectItem>
+                  <SelectItem value="expiring">{t.batches.expiring}</SelectItem>
+                  <SelectItem value="expired">{t.batches.expired}</SelectItem>
                 </SelectContent>
               </Select>
               {hasActiveFilters && (
