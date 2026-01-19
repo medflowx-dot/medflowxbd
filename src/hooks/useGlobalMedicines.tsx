@@ -114,12 +114,27 @@ export function useGlobalMedicines() {
 
   const copyToLocal = useMutation({
     mutationFn: async (medicine: GlobalMedicine) => {
+      // Find matching local manufacturer by name
+      let localManufacturerId: string | undefined;
+      
+      if (medicine.manufacturer?.name) {
+        const { data: localMfr } = await supabase
+          .from('manufacturers')
+          .select('id')
+          .ilike('name', medicine.manufacturer.name)
+          .maybeSingle();
+        
+        localManufacturerId = localMfr?.id;
+      }
+      
       return createMedicine.mutateAsync({
         name: medicine.name,
         generic_name: medicine.generic_name || undefined,
         category: medicine.category || undefined,
         unit: medicine.unit,
         is_tax_applicable: medicine.is_tax_applicable,
+        manufacturer_id: localManufacturerId,
+        manufacturer: medicine.manufacturer?.name,
       });
     },
     onSuccess: () => {
@@ -136,12 +151,27 @@ export function useGlobalMedicines() {
       const results = [];
       for (const medicine of medicines) {
         try {
+          // Find matching local manufacturer by name
+          let localManufacturerId: string | undefined;
+          
+          if (medicine.manufacturer?.name) {
+            const { data: localMfr } = await supabase
+              .from('manufacturers')
+              .select('id')
+              .ilike('name', medicine.manufacturer.name)
+              .maybeSingle();
+            
+            localManufacturerId = localMfr?.id;
+          }
+          
           await createMedicine.mutateAsync({
             name: medicine.name,
             generic_name: medicine.generic_name || undefined,
             category: medicine.category || undefined,
             unit: medicine.unit,
             is_tax_applicable: medicine.is_tax_applicable,
+            manufacturer_id: localManufacturerId,
+            manufacturer: medicine.manufacturer?.name,
           });
           results.push({ success: true, name: medicine.name });
         } catch (error) {
