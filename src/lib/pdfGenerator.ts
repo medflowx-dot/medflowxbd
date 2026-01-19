@@ -464,6 +464,75 @@ export function generateDailyClosingCashPDF(
   doc.save(`daily-cash-${format(date, 'yyyy-MM-dd')}.pdf`);
 }
 
+// Order PDF Types and Generator
+export interface OrderPDFData {
+  order_number: string;
+  order_date: string;
+  supplier_name: string;
+  supplier_phone: string | null;
+  items: Array<{
+    medicine_name: string;
+    quantity: number;
+    unit: string;
+    is_tax_applicable?: boolean;
+  }>;
+  status: string;
+}
+
+export function generateOrderPDF(data: OrderPDFData, download: boolean = true): jsPDF {
+  const doc = new jsPDF();
+  const startY = addHeader(doc, 'Purchase Order');
+
+  // Order Info
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Order #: ${data.order_number}`, 14, startY);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.text(`Date: ${format(new Date(data.order_date), 'dd MMMM yyyy')}`, 14, startY + 7);
+  doc.text(`Status: ${data.status}`, 120, startY + 7);
+
+  // Supplier Info
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Supplier Details', 14, startY + 18);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.text(`Name: ${data.supplier_name}`, 14, startY + 25);
+  doc.text(`Phone: ${data.supplier_phone || '-'}`, 14, startY + 31);
+
+  // Items Table
+  autoTable(doc, {
+    startY: startY + 40,
+    head: [['#', 'Medicine Name', 'Quantity', 'Unit', 'Tax']],
+    body: data.items.map((item, index) => [
+      (index + 1).toString(),
+      item.medicine_name,
+      item.quantity.toString(),
+      item.unit,
+      item.is_tax_applicable ? 'Yes' : 'No',
+    ]),
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [20, 184, 166] }, // teal color
+  });
+
+  // Total items
+  const finalY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Total Items: ${data.items.length}`, 14, finalY + 10);
+
+  addFooter(doc);
+  
+  if (download) {
+    doc.save(`order-${data.order_number}.pdf`);
+  }
+  
+  return doc;
+}
+
 export interface ExpiryReportItem {
   id: string;
   batch_number: string;
