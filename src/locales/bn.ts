@@ -860,4 +860,53 @@ export const bn: TranslationKeys = {
     expiringWithin90Days: '৯০ দিনের মধ্যে মেয়াদ শেষ',
     customRange: 'কাস্টম পরিসীমা',
   },
+
+  // Alerts Page
+  alerts: {
+    title: 'মেয়াদ সতর্কতা',
+    subtitle: 'ব্যাচ মেয়াদ বিজ্ঞপ্তি পর্যবেক্ষণ ও পরিচালনা করুন',
+    generateAlerts: 'সতর্কতা তৈরি করুন',
+    alertsRefreshed: 'সতর্কতা রিফ্রেশ হয়েছে',
+    alertsRefreshedDesc: 'মেয়াদ সতর্কতা সর্বশেষ তথ্য দিয়ে আপডেট করা হয়েছে।',
+    // Summary cards
+    expired: 'মেয়াদোত্তীর্ণ',
+    within30Days: '≤৩০ দিন',
+    within60Days: '৩১-৬০ দিন',
+    within90Days: '৬১-৯০ দিন',
+    pending: 'মুলতুবি',
+    // Tabs
+    expiringBatches: 'মেয়াদ শেষ হচ্ছে এমন ব্যাচ',
+    alertHistory: 'সতর্কতা ইতিহাস',
+    // Batch status
+    expiredBadge: 'মেয়াদোত্তীর্ণ',
+    daysLeft: 'দিন বাকি',
+    batch: 'ব্যাচ',
+    // Batch groups
+    expiredGroup: 'মেয়াদোত্তীর্ণ',
+    criticalGroup: 'জরুরি – ৩০ দিনের মধ্যে',
+    warningGroup: 'সতর্কতা – ৩১ থেকে ৬০ দিন',
+    cautionGroup: 'সাবধানতা – ৬১ থেকে ৯০ দিন',
+    // Empty states
+    loadingAlerts: 'মেয়াদ সতর্কতা লোড হচ্ছে...',
+    allClear: 'সব ঠিক আছে!',
+    noExpiringBatches: 'এই মুহূর্তে কোনো মেয়াদোত্তীর্ণ বা মেয়াদ শেষ হওয়া ব্যাচ নেই।',
+    // Alert history
+    alertHistoryTitle: 'সতর্কতা ইতিহাস',
+    alertHistoryDesc: 'পূর্ববর্তী মেয়াদ সতর্কতা ও গৃহীত পদক্ষেপের রেকর্ড',
+    alertHistoryComingSoon: 'সতর্কতা ইতিহাস ভবিষ্যত আপডেটে পাওয়া যাবে।',
+    alertHistoryNote: 'এটি সতর্কতা কখন তৈরি হয়েছে এবং কী পদক্ষেপ নেওয়া হয়েছে তা ট্র্যাক করবে।',
+  },
+
+  // Expiry Alerts Component (Dashboard)
+  expiryAlerts: {
+    title: 'মেয়াদ সতর্কতা',
+    noAlerts: 'এই মুহূর্তে কোনো মেয়াদ সতর্কতা নেই',
+    allSafe: 'সব ঔষধ নিরাপদ মেয়াদের মধ্যে আছে ✓',
+    expiringSoon: 'শীঘ্রই মেয়াদ শেষ বা ইতিমধ্যে মেয়াদোত্তীর্ণ ঔষধ',
+    expired: 'মেয়াদোত্তীর্ণ',
+    expiring30: '৩০ দিনের মধ্যে মেয়াদ শেষ',
+    expiring60: '৬০ দিনের মধ্যে মেয়াদ শেষ',
+    expiring90: '৯০ দিনের মধ্যে মেয়াদ শেষ',
+    batch: 'ব্যাচ',
+  },
 };

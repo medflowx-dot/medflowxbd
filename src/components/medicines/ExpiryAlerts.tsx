@@ -4,9 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useExpiryAlerts } from '@/hooks/useMedicines';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function ExpiryAlerts() {
   const { expired, expiring30, expiring60, expiring90 } = useExpiryAlerts();
+  const { t } = useLanguage();
 
   const hasAlerts = expired.length > 0 || expiring30.length > 0 || expiring60.length > 0 || expiring90.length > 0;
 
@@ -16,13 +18,13 @@ export function ExpiryAlerts() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Expiry Alerts
+            {t.expiryAlerts.title}
           </CardTitle>
-          <CardDescription>No expiry alerts at this time</CardDescription>
+          <CardDescription>{t.expiryAlerts.noAlerts}</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground text-center py-4">
-            All medicines are within safe expiry dates ✓
+            {t.expiryAlerts.allSafe}
           </p>
         </CardContent>
       </Card>
@@ -34,10 +36,10 @@ export function ExpiryAlerts() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <AlertTriangle className="h-5 w-5 text-destructive" />
-          Expiry Alerts
+          {t.expiryAlerts.title}
         </CardTitle>
         <CardDescription>
-          Medicines expiring soon or already expired
+          {t.expiryAlerts.expiringSoon}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -48,7 +50,7 @@ export function ExpiryAlerts() {
               <div>
                 <h4 className="font-medium text-destructive flex items-center gap-2 mb-2">
                   <AlertCircle className="h-4 w-4" />
-                  Expired ({expired.length})
+                  {t.expiryAlerts.expired} ({expired.length})
                 </h4>
                 <div className="space-y-2">
                   {expired.map((batch) => (
@@ -59,7 +61,7 @@ export function ExpiryAlerts() {
                       <div>
                         <p className="font-medium text-sm">{batch.medicine_name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Batch: {batch.batch_number}
+                          {t.expiryAlerts.batch}: {batch.batch_number}
                         </p>
                       </div>
                       <Badge variant="destructive">
@@ -76,7 +78,7 @@ export function ExpiryAlerts() {
               <div>
                 <h4 className="font-medium text-orange-600 flex items-center gap-2 mb-2">
                   <AlertTriangle className="h-4 w-4" />
-                  Expiring in 30 Days ({expiring30.length})
+                  {t.expiryAlerts.expiring30} ({expiring30.length})
                 </h4>
                 <div className="space-y-2">
                   {expiring30.map((batch) => (
@@ -87,7 +89,7 @@ export function ExpiryAlerts() {
                       <div>
                         <p className="font-medium text-sm">{batch.medicine_name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Batch: {batch.batch_number}
+                          {t.expiryAlerts.batch}: {batch.batch_number}
                         </p>
                       </div>
                       <Badge className="bg-orange-500 hover:bg-orange-600">
@@ -104,7 +106,7 @@ export function ExpiryAlerts() {
               <div>
                 <h4 className="font-medium text-yellow-600 flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4" />
-                  Expiring in 60 Days ({expiring60.length})
+                  {t.expiryAlerts.expiring60} ({expiring60.length})
                 </h4>
                 <div className="space-y-2">
                   {expiring60.map((batch) => (
@@ -115,7 +117,7 @@ export function ExpiryAlerts() {
                       <div>
                         <p className="font-medium text-sm">{batch.medicine_name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Batch: {batch.batch_number}
+                          {t.expiryAlerts.batch}: {batch.batch_number}
                         </p>
                       </div>
                       <Badge className="bg-yellow-500 hover:bg-yellow-600 text-yellow-950">
@@ -132,7 +134,7 @@ export function ExpiryAlerts() {
               <div>
                 <h4 className="font-medium text-blue-600 flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4" />
-                  Expiring in 90 Days ({expiring90.length})
+                  {t.expiryAlerts.expiring90} ({expiring90.length})
                 </h4>
                 <div className="space-y-2">
                   {expiring90.map((batch) => (
@@ -143,7 +145,7 @@ export function ExpiryAlerts() {
                       <div>
                         <p className="font-medium text-sm">{batch.medicine_name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Batch: {batch.batch_number}
+                          {t.expiryAlerts.batch}: {batch.batch_number}
                         </p>
                       </div>
                       <Badge className="bg-blue-500 hover:bg-blue-600">

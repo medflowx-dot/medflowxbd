@@ -12,14 +12,16 @@ import {
   RefreshCw,
   CheckCircle2
 } from 'lucide-react';
-import { format, differenceInDays } from 'date-fns';
+import { format } from 'date-fns';
 import { useExpiryMonitoring, useExpirySummary } from '@/hooks/useExpiryMonitoring';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Alerts() {
   const [activeTab, setActiveTab] = useState('expiring');
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
   
   const { data: allBatches, isLoading } = useExpiryMonitoring('all');
   const { data: summary, isLoading: summaryLoading } = useExpirySummary();
@@ -34,8 +36,8 @@ export default function Alerts() {
     queryClient.invalidateQueries({ queryKey: ['expiry-monitoring'] });
     queryClient.invalidateQueries({ queryKey: ['expiry-summary'] });
     toast({
-      title: 'Alerts refreshed',
-      description: 'Expiry alerts have been updated with the latest data.',
+      title: t.alerts.alertsRefreshed,
+      description: t.alerts.alertsRefreshedDesc,
     });
   };
 
@@ -43,7 +45,7 @@ export default function Alerts() {
     if (status === 'expired') {
       return (
         <Badge variant="destructive" className="text-xs">
-          Expired
+          {t.alerts.expiredBadge}
         </Badge>
       );
     }
@@ -55,7 +57,7 @@ export default function Alerts() {
     
     return (
       <Badge className={`text-xs ${bgColor}`}>
-        {daysUntilExpiry}d left
+        {daysUntilExpiry}{t.alerts.daysLeft}
       </Badge>
     );
   };
@@ -86,7 +88,7 @@ export default function Alerts() {
                 <div className="flex-1">
                   <div className="font-medium">{batch.medicine_name}</div>
                   <div className="text-sm text-muted-foreground">
-                    Batch: {batch.batch_number}
+                    {t.alerts.batch}: {batch.batch_number}
                   </div>
                 </div>
                 <div className="text-right">
@@ -107,14 +109,14 @@ export default function Alerts() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">Expiry Alerts</h1>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.alerts.title}</h1>
           <p className="text-muted-foreground mt-1">
-            Monitor and manage batch expiry notifications
+            {t.alerts.subtitle}
           </p>
         </div>
         <Button onClick={handleGenerateAlerts} disabled={isLoading}>
           <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-          Generate Alerts
+          {t.alerts.generateAlerts}
         </Button>
       </div>
 
@@ -124,7 +126,7 @@ export default function Alerts() {
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-red-500" />
-              <span className="text-red-600">Expired</span>
+              <span className="text-red-600">{t.alerts.expired}</span>
             </CardDescription>
             <CardTitle className="text-2xl text-red-600">
               {summaryLoading ? '...' : summary?.expired.count || 0}
@@ -136,7 +138,7 @@ export default function Alerts() {
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 text-orange-500" />
-              <span className="text-orange-600">≤30 Days</span>
+              <span className="text-orange-600">{t.alerts.within30Days}</span>
             </CardDescription>
             <CardTitle className="text-2xl text-orange-600">
               {summaryLoading ? '...' : summary?.within30Days.count || 0}
@@ -148,7 +150,7 @@ export default function Alerts() {
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-yellow-600" />
-              <span className="text-yellow-600">31-60 Days</span>
+              <span className="text-yellow-600">{t.alerts.within60Days}</span>
             </CardDescription>
             <CardTitle className="text-2xl text-yellow-600">
               {summaryLoading ? '...' : summary?.within60Days.count || 0}
@@ -160,7 +162,7 @@ export default function Alerts() {
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-blue-500" />
-              <span className="text-blue-600">61-90 Days</span>
+              <span className="text-blue-600">{t.alerts.within90Days}</span>
             </CardDescription>
             <CardTitle className="text-2xl text-blue-600">
               {summaryLoading ? '...' : summary?.within90Days.count || 0}
@@ -172,7 +174,7 @@ export default function Alerts() {
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
               <Bell className="h-4 w-4" />
-              Pending
+              {t.alerts.pending}
             </CardDescription>
             <CardTitle className="text-2xl">
               {summaryLoading ? '...' : summary?.totalAtRisk || 0}
@@ -184,49 +186,49 @@ export default function Alerts() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
-          <TabsTrigger value="expiring">Expiring Batches</TabsTrigger>
-          <TabsTrigger value="history">Alert History</TabsTrigger>
+          <TabsTrigger value="expiring">{t.alerts.expiringBatches}</TabsTrigger>
+          <TabsTrigger value="history">{t.alerts.alertHistory}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="expiring">
           {isLoading ? (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
-                Loading expiry alerts...
+                {t.alerts.loadingAlerts}
               </CardContent>
             </Card>
           ) : (allBatches?.length || 0) === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <CheckCircle2 className="h-12 w-12 mx-auto text-green-500 mb-4" />
-                <h3 className="font-semibold text-lg mb-2">All Clear!</h3>
+                <h3 className="font-semibold text-lg mb-2">{t.alerts.allClear}</h3>
                 <p className="text-muted-foreground">
-                  No expiring or expired batches at this time.
+                  {t.alerts.noExpiringBatches}
                 </p>
               </CardContent>
             </Card>
           ) : (
             <ScrollArea className="h-[calc(100vh-400px)] pr-4">
               {renderBatchGroup(
-                'Expired',
+                t.alerts.expiredGroup,
                 expiredBatches,
                 <AlertTriangle className="h-5 w-5" />,
                 'text-red-600'
               )}
               {renderBatchGroup(
-                'Critical – Within 30 Days',
+                t.alerts.criticalGroup,
                 criticalBatches,
                 <AlertCircle className="h-5 w-5" />,
                 'text-orange-600'
               )}
               {renderBatchGroup(
-                'Warning – 31 to 60 Days',
+                t.alerts.warningGroup,
                 warningBatches,
                 <Clock className="h-5 w-5" />,
                 'text-yellow-600'
               )}
               {renderBatchGroup(
-                'Caution – 61 to 90 Days',
+                t.alerts.cautionGroup,
                 cautionBatches,
                 <Clock className="h-5 w-5" />,
                 'text-blue-600'
@@ -240,18 +242,18 @@ export default function Alerts() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5" />
-                Alert History
+                {t.alerts.alertHistoryTitle}
               </CardTitle>
               <CardDescription>
-                Record of past expiry alerts and actions taken
+                {t.alerts.alertHistoryDesc}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="py-8 text-center text-muted-foreground">
                 <Bell className="h-12 w-12 mx-auto mb-4 opacity-30" />
-                <p>Alert history will be available in a future update.</p>
+                <p>{t.alerts.alertHistoryComingSoon}</p>
                 <p className="text-sm mt-2">
-                  This will track when alerts were generated and any actions taken.
+                  {t.alerts.alertHistoryNote}
                 </p>
               </div>
             </CardContent>
