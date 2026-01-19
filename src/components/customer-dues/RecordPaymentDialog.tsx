@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useRecordPayment } from '@/hooks/useCustomerDues';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface RecordPaymentDialogProps {
   open: boolean;
@@ -32,6 +33,7 @@ export function RecordPaymentDialog({ open, onOpenChange, customer }: RecordPaym
   const [notes, setNotes] = useState('');
 
   const recordPayment = useRecordPayment();
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,22 +76,22 @@ export function RecordPaymentDialog({ open, onOpenChange, customer }: RecordPaym
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Record Payment</DialogTitle>
+          <DialogTitle>{t.customerDues.recordPaymentTitle}</DialogTitle>
           <DialogDescription>
-            Record a payment from {customer.name}
+            {t.customerDues.recordPaymentFrom} {customer.name}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="rounded-lg bg-destructive/10 p-3">
-            <p className="text-sm text-muted-foreground">Outstanding Due</p>
+            <p className="text-sm text-muted-foreground">{t.customerDues.outstandingDue}</p>
             <p className="text-xl font-bold text-destructive">৳{maxAmount.toFixed(2)}</p>
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <Label htmlFor="amount">Payment Amount (৳) *</Label>
+              <Label htmlFor="amount">{t.customerDues.paymentAmount} *</Label>
               <Button type="button" variant="link" size="sm" onClick={handlePayFull}>
-                Pay Full Amount
+                {t.customerDues.payFullAmount}
               </Button>
             </div>
             <Input
@@ -100,41 +102,41 @@ export function RecordPaymentDialog({ open, onOpenChange, customer }: RecordPaym
               max={maxAmount}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="Enter amount"
+              placeholder={t.customerDues.enterAmount}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="paymentMethod">Payment Method</Label>
+            <Label htmlFor="paymentMethod">{t.customerDues.paymentMethod}</Label>
             <Select value={paymentMethod} onValueChange={setPaymentMethod}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="cash">Cash</SelectItem>
-                <SelectItem value="bkash">bKash</SelectItem>
-                <SelectItem value="nagad">Nagad</SelectItem>
-                <SelectItem value="bank">Bank Transfer</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="cash">{t.customerDues.cash}</SelectItem>
+                <SelectItem value="bkash">{t.customerDues.bkash}</SelectItem>
+                <SelectItem value="nagad">{t.customerDues.nagad}</SelectItem>
+                <SelectItem value="bank">{t.customerDues.bankTransfer}</SelectItem>
+                <SelectItem value="other">{t.customerDues.other}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
+            <Label htmlFor="notes">{t.customerDues.notesOptional}</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Any additional notes..."
+              placeholder={t.customerDues.additionalNotes}
               rows={2}
             />
           </div>
 
           {amount && parseFloat(amount) > 0 && (
             <div className="rounded-lg bg-green-100 dark:bg-green-900/30 p-3">
-              <p className="text-sm text-muted-foreground">Remaining Due After Payment</p>
+              <p className="text-sm text-muted-foreground">{t.customerDues.remainingDue}</p>
               <p className="text-xl font-bold text-green-600">
                 ৳{Math.max(0, remainingAfterPayment).toFixed(2)}
               </p>
@@ -143,13 +145,13 @@ export function RecordPaymentDialog({ open, onOpenChange, customer }: RecordPaym
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t.actions.cancel}
             </Button>
             <Button 
               type="submit" 
               disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > maxAmount || recordPayment.isPending}
             >
-              {recordPayment.isPending ? 'Recording...' : 'Record Payment'}
+              {recordPayment.isPending ? t.customerDues.recording : t.customerDues.recordPayment}
             </Button>
           </DialogFooter>
         </form>

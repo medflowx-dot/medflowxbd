@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAddCustomerDue } from '@/hooks/useCustomerDues';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AddDueDialogProps {
   open: boolean;
@@ -24,6 +25,7 @@ export function AddDueDialog({ open, onOpenChange, customer }: AddDueDialogProps
   const [notes, setNotes] = useState('');
 
   const addDue = useAddCustomerDue();
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,19 +57,19 @@ export function AddDueDialog({ open, onOpenChange, customer }: AddDueDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Due Amount</DialogTitle>
+          <DialogTitle>{t.customerDues.addDueAmount}</DialogTitle>
           <DialogDescription>
-            Add a new due amount for {customer.name}
+            {t.customerDues.addDueFor} {customer.name}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="rounded-lg bg-muted p-3">
-            <p className="text-sm text-muted-foreground">Current Due</p>
+            <p className="text-sm text-muted-foreground">{t.customerDues.currentDue}</p>
             <p className="text-xl font-bold">৳{Number(customer.total_due).toFixed(2)}</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="amount">Amount to Add (৳) *</Label>
+            <Label htmlFor="amount">{t.customerDues.amountToAdd} *</Label>
             <Input
               id="amount"
               type="number"
@@ -75,25 +77,25 @@ export function AddDueDialog({ open, onOpenChange, customer }: AddDueDialogProps
               min="0.01"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="Enter amount"
+              placeholder={t.customerDues.enterAmount}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
+            <Label htmlFor="notes">{t.customerDues.notesOptional}</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="What is this due for?"
+              placeholder={t.customerDues.whatIsDueFor}
               rows={2}
             />
           </div>
 
           {amount && (
             <div className="rounded-lg bg-primary/10 p-3">
-              <p className="text-sm text-muted-foreground">New Total Due</p>
+              <p className="text-sm text-muted-foreground">{t.customerDues.newTotalDue}</p>
               <p className="text-xl font-bold text-primary">
                 ৳{(Number(customer.total_due) + parseFloat(amount || '0')).toFixed(2)}
               </p>
@@ -102,10 +104,10 @@ export function AddDueDialog({ open, onOpenChange, customer }: AddDueDialogProps
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t.actions.cancel}
             </Button>
             <Button type="submit" disabled={!amount || addDue.isPending}>
-              {addDue.isPending ? 'Adding...' : 'Add Due'}
+              {addDue.isPending ? t.customerDues.addingDue : t.customerDues.addDue}
             </Button>
           </DialogFooter>
         </form>
