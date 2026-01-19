@@ -25,7 +25,7 @@ const problems = [
 
 const WhyChooseUs = () => {
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
       {/* Background Decorations */}
       <div className="absolute top-1/4 left-0 w-72 h-72 bg-destructive/5 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-success/5 rounded-full blur-3xl" />
