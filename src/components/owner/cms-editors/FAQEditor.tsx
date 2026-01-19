@@ -4,8 +4,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Save, Loader2, Plus, Trash2, GripVertical, ChevronDown, ChevronUp } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Save, Loader2, Plus, Trash2, GripVertical, ChevronDown, ChevronUp, Eye, Edit3 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import SectionPreview from './SectionPreview';
 
 interface FAQItem {
   question: string;
@@ -31,6 +33,7 @@ export default function FAQEditor({ content, onSave, isSaving }: FAQEditorProps)
     faqs: [],
   });
   const [openItems, setOpenItems] = useState<Record<number, boolean>>({});
+  const [activeTab, setActiveTab] = useState<string>('edit');
 
   useEffect(() => {
     if (content) {
@@ -78,118 +81,151 @@ export default function FAQEditor({ content, onSave, isSaving }: FAQEditorProps)
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Header</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => handleChange('title', e.target.value)}
-              placeholder="Enter FAQ section title..."
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="subtitle">Subtitle</Label>
-            <Textarea
-              id="subtitle"
-              value={formData.subtitle}
-              onChange={(e) => handleChange('subtitle', e.target.value)}
-              placeholder="Enter FAQ section subtitle..."
-              rows={2}
-            />
-          </div>
-        </CardContent>
-      </Card>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <TabsList className="grid w-full grid-cols-2 mb-4">
+        <TabsTrigger value="edit">
+          <Edit3 className="h-4 w-4 mr-2" />
+          Edit
+        </TabsTrigger>
+        <TabsTrigger value="preview">
+          <Eye className="h-4 w-4 mr-2" />
+          Preview
+        </TabsTrigger>
+      </TabsList>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center justify-between">
-            FAQ Items
-            <Button type="button" size="sm" variant="outline" onClick={addFAQ}>
-              <Plus className="h-4 w-4 mr-1" />
-              Add FAQ
+      <TabsContent value="preview" className="mt-0">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Live Preview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SectionPreview sectionKey="faq" content={formData} />
+          </CardContent>
+        </Card>
+        <div className="flex justify-end mt-4">
+          <Button onClick={() => onSave(formData)} disabled={isSaving}>
+            {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            <Save className="h-4 w-4 mr-2" />
+            Save Changes
+          </Button>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="edit" className="mt-0">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Header</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => handleChange('title', e.target.value)}
+                  placeholder="Enter FAQ section title..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subtitle">Subtitle</Label>
+                <Textarea
+                  id="subtitle"
+                  value={formData.subtitle}
+                  onChange={(e) => handleChange('subtitle', e.target.value)}
+                  placeholder="Enter FAQ section subtitle..."
+                  rows={2}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                FAQ Items
+                <Button type="button" size="sm" variant="outline" onClick={addFAQ}>
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add FAQ
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {formData.faqs.map((faq, index) => (
+                <Collapsible key={index} open={openItems[index]} onOpenChange={() => toggleItem(index)}>
+                  <Card className="bg-muted/50">
+                    <CardContent className="p-0">
+                      <CollapsibleTrigger asChild>
+                        <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/80 rounded-t-lg">
+                          <div className="flex items-center gap-3">
+                            <GripVertical className="h-5 w-5 text-muted-foreground" />
+                            <span className="font-medium">
+                              {faq.question || `FAQ ${index + 1}`}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeFAQ(index);
+                              }}
+                              className="shrink-0 text-destructive hover:text-destructive h-8 w-8"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                            {openItems[index] ? (
+                              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
+                        </div>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <div className="p-4 pt-0 space-y-4">
+                          <div className="space-y-2">
+                            <Label>Question</Label>
+                            <Input
+                              value={faq.question}
+                              onChange={(e) => handleFAQChange(index, 'question', e.target.value)}
+                              placeholder="Enter the question..."
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Answer</Label>
+                            <Textarea
+                              value={faq.answer}
+                              onChange={(e) => handleFAQChange(index, 'answer', e.target.value)}
+                              placeholder="Enter the answer..."
+                              rows={4}
+                            />
+                          </div>
+                        </div>
+                      </CollapsibleContent>
+                    </CardContent>
+                  </Card>
+                </Collapsible>
+              ))}
+              {formData.faqs.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No FAQs added. Click "Add FAQ" to add one.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end">
+            <Button type="submit" disabled={isSaving}>
+              {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              <Save className="h-4 w-4 mr-2" />
+              Save Changes
             </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {formData.faqs.map((faq, index) => (
-            <Collapsible key={index} open={openItems[index]} onOpenChange={() => toggleItem(index)}>
-              <Card className="bg-muted/50">
-                <CardContent className="p-0">
-                  <CollapsibleTrigger asChild>
-                    <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/80 rounded-t-lg">
-                      <div className="flex items-center gap-3">
-                        <GripVertical className="h-5 w-5 text-muted-foreground" />
-                        <span className="font-medium">
-                          {faq.question || `FAQ ${index + 1}`}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeFAQ(index);
-                          }}
-                          className="shrink-0 text-destructive hover:text-destructive h-8 w-8"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        {openItems[index] ? (
-                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </div>
-                    </div>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <div className="p-4 pt-0 space-y-4">
-                      <div className="space-y-2">
-                        <Label>Question</Label>
-                        <Input
-                          value={faq.question}
-                          onChange={(e) => handleFAQChange(index, 'question', e.target.value)}
-                          placeholder="Enter the question..."
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Answer</Label>
-                        <Textarea
-                          value={faq.answer}
-                          onChange={(e) => handleFAQChange(index, 'answer', e.target.value)}
-                          placeholder="Enter the answer..."
-                          rows={4}
-                        />
-                      </div>
-                    </div>
-                  </CollapsibleContent>
-                </CardContent>
-              </Card>
-            </Collapsible>
-          ))}
-          {formData.faqs.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No FAQs added. Click "Add FAQ" to add one.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSaving}>
-          {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-          <Save className="h-4 w-4 mr-2" />
-          Save Changes
-        </Button>
-      </div>
-    </form>
+          </div>
+        </form>
+      </TabsContent>
+    </Tabs>
   );
 }

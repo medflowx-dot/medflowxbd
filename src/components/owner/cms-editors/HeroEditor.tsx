@@ -4,8 +4,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Save, Loader2, Plus, Trash2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Save, Loader2, Plus, Trash2, Eye, Edit3 } from 'lucide-react';
 import ImagePicker from './ImagePicker';
+import SectionPreview from './SectionPreview';
 
 interface HeroContent {
   title: string;
@@ -33,6 +35,7 @@ export default function HeroEditor({ content, onSave, isSaving }: HeroEditorProp
     trust_items: [],
     hero_image: '',
   });
+  const [activeTab, setActiveTab] = useState<string>('edit');
 
   useEffect(() => {
     if (content) {
@@ -75,124 +78,157 @@ export default function HeroEditor({ content, onSave, isSaving }: HeroEditorProp
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Main Content</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => handleChange('title', e.target.value)}
-              placeholder="Enter hero title..."
-            />
-          </div>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <TabsList className="grid w-full grid-cols-2 mb-4">
+        <TabsTrigger value="edit">
+          <Edit3 className="h-4 w-4 mr-2" />
+          Edit
+        </TabsTrigger>
+        <TabsTrigger value="preview">
+          <Eye className="h-4 w-4 mr-2" />
+          Preview
+        </TabsTrigger>
+      </TabsList>
 
-          <div className="space-y-2">
-            <Label htmlFor="subtitle">Subtitle</Label>
-            <Textarea
-              id="subtitle"
-              value={formData.subtitle}
-              onChange={(e) => handleChange('subtitle', e.target.value)}
-              placeholder="Enter hero subtitle..."
-              rows={3}
-            />
-          </div>
+      <TabsContent value="preview" className="mt-0">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Live Preview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SectionPreview sectionKey="hero" content={formData} />
+          </CardContent>
+        </Card>
+        <div className="flex justify-end mt-4">
+          <Button onClick={() => onSave(formData)} disabled={isSaving}>
+            {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            <Save className="h-4 w-4 mr-2" />
+            Save Changes
+          </Button>
+        </div>
+      </TabsContent>
 
-          <div className="space-y-2">
-            <Label htmlFor="badge_text">Badge Text</Label>
-            <Input
-              id="badge_text"
-              value={formData.badge_text}
-              onChange={(e) => handleChange('badge_text', e.target.value)}
-              placeholder="e.g., #1 Pharmacy Software"
-            />
-          </div>
+      <TabsContent value="edit" className="mt-0">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Main Content</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => handleChange('title', e.target.value)}
+                  placeholder="Enter hero title..."
+                />
+              </div>
 
-          <ImagePicker
-            label="Hero Image (Optional)"
-            value={formData.hero_image || ''}
-            onChange={(url) => handleChange('hero_image', url)}
-            placeholder="Select or enter hero image URL"
-          />
-        </CardContent>
-      </Card>
+              <div className="space-y-2">
+                <Label htmlFor="subtitle">Subtitle</Label>
+                <Textarea
+                  id="subtitle"
+                  value={formData.subtitle}
+                  onChange={(e) => handleChange('subtitle', e.target.value)}
+                  placeholder="Enter hero subtitle..."
+                  rows={3}
+                />
+              </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Call to Action Buttons</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="primary_cta">Primary CTA</Label>
-              <Input
-                id="primary_cta"
-                value={formData.primary_cta}
-                onChange={(e) => handleChange('primary_cta', e.target.value)}
-                placeholder="e.g., Start Free Trial"
+              <div className="space-y-2">
+                <Label htmlFor="badge_text">Badge Text</Label>
+                <Input
+                  id="badge_text"
+                  value={formData.badge_text}
+                  onChange={(e) => handleChange('badge_text', e.target.value)}
+                  placeholder="e.g., #1 Pharmacy Software"
+                />
+              </div>
+
+              <ImagePicker
+                label="Hero Image (Optional)"
+                value={formData.hero_image || ''}
+                onChange={(url) => handleChange('hero_image', url)}
+                placeholder="Select or enter hero image URL"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="secondary_cta">Secondary CTA</Label>
-              <Input
-                id="secondary_cta"
-                value={formData.secondary_cta}
-                onChange={(e) => handleChange('secondary_cta', e.target.value)}
-                placeholder="e.g., Watch Demo"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center justify-between">
-            Trust Items
-            <Button type="button" size="sm" variant="outline" onClick={addTrustItem}>
-              <Plus className="h-4 w-4 mr-1" />
-              Add Item
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Call to Action Buttons</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="primary_cta">Primary CTA</Label>
+                  <Input
+                    id="primary_cta"
+                    value={formData.primary_cta}
+                    onChange={(e) => handleChange('primary_cta', e.target.value)}
+                    placeholder="e.g., Start Free Trial"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="secondary_cta">Secondary CTA</Label>
+                  <Input
+                    id="secondary_cta"
+                    value={formData.secondary_cta}
+                    onChange={(e) => handleChange('secondary_cta', e.target.value)}
+                    placeholder="e.g., Watch Demo"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                Trust Items
+                <Button type="button" size="sm" variant="outline" onClick={addTrustItem}>
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Item
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {formData.trust_items.map((item, index) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    value={item}
+                    onChange={(e) => handleTrustItemChange(index, e.target.value)}
+                    placeholder="e.g., No credit card required"
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => removeTrustItem(index)}
+                    className="shrink-0 text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              {formData.trust_items.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No trust items added. Click "Add Item" to add one.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end">
+            <Button type="submit" disabled={isSaving}>
+              {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              <Save className="h-4 w-4 mr-2" />
+              Save Changes
             </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {formData.trust_items.map((item, index) => (
-            <div key={index} className="flex gap-2">
-              <Input
-                value={item}
-                onChange={(e) => handleTrustItemChange(index, e.target.value)}
-                placeholder="e.g., No credit card required"
-              />
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                onClick={() => removeTrustItem(index)}
-                className="shrink-0 text-destructive hover:text-destructive"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-          {formData.trust_items.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No trust items added. Click "Add Item" to add one.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSaving}>
-          {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-          <Save className="h-4 w-4 mr-2" />
-          Save Changes
-        </Button>
-      </div>
-    </form>
+          </div>
+        </form>
+      </TabsContent>
+    </Tabs>
   );
 }
