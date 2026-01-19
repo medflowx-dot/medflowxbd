@@ -54,7 +54,7 @@ import * as XLSX from 'xlsx';
 const UNITS = ['pcs', 'strip', 'box', 'bottle', 'tube', 'vial', 'sachet'];
 
 export default function GlobalMedicines() {
-  const { medicines, isLoading, createGlobalMedicine, updateGlobalMedicine, deleteGlobalMedicine, bulkCreate, bulkDelete } = useGlobalMedicines();
+  const { medicines, totalCount, isLoading, createGlobalMedicine, updateGlobalMedicine, deleteGlobalMedicine, bulkCreate, bulkDelete } = useGlobalMedicines();
   const { manufacturers } = useGlobalManufacturers();
   const [searchTerm, setSearchTerm] = useState('');
   const [manufacturerFilter, setManufacturerFilter] = useState<string>('all');
@@ -524,7 +524,7 @@ export default function GlobalMedicines() {
             <Pill className="h-4 w-4" />
             Total Medicines
           </CardDescription>
-          <CardTitle className="text-2xl">{medicines.length}</CardTitle>
+          <CardTitle className="text-2xl">{totalCount.toLocaleString()}</CardTitle>
         </CardHeader>
       </Card>
 
