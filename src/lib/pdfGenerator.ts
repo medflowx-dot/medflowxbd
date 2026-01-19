@@ -869,3 +869,133 @@ export function generateAllSuppliersPDF(
   addFooter(doc);
   doc.save(`all-suppliers-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 }
+
+// Cash Flow Summary Report (Weekly/Monthly)
+export interface CashFlowDaySummary {
+  date: string;
+  openingCash: number;
+  salesCashIn: number;
+  dueCollected: number;
+  supplierPayments: number;
+  dailyCosts: number;
+  totalIn: number;
+  totalOut: number;
+  closingCash: number;
+}
+
+export function generateCashFlowSummaryPDF(
+  data: CashFlowDaySummary[],
+  dateRange: { start: Date; end: Date }
+) {
+  const doc = new jsPDF();
+  const startY = addHeader(doc, 'Cash Flow Summary Report', dateRange);
+
+  // Calculate totals
+  const totals = data.reduce(
+    (acc, day) => ({
+      salesCashIn: acc.salesCashIn + day.salesCashIn,
+      dueCollected: acc.dueCollected + day.dueCollected,
+      supplierPayments: acc.supplierPayments + day.supplierPayments,
+      dailyCosts: acc.dailyCosts + day.dailyCosts,
+      totalIn: acc.totalIn + day.totalIn,
+      totalOut: acc.totalOut + day.totalOut,
+    }),
+    {
+      salesCashIn: 0,
+      dueCollected: 0,
+      supplierPayments: 0,
+      dailyCosts: 0,
+      totalIn: 0,
+      totalOut: 0,
+    }
+  );
+
+  const netCashFlow = totals.totalIn - totals.totalOut;
+  const firstDayOpening = data.length > 0 ? data[0].openingCash : 0;
+  const lastDayClosing = data.length > 0 ? data[data.length - 1].closingCash : 0;
+
+  // Summary Section
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Period Summary', 14, startY);
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  
+  const summaryStartY = startY + 8;
+  
+  // Opening & Closing
+  doc.text(`Opening Balance (First Day):`, 14, summaryStartY);
+  doc.text(`${CURRENCY}${firstDayOpening.toLocaleString()}`, 80, summaryStartY);
+  doc.text(`Closing Balance (Last Day):`, 110, summaryStartY);
+  doc.text(`${CURRENCY}${lastDayClosing.toLocaleString()}`, 170, summaryStartY);
+  
+  // Cash In breakdown
+  doc.setFont('helvetica', 'bold');
+  doc.text('Total Cash In:', 14, summaryStartY + 8);
+  doc.text(`${CURRENCY}${totals.totalIn.toLocaleString()}`, 80, summaryStartY + 8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Sales: ${CURRENCY}${totals.salesCashIn.toLocaleString()}`, 20, summaryStartY + 14);
+  doc.text(`Due Collected: ${CURRENCY}${totals.dueCollected.toLocaleString()}`, 80, summaryStartY + 14);
+  
+  // Cash Out breakdown
+  doc.setFont('helvetica', 'bold');
+  doc.text('Total Cash Out:', 14, summaryStartY + 22);
+  doc.text(`${CURRENCY}${totals.totalOut.toLocaleString()}`, 80, summaryStartY + 22);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Supplier Payments: ${CURRENCY}${totals.supplierPayments.toLocaleString()}`, 20, summaryStartY + 28);
+  doc.text(`Daily Costs: ${CURRENCY}${totals.dailyCosts.toLocaleString()}`, 80, summaryStartY + 28);
+
+  // Net Cash Flow (highlighted)
+  doc.setFillColor(netCashFlow >= 0 ? 240 : 254, netCashFlow >= 0 ? 253 : 242, netCashFlow >= 0 ? 244 : 242);
+  doc.rect(14, summaryStartY + 34, 100, 10, 'F');
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('NET CASH FLOW:', 16, summaryStartY + 41);
+  doc.setTextColor(netCashFlow >= 0 ? 22 : 220, netCashFlow >= 0 ? 163 : 38, netCashFlow >= 0 ? 74 : 38);
+  doc.text(`${netCashFlow >= 0 ? '+' : ''}${CURRENCY}${netCashFlow.toLocaleString()}`, 70, summaryStartY + 41);
+  doc.setTextColor(0);
+
+  // Daily Details Table
+  const tableStartY = summaryStartY + 52;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Daily Breakdown', 14, tableStartY);
+
+  autoTable(doc, {
+    startY: tableStartY + 6,
+    head: [['Date', 'Opening', 'Cash In', 'Cash Out', 'Closing', 'Net']],
+    body: data.map(day => {
+      const net = day.totalIn - day.totalOut;
+      return [
+        format(new Date(day.date), 'EEE, MMM dd'),
+        `${CURRENCY}${day.openingCash.toLocaleString()}`,
+        `${CURRENCY}${day.totalIn.toLocaleString()}`,
+        `${CURRENCY}${day.totalOut.toLocaleString()}`,
+        `${CURRENCY}${day.closingCash.toLocaleString()}`,
+        `${net >= 0 ? '+' : ''}${CURRENCY}${net.toLocaleString()}`,
+      ];
+    }),
+    foot: [[
+      'TOTAL',
+      '-',
+      `${CURRENCY}${totals.totalIn.toLocaleString()}`,
+      `${CURRENCY}${totals.totalOut.toLocaleString()}`,
+      '-',
+      `${netCashFlow >= 0 ? '+' : ''}${CURRENCY}${netCashFlow.toLocaleString()}`,
+    ]],
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [59, 130, 246] },
+    footStyles: { fillColor: [243, 244, 246], fontStyle: 'bold', textColor: [0, 0, 0] },
+    columnStyles: {
+      1: { halign: 'right' },
+      2: { halign: 'right' },
+      3: { halign: 'right' },
+      4: { halign: 'right' },
+      5: { halign: 'right' },
+    },
+  });
+
+  addFooter(doc);
+  doc.save(`cash-flow-report-${format(dateRange.start, 'yyyy-MM-dd')}-to-${format(dateRange.end, 'yyyy-MM-dd')}.pdf`);
+}

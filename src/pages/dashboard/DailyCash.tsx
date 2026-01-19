@@ -5,6 +5,7 @@ import { CashFlowSummary } from '@/components/daily-cash/CashFlowSummary';
 import { DailyTransactionsList } from '@/components/daily-cash/DailyTransactionsList';
 import { AddCostDialog } from '@/components/daily-cash/AddCostDialog';
 import { SetOpeningCashDialog } from '@/components/daily-cash/SetOpeningCashDialog';
+import { CashFlowReportDialog } from '@/components/daily-cash/CashFlowReportDialog';
 import { Wallet, Download, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useDailyCashSummary, useDailySales, useDailyCustomerPayments, useDailySupplierPayments, useDailyCosts } from '@/hooks/useDailyCash';
@@ -121,13 +122,14 @@ export default function DailyCash() {
             />
           </div>
 
-          <div className="grid grid-cols-3 sm:flex gap-2">
+          <div className="grid grid-cols-4 sm:flex gap-2">
             <SetOpeningCashDialog 
               date={selectedDate} 
               open={openingCashDialogOpen}
               onOpenChange={setOpeningCashDialogOpen}
             />
             <AddCostDialog date={selectedDate} />
+            <CashFlowReportDialog />
             
             {/* Export PDF Button */}
             <Button 
@@ -141,7 +143,7 @@ export default function DailyCash() {
               ) : (
                 <Download className="h-4 w-4 sm:mr-2" />
               )}
-              <span className="hidden sm:inline">Export PDF</span>
+              <span className="hidden sm:inline">Export</span>
             </Button>
           </div>
         </div>

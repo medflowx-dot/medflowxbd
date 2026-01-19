@@ -1,0 +1,261 @@
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
+import { FileText, Loader2 } from 'lucide-react';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths, eachDayOfInterval } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
+import { generateCashFlowSummaryPDF } from '@/lib/pdfGenerator';
+
+type ReportType = 'this_week' | 'last_week' | 'this_month' | 'last_month' | 'custom';
+
+interface DailySummaryData {
+  date: string;
+  openingCash: number;
+  salesCashIn: number;
+  dueCollected: number;
+  supplierPayments: number;
+  dailyCosts: number;
+  totalIn: number;
+  totalOut: number;
+  closingCash: number;
+}
+
+export function CashFlowReportDialog() {
+  const [open, setOpen] = useState(false);
+  const [reportType, setReportType] = useState<ReportType>('this_week');
+  const [customStartDate, setCustomStartDate] = useState<Date>();
+  const [customEndDate, setCustomEndDate] = useState<Date>();
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+
+  const getDateRange = (): { start: Date; end: Date } | null => {
+    const today = new Date();
+    
+    switch (reportType) {
+      case 'this_week':
+        return {
+          start: startOfWeek(today, { weekStartsOn: 6 }), // Saturday
+          end: endOfWeek(today, { weekStartsOn: 6 }),
+        };
+      case 'last_week':
+        const lastWeek = subWeeks(today, 1);
+        return {
+          start: startOfWeek(lastWeek, { weekStartsOn: 6 }),
+          end: endOfWeek(lastWeek, { weekStartsOn: 6 }),
+        };
+      case 'this_month':
+        return {
+          start: startOfMonth(today),
+          end: endOfMonth(today),
+        };
+      case 'last_month':
+        const lastMonth = subMonths(today, 1);
+        return {
+          start: startOfMonth(lastMonth),
+          end: endOfMonth(lastMonth),
+        };
+      case 'custom':
+        if (customStartDate && customEndDate) {
+          return { start: customStartDate, end: customEndDate };
+        }
+        return null;
+      default:
+        return null;
+    }
+  };
+
+  const fetchDailySummary = async (date: Date): Promise<DailySummaryData> => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+
+    // Get opening cash
+    const { data: openingData } = await supabase
+      .from('opening_cash')
+      .select('amount')
+      .eq('cash_date', dateStr)
+      .maybeSingle();
+
+    const openingCash = Number(openingData?.amount || 0);
+
+    // Get sales for the day (cash payments only)
+    const { data: salesData } = await supabase
+      .from('sales')
+      .select('paid_amount, payment_method')
+      .eq('sale_date', dateStr);
+
+    const salesCashIn = salesData
+      ?.filter(s => s.payment_method === 'cash')
+      .reduce((sum, s) => sum + Number(s.paid_amount), 0) || 0;
+
+    // Get customer due payments for the day (cash only)
+    const { data: duePayments } = await supabase
+      .from('customer_payments')
+      .select('amount, payment_method')
+      .eq('payment_date', dateStr);
+
+    const dueCollected = duePayments
+      ?.filter(p => p.payment_method === 'cash')
+      .reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+
+    // Get supplier payments for the day (cash only)
+    const { data: supplierPaymentsData } = await supabase
+      .from('supplier_payments')
+      .select('amount, payment_method')
+      .eq('payment_date', dateStr);
+
+    const supplierPayments = supplierPaymentsData
+      ?.filter(p => p.payment_method === 'cash')
+      .reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+
+    // Get daily costs for the day (cash only)
+    const { data: costsData } = await supabase
+      .from('daily_costs')
+      .select('amount, payment_method')
+      .eq('cost_date', dateStr);
+
+    const dailyCosts = costsData
+      ?.filter(c => c.payment_method === 'cash')
+      .reduce((sum, c) => sum + Number(c.amount), 0) || 0;
+
+    const totalIn = salesCashIn + dueCollected;
+    const totalOut = supplierPayments + dailyCosts;
+    const closingCash = openingCash + totalIn - totalOut;
+
+    return {
+      date: dateStr,
+      openingCash,
+      salesCashIn,
+      dueCollected,
+      supplierPayments,
+      dailyCosts,
+      totalIn,
+      totalOut,
+      closingCash,
+    };
+  };
+
+  const handleGenerateReport = async () => {
+    const dateRange = getDateRange();
+    if (!dateRange) {
+      toast.error('Please select a valid date range');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Get all days in the range
+      const days = eachDayOfInterval({ start: dateRange.start, end: dateRange.end });
+      
+      // Fetch summary for each day
+      const dailySummaries: DailySummaryData[] = [];
+      for (const day of days) {
+        const summary = await fetchDailySummary(day);
+        dailySummaries.push(summary);
+      }
+
+      // Generate PDF
+      generateCashFlowSummaryPDF(dailySummaries, dateRange);
+      toast.success('Report generated successfully');
+      setOpen(false);
+    } catch (error) {
+      console.error('Error generating report:', error);
+      toast.error('Failed to generate report');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const reportTypeLabels: Record<ReportType, string> = {
+    this_week: 'This Week (Sat-Fri)',
+    last_week: 'Last Week',
+    this_month: 'This Month',
+    last_month: 'Last Month',
+    custom: 'Custom Range',
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="flex-1 sm:flex-none">
+          <FileText className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Report</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Cash Flow Report</DialogTitle>
+          <DialogDescription>
+            Generate a weekly or monthly cash flow summary report
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label>Report Period</Label>
+            <Select value={reportType} onValueChange={(v) => setReportType(v as ReportType)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(reportTypeLabels).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>{label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {reportType === 'custom' && (
+            <>
+              <div className="grid gap-2">
+                <Label>Start Date</Label>
+                <DatePicker
+                  date={customStartDate}
+                  onDateChange={setCustomStartDate}
+                  placeholder="Select start date"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>End Date</Label>
+                <DatePicker
+                  date={customEndDate}
+                  onDateChange={setCustomEndDate}
+                  placeholder="Select end date"
+                />
+              </div>
+            </>
+          )}
+
+          {/* Preview info */}
+          {getDateRange() && (
+            <div className="rounded-lg border bg-muted/50 p-3">
+              <p className="text-sm text-muted-foreground">
+                <strong>Period:</strong>{' '}
+                {format(getDateRange()!.start, 'MMM d, yyyy')} - {format(getDateRange()!.end, 'MMM d, yyyy')}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {eachDayOfInterval({ start: getDateRange()!.start, end: getDateRange()!.end }).length} days
+              </p>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleGenerateReport} 
+            disabled={loading || (reportType === 'custom' && (!customStartDate || !customEndDate))}
+          >
+            {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            Generate PDF
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
