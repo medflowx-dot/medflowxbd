@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Pill, Search, Plus, Upload, MoreHorizontal, Pencil, Trash2, Database, Download, Loader2 } from 'lucide-react';
+import { Pill, Search, Plus, Upload, MoreHorizontal, Pencil, Trash2, Database, Download, Loader2, Globe } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useGlobalMedicines, GlobalMedicine, CreateGlobalMedicineData } from '@/hooks/useGlobalMedicines';
 import { useGlobalManufacturers } from '@/hooks/useGlobalManufacturers';
@@ -73,7 +73,7 @@ export default function GlobalMedicines() {
     is_tax_applicable: false,
   });
   const [isGenerating, setIsGenerating] = useState(false);
-
+  const [isImportingMedex, setIsImportingMedex] = useState(false);
   const filteredMedicines = medicines.filter(m => {
     const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       m.generic_name?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -188,6 +188,25 @@ export default function GlobalMedicines() {
     window.open('/templates/global-medicines-template.csv', '_blank');
   };
 
+  const handleImportFromMedex = async () => {
+    setIsImportingMedex(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('import-medex-medicines');
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        toast.success(`${data.inserted} herbal medicines imported, ${data.skipped} already existed`);
+      } else {
+        toast.error(data.error || 'Failed to import from MedEx');
+      }
+    } catch (error: any) {
+      console.error('Error importing from MedEx:', error);
+      toast.error(error.message || 'Failed to import from MedEx');
+    } finally {
+      setIsImportingMedex(false);
+    }
+  };
   const MedicineForm = ({ onSubmit, submitLabel, isLoading: formLoading }: { onSubmit: () => void; submitLabel: string; isLoading: boolean }) => (
     <div className="space-y-4 py-4">
       <div className="grid grid-cols-2 gap-4">
@@ -305,6 +324,18 @@ export default function GlobalMedicines() {
           <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
             <Upload className="h-4 w-4 mr-2" />
             Bulk Import
+          </Button>
+          <Button 
+            variant="secondary" 
+            onClick={handleImportFromMedex}
+            disabled={isImportingMedex}
+          >
+            {isImportingMedex ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Globe className="h-4 w-4 mr-2" />
+            )}
+            {isImportingMedex ? 'Importing...' : 'Import from MedEx'}
           </Button>
           <Button 
             variant="secondary" 
