@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Pill } from 'lucide-react';
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { href: '#features', label: 'Features' },
-    { href: '#how-it-works', label: 'How It Works' },
-    { href: '#pricing', label: 'Pricing' },
-    { href: '#faq', label: 'FAQ' },
+    { href: '#features', label: 'সুবিধাসমূহ' },
+    { href: '#how-it-works', label: 'কিভাবে কাজ করে' },
+    { href: '#pricing', label: 'প্যাকেজ' },
+    { href: '#faq', label: 'জিজ্ঞাসা' },
   ];
 
   return (
@@ -42,10 +43,10 @@ const Navbar = () => {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
             <Button variant="ghost" size="default" asChild>
-              <Link to="/login">Login</Link>
+              <Link to="/login">লগইন</Link>
             </Button>
             <Button variant="default" size="default" asChild>
-              <Link to="/signup">Start Free Trial</Link>
+              <Link to="/signup">ফ্রি ট্রায়াল শুরু করুন</Link>
             </Button>
           </div>
 
@@ -75,10 +76,10 @@ const Navbar = () => {
               ))}
               <div className="flex flex-col gap-3 pt-4 border-t border-border/50">
                 <Button variant="outline" className="w-full" asChild>
-                  <Link to="/login">Login</Link>
+                  <Link to="/login">লগইন</Link>
                 </Button>
                 <Button variant="default" className="w-full" asChild>
-                  <Link to="/signup">Start Free Trial</Link>
+                  <Link to="/signup">ফ্রি ট্রায়াল শুরু করুন</Link>
                 </Button>
               </div>
             </div>

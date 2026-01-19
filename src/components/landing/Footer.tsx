@@ -5,21 +5,21 @@ const Footer = () => {
 
   const footerLinks = {
     product: [
-      { label: 'Features', href: '#features' },
-      { label: 'Pricing', href: '#pricing' },
-      { label: 'How It Works', href: '#how-it-works' },
-      { label: 'FAQ', href: '#faq' },
+      { label: 'সুবিধাসমূহ', href: '#features' },
+      { label: 'প্যাকেজ', href: '#pricing' },
+      { label: 'কিভাবে কাজ করে', href: '#how-it-works' },
+      { label: 'জিজ্ঞাসা', href: '#faq' },
     ],
     company: [
-      { label: 'About Us', href: '#' },
-      { label: 'Contact', href: '#' },
-      { label: 'Careers', href: '#' },
-      { label: 'Blog', href: '#' },
+      { label: 'আমাদের সম্পর্কে', href: '#' },
+      { label: 'যোগাযোগ', href: '#' },
+      { label: 'ক্যারিয়ার', href: '#' },
+      { label: 'ব্লগ', href: '#' },
     ],
     legal: [
-      { label: 'Privacy Policy', href: '#' },
-      { label: 'Terms of Service', href: '#' },
-      { label: 'Refund Policy', href: '#' },
+      { label: 'প্রাইভেসি পলিসি', href: '#' },
+      { label: 'সেবার শর্তাবলী', href: '#' },
+      { label: 'রিফান্ড পলিসি', href: '#' },
     ],
   };
 
@@ -39,8 +39,8 @@ const Footer = () => {
               </span>
             </a>
             <p className="text-background/70 mb-6 max-w-sm leading-relaxed">
-              Expiry intelligence & financial tracking software designed for Bangladesh pharmacies. 
-              Track expiry, manage earnings, and control supplier dues.
+              বাংলাদেশের ফার্মেসির জন্য তৈরি মেয়াদ ট্র্যাকিং ও আর্থিক হিসাব সফটওয়্যার। 
+              এক্সপায়ারি ট্র্যাক করুন, আয় ম্যানেজ করুন, সাপ্লায়ার বাকি নিয়ন্ত্রণ করুন।
             </p>
             <div className="space-y-3">
               <a href="mailto:support@medflowx.com" className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">
@@ -49,18 +49,18 @@ const Footer = () => {
               </a>
               <a href="tel:+8801XXXXXXXXX" className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">
                 <Phone className="w-5 h-5" />
-                +880 1XXX-XXXXXX
+                +৮৮০ ১XXX-XXXXXX
               </a>
               <div className="flex items-center gap-3 text-background/70">
                 <MapPin className="w-5 h-5" />
-                Dhaka, Bangladesh
+                ঢাকা, বাংলাদেশ
               </div>
             </div>
           </div>
 
           {/* Product Links */}
           <div>
-            <h4 className="font-display font-bold mb-6">Product</h4>
+            <h4 className="font-display font-bold mb-6">প্রোডাক্ট</h4>
             <ul className="space-y-3">
               {footerLinks.product.map((link) => (
                 <li key={link.label}>
@@ -74,7 +74,7 @@ const Footer = () => {
 
           {/* Company Links */}
           <div>
-            <h4 className="font-display font-bold mb-6">Company</h4>
+            <h4 className="font-display font-bold mb-6">কোম্পানি</h4>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.label}>
@@ -88,7 +88,7 @@ const Footer = () => {
 
           {/* Legal Links */}
           <div>
-            <h4 className="font-display font-bold mb-6">Legal</h4>
+            <h4 className="font-display font-bold mb-6">আইনি</h4>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
@@ -104,7 +104,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="py-6 border-t border-background/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-background/60 text-sm">
-            © {currentYear} MedFlowx. All rights reserved.
+            © {currentYear} MedFlowx। সর্বস্বত্ব সংরক্ষিত।
           </p>
           <div className="flex items-center gap-4">
             <a href="#" className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-primary transition-colors">
