@@ -219,14 +219,24 @@ Deno.serve(async (req) => {
       (existingMedicines || []).map(m => m.name.toLowerCase().trim())
     );
 
-    // Filter out duplicates and prepare for insert
+    // Filter out duplicates and medicines without manufacturer, then prepare for insert
+    let skippedNoManufacturer = 0;
     const newMedicines = MEDEX_HERBAL_MEDICINES
       .filter(med => !existingNames.has(med.name.toLowerCase().trim()))
+      .filter(med => {
+        const mfrId = manufacturerMap.get(med.manufacturer.toLowerCase());
+        if (!mfrId) {
+          console.log(`Skipping ${med.name} - manufacturer "${med.manufacturer}" not found`);
+          skippedNoManufacturer++;
+          return false;
+        }
+        return true;
+      })
       .map(med => ({
         name: med.name,
         generic_name: med.generic_name,
         category: med.category,
-        manufacturer_id: manufacturerMap.get(med.manufacturer.toLowerCase()) || null,
+        manufacturer_id: manufacturerMap.get(med.manufacturer.toLowerCase())!,
         unit: 'pcs',
         is_tax_applicable: false,
         is_active: true,
