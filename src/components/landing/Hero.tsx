@@ -188,13 +188,12 @@ const Hero = () => {
           <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-primary-foreground mb-6 leading-tight animate-fade-in" style={{ animationDelay: '0.1s' }}>
             আপনার ফার্মেসি ব্যবসা
             <br />
-            <span className="relative">
-              এখন আরও সহজ
-              <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none">
-                <path d="M2 10C50 4 100 2 150 4C200 6 250 8 298 4" stroke="hsl(38 92% 50%)" strokeWidth="4" strokeLinecap="round"/>
-              </svg>
+            এখন আরও সহজ ও{' '}
+            <span className="relative inline-block">
+              <span className="relative z-10">লাভজনক</span>
+              <span className="absolute inset-0 bg-secondary/30 -skew-x-6 rounded-lg scale-110" />
+              <span className="absolute inset-0 bg-secondary/20 blur-lg rounded-lg scale-125 animate-pulse" />
             </span>
-            {' '}ও লাভজনক
           </h1>
 
           {/* Subheading */}
