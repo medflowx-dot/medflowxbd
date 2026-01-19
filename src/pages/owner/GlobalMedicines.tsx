@@ -77,6 +77,7 @@ export default function GlobalMedicines() {
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [isImportingMedex, setIsImportingMedex] = useState(false);
+  const [importingFunction, setImportingFunction] = useState<string | null>(null);
   const filteredMedicines = medicines.filter(m => {
     const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       m.generic_name?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -281,6 +282,30 @@ export default function GlobalMedicines() {
       setIsImportingMedex(false);
     }
   };
+
+  const handleImportPharma = async (functionName: string, label: string) => {
+    setImportingFunction(functionName);
+    try {
+      const { data, error } = await supabase.functions.invoke(functionName);
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        toast.success(`${data.inserted} medicines imported from ${label}. ${data.skipped} skipped.`);
+        if (data.missingManufacturers?.length > 0) {
+          toast.warning(`Missing manufacturers: ${data.missingManufacturers.slice(0, 5).join(', ')}${data.missingManufacturers.length > 5 ? '...' : ''}`);
+        }
+      } else {
+        toast.error(data.error || 'Failed to import');
+      }
+    } catch (error: unknown) {
+      console.error('Error importing:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(errorMessage || 'Failed to import');
+    } finally {
+      setImportingFunction(null);
+    }
+  };
   const MedicineForm = ({ onSubmit, submitLabel, isLoading: formLoading }: { onSubmit: () => void; submitLabel: string; isLoading: boolean }) => (
     <div className="space-y-4 py-4">
       <div className="grid grid-cols-2 gap-4">
@@ -444,6 +469,35 @@ export default function GlobalMedicines() {
             )}
             {isGenerating ? 'Generating...' : 'Generate Master Data'}
           </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" disabled={importingFunction !== null}>
+                {importingFunction ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Globe className="h-4 w-4 mr-2" />
+                )}
+                {importingFunction ? 'Importing...' : 'Import Pharma Medicines'}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleImportPharma('import-major-pharma-medicines', 'Major Pharma (Square, Renata, ACI)')}>
+                Major Pharma (Square, Renata, ACI)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleImportPharma('import-midtier-pharma-medicines', 'Midtier Pharma')}>
+                Midtier Pharma (Orion, Delta, Jayson...)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleImportPharma('import-regional-pharma-medicines', 'Regional Pharma')}>
+                Regional Pharma (Pacific, Globe, Everest...)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleImportPharma('import-specialty-pharma-medicines', 'Specialty Pharma')}>
+                Specialty Pharma (Kemiko, Hamdard, General...)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleImportPharma('import-remaining-pharma-medicines', 'Remaining Pharma')}>
+                Remaining Pharma (Other manufacturers)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
               <Button>
