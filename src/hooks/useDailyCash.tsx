@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 
 export interface DailyCost {
   id: string;
@@ -151,6 +151,18 @@ export function useDailyCashSummary(date: Date) {
     },
     enabled: !!user?.id,
   });
+}
+
+// Hook to get the previous day's closing cash to suggest as opening cash
+export function usePreviousDayClosingCash(date: Date) {
+  const previousDay = subDays(date, 1);
+  const { data: previousDaySummary, isLoading } = useDailyCashSummary(previousDay);
+  
+  return {
+    previousDayClosingCash: previousDaySummary?.closingCash ?? null,
+    previousDate: previousDay,
+    isLoading,
+  };
 }
 
 export function useAddDailyCost() {
