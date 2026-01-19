@@ -3,60 +3,55 @@ import squareLogo from '@/assets/logos/square.png';
 import inceptaLogo from '@/assets/logos/incepta.png';
 import renataLogo from '@/assets/logos/renata.png';
 import opsoninLogo from '@/assets/logos/opsonin.png';
+import beximcoLogo from '@/assets/logos/beximco.png';
+import acmeLogo from '@/assets/logos/acme.png';
+import healthcareLogo from '@/assets/logos/healthcare.png';
+import aciLogo from '@/assets/logos/aci.png';
+import eskayefLogo from '@/assets/logos/eskayef.png';
+import drugintlLogo from '@/assets/logos/drugintl.png';
+import aristopharmaLogo from '@/assets/logos/aristopharma.png';
+import ibnsinaLogo from '@/assets/logos/ibnsina.png';
+import popularLogo from '@/assets/logos/popular.png';
+import radiantLogo from '@/assets/logos/radiant.png';
+import nuvistaLogo from '@/assets/logos/nuvista.png';
+import generalLogo from '@/assets/logos/general.png';
 
 interface Manufacturer {
   name: string;
   namebn: string;
-  logo?: string;
-  color: string;
+  logo: string;
 }
 
 const manufacturers: Manufacturer[] = [
-  { name: 'Square', namebn: 'স্কয়ার', logo: squareLogo, color: '#0066B3' },
-  { name: 'Incepta', namebn: 'ইনসেপ্টা', logo: inceptaLogo, color: '#E31837' },
-  { name: 'Beximco', namebn: 'বেক্সিমকো', color: '#C41E3A' },
-  { name: 'Renata', namebn: 'রেনাটা', logo: renataLogo, color: '#00A651' },
-  { name: 'Acme', namebn: 'একমি', color: '#1E3A8A' },
-  { name: 'Healthcare', namebn: 'হেলথকেয়ার', color: '#16A34A' },
-  { name: 'ACI', namebn: 'এসিআই', color: '#2563EB' },
-  { name: 'Opsonin', namebn: 'অপসনিন', logo: opsoninLogo, color: '#1D4ED8' },
-  { name: 'Eskayef', namebn: 'এস্কায়েফ', color: '#0284C7' },
-  { name: 'Drug Intl', namebn: 'ড্রাগ ইন্টারন্যাশনাল', color: '#0369A1' },
-  { name: 'Aristopharma', namebn: 'এরিস্টোফার্মা', color: '#DC2626' },
-  { name: 'Ibn Sina', namebn: 'ইবনে সিনা', color: '#059669' },
-  { name: 'Popular', namebn: 'পপুলার', color: '#E11D48' },
-  { name: 'Radiant', namebn: 'রেডিয়েন্ট', color: '#0EA5E9' },
-  { name: 'Nuvista', namebn: 'নুভিস্তা', color: '#7C3AED' },
-  { name: 'General', namebn: 'জেনারেল', color: '#0891B2' },
+  { name: 'Square', namebn: 'স্কয়ার', logo: squareLogo },
+  { name: 'Incepta', namebn: 'ইনসেপ্টা', logo: inceptaLogo },
+  { name: 'Beximco', namebn: 'বেক্সিমকো', logo: beximcoLogo },
+  { name: 'Renata', namebn: 'রেনাটা', logo: renataLogo },
+  { name: 'Acme', namebn: 'একমি', logo: acmeLogo },
+  { name: 'Healthcare', namebn: 'হেলথকেয়ার', logo: healthcareLogo },
+  { name: 'ACI', namebn: 'এসিআই', logo: aciLogo },
+  { name: 'Opsonin', namebn: 'অপসনিন', logo: opsoninLogo },
+  { name: 'Eskayef', namebn: 'এস্কায়েফ', logo: eskayefLogo },
+  { name: 'Drug Intl', namebn: 'ড্রাগ ইন্টারন্যাশনাল', logo: drugintlLogo },
+  { name: 'Aristopharma', namebn: 'এরিস্টোফার্মা', logo: aristopharmaLogo },
+  { name: 'Ibn Sina', namebn: 'ইবনে সিনা', logo: ibnsinaLogo },
+  { name: 'Popular', namebn: 'পপুলার', logo: popularLogo },
+  { name: 'Radiant', namebn: 'রেডিয়েন্ট', logo: radiantLogo },
+  { name: 'Nuvista', namebn: 'নুভিস্তা', logo: nuvistaLogo },
+  { name: 'General', namebn: 'জেনারেল', logo: generalLogo },
 ];
 
-const ManufacturerCard = ({ manufacturer, variant = 'primary' }: { manufacturer: Manufacturer; variant?: 'primary' | 'secondary' }) => {
+const ManufacturerCard = ({ manufacturer }: { manufacturer: Manufacturer }) => {
   return (
-    <div className="flex-shrink-0 px-5 py-3.5 bg-card rounded-xl border border-border shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-300 group cursor-pointer">
+    <div className="flex-shrink-0 px-4 py-3 bg-card rounded-xl border border-border shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-300 group cursor-pointer">
       <div className="flex items-center gap-3">
-        {manufacturer.logo ? (
-          <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center overflow-hidden border border-border/50 group-hover:border-primary/30 transition-colors">
-            <img 
-              src={manufacturer.logo} 
-              alt={`${manufacturer.name} logo`}
-              className="w-8 h-8 object-contain"
-            />
-          </div>
-        ) : (
-          <div 
-            className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 group-hover:scale-105"
-            style={{ 
-              backgroundColor: `${manufacturer.color}15`,
-            }}
-          >
-            <span 
-              className="font-bold text-lg"
-              style={{ color: manufacturer.color }}
-            >
-              {manufacturer.name.charAt(0)}
-            </span>
-          </div>
-        )}
+        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center overflow-hidden border border-border/50 group-hover:border-primary/30 transition-colors p-1">
+          <img 
+            src={manufacturer.logo} 
+            alt={`${manufacturer.name} logo`}
+            className="w-full h-full object-contain"
+          />
+        </div>
         <div>
           <p className="font-semibold text-foreground whitespace-nowrap text-sm">
             {manufacturer.name}
@@ -97,7 +92,6 @@ const Manufacturers = () => {
               <ManufacturerCard 
                 key={`${manufacturer.name}-${index}`} 
                 manufacturer={manufacturer}
-                variant="primary"
               />
             ))}
           </div>
@@ -115,7 +109,6 @@ const Manufacturers = () => {
               <ManufacturerCard 
                 key={`${manufacturer.name}-reverse-${index}`} 
                 manufacturer={manufacturer}
-                variant="secondary"
               />
             ))}
           </div>
