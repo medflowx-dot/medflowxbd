@@ -6,10 +6,12 @@ import { useSuppliers } from '@/hooks/useSuppliers';
 import { AddSupplierDialog } from '@/components/suppliers/AddSupplierDialog';
 import { SupplierTable } from '@/components/suppliers/SupplierTable';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function SupplierList() {
   const { suppliers, isLoading } = useSuppliers();
   const [searchQuery, setSearchQuery] = useState('');
+  const { t } = useLanguage();
 
   const totalSuppliers = suppliers.length;
   const totalPaid = suppliers.reduce((sum, s) => sum + s.total_paid, 0);
@@ -44,9 +46,9 @@ export default function SupplierList() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">Supplier List</h1>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.suppliers.title}</h1>
           <p className="text-muted-foreground mt-1">
-            Manage your medicine suppliers
+            {t.suppliers.subtitle}
           </p>
         </div>
         <AddSupplierDialog />
@@ -57,7 +59,7 @@ export default function SupplierList() {
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Total Suppliers
+              {t.suppliers.totalSuppliers}
             </CardDescription>
             <CardTitle className="text-2xl">{totalSuppliers}</CardTitle>
           </CardHeader>
@@ -66,7 +68,7 @@ export default function SupplierList() {
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
               <Truck className="h-4 w-4" />
-              With Due
+              {t.suppliers.withDue}
             </CardDescription>
             <CardTitle className="text-2xl text-amber-600">{suppliersWithDue}</CardTitle>
           </CardHeader>
@@ -75,14 +77,14 @@ export default function SupplierList() {
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
-              Total Paid
+              {t.suppliers.totalPaid}
             </CardDescription>
             <CardTitle className="text-2xl text-green-600">৳{totalPaid.toFixed(2)}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total Due</CardDescription>
+            <CardDescription>{t.suppliers.totalDue}</CardDescription>
             <CardTitle className="text-2xl text-destructive">৳{totalDue.toFixed(2)}</CardTitle>
           </CardHeader>
         </Card>
@@ -92,13 +94,13 @@ export default function SupplierList() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle>All Suppliers</CardTitle>
-              <CardDescription>Your medicine suppliers and their details</CardDescription>
+              <CardTitle>{t.suppliers.allSuppliers}</CardTitle>
+              <CardDescription>{t.suppliers.supplierDetails}</CardDescription>
             </div>
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search suppliers..."
+                placeholder={t.suppliers.searchSuppliers}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -112,9 +114,9 @@ export default function SupplierList() {
               <div className="p-4 rounded-full bg-muted mb-4">
                 <Truck className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="font-semibold text-lg">No suppliers added</h3>
+              <h3 className="font-semibold text-lg">{t.suppliers.noSuppliersAdded}</h3>
               <p className="text-muted-foreground text-sm max-w-sm mt-1">
-                Add your medicine suppliers to track orders and payments.
+                {t.suppliers.addSuppliersDesc}
               </p>
               <div className="mt-4">
                 <AddSupplierDialog />
