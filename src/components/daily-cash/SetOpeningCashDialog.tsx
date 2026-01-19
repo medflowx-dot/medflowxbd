@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useSetOpeningCash, useOpeningCash, usePreviousDayClosingCash } from '@/hooks/useDailyCash';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Wallet, Loader2, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -38,6 +39,7 @@ export function SetOpeningCashDialog({
   const { data: existingCash } = useOpeningCash(date);
   const { previousDayClosingCash, previousDate, isLoading: isPreviousDayLoading } = usePreviousDayClosingCash(date);
   const setOpeningCash = useSetOpeningCash();
+  const { t } = useLanguage();
 
   // Show suggestion only if no existing cash is set for this date
   const showSuggestion = !existingCash && previousDayClosingCash !== null && previousDayClosingCash > 0;
@@ -55,7 +57,7 @@ export function SetOpeningCashDialog({
   const handleUsePreviousClosing = () => {
     if (previousDayClosingCash !== null) {
       setAmount(previousDayClosingCash.toString());
-      setNotes(`Carried forward from ${format(previousDate, 'MMM d, yyyy')}`);
+      setNotes(`${t.dailyCash.carriedForward} ${format(previousDate, 'MMM d, yyyy')}`);
     }
   };
 
@@ -81,21 +83,21 @@ export function SetOpeningCashDialog({
         <DialogTrigger asChild>
           <Button variant="outline" className="flex-1 sm:flex-none">
             <Wallet className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Set Opening</span>
+            <span className="hidden sm:inline">{t.dailyCash.setOpening}</span>
           </Button>
         </DialogTrigger>
       )}
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Set Opening Cash</DialogTitle>
+            <DialogTitle>{t.dailyCash.setOpeningCash}</DialogTitle>
             <DialogDescription>
-              Set the opening cash balance for {format(date, 'MMMM d, yyyy')}
+              {t.dailyCash.setOpeningCashFor} {format(date, 'MMMM d, yyyy')}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="amount">Opening Amount (৳) *</Label>
+              <Label htmlFor="amount">{t.dailyCash.openingAmount} *</Label>
               <Input
                 id="amount"
                 type="number"
@@ -114,7 +116,7 @@ export function SetOpeningCashDialog({
                 <div className="flex items-center justify-between gap-2">
                   <div className="text-sm">
                     <p className="font-medium text-primary">
-                      Previous day closing: ৳{previousDayClosingCash?.toLocaleString()}
+                      {t.dailyCash.previousDayClosing}: ৳{previousDayClosingCash?.toLocaleString()}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {format(previousDate, 'MMM d, yyyy')}
@@ -127,7 +129,7 @@ export function SetOpeningCashDialog({
                     onClick={handleUsePreviousClosing}
                     className="shrink-0"
                   >
-                    Use this
+                    {t.dailyCash.useThis}
                     <ArrowRight className="h-3 w-3 ml-1" />
                   </Button>
                 </div>
@@ -135,23 +137,23 @@ export function SetOpeningCashDialog({
             )}
             
             <div className="grid gap-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="notes">{t.customerDues.notes}</Label>
               <Textarea
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Any notes about the opening balance..."
+                placeholder={t.dailyCash.notesPlaceholder}
                 rows={2}
               />
             </div>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+              {t.actions.cancel}
             </Button>
             <Button type="submit" disabled={setOpeningCash.isPending}>
               {setOpeningCash.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Save
+              {t.actions.save}
             </Button>
           </DialogFooter>
         </form>
