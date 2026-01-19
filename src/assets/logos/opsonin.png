@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+
+    <title>Welcome to Opsonin Pharma</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="">
+
+    <meta name="author" content="">
+
+
+
+    <!-- Le styles -->
+
+    <link href="./css/bootstrap.css" rel="stylesheet">
+
+    <link href="./css/mapping-master.css" type="text/css" rel="stylesheet"/>
+
+    <link href="./css/font-awesome.css" rel="stylesheet">
+
+    <link href="./css/slidebars.css" rel="stylesheet">
+
+    <link href="./css/style.css" rel="stylesheet">
+
+    <link href="./css/style-responsive.css" rel="stylesheet">
+
+
+
+    <!-- bx slider -->
+
+    <link href="./css/jquery.bxslider.css" rel="stylesheet" />
+
+
+
+    <!-- flexslider slider -->
+
+    <link href="./css/flexslider.css" rel="stylesheet" />
+
+
+
+    <!-- REVOLUTION BANNER CSS SETTINGS -->
+
+    <link rel="stylesheet" type="text/css" href="css/rs-plugin-settings.css" media="screen" />
+
+
+
+    <!-- owl carousel -->
+
+    <link rel="stylesheet" type="text/css" href="css/owl-carousel/owl.carousel.css" />
+
+    <!-- owl carousel End -->
+
+
+
+    <!-- Animate || Animation -->
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css"> 
+
+    <!-- Ends  -->
+
+
+
+    <!-- Scroll -->
+
+    <link   type="text/css" href="css/scroll/prettify.css" rel="stylesheet" />
+
+    <!-- Ends -->
+
+
+
+    <!-- Magnific Popup || Gallery || Virtual Tours -->
+
+    <link   type="text/css" href="css/magnific-popup.css" rel="stylesheet" />
+
+    <!-- Ends -->
+
+
+
+    <!-- Print CSS Starts -->
+
+    <link rel="stylesheet" type="text/css" media="print" href="css/print.css">
+
+    <!-- Print CSS Ends -->
+
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- End Select2 -->
+
+    <!-- Jquery UI for accordin -->
+
+    
+    <!-- Ends -->
+
+
+
+    <!-- Fav and touch icons -->
+
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="./images/ico/apple-touch-icon-144-precomposed.png">
+
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="./images/ico/apple-touch-icon-114-precomposed.png">
+
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="./images/ico/apple-touch-icon-72-precomposed.png">
+
+    <link rel="apple-touch-icon-precomposed" href="./images/ico/apple-touch-icon-57-precomposed.png">
+
+    <link rel="shortcut icon" href="./images/ico/favicon.png">
+
+    <!--[if IE]>
+
+    <link rel="stylesheet" type="text/css" href="css/ie-fix.css"></link>
+
+    <![endif]-->
+
+    
+
+    <!-- JS Min
+
+    ================================================== -->
+
+    <!-- On net -->
+
+    <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.js"></script> -->
+    <!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script> -->
+
+    <!-- Off net -->
+
+    <script type="text/javascript" src="js/jquery.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-213785715-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-213785715-1');
+    </script>
+
+  </head>
+
+
+
+  <body class="home">
+
+    <div class="wht-bg"></div>
+
+    <div id="sidebar" class="no-print">
+
+        <button id="main_sidebar_toggle" class="hamburger-menu">
+
+          <span class="line"></span>
+
+          <span class="line"></span>
+
+          <span class="line"></span>
+
+          <span class="line"></span>
+
+        </button>
+
+        
+
+        <p id="menu-text">Menu</p>
+
+        <!-- <a href="./" id="side-logo-a"><img src="images/icons/side-logo.png" id="side-logo"></a> -->
+
+        <a href="./" id="side-logo-a"><img src="images/icons/logo-sidebar.png" id="side-logo"></a>
+
+
+
+        <div class="menu_content">
+
+          <!-- <h2>Opsonin Pharma<span></span></h2> -->
+
+          <a href="./" class="top-logo"><img src="images/icons/logo-text.png"><span></span></a>
+
+          <ul class="nav-ul">
+
+            <li><a href="./">Home</a></li>
+
+            <li><a href="about-opsonin.php">About Opsonin</a></li>
+
+            <li>
+                <a href="#" class="hasSub">Products</a>
+                <ul class="submenu">
+                  <li><a href="pharmaceutical-products.php">Pharmaceutical Products</a></li>
+                  <li><a href="agrovet-products.php">Agrovet Products</a></li>
+                  <li><a href="export-products.php">Export Products</a></li>
+                </ul>
+            </li>
+
+            <li><a href="medical-college-hospitals.php">Services</a></li>
+
+            <li><a href="new-plant.php">Production Facilities</a></li>
+
+            <li><a href="opsonin-globally.php"><!-- Opsonin Globally -->Global Presence</a></li>
+
+            <!-- <li><a href="latest-news.php">News &amp; Events</a></li> -->
+
+            <li><a href="regional-offices.php">Regional Offices</a></li>
+
+            <li><a href="product-monographs.php">Downloads</a></li>
+
+            <li><a href="life-at-opsonin.php">Career</a></li>
+
+            <li><a href="contact-us.php">Contact Us</a></li>
+
+            
+
+          </ul>
+
+
+
+          <ul class="fonts-ul">
+
+            <li class="border"><span class="plus">+</span><span class="small">a</span><span class="medium">a</span><span class="large">a</span></li>
+
+            <!-- <li><a href="#"><img src="images/icons/translate.png"></a></li> -->
+
+            <li>
+
+              <div id="google_translate_element"></div><script type="text/javascript">
+
+                function googleTranslateElementInit() {
+
+                  new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+
+                }
+
+                </script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+              </li>
+
+          </ul>
+
+
+
+          <ul id="contact-ul">
+
+            <li><i class="fa fa-phone" aria-hidden="true"></i>&nbsp;&nbsp;+880-2-48311900, +880-2-55142000</li>
+            <li><i class="fa fa-fax" aria-hidden="true"></i>&nbsp;&nbsp;+880-2-48314450</li>
+
+            <!-- <li id="dark">info@opsonin-pharma.com</li> -->
+            <li id="dark"><i class="fa fa-envelope" aria-hidden="true"></i>&nbsp;&nbsp;info@opsonin.net</li>
+
+            <li>Opsonin Building, 30, New Eskaton Road, Ramna,<br>Dhaka 1000, Bangladesh.</li>
+
+           <!--  <li><a href="#" class="first"><img src="images/icons/fb-color.png"></a><a href="#"><img src="images/icons/twitter-color.png"></a></li> -->
+
+          </ul>
+
+        </div>
+
+        <ul id="vertical-contact-ul">
+
+          <!-- <li class="finix"><a href="finix-scholarship.php" target="_blank"><img src="images/icons/finix.png" alt="Finix Scholarship 2019"></a></li> -->
+
+          <li><a href="https://www.youtube.com/watch?v=_qSrPwaiHBo" target="_blank"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
+
+          <li><a href="https://www.facebook.com/OpsoninPharma/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+
+          <!-- <li><a href="https://www.linkedin.com/company/opsonin-pharma/" target="_blank"><i class="fa fa-linkedin" aria-hidden="true"></i></a></li> -->
+
+          <!-- <li><a href="#"><i class="fa fa-google-plus" aria-hidden="true"></i></a></li> -->
+
+          <li><a href="https://twitter.com/opsoninpharma" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+
+        </ul>
+
+        <a href="contact-us.php" class="enquiry-button">Make an Enquiry</a>
+
+    </div>
+
+
+
+    
+
+
+    
+
+    <div canvas="container" id="main-body">       <div id="header">
+        <div class="slide-holder">    
+          <div class="videoLoop" id="videoContainer">
+            <!-- <video id="background_video" loop="" muted="" autoplay="autoplay" style="width: 1823px; height: 1025px; display: none;">
+              <source src="https://player.vimeo.com/external/207040493.sd.mp4?s=6a8452fbb8de56590686e272117c287e58096649&amp;profile_id=165" type="video/mp4">
+              <source src="https://player.vimeo.com/external/207040493.sd.webm?s=6a8452fbb8de56590686e272117c287e58096649&amp;profile_id=165" type="video/webm">
+              <source src="https://player.vimeo.com/external/207040493.sd.ogg?s=6a8452fbb8de56590686e272117c287e58096649&amp;profile_id=165" type="video/ogg">
+            </video>  -->
+            <!-- <video id="background_video" loop="" muted="" autoplay="autoplay" style="width: 1823px; height: 1025px; display: none;">
+              <source src="videos/opsonin-intro-video.mp4" type="video/mp4">
+            </video> -->
+            <video id="background_video" autoplay muted loop playsinline width="100%" height="auto">
+              <source src="videos/opsonin-intro-video.mp4" type="video/mp4" />
+              <!-- <source src="videos/opsonin-intro-video.ogg" type="video/ogg" /> -->
+              <!-- <source src="videos/opsonin-intro-video.webm" type="video/webm" /> -->
+            </video>
+            <div id="video_cover" style="/*background-image: url(videos/looping-video-poster.jpg); */display: none;"></div>
+            <div class="videoLoop-overlay"></div>
+            <ul class="block-ul">
+              <li id="first"></li><li id="second">
+              </li><li id="fifth">
+              </li><li id="fourth">
+              </li><li id="third">
+              </li><li>
+              </li>
+            </ul>
+            <div class="slider-text bottom-to-top-load">
+              <h2>Opsonin Pharma</h2>
+              <p class="subtitle">Ideas for healthcare</p>
+              <!-- <p class="text">
+                Opsonin is a leading pharmaceutical company in Bangladesh that creates value for its customers and other stakeholders by providing highest quality health care solutions through appropriate application and development of resources and processes.
+              </p>-->             
+               <p class="text">
+               Opsonin Pharma Limited (OPL), a parent pharmaceutical company in Bangladesh who has the strongest footprint in this sector. OPL is the 2nd oldest Pharmaceutical Company which was established before the independence to facilitate quality healthcare support for unprivileged nation. 
+              </p>
+              <a href="about-opsonin.php" class="primary-btn has-icon icon-right">Discover More</a>
+            </div>
+          </div>
+        </div><!-- END .slide-holder -->
+        <!-- <input type="text" name="search" class="banner-search-box" placeholder="What are you looking for ?"> -->
+        <div class="home-search">
+          <form action="search.php">
+            <input type="text" class="banner-search-box" placeholder="What are you looking for ?" name="q" id="search-box" required>
+            <div class="showerrormsg">Field Cannot Left Blank</div>
+            <!-- <input type="text" class="banner-search-box" placeholder="What are you looking for ?" name="q" id="search-box" pattern=".{3,}" > -->
+            <button type="submit" id="checkinput"><span class="search-button"></span></button>
+        </form>
+      </div>
+        <span class="vertical-1"></span>
+        <span class="vertical-2"></span>
+        <span class="horizontal"></span>
+        <div class="content-holder">
+          <div class="container">
+            <div class="row">
+              <div class="col-xs-12 col-sm-12 col-md-12">
+                <!-- <div class="mobile-nav">
+                  <a href="#" class="mobile-menu-link"></a>
+                </div>
+                <a href="./" class="logo"></a> -->
+              </div><!-- /col -->
+            </div>
+          </div> <!-- /container -->
+        </div>
+      </div><!-- END #header -->
+      <!-- Slider For Mobile Starts-->
+      <div class="flexslider">
+      <ul class="slides">
+          <li>
+              <img src="images/home-slides/m1.jpg">
+          </li><li>
+              <img src="images/home-slides/m2.jpg">
+          </li><li>
+              <img src="images/home-slides/m3.jpg">
+          </li>
+      </ul>
+      </div>
+      <!-- Slider For Mobile Ends -->
+      <div id="welcome-text-container ndlxs" class="bottom-to-top-scroll">
+
+          <!-- <div class="tagline-text-container">
+            <p id="mobile-hidden">Opsonin Pharma Limited (OPL) develops, manufactures and markets generic medicines for human use. Our value-added products improve the quality of life of people in Bangladesh as well as abroad and help them to enjoy longer, healthier, and more productive lives. OPL has been known for long as a provider of quality medicine at affordable prices. The company is now manufacturing more than 350 brands with more than 800 SKUs as Pharmaceutical finished products. The seed that was planted in the year 1956 now has become a tree. From the inception, we always believed in nation-building activities. Our cherished dream is to serve mankind as well as the world. This dream has become a reality as a result of a thousand miles walk by few thousand people.
+            Good health is vital to all of us &amp; medicine shows tremendous development in the last century. The average life expectancy of people is getting higher day by day. That’s why OPL is committed to contribute in the advancement of health by providing highest quality health care services to the people. To ensure the service, we are focused on improving the way we do business and on listening to the view of all of the people involved in health care decisions.</p>
+            <div id="mobile-view">
+              <p class="morehome">Opsonin Pharma Limited (OPL) develops, manufactures and markets generic medicines for human use. Our value-added products improve the quality of life of people in Bangladesh as well as abroad and help them to enjoy longer, healthier, and more productive lives. OPL has been known for long as a provider of quality medicine at affordable prices. The company is now manufacturing more than 350 brands with more than 800 SKUs as Pharmaceutical finished products. The seed that was planted in the year 1956 now has become a tree. From the inception, we always believed in nation-building activities. Our cherished dream is to serve mankind as well as the world. This dream has become a reality as a result of a thousand miles walk by few thousand people.
+              Good health is vital to all of us &amp; medicine shows tremendous development in the last century. The average life expectancy of people is getting higher day by day. That’s why OPL is committed to contribute in the advancement of health by providing highest quality health care services to the people. To ensure the service, we are focused on improving the way we do business and on listening to the view of all of the people involved in health care decisions.</p>
+            </div>
+          </div>
+
+          <div class="tagline-container">
+            <p>Ideas for<br><span>Healthcare</span></p>
+          </div> -->
+
+          <style type="text/css">
+            .emergency-services {padding: 1.5em 5.5em 1.5em 5.5em;}
+            .emergency-services .cntr{position: relative; display: block; text-align: center;}
+            .emergency-services img{width: 100%; border-radius: 5px;}
+            .emergency-services p { padding-top: 2px; font-size: 16px; font-weight: 500; color: #000; line-height: 23px;}
+            .htmctr {padding: 3% 7%;}
+            .hometitle p{ font-size: 42px; color: #00a77e; font-weight: 300; line-height: 68px; text-align: left; }
+            .hometitle p span {font-weight: 600;}
+            .hmtxt { font-family: 'Open Sans', sans-serif; font-size: 16px; font-weight: 300; color: #000; line-height: 27px; position: relative; padding-right: 7%; text-align: justify; }
+            #loaderrs{ position: absolute; width: 50px; height: 50px; border: 2px solid rgba(0,0,0,0.8); border-radius: 50px; top:50%; left:50%; margin-top: -30px; margin-left: -25px; animation-name: spinner 0.4s linear infinite;
+              -webkit-animation: spinner 0.4s linear  infinite; -moz-animation: spinner 0.4s linear  infinite; }
+            #loaderrs:before{ position: absolute; content:''; display: block; width: 80px; height: 80px; border-radius: 80px; top: -15px; left: -15px; }
+            #loaderrs:after{ position: absolute; content:''; width: 50px; height: 50px; border-radius: 50px; border-top:2px solid #00a77e; border-bottom:2px solid #00a77e; border-left:2px solid #00a77e; border-right:2px solid transparent; top: -2px; left: -2px; }
+            
+            @keyframes spinner{
+                from {transform: rotate(0deg);}
+                to {transform: rotate(360deg);}
+            }
+
+            @-webkit-keyframes spinner{
+                from {transform: rotate(0deg);}
+                to {transform: rotate(360deg);}
+            }
+
+            @-moz-keyframes spinner{
+                from {transform: rotate(0deg);}
+                to {transform: rotate(360deg);}
+            }
+            p.applinks a {text-decoration: underline;font-weight: bold;}
+            p.applinks a:hover {text-decoration: none;}
+            .emergency-services .mday img{width: 100%; border-radius: 5px; margin-bottom: 30px;}
+          </style>
+
+          <!-- <div class="emergency-services">
+              <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                  <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3 cntr">
+                        <img id="" src="images/finix-apps.jpg" class="item-thumb" alt="Finix Ramadan Calendar & Hajj Guide">
+                        <p class="applinks"><strong>Finix Ramadan Calendar & Hajj Guide</strong><br/>Download App: <a href="https://play.google.com/store/apps/details?id=finix.ramadan.opsonin" target="_blank">Android</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<a href="https://apps.apple.com/ua/app/finix-ramadan-calendar-hajj/id1559848649" target="_blank">iOS</a></p>
+                    </div>
+                    <div class="col-xs-12 col-sm-3 col-md-3 cntr">
+                      <a href="emergency/eye-emergency-doctor-list.pdf" class="item-1" target="_blank">
+                        <img id="" src="images/eye-emergency-services.jpg" class="item-thumb" alt="Eye Emergency Services">
+                        <p>(Click above image to view details.)</p>
+                      </a>
+                    </div>
+                    <div class="col-xs-12 col-sm-3 col-md-3 cntr">
+                      <a href="emergency/derma-emergency-doctor-list.pdf" class="item-2" target="_blank">
+                        <img id="" src="images/skin-emergency-services.jpg" class="item-thumb" alt="Skin Emergency Services">
+                        <p>(Click above image to view details.)</p>
+                      </a>
+                    </div>
+                    <div class="col-xs-12 col-sm-3 col-md-3 cntr">
+                      <a href="emergency/gynae-emergency-doctor-list.pdf" class="item-2" target="_blank">
+                        <img id="" src="images/gyne-emergency-services.jpg" class="item-thumb" alt="Gynae Emergency Services">
+                        <p>(Click above image to view details.)</p>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div> -->
+
+          <div class="about-us-container htmctr">
+            <div class="row">
+              <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="hometitle"><p>Ideas for <span>Healthcare</span></p></div>
+
+                <p id="mobile-hidden" class="hmtxt">Opsonin Pharma Limited (OPL) develops, manufactures and markets generic medicines for human use. Our value-added products improve the quality of life of people in Bangladesh as well as abroad and help them to enjoy longer, healthier, and more productive lives. OPL has been known for long as a provider of quality medicine at affordable prices. The company is now manufacturing more than 350 brands with more than 800 SKUs as Pharmaceutical finished products. The seed that was planted in the year 1956 now has become a tree. From the inception, we always believed in nation-building activities. Our cherished dream is to serve mankind as well as the world. This dream has become a reality as a result of a thousand miles walk by few thousand people. Good health is vital to all of us &amp; medicine shows tremendous development in the last century. The average life expectancy of people is getting higher day by day. That's why OPL is committed to contribute in the advancement of health by providing highest quality health care services to the people. To ensure the service, we are focused on improving the way we do business and on listening to the view of all of the people involved in health care decisions.</p>
+                <div id="mobile-view">
+                  <p class="morehome">Opsonin Pharma Limited (OPL) develops, manufactures and markets generic medicines for human use. Our value-added products improve the quality of life of people in Bangladesh as well as abroad and help them to enjoy longer, healthier, and more productive lives. OPL has been known for long as a provider of quality medicine at affordable prices. The company is now manufacturing more than 350 brands with more than 800 SKUs as Pharmaceutical finished products. The seed that was planted in the year 1956 now has become a tree. From the inception, we always believed in nation-building activities. Our cherished dream is to serve mankind as well as the world. This dream has become a reality as a result of a thousand miles walk by few thousand people.
+                  Good health is vital to all of us &amp; medicine shows tremendous development in the last century. The average life expectancy of people is getting higher day by day. That’s why OPL is committed to contribute in the advancement of health by providing highest quality health care services to the people. To ensure the service, we are focused on improving the way we do business and on listening to the view of all of the people involved in health care decisions.</p>
+                </div>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="vidocontz">
+                  <!-- <iframe width="100%" height="100%" src="https://www.youtube.com/embed/_qSrPwaiHBo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+                  <div id="loaderrs">&nbsp;</div>
+
+                  <p style="position: relative; padding: 30px 0px 57% 0px; height: 0; overflow: hidden;"><iframe src="https://www.youtube.com/embed/_qSrPwaiHBo?rel=0" width="100%" height="100%" frameborder="0" style="display: block; margin: 0px auto; position: absolute; top: 0; left: 0;"></iframe></p>
+                  <!-- <iframe
+  width="780"
+  height="450"
+  src="https://www.youtube.com/watch?v=_qSrPwaiHBo&t=3s"
+  srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/watch?v=_qSrPwaiHBo&t=3s><img src=images/homevideothumb.png alt='Opsonin Pharma'><span>▶</span></a>"
+  frameborder="0"
+  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+  title="Opsonin Pharma"
+></iframe> -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="emergency-services">
+              <!-- <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                  <div class="mday"><a href="finix-scholarship-2022.php"><img src="images/scholarship-banner_2022_Date-Ext-home.jpg" alt="Finix Scholarship 2022"></a></div>
+                </div>
+              </div> -->
+              <!-- <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                  <div class="mday"><a href="finix-scholarship-2024.php"><img src="images/Finix-Scholarship-5th-Batch-2022-23-Banner.jpg" alt="Finix Scholarship 2023"></a></div>
+                </div>
+              </div> -->
+              <!-- <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                  <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-4 cntr">
+                      <a class="popup-youtube" href="https://www.youtube.com/watch?v=aO7dqPr7EQc">
+                        <img id="" src="https://i3.ytimg.com/vi/aO7dqPr7EQc/maxresdefault.jpg" class="item-thumb" alt="Ostogen D celebrates Mother's day 2022 with Prof. Dr. Ferdousi Begum">
+                        <p>Ostogen D celebrates Mother's day 2022 with Prof. Dr. Ferdousi Begum</p>
+                      </a>
+                    </div>
+                    <div class="col-xs-12 col-sm-3 col-md-4 cntr">
+                      <a class="popup-youtube" href="https://www.youtube.com/watch?v=dqUtK-WzLYA">
+                        <img id="" src="https://i3.ytimg.com/vi/dqUtK-WzLYA/maxresdefault.jpg" class="item-thumb" alt="Ostogen D celebrates Mother's day 2022 with Prof. Dr. Farhana Dewan">
+                        <p>Ostogen D celebrates Mother's day 2022 with Prof. Dr. Farhana Dewan</p>
+                      </a>
+                    </div>
+                    <div class="col-xs-12 col-sm-3 col-md-4 cntr">
+                      <a class="popup-youtube" href="https://www.youtube.com/watch?v=AWyPOoJ2HyE">
+                        <img id="" src="https://i3.ytimg.com/vi/AWyPOoJ2HyE/maxresdefault.jpg" class="item-thumb" alt="Ostogen D celebrates Mother's day 2022">
+                        <p>Ostogen D celebrates Mother's day 2022</p>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+          </div>
+
+        </div>
+      </div><!-- END #welcome-text-container -->
+      <!-- start of freefind search box html -->
+      <div id="full-body">
+        <div class="containerIntro about-us-container">
+          <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+              <div class="about-us-title">
+                <h3>About Us</h3>
+                <p>
+                  Opsonin a Leading Pharmaceutical company in Bangladesh that creates value for its customers and other stakeholders by providing highest quality health care solutions.
+                </p>
+              </div>
+            </div><!-- /col -->
+            <div class="col-xs-12 col-sm-12 col-md-12">
+              <div class="row top-row">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                  <a href="products.php" class="item-1">
+                    <img id="mobile-hidden" src="images/home/item-1.jpg" class="item-thumb">
+                    <img id="mobile-view" src="images/home/m-item-1.jpg" class="item-thumb">
+                    <div class="desc">
+                      <div class="desc_wrap" style="">
+                        <div class="desc_img">
+                          <img class="scale-with-grid" src="images/icons/products.png">
+                        </div>
+                        <div class="desc_txt">
+                          <span>Products</span>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </div><div class="col-xs-12 col-sm-6 col-md-6">
+                  <a href="new-plant.php" class="item-2">
+                    <img id="mobile-hidden" src="images/home/item-2.jpg" class="item-thumb">
+                    <img id="mobile-view" src="images/home/m-item-2.jpg" class="item-thumb">
+                    <div class="desc">
+                      <div class="desc_wrap" style="">
+                        <div class="desc_img">
+                          <img class="scale-with-grid" src="images/icons/item-2.png">
+                        </div>
+                        <div class="desc_txt">
+                          <span>Production Facilities</span>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </div><div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                  <a href="medical-college-hospitals.php" class="item-3">
+                    <img src="images/home/item-3.jpg" class="item-thumb">
+                    <div class="desc">
+                      <div class="desc_wrap" style="">
+                        <div class="desc_img">
+                          <img class="scale-with-grid" src="images/icons/item-3.png">
+                        </div>
+                        <div class="desc_txt">
+                          <span>Services</span>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </div><div class="col-xs-12 col-sm-3 col-md-3">
+                  <a href="opsonin-globally.php" class="item-4">
+                    <img src="images/home/global-presence-th.jpg" class="item-thumb">
+                    <div class="desc">
+                      <div class="desc_wrap" style="">
+                        <div class="desc_img">
+                          <img class="scale-with-grid" src="images/icons/global-icon.png">
+                        </div>
+                        <div class="desc_txt">
+                          <span>Global Presence</span>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </div><div class="col-xs-12 col-sm-3 col-md-3">
+                  <a href="regional-offices.php" class="item-5">
+                    <img src="images/home/item-5.jpg" class="item-thumb">
+                    <div class="desc">
+                      <div class="desc_wrap" style="">
+                        <div class="desc_img">
+                          <img class="scale-with-grid" src="images/icons/item-5.png">
+                        </div>
+                        <div class="desc_txt">
+                          <span>Regional Offices</span>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </div><div class="col-xs-12 col-sm-3 col-md-3">
+                  <a href="new-product-news-letter.php" class="item-6">
+                    <img src="images/home/item-6.jpg" class="item-thumb">
+                    <div class="desc">
+                      <div class="desc_wrap" style="">
+                        <div class="desc_img">
+                          <img class="scale-with-grid" src="images/icons/item-6.png">
+                        </div>
+                        <div class="desc_txt">
+                          <span>NPM Newsletter</span>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div> <!-- /row -->
+        </div> <!-- /container -->
+      </div><!-- END #full-body -->
+      <div id="map-container">
+        <!-- <div class="container"> -->
+          <div class="row">
+            <div class="col-xs-12 col-sm-7 col-md-7">
+              <div class="map-holder">
+                <div id="map" style="height: 500px; width: 100%;"></div>
+                <script>
+                /* Custom Add */
+                var gmarkers = [];
+                /* END Custom Add */
+                function initMap() {
+                  var map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 2,
+                    center: {lat: 30, lng: 90},
+                    scrollwheel: true,
+                    draggable: true
+                  });
+                  setMarkers(map);
+                }
+                var beaches = [
+                  ['Myanmar', 21.913965, 95.956223, 13],
+                  ['Etc', 21.913965, 95.111111, 1],
+                  ['Vietnam', 14.058324, 108.277199, 2],
+                  ['Hong Kong', 22.396428, 114.109497 , 3],
+                  ['Macau', 22.198745, 113.543873, 4],
+                  ['Fiji', -16.578193, 179.414413, 5],
+                  ['Philippines', 12.879721, 121.774017, 6],
+                  ['Sri Lanka', 7.873054, 80.771797, 7],
+                  ['Afghanistan', 33.93911, 67.709953, 8],
+                  ['Kenya', -0.023559, 37.906193, 9],
+                  ['Somalia', 5.152149, 46.199616, 10],
+                  ['Bhutan', 27.514162, 90.433601, 11],
+                  ['Georgia', 42.315407, 43.356892, 12]
+                ];
+                function setMarkers(map) {
+                  var image = {
+                    url: 'images/icons/marker.png',
+                    size: new google.maps.Size(24, 34),
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(0, 32)
+                  };
+                  var shape = {
+                    coords: [1, 1, 1, 20, 18, 20, 18, 1],
+                    type: 'poly'
+                  };
+                  for (var i = 0; i < beaches.length; i++) {
+                    var beach = beaches[i];
+                    var marker = new google.maps.Marker({
+                      position: {lat: beach[1], lng: beach[2]},
+                      map: map,
+                      icon: image,
+                      shape: shape,
+                      title: beach[0],
+                      zIndex: beach[3]
+                    });
+                    google.maps.event.addListener(marker, 'mouseover', (function(marker, i) {
+                     return function() {
+                       gmarkers[i].setAnimation(google.maps.Animation.BOUNCE);
+                     }
+                    })(marker, i));
+                    google.maps.event.addListener(marker, 'mouseout', (function(marker, i) {
+                     return function() {
+                      gmarkers[i].setAnimation(null);
+                     }
+                    })(marker, i));
+                    /* Custom Add */
+                    gmarkers[i] = marker;
+                    /* END Custom Add */
+                  }// loop END
+                  if($(window).width()<768){
+                      var getlat = 45;
+                      var getlng = 40;
+                      var map_center = new google.maps.LatLng(getlat, getlng);
+                      map.setCenter(map_center);
+                      map.setZoom(2);
+                  }else if($(window).width()<980){
+                      var getlat = 45;
+                      var getlng = 40;
+                      var map_center = new google.maps.LatLng(getlat, getlng);
+                      map.setCenter(map_center);
+                      map.setZoom(3);
+                  }else if($(window).width()<1200){
+                      var getlat = 45;
+                      var getlng = 40;
+                      var map_center = new google.maps.LatLng(getlat, getlng);
+                      map.setCenter(map_center);
+                      map.setZoom(3);
+                  }
+                }
+              </script>
+              <script async defer
+              src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDc1oVnZH9b1PUOUxLrXGKN-27CjxwIC-E&callback=initMap">
+              </script>
+              <!-- Marker Animation -->
+               <script type="text/javascript">
+                function bounceAnimation(id){
+                  gmarkers[id].setAnimation(google.maps.Animation.BOUNCE);
+                }
+                function bounceAnimationStop(id){
+                  gmarkers[id].setAnimation(null);
+                }
+              </script>
+               <!-- End Marker Animation -->
+              </div>
+            </div><!-- /col -->
+            <div class="col-xs-12 col-sm-5 col-md-5">
+              <div class="global">
+                <h4><span>Opsonin</span> Globally</h4>
+                <ul class="country-list">
+                 <!--  <li onmouseover="bounceAnimation(1)" onmouseout="bounceAnimationStop(1)">United Kingdom</li>
+                  <li onmouseover="bounceAnimation(2)" onmouseout="bounceAnimationStop(2)">France</li>
+                  <li onmouseover="bounceAnimation(3)" onmouseout="bounceAnimationStop(3)">Spain</li>
+                  <li onmouseover="bounceAnimation(4)" onmouseout="bounceAnimationStop(4)">Italy</li>
+                  <li onmouseover="bounceAnimation(5)" onmouseout="bounceAnimationStop(5)">Egypt</li>
+                  <li onmouseover="bounceAnimation(6)" onmouseout="bounceAnimationStop(6)">Poland</li>
+                  <li onmouseover="bounceAnimation(7)" onmouseout="bounceAnimationStop(7)">Ukraine</li>
+                  <li onmouseover="bounceAnimation(8)" onmouseout="bounceAnimationStop(8)">Saudi Arabia</li>
+                  <li><a href="#">Other Country</a></li> -->
+                  Overseas business has always been of highest priority of Opsonin Pharma Ltd. After flourishing at a staggering rate at home, OPL started its marketing network is foreign lands since 1985.
+                </ul>
+                <div id="eff-3">
+                  <a class="third after" href="opsonin-globally.php">Find More</a>
+                </div>
+                <ul class="info-ul">
+                  <li>info@opsonin.net</li>
+                  <li>Phone:  +880-2-48311900, +880-2-55142000</li>
+                  <li>IP PABX: (+88 09610) 996677</li>
+                 <!--  <li>Follow us on <a href="#" class="first"><img src="images/icons/fb-color.png"></a> <a href="#" class="first"><img src="images/icons/twitter-color.png" ></a></li>-->
+                </ul>
+              </div>
+            </div><!-- /col -->
+          </div> <!-- /row -->
+        <!-- </div> --> <!-- /container -->
+      </div><!-- END #map-container -->
+    <!-- <script src="https://code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script> -->
+    <script>
+    $(document).ready(function(){
+        $("#search-box").keyup(function(){
+            $.ajax({
+            type: "POST",
+            url: "whole_search.php",
+            data:'keyword='+$(this).val(),
+            beforeSend: function(){
+                // $("#search-box").css("background","#FFF url(LoaderIcon.gif) no-repeat 165px");
+            },
+            success: function(data){
+                $("#suggesstion-box").show();
+                $("#suggesstion-box").html(data);
+                // $("#search-box").css("background","#FFF");
+            }
+            });
+        });
+    });
+    function selectCountry(val) {
+      $("#search-box").val(val);
+      $("#suggesstion-box").hide();
+    }
+    </script>
+    <!-- Check empty field -->
+    <script>
+      $('#checkinput').click(function(){
+       if($('#search-box').val() == ''){
+        $('input').on("invalid", function(e) {e.preventDefault();});
+          $('.showerrormsg').css('display', 'block');
+       }
+    });
+    </script>   
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('.popup-youtube').magnificPopup({
+          type: 'iframe'
+        });
+      });
+    </script>   
+<div id="footer" >
+    <div class="main">
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-12 col-sm-4 col-md-3">
+            <img src="images/icons/footer-logo.png">
+          </div><!-- /col -->
+          <div class="col-xs-12 col-sm-8 col-md-9">
+            <div class="row">
+              <div class="col-xs-12 col-sm-4 col-md-3" id="mobile-hidden">
+                <ul class="footer-menu-ul address">
+                  <li>Opsonin Building</li>
+                  <li>30, New Eskaton Road,</li>
+                  <li>Ramna, Dhaka 1000,</li>
+                  <li>Bangladesh.</li>
+                </ul>
+              </div>
+              <div class="col-xs-12 col-sm-3 col-md-3" id="mobile-hidden">
+                <ul class="footer-menu-ul footer-nav ul-one">
+                  <li id="eff-3"><a class="third after" href="./">Home</a></li>
+                  <li id="eff-3"><a class="third after" href="about-opsonin.php">About Opsonin</a></li>
+                  <li id="eff-3"><a class="third after" href="pharmaceutical-products.php">Pharmaceutical Products</a></li>
+                  <li id="eff-3"><a class="third after" href="agrovet-products.php">Agrovet Products</a></li>
+                  <li id="eff-3"><a class="third after" href="medical-college-hospitals.php">Services</a></li>
+                </ul>
+              </div>
+              <div class="col-xs-12 col-sm-3 col-md-3" id="mobile-hidden">
+                <ul class="footer-menu-ul footer-nav footer-nav-last ul-two">
+                  <li id="eff-3"><a class="third after" href="new-plant.php">Production Facilties</a></li>
+                  <li id="eff-3"><a class="third after" href="opsonin-globally.php">Global Presence</a></li>
+                  <!-- <li id="eff-3"><a class="third after" href="latest-news.php">News &amp; Events</a></li>  -->
+                	<li id="eff-3"><a class="third after" href="regional-offices.php">Regional Offices</a></li>
+                	<li id="eff-3"><a class="third after" href="life-at-opsonin.php">Career</a></li>
+                	<li id="eff-3"><a class="third after" href="product-monographs.php">Downloads</a></li>
+                </ul>
+              </div>
+              <div class="col-xs-12 col-sm-2 col-md-3" id="mobile-hidden">
+                <ul class="footer-menu-ul footer-nav footer-nav-last ul-three">	
+                  <li id="eff-3"><a class="third after" href="photo-gallery.php">Photo Gallery</a></li>
+                    <li id="eff-3"><a class="third after" href="virtual-tours.php">Virtual Tours</a></li>
+                    <li id="eff-3"><a class="third after" href="video-gallery.php">Video Gallery</a></li>
+                    <li id="eff-3"><a class="third after" href="contact-us.php">Contact</a></li>
+                    <li id="eff-3"><a class="third after" href="site-map.php">Sitemap</a></li>
+                </ul>
+              </div>
+              <div class="mobile-footer" id="mobile-view">
+                <ul class="footer-menu-ul">
+                  <li id="eff-3"><a class="third after" href="./">Home</a></li>
+                  <li id="eff-3"><a class="third after" href="about-opsonin.php">About Opsonin</a></li>
+                  <li id="eff-3"><a class="third after" href="products.php">Products</a></li>
+                  <li id="eff-3"><a class="third after" href="medical-college-hospitals.php">Services</a></li>
+                  <li id="eff-3"><a class="third after" href="new-plant.php">Production Facilties</a></li>
+                  <li id="eff-3"><a class="third after" href="opsonin-globally.php">Global Presence</a></li>
+                  <li id="eff-3"><a class="third after" href="regional-offices.php">Regional Offices</a></li>
+                  <li id="eff-3"><a class="third after" href="life-at-opsonin.php">Career</a></li>
+                  <li id="eff-3"><a class="third after" href="product-monographs.php">Downloads</a></li>
+                  <li id="eff-3"><a class="third after" href="photo-gallery.php">Photo Gallery</a></li>
+                  <li id="eff-3"><a class="third after" href="virtual-tours.php">Virtual Tours</a></li>
+                  <li id="eff-3"><a class="third after" href="video-gallery.php">Video Gallery</a></li>
+                  <li id="eff-3"><a class="third after" href="contact-us.php">Contact</a></li>
+                  <li id="eff-3"><a class="third after" href="site-map.php">Sitemap</a></li>
+                </ul>
+              </div>
+            </div>
+          </div><!-- /col -->
+        </div> <!-- /row -->
+      </div> <!-- /container -->
+
+      <div id="back-to-top"><a href="#" title="Back to top"><i class="fa fa-angle-up" aria-hidden="true"></i></a></div>
+   
+        <div class="footer">
+          <div class="container">
+            <div class="row">
+              <div class="col-xs-12 col-sm-6 col-md-6">
+                <p>&copy; 2026 Opsonin Pharma. All rights reserved.</p>
+              </div><!-- /col -->
+              <div class="col-xs-12 col-sm-6 col-md-6 siteby">
+                <p id="eff-3">Site By <a class="third after" href="http://digitainteractive.com" target="_blank">DIGITA iNTERACTIVE</a></p>
+              </div><!-- /col -->
+            </div> <!-- /row -->
+          </div> <!-- /container -->
+        </div>
+      </div><!-- END #footer -->
+
+    </div><!-- END canvas="container" -->
+    
+
+    <!-- javascript
+    ================================================== -->
+    <script src="./js/jquery.validate.js"></script>
+    <script src="./js/bootstrap.js"></script>
+    <script src="./js/slidebars.js"></script>
+
+    <!-- Scroll -->
+    <!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script> -->
+    <script type="text/javascript" src="css/scroll/prettify.js"></script>
+    <script type="text/javascript" src="css/scroll/jquery.slimscroll.js"></script> 
+    <!-- Ends -->
+
+    <!-- owl carousel -->
+    <script type="text/javascript" src="js/owl-carousel/owl.carousel.js"></script>
+    <!-- owl carousel end -->
+
+    <!-- bxSlider Javascript file -->
+    <script src="./js/jquery.bxslider.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        $('.bxslider').bxSlider({
+          auto: true,
+          autoControls: false,
+          speed: 500,
+          minSlides: 4,
+          maxSlides: 4,
+          moveSlides: 1,
+          slideMargin: 15,
+          infiniteLoop: true,
+          nextSelector: '#slider-next',
+          prevSelector: '#slider-prev',
+          controls: true,
+          pager: false,
+          nextText: '<i class="fa fa-angle-left";></i>',
+          prevText: '<i class="fa fa-angle-right"></i>',
+          slideWidth: 200
+        });
+    });
+    </script>
+
+    <!-- Flexslider JS -->
+    <script src="./js/jquery.flexslider.js"></script>
+    <script>
+      $('.flexslider').flexslider({
+        animation: "slide",
+        controlNav: false
+      });
+    </script>
+
+
+    <script src="./js/script.js"></script>
+
+        <!-- ========== revolution Slider ========== -->  
+        <script type="text/javascript" src="js/jquery.themepunch.plugins.min.js"></script>           
+        <script type="text/javascript" src="js/jquery.themepunch.revolution.min.js"></script>
+        <script type="text/javascript">
+            var tpj=jQuery;                
+            tpj(document).ready(function() {
+            
+            if (tpj.fn.cssOriginal!=undefined)
+                tpj.fn.css = tpj.fn.cssOriginal;
+                tpj('.fullwidthbanner').revolution(
+                    {   
+                        delay: 7000,                                             
+                        startwidth:890,
+                        startheight:450,                        
+                        onHoverStop:"off", // Stop Banner Timet at Hover on Slide on/off
+                        
+                        thumbWidth:100, // Thumb With and Height and Amount (only if navigation Tyope set to thumb !)
+                        thumbHeight:50,
+                        thumbAmount:4,
+                        
+                        hideThumbs:200,
+                        navigationType:"none", //bullet, thumb, none, both  (No Shadow in Fullwidth Version !)
+                        navigationArrows:"verticalcentered", //nexttobullets, verticalcentered, none
+                        navigationStyle:"round", //round,square,navbar
+                        
+                        touchenabled:"on", // Enable Swipe Function : on/off                        
+                        navOffsetHorizontal:0,
+                        navOffsetVertical:20,                        
+                        fullWidth:"off",                        
+                        shadow:0 //0 = no Shadow, 1,2,3 = 3 Different Art of Shadows -  (No Shadow in Fullwidth Version !)        
+                    });
+        });
+        </script>
+
+       
+        <script type="text/javascript">
+            $(function () {
+            $('.tab-content:not(:first)').hide();
+            $('#tabs-nav a').bind('click', function (e) {
+                e.preventDefault();
+                $this = $(this);
+                $target = $(this.hash);
+                $('#tabs-nav a.current').removeClass('current');
+                $('.tab-content:visible').fadeOut("slow", function () {
+                    $this.addClass('current');
+                    $target.fadeIn("slow");
+                });
+            }).filter(':first').click();
+            });
+        </script>
+
+
+        <!-- Sidebar Menu -->
+        <script type="text/javascript">
+          $(document).ready(function() {
+
+              if($(window).width()<490){
+                $('#sidebar').css('width', '70px');
+              }
+
+              $('.hamburger-menu').click(function() {
+                if($('#sidebar').hasClass('expand')){
+
+                  $('#sidebar').removeClass('expand');
+                  
+                  $('.menu_content h2 span, .menu_content a.top-logo span').css('left', '0px');
+
+                  if($(window).width()<490){
+                    setTimeout( function(){ 
+                      $('#sidebar').animate({
+                        width: "70px"
+                      });
+
+                      $('#side-logo, #vertical-contact-ul, .enquiry-button').show();
+                      $('.nav-ul li, .fonts-ul, #contact-ul, .menu_content h2, .menu_content a.top-logo').hide();
+                    }  , 550 );
+                  }else{
+                    setTimeout( function(){ 
+                      $('#sidebar').animate({
+                        width: "95px"
+                      });
+
+                      $('#side-logo, #vertical-contact-ul, .enquiry-button').show();
+                      $('.nav-ul li, .fonts-ul, #contact-ul, .menu_content h2, .menu_content a.top-logo').hide();
+                    }  , 550 );
+                  }
+                  
+                }else{
+                  $('#sidebar').addClass('expand');
+                  $('#vertical-contact-ul, #side-logo, .enquiry-button').hide();
+                  
+                  if($(window).width()<490){
+                    $('#sidebar').animate({
+                        width: "315px"
+                    }, function(){
+                      $('.menu_content h2, .menu_content a.top-logo').fadeIn();
+                      $('.menu_content h2 span, .menu_content a.top-logo span').animate({
+                          left: "125px"
+                      });
+
+                    });
+                  }else{
+                    $('#sidebar').animate({
+                        width: "420px"
+                    }, function(){
+                      $('.menu_content h2, .menu_content a.top-logo').fadeIn();
+                      $('.menu_content h2 span, .menu_content a.top-logo span').animate({
+                          left: "300px"
+                      });
+
+                    });
+                  }
+                  
+                  setTimeout( function(){ 
+                    $('.fonts-ul').fadeIn();
+                  }  , 2400 );
+
+                  setTimeout( function(){ 
+                    $('#contact-ul').fadeIn();
+                  }  , 2600 );
+
+                  setTimeout( function(){ 
+
+                    iterator( $('.nav-ul li').hide().first() );
+                    function iterator( el ) {
+                        el.fadeIn(150, function() { iterator( el.next() ); } )
+                    }
+
+                  }, 1200);
+
+                }// END else
+                  
+              });
+
+              $('#main-body').click(function() {
+                  $('#sidebar').removeClass('expand');
+                  
+                  $('.menu_content h2 span, .menu_content a.top-logo span').css('left', '0px');
+
+                  if($(window).width()<490){
+                    setTimeout( function(){ 
+                      $('#sidebar').animate({
+                        width: "70px"
+                      });
+
+                      $('#side-logo, #vertical-contact-ul, .enquiry-button').show();
+                      $('.nav-ul li, .fonts-ul, #contact-ul, .menu_content h2, .menu_content a.top-logo').hide();
+                    }  , 550 );
+                  }else{
+                    setTimeout( function(){ 
+                      $('#sidebar').animate({
+                        width: "95px"
+                      });
+
+                      $('#side-logo, #vertical-contact-ul, .enquiry-button').show();
+                      $('.nav-ul li, .fonts-ul, #contact-ul, .menu_content h2, .menu_content a.top-logo').hide();
+                    }  , 550 );
+                  }
+                  
+                  
+              });
+
+          });
+
+          //main menu sub navi
+          $('.nav-ul li > .submenu').parent().click(function() {
+            var submenu = $(this).children('.submenu');
+            if ( $(submenu).is(':hidden') ) {
+              $(submenu).slideDown(200);
+            } else {
+              $(submenu).slideUp(200);
+            }
+          });
+        </script>
+
+        <!-- Magnific Popup || Gallery || Virtual Tours -->
+        <script src="js/jquery.magnific-popup.js"></script>
+        <script type="text/javascript">
+          $(document).ready(function() {
+
+          $('a.ph-gallery').on('click', function(event) {
+            event.preventDefault();
+            
+            var gallery = $(this).attr('href');
+            
+            $(gallery).magnificPopup({
+              delegate: 'a',
+              type:'image',
+              gallery: {
+                enabled: true
+              }
+            }).magnificPopup('open');
+          });
+          
+          });
+        </script>
+        <!-- health tip iamge popus start -->
+        <script type="text/javascript">
+          $(document).ready(function() {
+
+          $('a.health-tip').on('click', function(event) {
+            event.preventDefault();
+            
+            var gallery = $(this).attr('href');
+            
+            $(gallery).magnificPopup({
+              delegate: 'a',
+              type:'image',
+              gallery: {
+                enabled: true
+              }
+            }).magnificPopup('open');
+          });
+          
+          });
+        </script>
+        <!-- health tip iamge popus ends -->
+        <script type="text/javascript">
+          $('.magnific').magnificPopup({
+            type:'image',
+            removalDelay: 300,
+            mainClass: 'mfp-fade'
+          });
+            
+          $('.magnific-vt, .magnific-youtube').magnificPopup({
+            disableOn: 100,
+            type: 'iframe',
+            mainClass: 'mfp-fade',
+            removalDelay: 300,
+            preloader: true,
+            fixedContentPos: false
+          });
+        </script>
+        <!-- Ends -->
+
+        <!-- Read More Starts -->
+        <script type="text/javascript">
+          $(document).ready(function() {
+          // Configure/customize these variables.
+          var showChar = 100;  // How many characters are shown by default
+          var home_showChar = 300;  // How many characters are shown by default
+          var ellipsestext = "...";
+          var moretext = "Show More >";
+          var lesstext = "Show Less";
+          
+
+          $('.more').each(function() {
+              var content = $(this).html();
+       
+              if(content.length > showChar) {
+       
+                  var c = content.substr(0, showChar);
+                  var h = content.substr(showChar, content.length - showChar);
+       
+                  var html = c + '<span class="moreellipses">' + ellipsestext+ '&nbsp;</span><span class="morecontent"><span>' + h + '</span>&nbsp;&nbsp;<a href="" class="morelink">' + moretext + '</a></span>';
+       
+                  $(this).html(html);
+              }
+       
+          });
+          $('.morehome').each(function() {
+              var content = $(this).html();
+       
+              if(content.length > home_showChar) {
+       
+                  var c = content.substr(0, home_showChar);
+                  var h = content.substr(home_showChar, content.length - home_showChar);
+       
+                  var html = c + '<span class="moreellipses">' + ellipsestext+ '&nbsp;</span><span class="morecontent"><span>' + h + '</span>&nbsp;&nbsp;<a href="" class="morelink">' + moretext + '</a></span>';
+       
+                  $(this).html(html);
+              }
+       
+          });
+          $(".morelink").click(function(){
+              if($(this).hasClass("less")) {
+                  $(this).removeClass("less");
+                  $(this).html(moretext);
+              } else {
+                  $(this).addClass("less");
+                  $(this).html(lesstext);
+              }
+              $(this).parent().prev().toggle();
+              $(this).prev().toggle();
+              return false;
+          });
+          });
+        </script>
+        <!-- Read More Ends -->
+
+        <!-- Back to top Starts -->
+         <script type="text/javascript">
+        if ($('#back-to-top').length) {
+            var scrollTrigger = 100, // px
+                backToTop = function () {
+                    var scrollTop = $(window).scrollTop();
+                    if (scrollTop > scrollTrigger) {
+                        $('#back-to-top').addClass('show');
+                    } else {
+                        $('#back-to-top').removeClass('show');
+                    }
+                };
+            backToTop();
+            $(window).on('scroll', function () {
+                backToTop();
+            });
+            $('#back-to-top').on('click', function (e) {
+                e.preventDefault();
+                $('html,body').animate({
+                    scrollTop: 0
+                }, 700);
+            });
+        }
+        </script>
+        <!-- Back to top Ends -->
+
+        <!-- Latest News Page -->
+        <!-- <script src="http://code.jquery.com/jquery-1.8.2.js"></script> -->
+        <!-- On Net -->
+        <!-- <script src="http://code.jquery.com/ui/1.9.1/jquery-ui.js"></script> -->
+        <!-- Off Net -->
+        <script src="js/jquery-ui.js"></script>
+          <script type="text/javascript">
+          $('#tabs')
+            .tabs()
+            .addClass('ui-tabs-vertical ui-helper-clearfix');
+          </script>
+
+          
+
+        
+        <!-- Modify link href | for Without flash virtual tours  -->
+
+        <script type="text/javascript">
+        $(document).ready(function() {
+            $(window).resize(function() {
+                if($(window).width() <= 400) {
+                    $('a[data-xs-href]').each(function() { 
+                        $(this).attr('href', $(this).attr('data-xs-href'));
+                    });
+                }
+            }).resize(); 
+            
+        });
+        </script>
+
+
+        <script type="text/javascript">
+          function printDiv(divName) {
+          var printContents = document.getElementById(divName).innerHTML;
+          var originalContents = document.body.innerHTML;
+          document.body.innerHTML = printContents;
+          window.print();
+          document.body.innerHTML = originalContents;
+          location.reload();
+        }
+        </script>
+
+        <script type="text/javascript" src="js/wow.min.js"></script>
+        <script type="text/javascript">
+          var wow = new WOW();
+          wow.init();
+        </script>
+
+        
+
+                <script>
+        if($(window).width() <= 767) {
+          $('#main_sidebar_toggle').toggle(function () {
+          $('#sidebar').css('position', 'fixed');
+          }, function () {
+            $('#sidebar').css('position', 'relative');
+          });
+        }
+        </script>
+        
+        <!-- select2 -->
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script type="text/javascript">
+            // In your Javascript (external .js resource or <script> tag)
+            $(document).ready(function() {
+                $('.theprdSearch').select2();
+                $('.theGenSearch').select2();
+            });
+        </script>
+        <script type="text/javascript">
+            // modify url
+            function addVariable() {
+              var form = document.getElementById("myForm");
+              var action = form.getAttribute("action");
+              var inputValue = form.elements["pid"].value;
+              
+              // Append the variable to the action URL
+              var updatedAction = action + "?pid=" + inputValue;
+              
+              // Update the form's action
+              form.setAttribute("action", updatedAction);
+              
+              // Submit the form
+              form.submit();
+            }
+
+            // modify url generics
+            function addVariable() {
+              var form = document.getElementById("myFormGen");
+              var action = form.getAttribute("action");
+              var inputValue = form.elements["gid"].value;
+              
+              // Append the variable to the action URL
+              var updatedAction = action + "?gid=" + inputValue;
+              
+              // Update the form's action
+              form.setAttribute("action", updatedAction);
+              
+              // Submit the form
+              form.submit();
+            }
+        </script>
+
+        <script type="text/javascript">
+          $(function() {
+            $(".loadingproducts").fadeOut(2000, function() {
+              $(".prdcontainz").fadeIn(1000);
+            });
+          });
+        </script>
+  </body>
+</html>
