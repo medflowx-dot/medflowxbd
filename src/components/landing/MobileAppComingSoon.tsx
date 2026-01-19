@@ -1,7 +1,21 @@
 import { Smartphone, Bell, Zap, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
 
 const MobileAppComingSoon = () => {
+  const { data: cmsContent } = useCMSContent('mobile_app');
+
+  const badge = getCMSValue(cmsContent, 'badge', 'শীঘ্রই আসছে');
+  const title = getCMSValue(cmsContent, 'title', 'মোবাইল অ্যাপ');
+  const titleHighlight = getCMSValue(cmsContent, 'titleHighlight', 'আসছে শীঘ্রই!');
+  const description = getCMSValue(cmsContent, 'description', 'আপনার পকেটে থাকবে আপনার পুরো ফার্মেসি। বিক্রয়, স্টক, রিপোর্ট — সব কিছু এক ট্যাপেই। Android ও iOS উভয় প্ল্যাটফর্মে।');
+  const buttonText = getCMSValue(cmsContent, 'buttonText', 'লঞ্চে জানতে চাই');
+  const waitingText = getCMSValue(cmsContent, 'waitingText', '+২৩০ জন অপেক্ষায়');
+  const feature1Title = getCMSValue(cmsContent, 'feature1Title', 'পুশ নোটিফিকেশন');
+  const feature1Desc = getCMSValue(cmsContent, 'feature1Desc', 'এক্সপায়ারি এলার্ট সাথে সাথে');
+  const feature2Title = getCMSValue(cmsContent, 'feature2Title', 'অফলাইন মোড');
+  const feature2Desc = getCMSValue(cmsContent, 'feature2Desc', 'ইন্টারনেট ছাড়াও কাজ করুন');
+
   return (
     <section className="py-16 md:py-24 bg-background relative overflow-hidden">
       {/* Decorative Elements */}
@@ -15,17 +29,16 @@ const MobileAppComingSoon = () => {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 mb-6">
               <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              <span className="text-secondary-foreground text-sm font-semibold">শীঘ্রই আসছে</span>
+              <span className="text-secondary-foreground text-sm font-semibold">{badge}</span>
             </div>
 
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
-              মোবাইল অ্যাপ <br className="hidden md:block" />
-              <span className="text-primary">আসছে শীঘ্রই!</span>
+              {title} <br className="hidden md:block" />
+              <span className="text-primary">{titleHighlight}</span>
             </h2>
 
             <p className="text-lg text-muted-foreground mb-8 max-w-lg mx-auto lg:mx-0">
-              আপনার পকেটে থাকবে আপনার পুরো ফার্মেসি। বিক্রয়, স্টক, রিপোর্ট — 
-              সব কিছু এক ট্যাপেই। Android ও iOS উভয় প্ল্যাটফর্মে।
+              {description}
             </p>
 
             {/* Features */}
@@ -35,8 +48,8 @@ const MobileAppComingSoon = () => {
                   <Bell className="w-5 h-5 text-primary" />
                 </div>
                 <div className="text-left">
-                  <p className="font-semibold text-foreground text-sm">পুশ নোটিফিকেশন</p>
-                  <p className="text-xs text-muted-foreground">এক্সপায়ারি এলার্ট সাথে সাথে</p>
+                  <p className="font-semibold text-foreground text-sm">{feature1Title}</p>
+                  <p className="text-xs text-muted-foreground">{feature1Desc}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border">
@@ -44,8 +57,8 @@ const MobileAppComingSoon = () => {
                   <Zap className="w-5 h-5 text-secondary" />
                 </div>
                 <div className="text-left">
-                  <p className="font-semibold text-foreground text-sm">অফলাইন মোড</p>
-                  <p className="text-xs text-muted-foreground">ইন্টারনেট ছাড়াও কাজ করুন</p>
+                  <p className="font-semibold text-foreground text-sm">{feature2Title}</p>
+                  <p className="text-xs text-muted-foreground">{feature2Desc}</p>
                 </div>
               </div>
             </div>
@@ -54,7 +67,7 @@ const MobileAppComingSoon = () => {
             <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
               <Button size="lg" className="group">
                 <Bell className="w-4 h-4 mr-2" />
-                লঞ্চে জানতে চাই
+                {buttonText}
               </Button>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
@@ -67,7 +80,7 @@ const MobileAppComingSoon = () => {
                     </div>
                   ))}
                 </div>
-                <span className="text-sm text-muted-foreground">+২৩০ জন অপেক্ষায়</span>
+                <span className="text-sm text-muted-foreground">{waitingText}</span>
               </div>
             </div>
           </div>
