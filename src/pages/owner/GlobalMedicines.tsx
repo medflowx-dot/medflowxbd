@@ -54,14 +54,16 @@ import * as XLSX from 'xlsx';
 const UNITS = ['pcs', 'strip', 'box', 'bottle', 'tube', 'vial', 'sachet'];
 
 export default function GlobalMedicines() {
-  const { medicines, isLoading, createGlobalMedicine, updateGlobalMedicine, deleteGlobalMedicine, bulkCreate } = useGlobalMedicines();
+  const { medicines, isLoading, createGlobalMedicine, updateGlobalMedicine, deleteGlobalMedicine, bulkCreate, bulkDelete } = useGlobalMedicines();
   const { manufacturers } = useGlobalManufacturers();
   const [searchTerm, setSearchTerm] = useState('');
   const [manufacturerFilter, setManufacturerFilter] = useState<string>('all');
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [selectedMedicine, setSelectedMedicine] = useState<GlobalMedicine | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<CreateGlobalMedicineData>({
@@ -135,6 +137,31 @@ export default function GlobalMedicines() {
     await deleteGlobalMedicine.mutateAsync(selectedMedicine.id);
     setDeleteDialogOpen(false);
     setSelectedMedicine(null);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    await bulkDelete.mutateAsync(Array.from(selectedIds));
+    setSelectedIds(new Set());
+    setBulkDeleteDialogOpen(false);
+  };
+
+  const toggleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredMedicines.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredMedicines.map(m => m.id)));
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -457,6 +484,16 @@ export default function GlobalMedicines() {
                 ))}
               </SelectContent>
             </Select>
+            {selectedIds.size > 0 && (
+              <Button 
+                variant="destructive" 
+                onClick={() => setBulkDeleteDialogOpen(true)}
+                disabled={bulkDelete.isPending}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Selected ({selectedIds.size})
+              </Button>
+            )}
           </div>
 
           {isLoading ? (
@@ -471,6 +508,12 @@ export default function GlobalMedicines() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[50px]">
+                      <Checkbox
+                        checked={selectedIds.size === filteredMedicines.length && filteredMedicines.length > 0}
+                        onCheckedChange={toggleSelectAll}
+                      />
+                    </TableHead>
                     <TableHead>Medicine Name</TableHead>
                     <TableHead>Generic Name</TableHead>
                     <TableHead>Manufacturer</TableHead>
@@ -481,6 +524,12 @@ export default function GlobalMedicines() {
                 <TableBody>
                   {filteredMedicines.map((medicine) => (
                     <TableRow key={medicine.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedIds.has(medicine.id)}
+                          onCheckedChange={() => toggleSelect(medicine.id)}
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">{medicine.name}</TableCell>
                       <TableCell>{medicine.generic_name || '-'}</TableCell>
                       <TableCell>{medicine.manufacturer?.name || '-'}</TableCell>
@@ -555,6 +604,28 @@ export default function GlobalMedicines() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete Confirmation */}
+      <AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} Medicines?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove {selectedIds.size} selected medicines from the global list. Clients who have already copied these medicines will not be affected.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleBulkDelete} 
+              className="bg-destructive text-destructive-foreground"
+              disabled={bulkDelete.isPending}
+            >
+              {bulkDelete.isPending ? 'Deleting...' : `Delete ${selectedIds.size} Medicines`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
