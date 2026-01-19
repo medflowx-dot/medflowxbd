@@ -22,23 +22,25 @@ export default function OrderedOrders() {
   const [receivingOrder, setReceivingOrder] = useState<string | null>(null);
   
   const [receiveForm, setReceiveForm] = useState({
-    totalAmount: 0,
-    paidAmount: 0,
+    totalAmount: '',
+    paidAmount: '',
     paymentMethod: 'cash',
     notes: '',
   });
 
   const handleReceive = async (orderId: string) => {
     try {
+      const totalAmount = parseFloat(receiveForm.totalAmount) || 0;
+      const paidAmount = parseFloat(receiveForm.paidAmount) || 0;
       await receiveOrder({
         orderId,
-        totalAmount: receiveForm.totalAmount,
-        paidAmount: receiveForm.paidAmount,
+        totalAmount,
+        paidAmount,
         paymentMethod: receiveForm.paymentMethod,
         notes: receiveForm.notes,
       });
       setReceivingOrder(null);
-      setReceiveForm({ totalAmount: 0, paidAmount: 0, paymentMethod: 'cash', notes: '' });
+      setReceiveForm({ totalAmount: '', paidAmount: '', paymentMethod: 'cash', notes: '' });
     } catch (error) {
       // handled in hook
     }
@@ -236,7 +238,7 @@ export default function OrderedOrders() {
                       onOpenChange={(open) => {
                         setReceivingOrder(open ? order.id : null);
                         if (!open) {
-                          setReceiveForm({ totalAmount: 0, paidAmount: 0, paymentMethod: 'cash', notes: '' });
+                          setReceiveForm({ totalAmount: '', paidAmount: '', paymentMethod: 'cash', notes: '' });
                         }
                       }}
                     >
@@ -263,7 +265,7 @@ export default function OrderedOrders() {
                               value={receiveForm.totalAmount}
                               onChange={(e) => setReceiveForm({ 
                                 ...receiveForm, 
-                                totalAmount: parseFloat(e.target.value) || 0 
+                                totalAmount: e.target.value 
                               })}
                               placeholder="Enter total amount"
                             />
@@ -274,12 +276,12 @@ export default function OrderedOrders() {
                             <Input
                               type="number"
                               min={0}
-                              max={receiveForm.totalAmount}
+                              max={parseFloat(receiveForm.totalAmount) || 0}
                               step="0.01"
                               value={receiveForm.paidAmount}
                               onChange={(e) => setReceiveForm({ 
                                 ...receiveForm, 
-                                paidAmount: parseFloat(e.target.value) || 0 
+                                paidAmount: e.target.value 
                               })}
                               placeholder="Amount paid now"
                             />
@@ -289,7 +291,7 @@ export default function OrderedOrders() {
                             <div className="flex justify-between text-sm">
                               <span>Due Amount:</span>
                               <span className="font-semibold text-destructive">
-                                ৳{(receiveForm.totalAmount - receiveForm.paidAmount).toFixed(2)}
+                                ৳{((parseFloat(receiveForm.totalAmount) || 0) - (parseFloat(receiveForm.paidAmount) || 0)).toFixed(2)}
                               </span>
                             </div>
                           </div>
@@ -329,7 +331,7 @@ export default function OrderedOrders() {
                             </Button>
                             <Button 
                               onClick={() => handleReceive(order.id)}
-                              disabled={receiveForm.totalAmount <= 0}
+                              disabled={(parseFloat(receiveForm.totalAmount) || 0) <= 0}
                             >
                               Confirm Received
                             </Button>

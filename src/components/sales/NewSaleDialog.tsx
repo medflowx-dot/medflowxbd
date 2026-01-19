@@ -51,9 +51,11 @@ const saleSchema = z.object({
 
 type SaleFormData = z.infer<typeof saleSchema>;
 
-interface CartItem extends CreateSaleItemData {
+interface CartItem extends Omit<CreateSaleItemData, 'unit_price' | 'total_price'> {
   id: string;
   sale_unit: SaleUnit;
+  unit_price: string;
+  total_price: number;
 }
 
 interface NewSaleDialogProps {
@@ -101,7 +103,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
       batch_id: batch.id,
       medicine_name: medicine.name,
       batch_number: batch.batch_number,
-      unit_price: 0,
+      unit_price: '',
       total_price: 0,
       sale_unit: unit,
     };
@@ -111,12 +113,13 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
     setSelectedMedicine(null);
   };
 
-  const updateUnitPrice = (itemId: string, unitPrice: number) => {
+  const updateUnitPrice = (itemId: string, unitPriceStr: string) => {
+    const unitPrice = parseFloat(unitPriceStr) || 0;
     if (unitPrice < 0) return;
     
     setCart(cart.map((item) =>
       item.id === itemId
-        ? { ...item, unit_price: unitPrice, total_price: unitPrice }
+        ? { ...item, unit_price: unitPriceStr, total_price: unitPrice }
         : item
     ));
   };
@@ -142,7 +145,10 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
       due_amount: dueAmount,
       payment_method: data.payment_method,
       notes: data.notes,
-      items: cart.map(({ id, ...item }) => item),
+      items: cart.map(({ id, unit_price, ...item }) => ({
+        ...item,
+        unit_price: parseFloat(unit_price) || 0,
+      })),
     });
 
     setOpen(false);
@@ -268,7 +274,7 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
                               min={0}
                               step="0.01"
                               value={item.unit_price}
-                              onChange={(e) => updateUnitPrice(item.id, parseFloat(e.target.value) || 0)}
+                              onChange={(e) => updateUnitPrice(item.id, e.target.value)}
                               className="h-7 w-16 text-xs"
                             />
                           </TableCell>

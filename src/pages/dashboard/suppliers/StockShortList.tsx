@@ -45,7 +45,7 @@ export default function StockShortList() {
   const [newItem, setNewItem] = useState({
     manufacturer_id: '',
     medicine_id: '',
-    quantity: 1,
+    quantity: '1',
   });
   const [medicineSearch, setMedicineSearch] = useState('');
   const [medicinePopoverOpen, setMedicinePopoverOpen] = useState(false);
@@ -96,6 +96,8 @@ export default function StockShortList() {
     const medicine = medicines.find(m => m.id === newItem.medicine_id);
     if (!medicine) return;
     
+    const quantityNum = parseInt(newItem.quantity) || 1;
+    
     // Check if already exists, update quantity if so
     const existingIndex = pendingItems.findIndex(
       item => item.medicine_id === newItem.medicine_id
@@ -103,19 +105,19 @@ export default function StockShortList() {
     
     if (existingIndex >= 0) {
       const updated = [...pendingItems];
-      updated[existingIndex].quantity += newItem.quantity;
+      updated[existingIndex].quantity += quantityNum;
       setPendingItems(updated);
     } else {
       setPendingItems([...pendingItems, {
         medicine_id: medicine.id,
         medicine_name: medicine.name,
         medicine_unit: medicine.unit || 'pcs',
-        quantity: newItem.quantity,
+        quantity: quantityNum,
       }]);
     }
     
     // Reset medicine selection but keep manufacturer
-    setNewItem({ ...newItem, medicine_id: '', quantity: 1 });
+    setNewItem({ ...newItem, medicine_id: '', quantity: '1' });
     setMedicineSearch('');
   };
 
@@ -152,7 +154,7 @@ export default function StockShortList() {
     setAddItemDialogOpen(open);
     if (!open) {
       setPendingItems([]);
-      setNewItem({ manufacturer_id: '', medicine_id: '', quantity: 1 });
+      setNewItem({ manufacturer_id: '', medicine_id: '', quantity: '1' });
       setMedicineSearch('');
       setManufacturerSearch('');
     }
@@ -541,7 +543,7 @@ export default function StockShortList() {
                       type="number"
                       min={1}
                       value={newItem.quantity}
-                      onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })}
+                      onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })}
                       className="w-16 h-9 text-center"
                       placeholder="Qty"
                     />
