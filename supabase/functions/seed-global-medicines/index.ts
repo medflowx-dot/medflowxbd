@@ -713,14 +713,24 @@ Deno.serve(async (req) => {
 
     console.log(`Found ${existingNames.size} existing medicines`);
 
-    // Prepare medicines for insertion (skip duplicates)
+    // Prepare medicines for insertion (skip duplicates and medicines without manufacturer)
+    let skippedNoManufacturer = 0;
     const medicinesToInsert = MEDICINES_DATA
       .filter(med => !existingNames.has(med.name.toLowerCase().trim()))
+      .filter(med => {
+        const mfrId = manufacturerMap.get(med.manufacturer.toLowerCase());
+        if (!mfrId) {
+          console.log(`Skipping ${med.name} - manufacturer "${med.manufacturer}" not found`);
+          skippedNoManufacturer++;
+          return false;
+        }
+        return true;
+      })
       .map(med => ({
         name: med.name,
         generic_name: med.generic_name,
         category: med.category,
-        manufacturer_id: manufacturerMap.get(med.manufacturer.toLowerCase()) || null,
+        manufacturer_id: manufacturerMap.get(med.manufacturer.toLowerCase())!,
         unit: med.unit,
         is_tax_applicable: false,
         is_active: true,

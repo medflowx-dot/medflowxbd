@@ -93,23 +93,37 @@ export default function GlobalMedicines() {
   };
 
   const handleAdd = async () => {
-    if (!formData.name.trim()) return;
+    if (!formData.name.trim()) {
+      toast.error('Medicine name is required');
+      return;
+    }
+    if (!formData.manufacturer_id) {
+      toast.error('Manufacturer is required');
+      return;
+    }
     await createGlobalMedicine.mutateAsync({
       ...formData,
       name: formData.name.trim(),
-      manufacturer_id: formData.manufacturer_id || undefined,
+      manufacturer_id: formData.manufacturer_id,
     });
     resetForm();
     setAddDialogOpen(false);
   };
 
   const handleEdit = async () => {
-    if (!selectedMedicine || !formData.name.trim()) return;
+    if (!selectedMedicine || !formData.name.trim()) {
+      toast.error('Medicine name is required');
+      return;
+    }
+    if (!formData.manufacturer_id) {
+      toast.error('Manufacturer is required');
+      return;
+    }
     await updateGlobalMedicine.mutateAsync({
       id: selectedMedicine.id,
       ...formData,
       name: formData.name.trim(),
-      manufacturer_id: formData.manufacturer_id || undefined,
+      manufacturer_id: formData.manufacturer_id,
     });
     resetForm();
     setEditDialogOpen(false);
@@ -133,6 +147,7 @@ export default function GlobalMedicines() {
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json<Record<string, string>>(sheet);
       
+      let skippedNoManufacturer = 0;
       const medicinesData: CreateGlobalMedicineData[] = rows
         .filter(row => row.Name || row.name || row['Medicine Name'])
         .map(row => {
@@ -149,11 +164,26 @@ export default function GlobalMedicines() {
             unit: row.Unit || row.unit || 'pcs',
             is_tax_applicable: row['Tax Applicable']?.toLowerCase() === 'yes' || false,
           };
+        })
+        .filter(med => {
+          if (!med.manufacturer_id) {
+            skippedNoManufacturer++;
+            return false;
+          }
+          return true;
         });
 
       if (medicinesData.length === 0) {
-        toast.error('No valid data found in file');
+        if (skippedNoManufacturer > 0) {
+          toast.error(`No valid data found. ${skippedNoManufacturer} medicines skipped due to missing manufacturer.`);
+        } else {
+          toast.error('No valid data found in file');
+        }
         return;
+      }
+      
+      if (skippedNoManufacturer > 0) {
+        toast.warning(`${skippedNoManufacturer} medicines skipped due to missing manufacturer`);
       }
 
       await bulkCreate.mutateAsync(medicinesData);
