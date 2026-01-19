@@ -4,10 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { MessageCircle, Phone, Mail, MapPin, Send, Clock, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
 
-const contactMethods = [
+// Fallback contact methods
+const fallbackContactMethods = [
   {
-    icon: MessageCircle,
+    icon: 'MessageCircle',
     title: 'হোয়াটসঅ্যাপ',
     value: '+880 1XXX-XXXXXX',
     description: 'সবচেয়ে দ্রুত রেসপন্স',
@@ -16,7 +18,7 @@ const contactMethods = [
     color: 'success',
   },
   {
-    icon: Phone,
+    icon: 'Phone',
     title: 'ফোন',
     value: '+880 1XXX-XXXXXX',
     description: 'সকাল ১০টা - রাত ১০টা',
@@ -25,7 +27,7 @@ const contactMethods = [
     color: 'primary',
   },
   {
-    icon: Mail,
+    icon: 'Mail',
     title: 'ইমেইল',
     value: 'support@medflowx.com',
     description: '২৪ ঘন্টার মধ্যে রিপ্লাই',
@@ -36,6 +38,13 @@ const contactMethods = [
 ];
 
 const Contact = () => {
+  const { data: cmsContent } = useCMSContent('contact');
+  
+  const title = getCMSValue(cmsContent, 'title', 'আমরা সাহায্য করতে প্রস্তুত');
+  const subtitle = getCMSValue(cmsContent, 'subtitle', 'যেকোনো প্রশ্ন বা সাহায্যের জন্য আমাদের সাথে যোগাযোগ করুন। আমরা সবসময় আপনার পাশে আছি।');
+  const contactMethods = getCMSValue(cmsContent, 'methods', fallbackContactMethods);
+  const office = getCMSValue(cmsContent, 'office', { title: 'অফিস', address: 'ঢাকা, বাংলাদেশ', note: 'অনলাইন সাপোর্ট ২৪/৭' });
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -85,6 +94,15 @@ const Contact = () => {
     document.body.removeChild(link);
   };
 
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case 'MessageCircle': return MessageCircle;
+      case 'Phone': return Phone;
+      case 'Mail': return Mail;
+      default: return Mail;
+    }
+  };
+
   return (
     <section id="contact" className="py-16 md:py-24 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -94,11 +112,10 @@ const Contact = () => {
             <span className="text-primary text-sm font-semibold">যোগাযোগ করুন</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
-            আমরা সাহায্য করতে প্রস্তুত
+            {title}
           </h2>
           <p className="text-lg text-muted-foreground">
-            যেকোনো প্রশ্ন বা সাহায্যের জন্য আমাদের সাথে যোগাযোগ করুন। 
-            আমরা সবসময় আপনার পাশে আছি।
+            {subtitle}
           </p>
         </div>
 
@@ -109,44 +126,47 @@ const Contact = () => {
               সরাসরি যোগাযোগ করুন
             </h3>
 
-            {contactMethods.map((method, index) => (
-              <a
-                key={index}
-                href={method.action}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-start gap-4 p-5 bg-card rounded-2xl border border-border shadow-card hover:shadow-lg hover:border-primary/30 transition-all duration-300"
-              >
-                <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  method.color === 'success' 
-                    ? 'bg-success/10 text-success group-hover:bg-success/20' 
-                    : method.color === 'primary'
-                    ? 'bg-primary/10 text-primary group-hover:bg-primary/20'
-                    : 'bg-secondary/10 text-secondary group-hover:bg-secondary/20'
-                } transition-colors`}>
-                  <method.icon className="w-7 h-7" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <h4 className="font-display font-bold text-foreground">{method.title}</h4>
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                      method.color === 'success' 
-                        ? 'bg-success/10 text-success' 
-                        : method.color === 'primary'
-                        ? 'bg-primary/10 text-primary'
-                        : 'bg-secondary/10 text-secondary'
-                    }`}>
-                      {method.actionLabel}
-                    </span>
+            {contactMethods.map((method: any, index: number) => {
+              const IconComponent = getIconComponent(method.icon);
+              return (
+                <a
+                  key={index}
+                  href={method.action}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-start gap-4 p-5 bg-card rounded-2xl border border-border shadow-card hover:shadow-lg hover:border-primary/30 transition-all duration-300"
+                >
+                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    method.color === 'success' 
+                      ? 'bg-success/10 text-success group-hover:bg-success/20' 
+                      : method.color === 'primary'
+                      ? 'bg-primary/10 text-primary group-hover:bg-primary/20'
+                      : 'bg-secondary/10 text-secondary group-hover:bg-secondary/20'
+                  } transition-colors`}>
+                    <IconComponent className="w-7 h-7" />
                   </div>
-                  <p className="text-foreground font-medium">{method.value}</p>
-                  <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                    <Clock className="w-3 h-3" />
-                    {method.description}
-                  </p>
-                </div>
-              </a>
-            ))}
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-display font-bold text-foreground">{method.title}</h4>
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        method.color === 'success' 
+                          ? 'bg-success/10 text-success' 
+                          : method.color === 'primary'
+                          ? 'bg-primary/10 text-primary'
+                          : 'bg-secondary/10 text-secondary'
+                      }`}>
+                        {method.actionLabel}
+                      </span>
+                    </div>
+                    <p className="text-foreground font-medium">{method.value}</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                      <Clock className="w-3 h-3" />
+                      {method.description}
+                    </p>
+                  </div>
+                </a>
+              );
+            })}
 
             {/* Location */}
             <div className="flex items-start gap-4 p-5 bg-card rounded-2xl border border-border">
@@ -154,9 +174,9 @@ const Contact = () => {
                 <MapPin className="w-7 h-7 text-muted-foreground" />
               </div>
               <div>
-                <h4 className="font-display font-bold text-foreground mb-1">অফিস</h4>
-                <p className="text-foreground">ঢাকা, বাংলাদেশ</p>
-                <p className="text-sm text-muted-foreground mt-1">অনলাইন সাপোর্ট ২৪/৭</p>
+                <h4 className="font-display font-bold text-foreground mb-1">{office.title}</h4>
+                <p className="text-foreground">{office.address}</p>
+                <p className="text-sm text-muted-foreground mt-1">{office.note}</p>
               </div>
             </div>
           </div>

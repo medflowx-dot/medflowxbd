@@ -1,8 +1,10 @@
 import { Check, Sparkles, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
 
-const plans = [
+// Fallback plans
+const fallbackPlans = [
   {
     name: 'ফ্রি ট্রায়াল',
     price: '০',
@@ -73,6 +75,13 @@ const plans = [
 ];
 
 const Pricing = () => {
+  const { data: cmsContent } = useCMSContent('pricing');
+  
+  const title = getCMSValue(cmsContent, 'title', 'আপনার জন্য সঠিক প্যাকেজ বেছে নিন');
+  const subtitle = getCMSValue(cmsContent, 'subtitle', 'বাংলাদেশি টাকায় স্বচ্ছ প্রাইসিং। কোনো লুকানো চার্জ নেই।');
+  const plans = getCMSValue(cmsContent, 'plans', fallbackPlans);
+  const paymentMethods = getCMSValue(cmsContent, 'payment_methods', ['বিকাশ', 'নগদ', 'এসএসএল কমার্স']);
+
   return (
     <section id="pricing" className="py-16 md:py-24 bg-gradient-to-b from-muted/30 via-background to-background relative overflow-hidden">
       {/* Background Decorations */}
@@ -87,18 +96,18 @@ const Pricing = () => {
             <span className="text-secondary-foreground text-sm font-semibold">সহজ প্রাইসিং</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
-            আপনার জন্য সঠিক প্যাকেজ বেছে নিন
+            {title}
           </h2>
           <p className="text-lg text-muted-foreground">
-            বাংলাদেশি টাকায় স্বচ্ছ প্রাইসিং। কোনো লুকানো চার্জ নেই।
+            {subtitle}
           </p>
         </div>
 
         {/* Pricing Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-          {plans.map((plan, index) => (
+          {plans.map((plan: any, index: number) => (
             <div
-              key={plan.name}
+              key={plan.name || index}
               className={`relative ${plan.popular ? 'glass-pricing-popular' : 'glass-pricing-card'} ${plan.popular ? 'scale-[1.02] lg:scale-105' : ''}`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
@@ -129,8 +138,8 @@ const Pricing = () => {
 
               {/* Features */}
               <ul className="relative z-10 space-y-3 mb-8">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2">
+                {(plan.features || []).map((feature: string, featureIndex: number) => (
+                  <li key={featureIndex} className="flex items-start gap-2">
                     <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
                       plan.popular ? 'bg-secondary/30' : 'bg-success/20'
                     }`}>
@@ -143,8 +152,8 @@ const Pricing = () => {
                     </span>
                   </li>
                 ))}
-                {plan.limitations.map((limitation) => (
-                  <li key={limitation} className="flex items-start gap-2 pl-7">
+                {(plan.limitations || []).map((limitation: string, limIndex: number) => (
+                  <li key={`lim-${limIndex}`} className="flex items-start gap-2 pl-7">
                     <span className={`text-sm italic ${plan.popular ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
                       * {limitation}
                     </span>
@@ -169,9 +178,9 @@ const Pricing = () => {
         <div className="mt-16 text-center">
           <p className="text-muted-foreground mb-4">নিরাপদ পেমেন্ট মাধ্যম</p>
           <div className="flex items-center justify-center gap-4 md:gap-8 flex-wrap">
-            {['বিকাশ', 'নগদ', 'এসএসএল কমার্স'].map((method) => (
+            {paymentMethods.map((method: string, index: number) => (
               <div 
-                key={method}
+                key={index}
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-card to-muted/50 border border-border text-foreground font-semibold backdrop-blur-sm hover:border-primary/30 transition-all duration-300 hover:shadow-lg"
               >
                 {method}

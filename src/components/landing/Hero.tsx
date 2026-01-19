@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Play, Shield, Zap, BarChart3, Package, TrendingUp, Wallet, AlertTriangle, Users, ShoppingCart, ChevronDown } from 'lucide-react';
+import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
 
 const DashboardMockup = () => {
   return (
@@ -155,6 +156,19 @@ const DashboardMockup = () => {
 };
 
 const Hero = () => {
+  const { data: cmsContent } = useCMSContent('hero');
+  
+  const badge = getCMSValue(cmsContent, 'badge', 'বাংলাদেশের ৫০০+ ফার্মেসির বিশ্বস্ত সফটওয়্যার');
+  const title = getCMSValue(cmsContent, 'title', 'আপনার ফার্মেসি ব্যবসা সহজ করুন');
+  const subtitle = getCMSValue(cmsContent, 'subtitle', 'মেয়াদ উত্তীর্ণের আগেই এলার্ট পান, দৈনিক হিসাব স্বয়ংক্রিয়ভাবে দেখুন, সাপ্লায়ার ও কাস্টমার বাকি ট্র্যাক করুন — সব এক জায়গায়।');
+  const ctaPrimary = getCMSValue(cmsContent, 'cta_primary', { text: 'ফ্রি ট্রায়াল শুরু করুন', link: '/signup' });
+  const ctaSecondary = getCMSValue(cmsContent, 'cta_secondary', { text: 'ডেমো দেখুন', link: '#demo' });
+  const trustIndicators = getCMSValue(cmsContent, 'trust_indicators', [
+    { icon: 'Shield', text: 'ব্যাংক-লেভেল সিকিউরিটি' },
+    { icon: 'Zap', text: '৫ মিনিটে সেটআপ' },
+    { icon: 'BarChart3', text: 'রিয়েল-টাইম রিপোর্ট' },
+  ]);
+
   return (
     <section className="relative min-h-screen flex flex-col justify-center pt-20 pb-16 overflow-hidden">
       {/* Background Gradient */}
@@ -180,7 +194,7 @@ const Hero = () => {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 border border-primary-foreground/20 mt-8 md:mt-12 mb-8 animate-fade-in">
             <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
             <span className="text-primary-foreground/90 text-sm font-medium">
-              বাংলাদেশের ৫০০+ ফার্মেসির বিশ্বস্ত সফটওয়্যার
+              {badge}
             </span>
           </div>
 
@@ -200,44 +214,35 @@ const Hero = () => {
 
           {/* Subheading */}
           <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            মেয়াদ উত্তীর্ণের আগেই এলার্ট পান, দৈনিক হিসাব স্বয়ংক্রিয়ভাবে দেখুন, 
-            সাপ্লায়ার ও কাস্টমার বাকি ট্র্যাক করুন — সব এক জায়গায়।
+            {subtitle}
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <Button variant="hero" size="xl" className="group" asChild>
-              <Link to="/signup">
-                ৭ দিন ফ্রি ট্রায়াল শুরু করুন
+              <Link to={ctaPrimary.link}>
+                {ctaPrimary.text}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
             <Button variant="hero-outline" size="xl" className="group">
               <Play className="w-5 h-5" />
-              ডেমো দেখুন
+              {ctaSecondary.text}
             </Button>
           </div>
 
           {/* Trust Indicators */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <div className="flex items-center justify-center gap-3 text-primary-foreground/80">
-              <div className="w-10 h-10 rounded-lg bg-primary-foreground/10 flex items-center justify-center">
-                <Shield className="w-5 h-5" />
+            {trustIndicators.map((indicator: any, index: number) => (
+              <div key={index} className="flex items-center justify-center gap-3 text-primary-foreground/80">
+                <div className="w-10 h-10 rounded-lg bg-primary-foreground/10 flex items-center justify-center">
+                  {indicator.icon === 'Shield' && <Shield className="w-5 h-5" />}
+                  {indicator.icon === 'Zap' && <Zap className="w-5 h-5" />}
+                  {indicator.icon === 'BarChart3' && <BarChart3 className="w-5 h-5" />}
+                </div>
+                <span className="text-sm font-medium">{indicator.text}</span>
               </div>
-              <span className="text-sm font-medium">ব্যাংক-লেভেল সিকিউরিটি</span>
-            </div>
-            <div className="flex items-center justify-center gap-3 text-primary-foreground/80">
-              <div className="w-10 h-10 rounded-lg bg-primary-foreground/10 flex items-center justify-center">
-                <Zap className="w-5 h-5" />
-              </div>
-              <span className="text-sm font-medium">৫ মিনিটে সেটআপ</span>
-            </div>
-            <div className="flex items-center justify-center gap-3 text-primary-foreground/80">
-              <div className="w-10 h-10 rounded-lg bg-primary-foreground/10 flex items-center justify-center">
-                <BarChart3 className="w-5 h-5" />
-              </div>
-              <span className="text-sm font-medium">রিয়েল-টাইম রিপোর্ট</span>
-            </div>
+            ))}
           </div>
         </div>
 
