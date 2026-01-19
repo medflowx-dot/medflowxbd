@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.import-medex-medicines]
 verify_jwt = false
+
+[functions.import-allopathic-medicines]
+verify_jwt = false

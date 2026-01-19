@@ -321,6 +321,27 @@ export default function GlobalMedicines() {
             <Download className="h-4 w-4 mr-2" />
             Template
           </Button>
+          <Button 
+            variant="default" 
+            onClick={async () => {
+              setIsGenerating(true);
+              try {
+                const { data, error } = await supabase.functions.invoke('import-allopathic-medicines');
+                if (error) throw error;
+                if (data.success) {
+                  toast.success(`${data.inserted} allopathic medicines imported`);
+                }
+              } catch (e: any) {
+                toast.error(e.message || 'Failed to import');
+              } finally {
+                setIsGenerating(false);
+              }
+            }}
+            disabled={isGenerating}
+          >
+            {isGenerating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Database className="h-4 w-4 mr-2" />}
+            Import All Medicines
+          </Button>
           <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
             <Upload className="h-4 w-4 mr-2" />
             Bulk Import
