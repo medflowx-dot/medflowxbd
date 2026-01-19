@@ -22,6 +22,57 @@ export const bn: TranslationKeys = {
     adminDashboard: 'অ্যাডমিন ড্যাশবোর্ড',
   },
 
+  // Manufacturers Page
+  manufacturers: {
+    title: 'প্রস্তুতকারক',
+    subtitle: 'ঔষধের জন্য প্রস্তুতকারক তালিকা ব্যবস্থাপনা করুন',
+    // Tabs
+    myManufacturers: 'আমার প্রস্তুতকারক',
+    globalManufacturers: 'গ্লোবাল প্রস্তুতকারক',
+    // Stats cards
+    totalManufacturers: 'মোট প্রস্তুতকারক',
+    availableGlobal: 'উপলব্ধ গ্লোবাল প্রস্তুতকারক',
+    // My Manufacturers
+    viewAndManage: 'আপনার প্রস্তুতকারকদের দেখুন ও ব্যবস্থাপনা করুন',
+    searchManufacturers: 'প্রস্তুতকারক খুঁজুন...',
+    loadingManufacturers: 'প্রস্তুতকারক লোড হচ্ছে...',
+    // Global Manufacturers
+    browseAndCopy: 'মাস্টার লিস্ট থেকে প্রস্তুতকারক ব্রাউজ ও কপি করুন',
+    searchGlobalManufacturers: 'গ্লোবাল প্রস্তুতকারক খুঁজুন...',
+    loading: 'লোড হচ্ছে...',
+    noGlobalFound: 'কোনো গ্লোবাল প্রস্তুতকারক পাওয়া যায়নি',
+    copySelected: 'নির্বাচিত কপি করুন',
+    copying: 'কপি হচ্ছে...',
+    added: 'যোগ করা হয়েছে',
+    copy: 'কপি',
+    alreadyInList: 'এই প্রস্তুতকারক ইতিমধ্যে আপনার তালিকায় আছে',
+    noNewSelected: 'কোনো নতুন প্রস্তুতকারক নির্বাচিত নয়',
+    // Table headers
+    companyName: 'কোম্পানির নাম',
+    company: 'কোম্পানি',
+    actions: 'অ্যাকশন',
+    // Empty states
+    noManufacturersFound: 'কোনো প্রস্তুতকারক পাওয়া যায়নি',
+    tryAdjustingSearch: 'আপনার সার্চ টার্ম পরিবর্তন করুন।',
+    addFirstManufacturer: 'শুরু করতে আপনার প্রথম প্রস্তুতকারক যোগ করুন।',
+    // Actions
+    edit: 'সম্পাদনা',
+    delete: 'মুছুন',
+    // Delete dialog
+    deleteManufacturer: 'প্রস্তুতকারক মুছুন',
+    deleteConfirm: 'আপনি কি নিশ্চিত এই প্রস্তুতকারক মুছে ফেলতে চান? এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।',
+    // Add/Edit dialog
+    addManufacturer: 'প্রস্তুতকারক যোগ করুন',
+    editManufacturer: 'প্রস্তুতকারক সম্পাদনা',
+    addNewManufacturer: 'নতুন প্রস্তুতকারক যোগ করুন।',
+    updateManufacturerDesc: 'প্রস্তুতকারকের নাম আপডেট করুন।',
+    companyNameLabel: 'কোম্পানির নাম *',
+    companyNamePlaceholder: 'যেমন, স্কয়ার ফার্মাসিউটিক্যালস',
+    saving: 'সংরক্ষণ হচ্ছে...',
+    updateBtn: 'আপডেট',
+    addBtn: 'প্রস্তুতকারক যোগ করুন',
+  },
+
   // Menu Groups
   menuGroups: {
     inventory: 'ইনভেন্টরি',
