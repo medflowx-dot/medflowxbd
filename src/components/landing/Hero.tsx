@@ -189,10 +189,12 @@ const Hero = () => {
             আপনার ফার্মেসি ব্যবসা
             <br />
             এখন আরও সহজ ও{' '}
-            <span className="relative inline-block">
-              <span className="relative z-10">লাভজনক</span>
-              <span className="absolute inset-0 bg-secondary/30 -skew-x-6 rounded-lg scale-110" />
-              <span className="absolute inset-0 bg-secondary/20 blur-lg rounded-lg scale-125 animate-pulse" />
+            <span className="relative inline-block group">
+              <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-secondary via-yellow-200 to-secondary animate-gradient-x bg-[length:200%_auto]">
+                লাভজনক
+              </span>
+              <span className="absolute -inset-2 bg-gradient-to-r from-secondary/40 via-yellow-300/30 to-secondary/40 blur-xl rounded-lg animate-pulse" />
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary to-transparent rounded-full" />
             </span>
           </h1>
 
