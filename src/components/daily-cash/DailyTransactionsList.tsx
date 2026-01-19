@@ -122,25 +122,25 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
       <TabsContent value="due-collected">
         <Card>
           <CardHeader>
-            <CardTitle>Due Collected</CardTitle>
-            <CardDescription>Customer due payments for {format(date, 'MMMM d, yyyy')}</CardDescription>
+            <CardTitle>{t.dailyCash.dueCollectedTitle}</CardTitle>
+            <CardDescription>{t.dailyCash.dueCollectedDesc} {format(date, 'MMMM d, yyyy')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead className="hidden sm:table-cell">Method</TableHead>
-                    <TableHead className="hidden md:table-cell">Notes</TableHead>
+                    <TableHead>{t.dailyCash.customer}</TableHead>
+                    <TableHead className="text-right">{t.dailyCash.amount}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t.dailyCash.method}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t.dailyCash.notes}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {!customerPayments?.length ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                        No due payments collected
+                        {t.dailyCash.noDuePayments}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -170,25 +170,25 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
       <TabsContent value="supplier-payments">
         <Card>
           <CardHeader>
-            <CardTitle>Supplier Payments</CardTitle>
-            <CardDescription>Payments made to suppliers on {format(date, 'MMMM d, yyyy')}</CardDescription>
+            <CardTitle>{t.dailyCash.supplierPayments}</CardTitle>
+            <CardDescription>{t.dailyCash.supplierPaymentsDesc} {format(date, 'MMMM d, yyyy')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Supplier</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead className="hidden sm:table-cell">Method</TableHead>
-                    <TableHead className="hidden md:table-cell">Reference</TableHead>
+                    <TableHead>{t.dailyCash.supplier}</TableHead>
+                    <TableHead className="text-right">{t.dailyCash.amount}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t.dailyCash.method}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t.dailyCash.reference}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {!supplierPayments?.length ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                        No supplier payments
+                        {t.dailyCash.noSupplierPayments}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -218,26 +218,26 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
       <TabsContent value="costs">
         <Card>
           <CardHeader>
-            <CardTitle>Daily Costs</CardTitle>
-            <CardDescription>Expenses recorded for {format(date, 'MMMM d, yyyy')}</CardDescription>
+            <CardTitle>{t.dailyCash.dailyCosts}</CardTitle>
+            <CardDescription>{t.dailyCash.dailyCostsDesc} {format(date, 'MMMM d, yyyy')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="hidden sm:table-cell">Category</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead className="hidden md:table-cell">Method</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t.dailyCash.category}</TableHead>
+                    <TableHead>{t.dailyCash.description}</TableHead>
+                    <TableHead className="text-right">{t.dailyCash.amount}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t.dailyCash.method}</TableHead>
+                    <TableHead className="text-right">{t.dailyCash.actions}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {!costs?.length ? (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                        No costs recorded
+                        {t.dailyCash.noCostsRecorded}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -264,18 +264,18 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Cost</AlertDialogTitle>
+                                <AlertDialogTitle>{t.dailyCash.deleteCost}</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to delete this cost entry? This action cannot be undone.
+                                  {t.dailyCash.deleteCostConfirm}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => deleteCost.mutate(cost.id)}
                                   className="bg-red-600 hover:bg-red-700"
                                 >
-                                  Delete
+                                  {t.actions.delete}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
