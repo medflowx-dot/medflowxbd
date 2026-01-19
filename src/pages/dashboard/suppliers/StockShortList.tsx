@@ -10,7 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Trash2, CheckCircle, ClipboardList, Package } from 'lucide-react';
+import { Plus, Trash2, CheckCircle, ClipboardList, Package, Search } from 'lucide-react';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useStockShortList } from '@/hooks/useStockShortList';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { useMedicines } from '@/hooks/useMedicines';
@@ -35,6 +37,8 @@ export default function StockShortList() {
     medicine_id: '',
     quantity: 1,
   });
+  const [medicineSearch, setMedicineSearch] = useState('');
+  const [medicinePopoverOpen, setMedicinePopoverOpen] = useState(false);
 
   // Filter active notes
   const activeNotes = notes.filter(n => n.status === 'active');
@@ -43,10 +47,17 @@ export default function StockShortList() {
   // Get active manufacturers
   const activeManufacturers = manufacturers.filter(m => m.is_active !== false);
   
-  // Filter medicines by selected manufacturer
+  // Filter medicines by selected manufacturer and search
   const filteredMedicines = newItem.manufacturer_id 
-    ? medicines.filter(m => m.manufacturer_id === newItem.manufacturer_id && m.is_active !== false)
+    ? medicines.filter(m => 
+        m.manufacturer_id === newItem.manufacturer_id && 
+        m.is_active !== false &&
+        m.name.toLowerCase().includes(medicineSearch.toLowerCase())
+      )
     : [];
+
+  // Get selected medicine name
+  const selectedMedicine = medicines.find(m => m.id === newItem.medicine_id);
 
   const handleCreateNote = async () => {
     try {
@@ -379,26 +390,52 @@ export default function StockShortList() {
 
             <div className="space-y-2">
               <Label>Medicine *</Label>
-              <Select
-                value={newItem.medicine_id}
-                onValueChange={(value) => setNewItem({ ...newItem, medicine_id: value })}
-                disabled={!newItem.manufacturer_id}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={newItem.manufacturer_id ? "Select medicine" : "Select manufacturer first"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {filteredMedicines.length === 0 ? (
-                    <div className="py-2 px-2 text-sm text-muted-foreground">No medicines for this manufacturer</div>
-                  ) : (
-                    filteredMedicines.map((med) => (
-                      <SelectItem key={med.id} value={med.id}>
-                        {med.name} ({med.unit})
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+              <Popover open={medicinePopoverOpen} onOpenChange={setMedicinePopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={medicinePopoverOpen}
+                    className="w-full justify-between font-normal"
+                    disabled={!newItem.manufacturer_id}
+                  >
+                    {selectedMedicine 
+                      ? `${selectedMedicine.name} (${selectedMedicine.unit})`
+                      : newItem.manufacturer_id 
+                        ? "Search medicine..." 
+                        : "Select manufacturer first"
+                    }
+                    <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0" align="start">
+                  <Command>
+                    <CommandInput 
+                      placeholder="Search medicine..." 
+                      value={medicineSearch}
+                      onValueChange={setMedicineSearch}
+                    />
+                    <CommandList>
+                      <CommandEmpty>No medicine found.</CommandEmpty>
+                      <CommandGroup>
+                        {filteredMedicines.slice(0, 50).map((med) => (
+                          <CommandItem
+                            key={med.id}
+                            value={med.name}
+                            onSelect={() => {
+                              setNewItem({ ...newItem, medicine_id: med.id });
+                              setMedicinePopoverOpen(false);
+                              setMedicineSearch('');
+                            }}
+                          >
+                            {med.name} ({med.unit})
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="space-y-2">
