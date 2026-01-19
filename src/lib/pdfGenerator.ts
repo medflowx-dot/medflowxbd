@@ -477,6 +477,9 @@ export interface OrderPDFData {
     is_tax_applicable?: boolean;
   }>;
   status: string;
+  total_amount?: number;
+  paid_amount?: number;
+  due_amount?: number;
 }
 
 export function generateOrderPDF(data: OrderPDFData, download: boolean = true): jsPDF {
@@ -518,11 +521,41 @@ export function generateOrderPDF(data: OrderPDFData, download: boolean = true): 
     headStyles: { fillColor: [20, 184, 166] }, // teal color
   });
 
-  // Total items
+  // Total items and payment summary
   const finalY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.text(`Total Items: ${data.items.length}`, 14, finalY + 10);
+
+  // Payment summary for received orders
+  if (data.total_amount !== undefined) {
+    let paymentY = finalY + 20;
+    
+    doc.setFillColor(245, 245, 245);
+    doc.rect(14, paymentY - 4, 90, 32, 'F');
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Payment Summary', 18, paymentY + 2);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text(`Total Amount:`, 18, paymentY + 10);
+    doc.text(`${CURRENCY}${data.total_amount?.toFixed(2) || '0.00'}`, 80, paymentY + 10, { align: 'right' });
+    
+    doc.text(`Paid Amount:`, 18, paymentY + 17);
+    doc.setTextColor(34, 139, 34);
+    doc.text(`${CURRENCY}${data.paid_amount?.toFixed(2) || '0.00'}`, 80, paymentY + 17, { align: 'right' });
+    doc.setTextColor(0);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Due Amount:`, 18, paymentY + 24);
+    if ((data.due_amount || 0) > 0) {
+      doc.setTextColor(220, 53, 69);
+    }
+    doc.text(`${CURRENCY}${data.due_amount?.toFixed(2) || '0.00'}`, 80, paymentY + 24, { align: 'right' });
+    doc.setTextColor(0);
+  }
 
   addFooter(doc);
   
