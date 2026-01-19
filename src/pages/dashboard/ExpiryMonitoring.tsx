@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useExpiryMonitoring, useExpirySummary, ExpiryFilter } from '@/hooks/useExpiryMonitoring';
 import { generateExpiryReportPDF } from '@/lib/pdfGenerator';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Table,
   TableBody,
@@ -24,6 +25,7 @@ export default function ExpiryMonitoring() {
   const [dateFrom, setDateFrom] = useState<Date>();
   const [dateTo, setDateTo] = useState<Date>();
   const [exporting, setExporting] = useState(false);
+  const { t } = useLanguage();
 
   const { data: batches, isLoading } = useExpiryMonitoring(filter, customRange);
   const { data: summary } = useExpirySummary();
@@ -37,16 +39,16 @@ export default function ExpiryMonitoring() {
 
   const getFilterLabel = () => {
     switch (filter) {
-      case 'all': return 'All Batches at Risk';
-      case 'expired': return 'Expired Batches';
-      case '30days': return 'Expiring within 30 Days';
-      case '60days': return 'Expiring within 60 Days';
-      case '90days': return 'Expiring within 90 Days';
+      case 'all': return t.expiryMonitoring.allBatchesAtRisk;
+      case 'expired': return t.expiryMonitoring.expiredBatches;
+      case '30days': return t.expiryMonitoring.expiringWithin30Days;
+      case '60days': return t.expiryMonitoring.expiringWithin60Days;
+      case '90days': return t.expiryMonitoring.expiringWithin90Days;
       case 'custom': 
         return customRange 
           ? `${format(customRange.from, 'MMM dd, yyyy')} - ${format(customRange.to, 'MMM dd, yyyy')}`
-          : 'Custom Range';
-      default: return 'All Batches';
+          : t.expiryMonitoring.customRange;
+      default: return t.expiryMonitoring.allBatchesAtRisk;
     }
   };
 
@@ -64,15 +66,15 @@ export default function ExpiryMonitoring() {
   const getStatusBadge = (status: string, daysUntilExpiry: number) => {
     switch (status) {
       case 'expired':
-        return <Badge variant="destructive">Expired</Badge>;
+        return <Badge variant="destructive">{t.expiryMonitoring.expired}</Badge>;
       case 'critical':
-        return <Badge className="bg-red-500">{daysUntilExpiry}d left</Badge>;
+        return <Badge className="bg-red-500">{daysUntilExpiry}{t.expiryMonitoring.daysLeft}</Badge>;
       case 'warning':
-        return <Badge className="bg-orange-500">{daysUntilExpiry}d left</Badge>;
+        return <Badge className="bg-orange-500">{daysUntilExpiry}{t.expiryMonitoring.daysLeft}</Badge>;
       case 'caution':
-        return <Badge className="bg-yellow-500 text-black">{daysUntilExpiry}d left</Badge>;
+        return <Badge className="bg-yellow-500 text-black">{daysUntilExpiry}{t.expiryMonitoring.daysLeft}</Badge>;
       default:
-        return <Badge variant="outline">{daysUntilExpiry}d left</Badge>;
+        return <Badge variant="outline">{daysUntilExpiry}{t.expiryMonitoring.daysLeft}</Badge>;
     }
   };
 
@@ -80,9 +82,9 @@ export default function ExpiryMonitoring() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">Expiry Monitoring</h1>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.expiryMonitoring.title}</h1>
           <p className="text-muted-foreground mt-1">
-            Track medicine batch expiry dates and manage stock accordingly
+            {t.expiryMonitoring.subtitle}
           </p>
         </div>
         <Button 
@@ -95,7 +97,7 @@ export default function ExpiryMonitoring() {
           ) : (
             <FileDown className="h-4 w-4 mr-2" />
           )}
-          Export PDF
+          {t.expiryMonitoring.exportPDF}
         </Button>
       </div>
 
@@ -103,54 +105,54 @@ export default function ExpiryMonitoring() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Card className="border-red-200 bg-red-50/50 dark:bg-red-950/20">
           <CardHeader className="pb-2">
-            <CardDescription className="text-red-600">Expired</CardDescription>
+            <CardDescription className="text-red-600">{t.expiryMonitoring.expired}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{summary?.expired.count || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">batches</p>
+            <p className="text-xs text-muted-foreground mt-1">{t.expiryMonitoring.batches}</p>
           </CardContent>
         </Card>
 
         <Card className="border-orange-200 bg-orange-50/50 dark:bg-orange-950/20">
           <CardHeader className="pb-2">
-            <CardDescription className="text-orange-600">Within 30 Days</CardDescription>
+            <CardDescription className="text-orange-600">{t.expiryMonitoring.within30Days}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{summary?.within30Days.count || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">batches</p>
+            <p className="text-xs text-muted-foreground mt-1">{t.expiryMonitoring.batches}</p>
           </CardContent>
         </Card>
 
         <Card className="border-yellow-200 bg-yellow-50/50 dark:bg-yellow-950/20">
           <CardHeader className="pb-2">
-            <CardDescription className="text-yellow-600">Within 60 Days</CardDescription>
+            <CardDescription className="text-yellow-600">{t.expiryMonitoring.within60Days}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">{summary?.within60Days.count || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">batches</p>
+            <p className="text-xs text-muted-foreground mt-1">{t.expiryMonitoring.batches}</p>
           </CardContent>
         </Card>
 
         <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-950/20">
           <CardHeader className="pb-2">
-            <CardDescription className="text-blue-600">Within 90 Days</CardDescription>
+            <CardDescription className="text-blue-600">{t.expiryMonitoring.within90Days}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{summary?.within90Days.count || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">batches</p>
+            <p className="text-xs text-muted-foreground mt-1">{t.expiryMonitoring.batches}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total at Risk</CardDescription>
+            <CardDescription>{t.expiryMonitoring.totalAtRisk}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">
               {summary?.totalAtRisk || 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              total batches
+              {t.expiryMonitoring.totalBatches}
             </p>
           </CardContent>
         </Card>
@@ -162,7 +164,7 @@ export default function ExpiryMonitoring() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
-              Batch Expiry List
+              {t.expiryMonitoring.batchExpiryList}
             </CardTitle>
             
             {/* Custom Date Range */}
@@ -170,18 +172,18 @@ export default function ExpiryMonitoring() {
               <DatePicker
                 date={dateFrom}
                 onDateChange={setDateFrom}
-                placeholder="From"
+                placeholder={t.expiryMonitoring.from}
                 className="w-[130px]"
               />
-              <span className="text-muted-foreground">to</span>
+              <span className="text-muted-foreground">{t.expiryMonitoring.to}</span>
               <DatePicker
                 date={dateTo}
                 onDateChange={setDateTo}
-                placeholder="To"
+                placeholder={t.expiryMonitoring.to}
                 className="w-[130px]"
               />
               <Button size="sm" onClick={handleCustomRangeApply} disabled={!dateFrom || !dateTo}>
-                Apply
+                {t.expiryMonitoring.apply}
               </Button>
             </div>
           </div>
@@ -189,32 +191,32 @@ export default function ExpiryMonitoring() {
         <CardContent>
           <Tabs value={filter} onValueChange={(v) => setFilter(v as ExpiryFilter)} className="space-y-4">
             <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="expired" className="text-red-600">Expired</TabsTrigger>
-              <TabsTrigger value="30days">30 Days</TabsTrigger>
-              <TabsTrigger value="60days">60 Days</TabsTrigger>
-              <TabsTrigger value="90days">90 Days</TabsTrigger>
+              <TabsTrigger value="all">{t.expiryMonitoring.all}</TabsTrigger>
+              <TabsTrigger value="expired" className="text-red-600">{t.expiryMonitoring.expired}</TabsTrigger>
+              <TabsTrigger value="30days">{t.expiryMonitoring.days30}</TabsTrigger>
+              <TabsTrigger value="60days">{t.expiryMonitoring.days60}</TabsTrigger>
+              <TabsTrigger value="90days">{t.expiryMonitoring.days90}</TabsTrigger>
             </TabsList>
 
             <TabsContent value={filter} className="mt-4">
               {isLoading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading...</div>
+                <div className="text-center py-8 text-muted-foreground">{t.expiryMonitoring.loading}</div>
               ) : batches?.length === 0 ? (
                 <div className="text-center py-8">
                   <AlertTriangle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No items found for this filter.</p>
+                  <p className="text-muted-foreground">{t.expiryMonitoring.noItemsFound}</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Medicine</TableHead>
-                        <TableHead>Batch No.</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Manufacturer</TableHead>
-                        <TableHead>Expiry Date</TableHead>
-                        <TableHead className="text-center">Status</TableHead>
+                        <TableHead>{t.expiryMonitoring.medicine}</TableHead>
+                        <TableHead>{t.expiryMonitoring.batchNo}</TableHead>
+                        <TableHead>{t.expiryMonitoring.category}</TableHead>
+                        <TableHead>{t.expiryMonitoring.manufacturer}</TableHead>
+                        <TableHead>{t.expiryMonitoring.expiryDate}</TableHead>
+                        <TableHead className="text-center">{t.expiryMonitoring.status}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

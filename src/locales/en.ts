@@ -704,6 +704,46 @@ export const en = {
     noSuppliersFound: 'No suppliers found',
     actions: 'Actions',
   },
+
+  // Expiry Monitoring Page
+  expiryMonitoring: {
+    title: 'Expiry Monitoring',
+    subtitle: 'Track medicine batch expiry dates and manage stock accordingly',
+    exportPDF: 'Export PDF',
+    // Summary cards
+    expired: 'Expired',
+    within30Days: 'Within 30 Days',
+    within60Days: 'Within 60 Days',
+    within90Days: 'Within 90 Days',
+    totalAtRisk: 'Total at Risk',
+    batches: 'batches',
+    totalBatches: 'total batches',
+    // Table
+    batchExpiryList: 'Batch Expiry List',
+    from: 'From',
+    to: 'to',
+    apply: 'Apply',
+    all: 'All',
+    days30: '30 Days',
+    days60: '60 Days',
+    days90: '90 Days',
+    loading: 'Loading...',
+    noItemsFound: 'No items found for this filter.',
+    medicine: 'Medicine',
+    batchNo: 'Batch No.',
+    category: 'Category',
+    manufacturer: 'Manufacturer',
+    expiryDate: 'Expiry Date',
+    status: 'Status',
+    daysLeft: 'd left',
+    // Filter labels
+    allBatchesAtRisk: 'All Batches at Risk',
+    expiredBatches: 'Expired Batches',
+    expiringWithin30Days: 'Expiring within 30 Days',
+    expiringWithin60Days: 'Expiring within 60 Days',
+    expiringWithin90Days: 'Expiring within 90 Days',
+    customRange: 'Custom Range',
+  },
 };
 
 export type TranslationKeys = typeof en;
