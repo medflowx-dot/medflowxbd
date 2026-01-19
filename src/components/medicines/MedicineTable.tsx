@@ -46,6 +46,7 @@ import { BatchListDialog } from './BatchListDialog';
 import { useMedicines, type MedicineWithBatches } from '@/hooks/useMedicines';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { usePermissions } from '@/hooks/usePermissions';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MedicineTableProps {
   medicines: MedicineWithBatches[];
@@ -57,6 +58,7 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
   const { deleteMedicine, updateMedicine } = useMedicines();
   const { manufacturers } = useManufacturers();
   const { hasPermission } = usePermissions();
+  const { t } = useLanguage();
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   
   const canManageMedicines = hasPermission('manage_medicines');
@@ -117,12 +119,12 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
           <Package className="h-8 w-8 text-muted-foreground" />
         </div>
         <h3 className="font-semibold text-lg">
-          {searchTerm ? 'No medicines found' : 'No medicines yet'}
+          {searchTerm ? t.medicines.noMedicinesFound : t.medicines.noMedicinesYet}
         </h3>
         <p className="text-muted-foreground text-sm max-w-sm mt-1">
           {searchTerm
-            ? 'Try adjusting your search term'
-            : 'Start by adding your first medicine to track inventory.'}
+            ? t.medicines.tryAdjustingSearch
+            : t.medicines.startByAdding}
         </p>
       </div>
     );
@@ -133,14 +135,14 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Medicine</TableHead>
-            <TableHead className="hidden md:table-cell">Manufacturer</TableHead>
-            <TableHead className="hidden lg:table-cell">Category</TableHead>
-            <TableHead className="hidden sm:table-cell">Shelf</TableHead>
-            <TableHead className="hidden xl:table-cell">Batches</TableHead>
-            <TableHead>Expiry</TableHead>
+            <TableHead>{t.medicines.medicine}</TableHead>
+            <TableHead className="hidden md:table-cell">{t.medicines.manufacturer}</TableHead>
+            <TableHead className="hidden lg:table-cell">{t.medicines.category}</TableHead>
+            <TableHead className="hidden sm:table-cell">{t.medicines.shelf}</TableHead>
+            <TableHead className="hidden xl:table-cell">{t.medicines.batches}</TableHead>
+            <TableHead>{t.medicines.expiry}</TableHead>
             {canManageMedicines && (
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-right">{t.medicines.actions}</TableHead>
             )}
           </TableRow>
         </TableHeader>
@@ -169,7 +171,7 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                           disabled={updatingId === medicine.id}
                         >
                           {updatingId === medicine.id ? (
-                            <span className="text-xs">Saving...</span>
+                            <span className="text-xs">{t.medicines.saving}</span>
                           ) : medicine.manufacturer ? (
                             <span className="flex items-center gap-1">
                               <Building2 className="h-3 w-3" />
@@ -178,7 +180,7 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                           ) : (
                             <span className="flex items-center gap-1 text-xs">
                               <Plus className="h-3 w-3" />
-                              Set Manufacturer
+                              {t.medicines.setManufacturer}
                             </span>
                           )}
                         </Button>
@@ -189,10 +191,10 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                           onValueChange={(value) => handleManufacturerChange(medicine.id, value)}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select manufacturer" />
+                            <SelectValue placeholder={t.medicines.selectManufacturer} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
+                            <SelectItem value="none">{t.medicines.none}</SelectItem>
                             {manufacturers.map((m) => (
                               <SelectItem key={m.id} value={m.id}>
                                 {m.name}
@@ -268,12 +270,12 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                           className="text-muted-foreground hover:text-primary text-sm h-auto py-1 px-2"
                         >
                           <Plus className="h-3 w-3 mr-1" />
-                          Add batch
+                          {t.medicines.addBatch}
                         </Button>
                       }
                     />
                   ) : (
-                    <span className="text-muted-foreground text-sm">No batches</span>
+                    <span className="text-muted-foreground text-sm">{t.medicines.noBatches}</span>
                   )}
                 </TableCell>
                 {canManageMedicines && (
@@ -295,18 +297,18 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Medicine</AlertDialogTitle>
+                            <AlertDialogTitle>{t.medicines.deleteMedicine}</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Are you sure you want to delete "{medicine.name}"? This will also delete all associated batches. This action cannot be undone.
+                              {t.medicines.deleteConfirm} "{medicine.name}"? {t.medicines.deleteWarning}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => deleteMedicine.mutate(medicine.id)}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
-                              Delete
+                              {t.actions.delete}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>

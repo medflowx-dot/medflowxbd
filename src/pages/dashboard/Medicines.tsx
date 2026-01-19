@@ -12,6 +12,7 @@ import { ExpiryAlerts } from '@/components/medicines/ExpiryAlerts';
 import { useMedicines, useExpiryAlerts } from '@/hooks/useMedicines';
 import { useGlobalMedicines, GlobalMedicine } from '@/hooks/useGlobalMedicines';
 import { usePermissions } from '@/hooks/usePermissions';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
@@ -25,6 +26,7 @@ export default function Medicines() {
   const { medicines: globalMedicines, isLoading: globalLoading, copyToLocal, bulkCopyToLocal } = useGlobalMedicines();
   const { expired, expiring30, totalAlerts } = useExpiryAlerts();
   const { hasPermission } = usePermissions();
+  const { t } = useLanguage();
   
   const canManageMedicines = hasPermission('manage_medicines');
 
@@ -65,7 +67,7 @@ export default function Medicines() {
 
   const handleCopy = async (medicine: GlobalMedicine) => {
     if (isAlreadyCopied(medicine)) {
-      toast.info('This medicine is already in your inventory');
+      toast.info(t.medicines.alreadyInInventory);
       return;
     }
     await copyToLocal.mutateAsync(medicine);
@@ -74,7 +76,7 @@ export default function Medicines() {
   const handleBulkCopy = async () => {
     const selectedMedicines = globalMedicines.filter(m => selectedIds.has(m.id) && !isAlreadyCopied(m));
     if (selectedMedicines.length === 0) {
-      toast.info('No new medicines selected');
+      toast.info(t.medicines.noNewSelected);
       return;
     }
     await bulkCopyToLocal.mutateAsync(selectedMedicines);
@@ -90,9 +92,9 @@ export default function Medicines() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">Medicines</h1>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.medicines.title}</h1>
           <p className="text-muted-foreground mt-1">
-            {canManageMedicines ? 'Manage your medicine inventory and batches' : 'View medicine inventory'}
+            {canManageMedicines ? t.medicines.subtitle : t.medicines.subtitleView}
           </p>
         </div>
         {canManageMedicines && (
@@ -106,35 +108,35 @@ export default function Medicines() {
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Medicines</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.medicines.totalMedicines}</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{medicines.length}</div>
-            <p className="text-xs text-muted-foreground">Registered in system</p>
+            <p className="text-xs text-muted-foreground">{t.medicines.registeredInSystem}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expiry Alerts</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.medicines.expiryAlerts}</CardTitle>
             <AlertTriangle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">{totalAlerts}</div>
-            <p className="text-xs text-muted-foreground">{expired.length} expired, {expiring30.length} expiring soon</p>
+            <p className="text-xs text-muted-foreground">{expired.length} {t.medicines.expired}, {expiring30.length} {t.medicines.expiringSoon}</p>
           </CardContent>
         </Card>
       </div>
 
       <Tabs defaultValue="inventory" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="inventory">My Inventory</TabsTrigger>
+          <TabsTrigger value="inventory">{t.medicines.myInventory}</TabsTrigger>
           <TabsTrigger value="global" className="gap-2">
             <Globe className="h-4 w-4" />
-            Global Medicines
+            {t.medicines.globalMedicines}
           </TabsTrigger>
           <TabsTrigger value="expiry" className="relative">
-            Expiry Alerts
+            {t.medicines.expiryAlertsTab}
             {totalAlerts > 0 && (
               <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center">
                 {totalAlerts}
@@ -148,23 +150,23 @@ export default function Medicines() {
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <CardTitle>Medicine Inventory</CardTitle>
-                  <CardDescription>Track all medicines, batches, and expiry dates</CardDescription>
+                  <CardTitle>{t.medicines.medicineInventory}</CardTitle>
+                  <CardDescription>{t.medicines.inventoryDesc}</CardDescription>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <div className="relative w-full sm:w-64">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search medicines..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
+                    <Input placeholder={t.medicines.searchMedicines} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
                   </div>
                   {shelfLocations.length > 0 && (
                     <Select value={shelfFilter} onValueChange={setShelfFilter}>
                       <SelectTrigger className="w-full sm:w-40">
                         <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <SelectValue placeholder="All Shelves" />
+                        <SelectValue placeholder={t.medicines.allShelves} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All Shelves</SelectItem>
-                        <SelectItem value="unassigned">Unassigned</SelectItem>
+                        <SelectItem value="all">{t.medicines.allShelves}</SelectItem>
+                        <SelectItem value="unassigned">{t.medicines.unassigned}</SelectItem>
                         {shelfLocations.map((loc) => (<SelectItem key={loc} value={loc}>{loc}</SelectItem>))}
                       </SelectContent>
                     </Select>
@@ -189,13 +191,13 @@ export default function Medicines() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Global Medicines</CardTitle>
-                  <CardDescription>Browse and copy medicines from the master list</CardDescription>
+                  <CardTitle>{t.medicines.globalMedicines}</CardTitle>
+                  <CardDescription>{t.medicines.globalDesc}</CardDescription>
                 </div>
                 {selectedCount > 0 && (
                   <Button onClick={handleBulkCopy} disabled={bulkCopyToLocal.isPending}>
                     <Copy className="h-4 w-4 mr-2" />
-                    {bulkCopyToLocal.isPending ? 'Copying...' : `Copy Selected (${selectedCount})`}
+                    {bulkCopyToLocal.isPending ? t.medicines.copying : `${t.medicines.copySelected} (${selectedCount})`}
                   </Button>
                 )}
               </div>
@@ -203,14 +205,14 @@ export default function Medicines() {
             <CardContent className="space-y-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search global medicines..." value={globalSearchTerm} onChange={(e) => setGlobalSearchTerm(e.target.value)} className="pl-9" />
+                <Input placeholder={t.medicines.searchGlobal} value={globalSearchTerm} onChange={(e) => setGlobalSearchTerm(e.target.value)} className="pl-9" />
               </div>
               {globalLoading ? (
-                <div className="py-8 text-center text-muted-foreground">Loading...</div>
+                <div className="py-8 text-center text-muted-foreground">{t.messages.loading}</div>
               ) : filteredGlobalMedicines.length === 0 ? (
                 <div className="py-8 text-center text-muted-foreground">
                   <Globe className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                  <p>No global medicines found</p>
+                  <p>{t.medicines.noGlobalFound}</p>
                 </div>
               ) : (
                 <div className="rounded-md border">
@@ -224,10 +226,10 @@ export default function Medicines() {
                             disabled={copyableMedicines.length === 0}
                           />
                         </TableHead>
-                        <TableHead>Medicine Name</TableHead>
-                        <TableHead>Generic Name</TableHead>
-                        <TableHead>Manufacturer</TableHead>
-                        <TableHead className="w-[100px]">Actions</TableHead>
+                        <TableHead>{t.medicines.medicineName}</TableHead>
+                        <TableHead>{t.medicines.genericName}</TableHead>
+                        <TableHead>{t.medicines.manufacturer}</TableHead>
+                        <TableHead className="w-[100px]">{t.medicines.actions}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -248,7 +250,7 @@ export default function Medicines() {
                             <TableCell>
                               <Button variant={alreadyCopied ? "secondary" : "outline"} size="sm" onClick={() => handleCopy(medicine)} disabled={copyToLocal.isPending || alreadyCopied}>
                                 <Copy className="h-4 w-4 mr-1" />
-                                {alreadyCopied ? 'Added' : 'Copy'}
+                                {alreadyCopied ? t.medicines.added : t.medicines.copy}
                               </Button>
                             </TableCell>
                           </TableRow>
