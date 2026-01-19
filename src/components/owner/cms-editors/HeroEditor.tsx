@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Save, Loader2, Plus, Trash2 } from 'lucide-react';
+import ImagePicker from './ImagePicker';
 
 interface HeroContent {
   title: string;
@@ -13,6 +14,7 @@ interface HeroContent {
   secondary_cta: string;
   badge_text: string;
   trust_items: string[];
+  hero_image?: string;
 }
 
 interface HeroEditorProps {
@@ -29,6 +31,7 @@ export default function HeroEditor({ content, onSave, isSaving }: HeroEditorProp
     secondary_cta: '',
     badge_text: '',
     trust_items: [],
+    hero_image: '',
   });
 
   useEffect(() => {
@@ -40,6 +43,7 @@ export default function HeroEditor({ content, onSave, isSaving }: HeroEditorProp
         secondary_cta: content.secondary_cta || '',
         badge_text: content.badge_text || '',
         trust_items: content.trust_items || [],
+        hero_image: content.hero_image || '',
       });
     }
   }, [content]);
@@ -107,6 +111,13 @@ export default function HeroEditor({ content, onSave, isSaving }: HeroEditorProp
               placeholder="e.g., #1 Pharmacy Software"
             />
           </div>
+
+          <ImagePicker
+            label="Hero Image (Optional)"
+            value={formData.hero_image || ''}
+            onChange={(url) => handleChange('hero_image', url)}
+            placeholder="Select or enter hero image URL"
+          />
         </CardContent>
       </Card>
 

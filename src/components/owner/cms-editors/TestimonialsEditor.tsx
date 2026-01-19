@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Save, Loader2, Plus, Trash2, Star, User } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import ImagePicker from './ImagePicker';
 
 interface Testimonial {
   name: string;
@@ -205,14 +206,12 @@ export default function TestimonialsEditor({ content, onSave, isSaving }: Testim
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Avatar URL (Optional)</Label>
-                    <Input
-                      value={testimonial.avatar || ''}
-                      onChange={(e) => handleTestimonialChange(index, 'avatar', e.target.value)}
-                      placeholder="https://example.com/avatar.jpg"
-                    />
-                  </div>
+                  <ImagePicker
+                    label="Avatar Image (Optional)"
+                    value={testimonial.avatar || ''}
+                    onChange={(url) => handleTestimonialChange(index, 'avatar', url)}
+                    placeholder="Select or enter avatar URL"
+                  />
                 </div>
               </CardContent>
             </Card>
