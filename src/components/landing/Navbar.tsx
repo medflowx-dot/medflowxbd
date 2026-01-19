@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Pill } from 'lucide-react';
@@ -11,7 +11,27 @@ const Navbar = () => {
     { href: '#how-it-works', label: 'কিভাবে কাজ করে' },
     { href: '#pricing', label: 'প্যাকেজ' },
     { href: '#faq', label: 'জিজ্ঞাসা' },
+    { href: '#contact', label: 'যোগাযোগ' },
   ];
+
+  const scrollToSection = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const targetId = href.replace('#', '');
+    const element = document.getElementById(targetId);
+    
+    if (element) {
+      const navbarHeight = 80; // Height of the fixed navbar
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      const offsetPosition = elementPosition - navbarHeight;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+    
+    setIsOpen(false);
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50">
@@ -33,6 +53,7 @@ const Navbar = () => {
               <a
                 key={link.href}
                 href={link.href}
+                onClick={(e) => scrollToSection(e, link.href)}
                 className="text-muted-foreground hover:text-primary font-medium transition-colors"
               >
                 {link.label}
@@ -68,8 +89,8 @@ const Navbar = () => {
                 <a
                   key={link.href}
                   href={link.href}
+                  onClick={(e) => scrollToSection(e, link.href)}
                   className="text-muted-foreground hover:text-primary font-medium py-2 transition-colors"
-                  onClick={() => setIsOpen(false)}
                 >
                   {link.label}
                 </a>
