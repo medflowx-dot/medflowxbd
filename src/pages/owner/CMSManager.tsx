@@ -18,6 +18,13 @@ import {
   ContactEditor,
   ManufacturersEditor,
   FeaturesEditor,
+  WhyChooseUsEditor,
+  SpecialFeaturesEditor,
+  HowItWorksEditor,
+  MobileAppEditor,
+  CTAEditor,
+  FooterEditor,
+  NavbarEditor,
 } from '@/components/owner/cms-editors';
 
 export default function CMSManager() {
@@ -103,7 +110,7 @@ export default function CMSManager() {
   };
 
   const hasFormEditor = (sectionKey: string) => {
-    return ['hero', 'statistics', 'pricing', 'faq', 'testimonials', 'contact', 'manufacturers', 'features'].includes(sectionKey);
+    return ['hero', 'statistics', 'pricing', 'faq', 'testimonials', 'contact', 'manufacturers', 'features', 'why_choose_us', 'special_features', 'how_it_works', 'mobile_app', 'cta', 'footer', 'navbar'].includes(sectionKey);
   };
 
   const renderFormEditor = () => {
@@ -172,6 +179,62 @@ export default function CMSManager() {
       case 'features':
         return (
           <FeaturesEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'why_choose_us':
+        return (
+          <WhyChooseUsEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'special_features':
+        return (
+          <SpecialFeaturesEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'how_it_works':
+        return (
+          <HowItWorksEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'mobile_app':
+        return (
+          <MobileAppEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'cta':
+        return (
+          <CTAEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'footer':
+        return (
+          <FooterEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'navbar':
+        return (
+          <NavbarEditor
             content={content}
             onSave={handleSaveWithContent}
             isSaving={updateSection.isPending}
