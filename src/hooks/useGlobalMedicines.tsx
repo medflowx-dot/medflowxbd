@@ -35,6 +35,21 @@ export function useGlobalMedicines() {
   const { user } = useAuth();
   const { createMedicine } = useMedicines();
 
+  // Fetch total count separately (bypasses 1000 row limit)
+  const { data: totalCount = 0 } = useQuery({
+    queryKey: ['global-medicines-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('global_medicines')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!user,
+  });
+
   const { data: medicines = [], isLoading, error } = useQuery({
     queryKey: ['global-medicines'],
     queryFn: async () => {
@@ -45,7 +60,8 @@ export function useGlobalMedicines() {
           manufacturer:global_manufacturers(id, name)
         `)
         .eq('is_active', true)
-        .order('name');
+        .order('name')
+        .limit(5000); // Increase limit to fetch more medicines
       
       if (error) throw error;
       return data as GlobalMedicine[];
@@ -230,6 +246,7 @@ export function useGlobalMedicines() {
 
   return {
     medicines,
+    totalCount,
     isLoading,
     error,
     createGlobalMedicine,
