@@ -7,6 +7,7 @@ import { useSalesReport, ReportDateRange } from '@/hooks/useReports';
 import { generateSalesReportPDF } from '@/lib/pdfGenerator';
 import { Loader2, Download, Zap, ClipboardList } from 'lucide-react';
 import { format } from 'date-fns';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SalesReportViewProps {
   dateRange: ReportDateRange;
@@ -15,6 +16,7 @@ interface SalesReportViewProps {
 export function SalesReportView({ dateRange }: SalesReportViewProps) {
   const { data: salesData, isLoading } = useSalesReport(dateRange);
   const [exporting, setExporting] = useState(false);
+  const { t } = useLanguage();
 
   const handleExportSales = () => {
     if (!salesData) return;
@@ -50,19 +52,19 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total Sales</CardDescription>
+            <CardDescription>{t.reports.totalSales}</CardDescription>
             <CardTitle className="text-xl">৳{salesTotals.total.toLocaleString()}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total Paid</CardDescription>
+            <CardDescription>{t.reports.totalPaid}</CardDescription>
             <CardTitle className="text-xl text-green-600">৳{salesTotals.paid.toLocaleString()}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Unpaid Balance</CardDescription>
+            <CardDescription>{t.reports.unpaidBalance}</CardDescription>
             <CardTitle className="text-xl text-orange-600">৳{salesTotals.due.toLocaleString()}</CardTitle>
           </CardHeader>
         </Card>
@@ -71,14 +73,14 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Sales Report</CardTitle>
+            <CardTitle>{t.reports.salesReport}</CardTitle>
             <CardDescription>
               {format(dateRange.start, 'MMM dd, yyyy')} - {format(dateRange.end, 'MMM dd, yyyy')}
             </CardDescription>
           </div>
           <Button onClick={handleExportSales} disabled={!salesData?.length || exporting}>
             {exporting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-            Export PDF
+            {t.reports.exportPDF}
           </Button>
         </CardHeader>
         <CardContent>
@@ -86,20 +88,20 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Entry ID</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead className="text-right">Paid</TableHead>
-                  <TableHead className="text-right">Due</TableHead>
-                  <TableHead>Method</TableHead>
+                  <TableHead>{t.reports.entryId}</TableHead>
+                  <TableHead>{t.reports.type}</TableHead>
+                  <TableHead>{t.reports.date}</TableHead>
+                  <TableHead className="text-right">{t.reports.total}</TableHead>
+                  <TableHead className="text-right">{t.reports.paid}</TableHead>
+                  <TableHead className="text-right">{t.reports.due}</TableHead>
+                  <TableHead>{t.reports.method}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {!salesData?.length ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      No sales for selected period
+                      {t.reports.noSalesForPeriod}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -110,12 +112,12 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
                         {sale.entry_type === 'quick' ? (
                           <Badge variant="secondary" className="gap-1">
                             <Zap className="h-3 w-3" />
-                            Quick
+                            {t.reports.quick}
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="gap-1">
                             <ClipboardList className="h-3 w-3" />
-                            Detailed
+                            {t.reports.detailed}
                           </Badge>
                         )}
                       </TableCell>

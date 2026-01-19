@@ -6,10 +6,12 @@ import { useSupplierDueReport } from '@/hooks/useReports';
 import { generateSupplierDuePDF } from '@/lib/pdfGenerator';
 import { Loader2, Download, Truck } from 'lucide-react';
 import { format } from 'date-fns';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function SupplierDueReportView() {
   const { data, isLoading } = useSupplierDueReport();
   const [exporting, setExporting] = useState(false);
+  const { t } = useLanguage();
 
   const handleExport = () => {
     if (!data) return;
@@ -38,30 +40,30 @@ export function SupplierDueReportView() {
         <div>
           <CardTitle className="flex items-center gap-2">
             <Truck className="h-5 w-5" />
-            Supplier Due Report
+            {t.reports.supplierDueReport}
           </CardTitle>
           <CardDescription>
-            All suppliers with outstanding dues
+            {t.reports.allSuppliersWithDues}
           </CardDescription>
         </div>
         <Button onClick={handleExport} disabled={!data?.length || exporting}>
           {exporting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-          Export PDF
+          {t.reports.exportPDF}
         </Button>
       </CardHeader>
       <CardContent>
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-3 mb-6">
           <div className="p-4 rounded-lg bg-amber-500/10">
-            <p className="text-sm text-muted-foreground">Total Outstanding</p>
+            <p className="text-sm text-muted-foreground">{t.reports.totalOutstanding}</p>
             <p className="text-2xl font-bold text-amber-600">৳{totalDue.toLocaleString()}</p>
           </div>
           <div className="p-4 rounded-lg bg-green-500/10">
-            <p className="text-sm text-muted-foreground">Total Paid (All Time)</p>
+            <p className="text-sm text-muted-foreground">{t.reports.totalPaidAllTime}</p>
             <p className="text-2xl font-bold text-green-600">৳{totalPaid.toLocaleString()}</p>
           </div>
           <div className="p-4 rounded-lg bg-muted">
-            <p className="text-sm text-muted-foreground">Suppliers with Dues</p>
+            <p className="text-sm text-muted-foreground">{t.reports.suppliersWithDues}</p>
             <p className="text-2xl font-bold">{data?.length || 0}</p>
           </div>
         </div>
@@ -71,18 +73,18 @@ export function SupplierDueReportView() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Supplier Name</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead className="text-right">Total Due</TableHead>
-                <TableHead className="text-right">Total Paid</TableHead>
-                <TableHead>Last Purchase</TableHead>
+                <TableHead>{t.reports.supplierName}</TableHead>
+                <TableHead>{t.reports.phone}</TableHead>
+                <TableHead className="text-right">{t.reports.totalDue}</TableHead>
+                <TableHead className="text-right">{t.reports.totalPaid}</TableHead>
+                <TableHead>{t.reports.lastPurchase}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {!data?.length ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    No suppliers with outstanding dues
+                    {t.reports.noSuppliersWithDues}
                   </TableCell>
                 </TableRow>
               ) : (

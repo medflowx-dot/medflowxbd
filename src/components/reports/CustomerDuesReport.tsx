@@ -9,6 +9,7 @@ import { useCustomers, useCustomerWithPayments, generateWhatsAppMessage, shareVi
 import { generateCustomerDuesPDF } from '@/lib/pdfGenerator';
 import { Download, MessageSquare, Search, Users, Wallet, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { ReportDateRange } from '@/hooks/useReports';
 
 interface CustomerDuesReportProps {
@@ -19,6 +20,7 @@ export function CustomerDuesReportView({ dateRange }: CustomerDuesReportProps) {
   const { data: customers, isLoading } = useCustomers();
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedCustomer, setExpandedCustomer] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   // Filter customers with dues
   const customersWithDues = customers?.filter(c => c.total_due > 0) || [];
@@ -64,7 +66,7 @@ export function CustomerDuesReportView({ dateRange }: CustomerDuesReportProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Customers with Dues
+              {t.reports.customersWithDues}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -75,7 +77,7 @@ export function CustomerDuesReportView({ dateRange }: CustomerDuesReportProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Wallet className="h-4 w-4" />
-              Total Outstanding
+              {t.reports.totalOutstanding}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -88,12 +90,12 @@ export function CustomerDuesReportView({ dateRange }: CustomerDuesReportProps) {
       <Card>
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <CardTitle className="text-lg">Customer Dues Breakdown</CardTitle>
+            <CardTitle className="text-lg">{t.reports.customerDuesBreakdown}</CardTitle>
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search customer..."
+                  placeholder={t.reports.searchCustomer}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-8 w-[200px]"
@@ -105,7 +107,7 @@ export function CustomerDuesReportView({ dateRange }: CustomerDuesReportProps) {
                 disabled={filteredCustomers.length === 0}
               >
                 <Download className="h-4 w-4 mr-2" />
-                Export PDF
+                {t.reports.exportPDF}
               </Button>
             </div>
           </div>
@@ -113,17 +115,17 @@ export function CustomerDuesReportView({ dateRange }: CustomerDuesReportProps) {
         <CardContent>
           {filteredCustomers.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No customers with outstanding dues found.
+              {t.reports.noCustomersWithDues}
             </div>
           ) : (
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead className="text-right">Total Due</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t.reports.customer}</TableHead>
+                    <TableHead>{t.reports.phone}</TableHead>
+                    <TableHead className="text-right">{t.reports.totalDue}</TableHead>
+                    <TableHead className="text-right">{t.reports.actions}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -136,6 +138,7 @@ export function CustomerDuesReportView({ dateRange }: CustomerDuesReportProps) {
                         expandedCustomer === customer.id ? null : customer.id
                       )}
                       onWhatsApp={() => handleWhatsAppShare(customer)}
+                      t={t}
                     />
                   ))}
                 </TableBody>
@@ -158,9 +161,10 @@ interface CustomerRowProps {
   isExpanded: boolean;
   onToggle: () => void;
   onWhatsApp: () => void;
+  t: any;
 }
 
-function CustomerRow({ customer, isExpanded, onToggle, onWhatsApp }: CustomerRowProps) {
+function CustomerRow({ customer, isExpanded, onToggle, onWhatsApp, t }: CustomerRowProps) {
   const { data: customerWithPayments, isLoading } = useCustomerWithPayments(
     isExpanded ? customer.id : null
   );
@@ -202,7 +206,7 @@ function CustomerRow({ customer, isExpanded, onToggle, onWhatsApp }: CustomerRow
               </div>
             ) : customerWithPayments?.payments && customerWithPayments.payments.length > 0 ? (
               <div className="space-y-2">
-                <h4 className="font-medium text-sm">Recent Payments</h4>
+                <h4 className="font-medium text-sm">{t.reports.recentPayments}</h4>
                 <div className="grid gap-2">
                   {customerWithPayments.payments.slice(0, 5).map((payment) => (
                     <div key={payment.id} className="flex items-center justify-between text-sm bg-background p-2 rounded">
@@ -214,7 +218,7 @@ function CustomerRow({ customer, isExpanded, onToggle, onWhatsApp }: CustomerRow
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No payment history found.</p>
+              <p className="text-sm text-muted-foreground">{t.reports.noPaymentHistory}</p>
             )}
           </TableCell>
         </TableRow>

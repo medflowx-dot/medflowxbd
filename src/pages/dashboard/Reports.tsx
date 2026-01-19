@@ -9,6 +9,7 @@ import { SupplierReportsView } from '@/components/reports/SupplierReports';
 import { getDateRangePresets, ReportDateRange } from '@/hooks/useReports';
 import { DatePicker } from '@/components/ui/date-picker';
 import { FileText, TrendingUp, Truck, BarChart3, Users, Package } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Reports() {
   const presets = getDateRangePresets();
@@ -19,6 +20,7 @@ export default function Reports() {
   });
   const [customStartDate, setCustomStartDate] = useState<Date>();
   const [customEndDate, setCustomEndDate] = useState<Date>();
+  const { t } = useLanguage();
 
   const handlePresetChange = (preset: string) => {
     setSelectedPreset(preset);
@@ -51,9 +53,9 @@ export default function Reports() {
             <FileText className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Reports</h1>
+            <h1 className="text-2xl font-bold">{t.reports.title}</h1>
             <p className="text-muted-foreground">
-              Generate and export detailed reports with PDF
+              {t.reports.subtitle}
             </p>
           </div>
         </div>
@@ -62,15 +64,15 @@ export default function Reports() {
         <div className="flex flex-wrap items-center gap-2">
           <Select value={selectedPreset} onValueChange={handlePresetChange}>
             <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Select period" />
+              <SelectValue placeholder={t.reports.selectPeriod} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="thisWeek">This Week</SelectItem>
-              <SelectItem value="thisMonth">This Month</SelectItem>
-              <SelectItem value="last7Days">Last 7 Days</SelectItem>
-              <SelectItem value="last30Days">Last 30 Days</SelectItem>
-              <SelectItem value="custom">Custom Range</SelectItem>
+              <SelectItem value="today">{t.reports.today}</SelectItem>
+              <SelectItem value="thisWeek">{t.reports.thisWeek}</SelectItem>
+              <SelectItem value="thisMonth">{t.reports.thisMonth}</SelectItem>
+              <SelectItem value="last7Days">{t.reports.last7Days}</SelectItem>
+              <SelectItem value="last30Days">{t.reports.last30Days}</SelectItem>
+              <SelectItem value="custom">{t.reports.customRange}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -79,14 +81,14 @@ export default function Reports() {
               <DatePicker
                 date={customStartDate}
                 onDateChange={(date) => handleCustomDateChange(date, customEndDate)}
-                placeholder="Start date"
+                placeholder={t.reports.startDate}
                 className="w-[160px]"
               />
-              <span className="text-muted-foreground">to</span>
+              <span className="text-muted-foreground">{t.reports.to}</span>
               <DatePicker
                 date={customEndDate}
                 onDateChange={(date) => handleCustomDateChange(customStartDate, date)}
-                placeholder="End date"
+                placeholder={t.reports.endDate}
                 className="w-[160px]"
               />
             </div>
@@ -99,28 +101,28 @@ export default function Reports() {
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="daily-summary" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
-            <span className="hidden sm:inline">Daily Summary</span>
-            <span className="sm:hidden">Summary</span>
+            <span className="hidden sm:inline">{t.reports.dailySummary}</span>
+            <span className="sm:hidden">{t.reports.summary}</span>
           </TabsTrigger>
           <TabsTrigger value="sales" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
-            <span className="hidden sm:inline">Sales Report</span>
-            <span className="sm:hidden">Sales</span>
+            <span className="hidden sm:inline">{t.reports.salesReport}</span>
+            <span className="sm:hidden">{t.reports.sales}</span>
           </TabsTrigger>
           <TabsTrigger value="supplier-reports" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
-            <span className="hidden sm:inline">Supplier Reports</span>
-            <span className="sm:hidden">Supplier</span>
+            <span className="hidden sm:inline">{t.reports.supplierReports}</span>
+            <span className="sm:hidden">{t.reports.supplier}</span>
           </TabsTrigger>
           <TabsTrigger value="supplier-due" className="flex items-center gap-2">
             <Truck className="h-4 w-4" />
-            <span className="hidden sm:inline">Supplier Due</span>
-            <span className="sm:hidden">Due</span>
+            <span className="hidden sm:inline">{t.reports.supplierDue}</span>
+            <span className="sm:hidden">{t.reports.due}</span>
           </TabsTrigger>
           <TabsTrigger value="customer-due" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">Customer Due</span>
-            <span className="sm:hidden">Customer</span>
+            <span className="hidden sm:inline">{t.reports.customerDue}</span>
+            <span className="sm:hidden">{t.reports.customer}</span>
           </TabsTrigger>
         </TabsList>
 
