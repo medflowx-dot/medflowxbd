@@ -1,27 +1,46 @@
 import { Pill, Mail, Phone, MapPin, Facebook, MessageCircle } from 'lucide-react';
+import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
+
+// Fallback footer data
+const fallbackFooterLinks = {
+  product: [
+    { text: 'সুবিধাসমূহ', link: '#features' },
+    { text: 'প্যাকেজ', link: '#pricing' },
+    { text: 'কিভাবে কাজ করে', link: '#how-it-works' },
+    { text: 'জিজ্ঞাসা', link: '#faq' },
+  ],
+  company: [
+    { text: 'আমাদের সম্পর্কে', link: '#' },
+    { text: 'যোগাযোগ', link: '#' },
+    { text: 'ক্যারিয়ার', link: '#' },
+    { text: 'ব্লগ', link: '#' },
+  ],
+  legal: [
+    { text: 'প্রাইভেসি পলিসি', link: '#' },
+    { text: 'সেবার শর্তাবলী', link: '#' },
+    { text: 'রিফান্ড পলিসি', link: '#' },
+  ],
+};
 
 const Footer = () => {
+  const { data: cmsContent } = useCMSContent('footer');
   const currentYear = new Date().getFullYear();
-
-  const footerLinks = {
-    product: [
-      { label: 'সুবিধাসমূহ', href: '#features' },
-      { label: 'প্যাকেজ', href: '#pricing' },
-      { label: 'কিভাবে কাজ করে', href: '#how-it-works' },
-      { label: 'জিজ্ঞাসা', href: '#faq' },
-    ],
-    company: [
-      { label: 'আমাদের সম্পর্কে', href: '#' },
-      { label: 'যোগাযোগ', href: '#' },
-      { label: 'ক্যারিয়ার', href: '#' },
-      { label: 'ব্লগ', href: '#' },
-    ],
-    legal: [
-      { label: 'প্রাইভেসি পলিসি', href: '#' },
-      { label: 'সেবার শর্তাবলী', href: '#' },
-      { label: 'রিফান্ড পলিসি', href: '#' },
-    ],
-  };
+  
+  const brand = getCMSValue(cmsContent, 'brand', {
+    name: 'MedFlowx',
+    description: 'বাংলাদেশের ফার্মেসির জন্য তৈরি মেয়াদ ট্র্যাকিং ও আর্থিক হিসাব সফটওয়্যার। এক্সপায়ারি ট্র্যাক করুন, আয় ম্যানেজ করুন, সাপ্লায়ার বাকি নিয়ন্ত্রণ করুন।'
+  });
+  const contact = getCMSValue(cmsContent, 'contact', {
+    email: 'support@medflowx.com',
+    phone: '+৮৮০ ১XXX-XXXXXX',
+    address: 'ঢাকা, বাংলাদেশ'
+  });
+  const links = getCMSValue(cmsContent, 'links', fallbackFooterLinks);
+  const social = getCMSValue(cmsContent, 'social', {
+    facebook: '#',
+    whatsapp: '#'
+  });
+  const copyrightText = getCMSValue(cmsContent, 'copyright', '© {year} MedFlowx। সর্বস্বত্ব সংরক্ষিত।');
 
   return (
     <footer className="bg-foreground text-background">
@@ -39,21 +58,20 @@ const Footer = () => {
               </span>
             </a>
             <p className="text-background/70 mb-6 max-w-sm leading-relaxed">
-              বাংলাদেশের ফার্মেসির জন্য তৈরি মেয়াদ ট্র্যাকিং ও আর্থিক হিসাব সফটওয়্যার। 
-              এক্সপায়ারি ট্র্যাক করুন, আয় ম্যানেজ করুন, সাপ্লায়ার বাকি নিয়ন্ত্রণ করুন।
+              {brand.description}
             </p>
             <div className="space-y-3">
-              <a href="mailto:support@medflowx.com" className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">
+              <a href={`mailto:${contact.email}`} className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">
                 <Mail className="w-5 h-5" />
-                support@medflowx.com
+                {contact.email}
               </a>
-              <a href="tel:+8801XXXXXXXXX" className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">
+              <a href={`tel:${contact.phone}`} className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">
                 <Phone className="w-5 h-5" />
-                +৮৮০ ১XXX-XXXXXX
+                {contact.phone}
               </a>
               <div className="flex items-center gap-3 text-background/70">
                 <MapPin className="w-5 h-5" />
-                ঢাকা, বাংলাদেশ
+                {contact.address}
               </div>
             </div>
           </div>
@@ -62,10 +80,10 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-bold mb-6">প্রোডাক্ট</h4>
             <ul className="space-y-3">
-              {footerLinks.product.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-background/70 hover:text-primary transition-colors">
-                    {link.label}
+              {(links.product || []).map((link: any, index: number) => (
+                <li key={index}>
+                  <a href={link.link} className="text-background/70 hover:text-primary transition-colors">
+                    {link.text}
                   </a>
                 </li>
               ))}
@@ -76,10 +94,10 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-bold mb-6">কোম্পানি</h4>
             <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-background/70 hover:text-primary transition-colors">
-                    {link.label}
+              {(links.company || []).map((link: any, index: number) => (
+                <li key={index}>
+                  <a href={link.link} className="text-background/70 hover:text-primary transition-colors">
+                    {link.text}
                   </a>
                 </li>
               ))}
@@ -90,10 +108,10 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-bold mb-6">আইনি</h4>
             <ul className="space-y-3">
-              {footerLinks.legal.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-background/70 hover:text-primary transition-colors">
-                    {link.label}
+              {(links.legal || []).map((link: any, index: number) => (
+                <li key={index}>
+                  <a href={link.link} className="text-background/70 hover:text-primary transition-colors">
+                    {link.text}
                   </a>
                 </li>
               ))}
@@ -104,13 +122,13 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="py-6 border-t border-background/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-background/60 text-sm">
-            © {currentYear} MedFlowx। সর্বস্বত্ব সংরক্ষিত।
+            {copyrightText.replace('{year}', currentYear.toString())}
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-primary transition-colors">
+            <a href={social.facebook} className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-primary transition-colors">
               <Facebook className="w-5 h-5" />
             </a>
-            <a href="#" className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-primary transition-colors">
+            <a href={social.whatsapp} className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-primary transition-colors">
               <MessageCircle className="w-5 h-5" />
             </a>
           </div>
