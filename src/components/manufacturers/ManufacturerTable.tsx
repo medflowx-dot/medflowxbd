@@ -27,6 +27,7 @@ import {
 import { MoreVertical, Pencil, Trash2, Building2 } from 'lucide-react';
 import { Manufacturer, useManufacturers } from '@/hooks/useManufacturers';
 import { AddManufacturerDialog } from './AddManufacturerDialog';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ManufacturerTableProps {
   manufacturers: Manufacturer[];
@@ -34,6 +35,7 @@ interface ManufacturerTableProps {
 }
 
 export function ManufacturerTable({ manufacturers, searchTerm }: ManufacturerTableProps) {
+  const { t } = useLanguage();
   const { deleteManufacturer } = useManufacturers();
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -54,11 +56,11 @@ export function ManufacturerTable({ manufacturers, searchTerm }: ManufacturerTab
         <div className="p-4 rounded-full bg-muted mb-4">
           <Building2 className="h-8 w-8 text-muted-foreground" />
         </div>
-        <h3 className="font-semibold text-lg">No manufacturers found</h3>
+        <h3 className="font-semibold text-lg">{t.manufacturers.noManufacturersFound}</h3>
         <p className="text-muted-foreground text-sm max-w-sm mt-1">
           {searchTerm
-            ? 'Try adjusting your search term.'
-            : 'Add your first manufacturer to get started.'}
+            ? t.manufacturers.tryAdjustingSearch
+            : t.manufacturers.addFirstManufacturer}
         </p>
       </div>
     );
@@ -70,8 +72,8 @@ export function ManufacturerTable({ manufacturers, searchTerm }: ManufacturerTab
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Company</TableHead>
-              <TableHead className="w-[80px]">Actions</TableHead>
+              <TableHead>{t.manufacturers.company}</TableHead>
+              <TableHead className="w-[80px]">{t.manufacturers.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -93,7 +95,7 @@ export function ManufacturerTable({ manufacturers, searchTerm }: ManufacturerTab
                         trigger={
                           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                             <Pencil className="h-4 w-4 mr-2" />
-                            Edit
+                            {t.manufacturers.edit}
                           </DropdownMenuItem>
                         }
                       />
@@ -102,7 +104,7 @@ export function ManufacturerTable({ manufacturers, searchTerm }: ManufacturerTab
                         onClick={() => setDeleteId(manufacturer.id)}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
+                        {t.manufacturers.delete}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -116,14 +118,14 @@ export function ManufacturerTable({ manufacturers, searchTerm }: ManufacturerTab
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Manufacturer</AlertDialogTitle>
+            <AlertDialogTitle>{t.manufacturers.deleteManufacturer}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this manufacturer? This action cannot be undone.
+              {t.manufacturers.deleteConfirm}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>{t.actions.delete}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

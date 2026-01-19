@@ -11,8 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Manufacturers() {
+  const { t } = useLanguage();
   const { manufacturers, isLoading } = useManufacturers();
   const { manufacturers: globalManufacturers, isLoading: globalLoading, copyToLocal, bulkCopyToLocal } = useGlobalManufacturers();
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,7 +54,7 @@ export default function Manufacturers() {
 
   const handleCopy = async (manufacturer: GlobalManufacturer) => {
     if (isAlreadyCopied(manufacturer)) {
-      toast.info('This manufacturer is already in your list');
+      toast.info(t.manufacturers.alreadyInList);
       return;
     }
     await copyToLocal.mutateAsync(manufacturer);
@@ -63,7 +65,7 @@ export default function Manufacturers() {
       selectedIds.has(m.id) && !isAlreadyCopied(m)
     );
     if (selectedManufacturers.length === 0) {
-      toast.info('No new manufacturers selected');
+      toast.info(t.manufacturers.noNewSelected);
       return;
     }
     await bulkCopyToLocal.mutateAsync(selectedManufacturers);
@@ -79,8 +81,8 @@ export default function Manufacturers() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">Manufacturers</h1>
-          <p className="text-muted-foreground mt-1">Manage manufacturer list for medicines</p>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.manufacturers.title}</h1>
+          <p className="text-muted-foreground mt-1">{t.manufacturers.subtitle}</p>
         </div>
         <AddManufacturerDialog />
       </div>
@@ -89,11 +91,11 @@ export default function Manufacturers() {
         <TabsList>
           <TabsTrigger value="my" className="gap-2">
             <Building2 className="h-4 w-4" />
-            My Manufacturers ({manufacturers.length})
+            {t.manufacturers.myManufacturers} ({manufacturers.length})
           </TabsTrigger>
           <TabsTrigger value="global" className="gap-2">
             <Globe className="h-4 w-4" />
-            Global Manufacturers ({globalManufacturers.length})
+            {t.manufacturers.globalManufacturers} ({globalManufacturers.length})
           </TabsTrigger>
         </TabsList>
 
@@ -102,7 +104,7 @@ export default function Manufacturers() {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
-                Total Manufacturers
+                {t.manufacturers.totalManufacturers}
               </CardDescription>
               <CardTitle className="text-2xl">{manufacturers.length}</CardTitle>
             </CardHeader>
@@ -110,16 +112,16 @@ export default function Manufacturers() {
 
           <Card>
             <CardHeader>
-              <CardTitle>My Manufacturers</CardTitle>
-              <CardDescription>View and manage your manufacturers</CardDescription>
+              <CardTitle>{t.manufacturers.myManufacturers}</CardTitle>
+              <CardDescription>{t.manufacturers.viewAndManage}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search manufacturers..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
+                <Input placeholder={t.manufacturers.searchManufacturers} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
               </div>
               {isLoading ? (
-                <div className="py-8 text-center text-muted-foreground">Loading manufacturers...</div>
+                <div className="py-8 text-center text-muted-foreground">{t.manufacturers.loadingManufacturers}</div>
               ) : (
                 <ManufacturerTable manufacturers={manufacturers} searchTerm={searchTerm} />
               )}
@@ -132,7 +134,7 @@ export default function Manufacturers() {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-2">
                 <Globe className="h-4 w-4" />
-                Available Global Manufacturers
+                {t.manufacturers.availableGlobal}
               </CardDescription>
               <CardTitle className="text-2xl">{globalManufacturers.length}</CardTitle>
             </CardHeader>
@@ -142,13 +144,13 @@ export default function Manufacturers() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Global Manufacturers</CardTitle>
-                  <CardDescription>Browse and copy manufacturers from the master list</CardDescription>
+                  <CardTitle>{t.manufacturers.globalManufacturers}</CardTitle>
+                  <CardDescription>{t.manufacturers.browseAndCopy}</CardDescription>
                 </div>
                 {selectedCount > 0 && (
                   <Button onClick={handleBulkCopy} disabled={bulkCopyToLocal.isPending}>
                     <Copy className="h-4 w-4 mr-2" />
-                    {bulkCopyToLocal.isPending ? 'Copying...' : `Copy Selected (${selectedCount})`}
+                    {bulkCopyToLocal.isPending ? t.manufacturers.copying : `${t.manufacturers.copySelected} (${selectedCount})`}
                   </Button>
                 )}
               </div>
@@ -156,15 +158,15 @@ export default function Manufacturers() {
             <CardContent className="space-y-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search global manufacturers..." value={globalSearchTerm} onChange={(e) => setGlobalSearchTerm(e.target.value)} className="pl-9" />
+                <Input placeholder={t.manufacturers.searchGlobalManufacturers} value={globalSearchTerm} onChange={(e) => setGlobalSearchTerm(e.target.value)} className="pl-9" />
               </div>
 
               {globalLoading ? (
-                <div className="py-8 text-center text-muted-foreground">Loading...</div>
+                <div className="py-8 text-center text-muted-foreground">{t.manufacturers.loading}</div>
               ) : filteredGlobalManufacturers.length === 0 ? (
                 <div className="py-8 text-center text-muted-foreground">
                   <Globe className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                  <p>No global manufacturers found</p>
+                  <p>{t.manufacturers.noGlobalFound}</p>
                 </div>
               ) : (
                 <div className="rounded-md border">
@@ -178,8 +180,8 @@ export default function Manufacturers() {
                             disabled={copyableManufacturers.length === 0}
                           />
                         </TableHead>
-                        <TableHead>Company Name</TableHead>
-                        <TableHead className="w-[120px]">Actions</TableHead>
+                        <TableHead>{t.manufacturers.companyName}</TableHead>
+                        <TableHead className="w-[120px]">{t.manufacturers.actions}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -203,7 +205,7 @@ export default function Manufacturers() {
                                 disabled={copyToLocal.isPending || alreadyCopied}
                               >
                                 <Copy className="h-4 w-4 mr-2" />
-                                {alreadyCopied ? 'Added' : 'Copy'}
+                                {alreadyCopied ? t.manufacturers.added : t.manufacturers.copy}
                               </Button>
                             </TableCell>
                           </TableRow>

@@ -20,6 +20,57 @@ export const en = {
     adminDashboard: 'Admin Dashboard',
   },
 
+  // Manufacturers Page
+  manufacturers: {
+    title: 'Manufacturers',
+    subtitle: 'Manage manufacturer list for medicines',
+    // Tabs
+    myManufacturers: 'My Manufacturers',
+    globalManufacturers: 'Global Manufacturers',
+    // Stats cards
+    totalManufacturers: 'Total Manufacturers',
+    availableGlobal: 'Available Global Manufacturers',
+    // My Manufacturers
+    viewAndManage: 'View and manage your manufacturers',
+    searchManufacturers: 'Search manufacturers...',
+    loadingManufacturers: 'Loading manufacturers...',
+    // Global Manufacturers
+    browseAndCopy: 'Browse and copy manufacturers from the master list',
+    searchGlobalManufacturers: 'Search global manufacturers...',
+    loading: 'Loading...',
+    noGlobalFound: 'No global manufacturers found',
+    copySelected: 'Copy Selected',
+    copying: 'Copying...',
+    added: 'Added',
+    copy: 'Copy',
+    alreadyInList: 'This manufacturer is already in your list',
+    noNewSelected: 'No new manufacturers selected',
+    // Table headers
+    companyName: 'Company Name',
+    company: 'Company',
+    actions: 'Actions',
+    // Empty states
+    noManufacturersFound: 'No manufacturers found',
+    tryAdjustingSearch: 'Try adjusting your search term.',
+    addFirstManufacturer: 'Add your first manufacturer to get started.',
+    // Actions
+    edit: 'Edit',
+    delete: 'Delete',
+    // Delete dialog
+    deleteManufacturer: 'Delete Manufacturer',
+    deleteConfirm: 'Are you sure you want to delete this manufacturer? This action cannot be undone.',
+    // Add/Edit dialog
+    addManufacturer: 'Add Manufacturer',
+    editManufacturer: 'Edit Manufacturer',
+    addNewManufacturer: 'Add a new manufacturer.',
+    updateManufacturerDesc: 'Update manufacturer name.',
+    companyNameLabel: 'Company Name *',
+    companyNamePlaceholder: 'e.g., Square Pharmaceuticals',
+    saving: 'Saving...',
+    updateBtn: 'Update',
+    addBtn: 'Add Manufacturer',
+  },
+
   // Menu Groups
   menuGroups: {
     inventory: 'Inventory',
