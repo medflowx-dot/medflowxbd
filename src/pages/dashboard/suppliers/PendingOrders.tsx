@@ -6,7 +6,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { MessageSquare, CheckCircle, Eye, Trash2, Clock, Package } from 'lucide-react';
+import { MessageSquare, CheckCircle, Eye, Trash2, Clock, Package, Download, Share2 } from 'lucide-react';
+import { generateOrderPDF, OrderPDFData } from '@/lib/pdfGenerator';
+import { toast } from 'sonner';
 import { useStockShortList } from '@/hooks/useStockShortList';
 import { format } from 'date-fns';
 
@@ -48,6 +50,64 @@ export default function PendingOrders() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleDownloadPDF = (order: typeof pendingOrders[0]) => {
+    const pdfData: OrderPDFData = {
+      order_number: order.order_number,
+      order_date: order.order_date,
+      supplier_name: order.supplier?.name || 'Unknown',
+      supplier_phone: order.supplier?.phone || null,
+      items: order.items?.map(item => ({
+        medicine_name: item.medicine_name,
+        quantity: item.quantity,
+        unit: item.unit || 'pcs',
+        is_tax_applicable: item.is_tax_applicable,
+      })) || [],
+      status: 'Pending',
+    };
+    
+    generateOrderPDF(pdfData);
+    toast.success('PDF downloaded successfully');
+  };
+
+  const handleShareOrder = async (order: typeof pendingOrders[0]) => {
+    const pdfData: OrderPDFData = {
+      order_number: order.order_number,
+      order_date: order.order_date,
+      supplier_name: order.supplier?.name || 'Unknown',
+      supplier_phone: order.supplier?.phone || null,
+      items: order.items?.map(item => ({
+        medicine_name: item.medicine_name,
+        quantity: item.quantity,
+        unit: item.unit || 'pcs',
+        is_tax_applicable: item.is_tax_applicable,
+      })) || [],
+      status: 'Pending',
+    };
+    
+    const doc = generateOrderPDF(pdfData, false);
+    const pdfBlob = doc.output('blob');
+    const file = new File([pdfBlob], `order-${order.order_number}.pdf`, { 
+      type: 'application/pdf' 
+    });
+
+    if (navigator.share && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          title: `Order ${order.order_number}`,
+          text: `Purchase Order for ${order.supplier?.name}`,
+          files: [file],
+        });
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          toast.error('Failed to share');
+        }
+      }
+    } else {
+      doc.save(`order-${order.order_number}.pdf`);
+      toast.info('Share not supported - PDF downloaded instead');
+    }
   };
 
   if (isLoading) {
@@ -147,6 +207,24 @@ export default function PendingOrders() {
                         </div>
                       </DialogContent>
                     </Dialog>
+
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDownloadPDF(order)}
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      PDF
+                    </Button>
+
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleShareOrder(order)}
+                    >
+                      <Share2 className="h-4 w-4 mr-1" />
+                      Share
+                    </Button>
 
                     <Button 
                       variant="outline" 
