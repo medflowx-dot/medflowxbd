@@ -32,3 +32,9 @@ verify_jwt = false
 
 [functions.seed-global-medicines]
 verify_jwt = false
+
+[functions.import-medex-manufacturers]
+verify_jwt = false
+
+[functions.import-medex-medicines]
+verify_jwt = false
