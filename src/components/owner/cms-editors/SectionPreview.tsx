@@ -1,7 +1,9 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, Check, ArrowRight, Sparkles } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Star, Check, ArrowRight, Sparkles, MessageCircle, Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
 
 interface SectionPreviewProps {
   sectionKey: string;
@@ -28,6 +30,8 @@ export default function SectionPreview({ sectionKey, content }: SectionPreviewPr
       return <FAQPreview content={content} />;
     case 'testimonials':
       return <TestimonialsPreview content={content} />;
+    case 'contact':
+      return <ContactPreview content={content} />;
     default:
       return (
         <div className="p-4 bg-muted/50 rounded-lg">
@@ -249,6 +253,126 @@ function TestimonialsPreview({ content }: { content: any }) {
           +{content.testimonials.length - 4} more testimonials
         </p>
       )}
+    </div>
+  );
+}
+
+function ContactPreview({ content }: { content: any }) {
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case 'MessageCircle': return MessageCircle;
+      case 'Phone': return Phone;
+      case 'Mail': return Mail;
+      default: return Mail;
+    }
+  };
+
+  const formConfig = content.formConfig || {};
+
+  return (
+    <div className="rounded-lg bg-muted/30 p-6 space-y-4">
+      {/* Header */}
+      <div className="text-center">
+        <Badge variant="secondary" className="mb-2">
+          {content.sectionBadge || 'যোগাযোগ করুন'}
+        </Badge>
+        <h2 className="text-xl font-bold">{content.title || 'Contact'}</h2>
+        <p className="text-sm text-muted-foreground">{content.subtitle}</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Contact Methods */}
+        <div className="space-y-3">
+          <h3 className="font-semibold text-sm">{content.contactTitle || 'সরাসরি যোগাযোগ করুন'}</h3>
+          
+          {content.methods?.slice(0, 3).map((method: any, i: number) => {
+            const IconComponent = getIconComponent(method.icon);
+            return (
+              <div 
+                key={i} 
+                className="flex items-start gap-3 p-3 bg-card rounded-lg border text-sm"
+              >
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                  method.color === 'success' 
+                    ? 'bg-green-500/10 text-green-500' 
+                    : method.color === 'primary'
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-secondary/10 text-secondary'
+                }`}>
+                  <IconComponent className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium">{method.title}</p>
+                    <Badge variant="outline" className="text-xs shrink-0">
+                      {method.actionLabel}
+                    </Badge>
+                  </div>
+                  <p className="text-xs">{method.value}</p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                    <Clock className="w-3 h-3" />
+                    {method.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Office */}
+          {content.office && (
+            <div className="flex items-start gap-3 p-3 bg-card rounded-lg border text-sm">
+              <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                <MapPin className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="font-medium">{content.office.title}</p>
+                <p className="text-xs">{content.office.address}</p>
+                <p className="text-xs text-muted-foreground">{content.office.note}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Form Preview */}
+        <div className="p-4 bg-card rounded-lg border space-y-3">
+          <div>
+            <h3 className="font-semibold text-sm">{formConfig.title || 'মেসেজ পাঠান'}</h3>
+            <p className="text-xs text-muted-foreground">{formConfig.subtitle}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-xs font-medium">{formConfig.nameLabel || 'আপনার নাম'} *</label>
+              <Input placeholder={formConfig.namePlaceholder} className="h-8 text-xs" disabled />
+            </div>
+            <div>
+              <label className="text-xs font-medium">{formConfig.phoneLabel || 'ফোন নম্বর'} *</label>
+              <Input placeholder={formConfig.phonePlaceholder} className="h-8 text-xs" disabled />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium">{formConfig.pharmacyLabel || 'ফার্মেসির নাম'}</label>
+            <Input placeholder={formConfig.pharmacyPlaceholder} className="h-8 text-xs" disabled />
+          </div>
+
+          <div>
+            <label className="text-xs font-medium">{formConfig.messageLabel || 'মেসেজ'}</label>
+            <Textarea placeholder={formConfig.messagePlaceholder} className="text-xs min-h-[60px]" disabled />
+          </div>
+
+          <div className="flex gap-2">
+            <Button size="sm" className="flex-1 text-xs">
+              <Send className="w-3 h-3 mr-1" />
+              {formConfig.submitButtonText || 'মেসেজ পাঠান'}
+            </Button>
+            <Button size="sm" variant="outline" className="text-xs text-green-600 border-green-200">
+              <MessageCircle className="w-3 h-3 mr-1" />
+              {formConfig.whatsappButtonText || 'হোয়াটসঅ্যাপ'}
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

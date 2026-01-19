@@ -42,8 +42,27 @@ const Contact = () => {
   
   const title = getCMSValue(cmsContent, 'title', 'আমরা সাহায্য করতে প্রস্তুত');
   const subtitle = getCMSValue(cmsContent, 'subtitle', 'যেকোনো প্রশ্ন বা সাহায্যের জন্য আমাদের সাথে যোগাযোগ করুন। আমরা সবসময় আপনার পাশে আছি।');
+  const sectionBadge = getCMSValue(cmsContent, 'sectionBadge', 'যোগাযোগ করুন');
+  const contactTitle = getCMSValue(cmsContent, 'contactTitle', 'সরাসরি যোগাযোগ করুন');
   const contactMethods = getCMSValue(cmsContent, 'methods', fallbackContactMethods);
   const office = getCMSValue(cmsContent, 'office', { title: 'অফিস', address: 'ঢাকা, বাংলাদেশ', note: 'অনলাইন সাপোর্ট ২৪/৭' });
+  const formConfig = getCMSValue(cmsContent, 'formConfig', {
+    title: 'মেসেজ পাঠান',
+    subtitle: 'ফর্ম পূরণ করুন, আমরা শীঘ্রই যোগাযোগ করব',
+    nameLabel: 'আপনার নাম',
+    namePlaceholder: 'নাম লিখুন',
+    phoneLabel: 'ফোন নম্বর',
+    phonePlaceholder: '০১XXXXXXXXX',
+    pharmacyLabel: 'ফার্মেসির নাম',
+    pharmacyPlaceholder: 'আপনার ফার্মেসির নাম (ঐচ্ছিক)',
+    messageLabel: 'মেসেজ',
+    messagePlaceholder: 'আপনার প্রশ্ন বা মেসেজ লিখুন...',
+    submitButtonText: 'মেসেজ পাঠান',
+    whatsappButtonText: 'হোয়াটসঅ্যাপে পাঠান',
+    successTitle: 'ধন্যবাদ!',
+    successMessage: 'আমরা আপনার মেসেজ পেয়েছি এবং শীঘ্রই যোগাযোগ করব।',
+  });
+  const whatsappNumber = getCMSValue(cmsContent, 'whatsappNumber', '880');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -83,7 +102,7 @@ const Contact = () => {
     const message = encodeURIComponent(
       `হ্যালো MedFlowx টিম,\n\nআমি ${formData.name || 'একজন ফার্মেসি মালিক'}।\n${formData.pharmacyName ? `ফার্মেসি: ${formData.pharmacyName}\n` : ''}${formData.message ? `\n${formData.message}` : '\nআমি MedFlowx সম্পর্কে জানতে চাই।'}`
     );
-    const whatsappUrl = `https://wa.me/880?text=${message}`;
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
     
     const link = document.createElement('a');
     link.href = whatsappUrl;
@@ -109,7 +128,7 @@ const Contact = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 mb-6">
-            <span className="text-primary text-sm font-semibold">যোগাযোগ করুন</span>
+            <span className="text-primary text-sm font-semibold">{sectionBadge}</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
             {title}
@@ -123,7 +142,7 @@ const Contact = () => {
           {/* Contact Methods */}
           <div className="space-y-6">
             <h3 className="text-xl font-display font-bold text-foreground mb-6">
-              সরাসরি যোগাযোগ করুন
+              {contactTitle}
             </h3>
 
             {contactMethods.map((method: any, index: number) => {
@@ -184,10 +203,10 @@ const Contact = () => {
           {/* Contact Form */}
           <div className="bg-card rounded-2xl border border-border shadow-card p-6 md:p-8">
             <h3 className="text-xl font-display font-bold text-foreground mb-2">
-              মেসেজ পাঠান
+              {formConfig.title}
             </h3>
             <p className="text-muted-foreground mb-6">
-              ফর্ম পূরণ করুন, আমরা শীঘ্রই যোগাযোগ করব
+              {formConfig.subtitle}
             </p>
 
             {isSubmitted ? (
@@ -195,18 +214,18 @@ const Contact = () => {
                 <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mb-4">
                   <CheckCircle2 className="w-8 h-8 text-success" />
                 </div>
-                <h4 className="text-xl font-bold text-foreground mb-2">ধন্যবাদ!</h4>
-                <p className="text-muted-foreground">আমরা আপনার মেসেজ পেয়েছি এবং শীঘ্রই যোগাযোগ করব।</p>
+                <h4 className="text-xl font-bold text-foreground mb-2">{formConfig.successTitle}</h4>
+                <p className="text-muted-foreground">{formConfig.successMessage}</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 block">
-                      আপনার নাম <span className="text-destructive">*</span>
+                      {formConfig.nameLabel} <span className="text-destructive">*</span>
                     </label>
                     <Input
-                      placeholder="নাম লিখুন"
+                      placeholder={formConfig.namePlaceholder}
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       maxLength={100}
@@ -215,10 +234,10 @@ const Contact = () => {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 block">
-                      ফোন নম্বর <span className="text-destructive">*</span>
+                      {formConfig.phoneLabel} <span className="text-destructive">*</span>
                     </label>
                     <Input
-                      placeholder="০১XXXXXXXXX"
+                      placeholder={formConfig.phonePlaceholder}
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       maxLength={15}
@@ -229,10 +248,10 @@ const Contact = () => {
 
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">
-                    ফার্মেসির নাম
+                    {formConfig.pharmacyLabel}
                   </label>
                   <Input
-                    placeholder="আপনার ফার্মেসির নাম (ঐচ্ছিক)"
+                    placeholder={formConfig.pharmacyPlaceholder}
                     value={formData.pharmacyName}
                     onChange={(e) => setFormData({ ...formData, pharmacyName: e.target.value })}
                     maxLength={100}
@@ -241,10 +260,10 @@ const Contact = () => {
 
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">
-                    মেসেজ
+                    {formConfig.messageLabel}
                   </label>
                   <Textarea
-                    placeholder="আপনার প্রশ্ন বা মেসেজ লিখুন..."
+                    placeholder={formConfig.messagePlaceholder}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     rows={4}
@@ -267,7 +286,7 @@ const Contact = () => {
                     ) : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        মেসেজ পাঠান
+                        {formConfig.submitButtonText}
                       </>
                     )}
                   </Button>
@@ -279,7 +298,7 @@ const Contact = () => {
                     className="text-success border-success/30 hover:bg-success/10"
                   >
                     <MessageCircle className="w-4 h-4 mr-2" />
-                    হোয়াটসঅ্যাপে পাঠান
+                    {formConfig.whatsappButtonText}
                   </Button>
                 </div>
               </form>
