@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Star, Check, ArrowRight, Sparkles, MessageCircle, Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
+import { Star, Check, ArrowRight, Sparkles, MessageCircle, Phone, Mail, MapPin, Clock, Send, XCircle, CheckCircle2, Pill, Bell, Zap, Download } from 'lucide-react';
 
 interface SectionPreviewProps {
   sectionKey: string;
@@ -36,6 +36,20 @@ export default function SectionPreview({ sectionKey, content }: SectionPreviewPr
       return <ManufacturersPreview content={content} />;
     case 'features':
       return <FeaturesPreview content={content} />;
+    case 'why_choose_us':
+      return <WhyChooseUsPreview content={content} />;
+    case 'special_features':
+      return <SpecialFeaturesPreview content={content} />;
+    case 'how_it_works':
+      return <HowItWorksPreview content={content} />;
+    case 'mobile_app':
+      return <MobileAppPreview content={content} />;
+    case 'cta':
+      return <CTAPreview content={content} />;
+    case 'footer':
+      return <FooterPreview content={content} />;
+    case 'navbar':
+      return <NavbarPreview content={content} />;
     default:
       return (
         <div className="p-4 bg-muted/50 rounded-lg">
@@ -488,6 +502,273 @@ function FeaturesPreview({ content }: { content: any }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function WhyChooseUsPreview({ content }: { content: any }) {
+  const items = content.items || [];
+  
+  return (
+    <div className="rounded-lg bg-muted/30 p-6 space-y-4">
+      <div className="text-center">
+        <Badge variant="secondary" className="mb-2">কেন MedFlowx?</Badge>
+        <h2 className="text-lg font-bold">{content.title || 'আপনার সমস্যার সমাধান'}</h2>
+        <p className="text-xs text-muted-foreground">{content.subtitle}</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        {items.slice(0, 4).map((item: any, i: number) => (
+          <Card key={i} className="overflow-hidden">
+            <div className="p-2 bg-destructive/10 border-b">
+              <div className="flex items-center gap-2">
+                <XCircle className="w-4 h-4 text-destructive" />
+                <p className="text-xs font-medium truncate">{item.problem}</p>
+              </div>
+            </div>
+            <div className="p-2 bg-green-500/10">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                <p className="text-xs font-medium truncate">{item.solution}</p>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {items.length > 4 && (
+        <p className="text-center text-xs text-muted-foreground">+{items.length - 4} more</p>
+      )}
+    </div>
+  );
+}
+
+function SpecialFeaturesPreview({ content }: { content: any }) {
+  const features = content.features || [];
+  
+  return (
+    <div className="rounded-lg bg-muted/30 p-6 space-y-4">
+      <div className="text-center">
+        <Badge variant="secondary" className="mb-2">{content.badge || 'বিশেষ সুবিধা'}</Badge>
+        <h2 className="text-lg font-bold">{content.title || 'যা আমাদের আলাদা করে'}</h2>
+        <p className="text-xs text-muted-foreground">{content.subtitle}</p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        {features.slice(0, 6).map((feature: any, i: number) => (
+          <Card key={i} className="p-3 text-center">
+            <div className="w-8 h-8 mx-auto mb-2 rounded-lg bg-primary/10 flex items-center justify-center text-xs">
+              {feature.icon?.charAt(0) || '?'}
+            </div>
+            <p className="font-medium text-xs truncate">{feature.title}</p>
+            <p className="text-[10px] text-muted-foreground line-clamp-2">{feature.description}</p>
+          </Card>
+        ))}
+      </div>
+
+      {features.length > 6 && (
+        <p className="text-center text-xs text-muted-foreground">+{features.length - 6} more</p>
+      )}
+    </div>
+  );
+}
+
+function HowItWorksPreview({ content }: { content: any }) {
+  const steps = content.steps || [];
+  
+  return (
+    <div className="rounded-lg bg-muted/30 p-6 space-y-4">
+      <div className="text-center">
+        <Badge variant="secondary" className="mb-2">সহজ প্রক্রিয়া</Badge>
+        <h2 className="text-lg font-bold">{content.title || 'মাত্র ৩টি ধাপে শুরু করুন'}</h2>
+        <p className="text-xs text-muted-foreground">{content.subtitle}</p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        {steps.slice(0, 3).map((step: any, i: number) => (
+          <Card key={i} className="p-3 text-center">
+            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+              {step.number || `০${i + 1}`}
+            </div>
+            <p className="font-medium text-xs">{step.title}</p>
+            <p className="text-[10px] text-muted-foreground line-clamp-2">{step.description}</p>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MobileAppPreview({ content }: { content: any }) {
+  return (
+    <div className="rounded-lg bg-muted/30 p-6 space-y-4">
+      <div className="flex gap-6">
+        {/* Content */}
+        <div className="flex-1 space-y-3">
+          <Badge variant="secondary">{content.badge || 'শীঘ্রই আসছে'}</Badge>
+          <h2 className="text-lg font-bold">
+            {content.title || 'মোবাইল অ্যাপ'}{' '}
+            <span className="text-primary">{content.titleHighlight || 'আসছে শীঘ্রই!'}</span>
+          </h2>
+          <p className="text-xs text-muted-foreground">{content.description}</p>
+          
+          <div className="grid grid-cols-2 gap-2">
+            <div className="flex items-center gap-2 p-2 bg-card rounded-lg border text-xs">
+              <Bell className="w-4 h-4 text-primary" />
+              <div>
+                <p className="font-medium">{content.feature1Title || 'পুশ নোটিফিকেশন'}</p>
+                <p className="text-muted-foreground text-[10px]">{content.feature1Desc}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 p-2 bg-card rounded-lg border text-xs">
+              <Zap className="w-4 h-4 text-secondary" />
+              <div>
+                <p className="font-medium">{content.feature2Title || 'অফলাইন মোড'}</p>
+                <p className="text-muted-foreground text-[10px]">{content.feature2Desc}</p>
+              </div>
+            </div>
+          </div>
+
+          <Button size="sm">
+            <Bell className="w-3 h-3 mr-1" />
+            {content.buttonText || 'লঞ্চে জানতে চাই'}
+          </Button>
+        </div>
+
+        {/* Phone Mockup */}
+        <div className="w-24 h-48 bg-foreground rounded-2xl p-1 shrink-0">
+          <div className="w-full h-full bg-background rounded-xl flex items-center justify-center">
+            <Download className="w-6 h-6 text-muted-foreground" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CTAPreview({ content }: { content: any }) {
+  const trustItems = content.trust_items || [];
+  const ctaPrimary = content.cta_primary || { text: 'ফ্রি ট্রায়াল শুরু করুন' };
+  const ctaSecondary = content.cta_secondary || { text: 'যোগাযোগ করুন' };
+
+  return (
+    <div className="rounded-lg bg-primary p-6 space-y-4 text-primary-foreground">
+      <div className="text-center space-y-3">
+        <div className="w-12 h-12 mx-auto rounded-xl bg-primary-foreground/20 flex items-center justify-center">
+          <Pill className="w-6 h-6" />
+        </div>
+        <h2 className="text-lg font-bold">{content.title || 'আপনার ফার্মেসি ব্যবসা বদলে দিতে প্রস্তুত?'}</h2>
+        <p className="text-xs opacity-80">{content.subtitle}</p>
+        
+        <div className="flex justify-center gap-2">
+          <Button size="sm" variant="secondary">{ctaPrimary.text}</Button>
+          <Button size="sm" variant="outline" className="border-primary-foreground/30 text-primary-foreground">
+            {ctaSecondary.text}
+          </Button>
+        </div>
+
+        {trustItems.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-3 text-xs opacity-70">
+            {trustItems.map((item: string, i: number) => (
+              <span key={i} className="flex items-center gap-1">
+                <Check className="w-3 h-3" />
+                {item}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FooterPreview({ content }: { content: any }) {
+  const brand = content.brand || { name: 'MedFlowx', description: 'বাংলাদেশের ফার্মেসির জন্য...' };
+  const contact = content.contact || { email: 'support@medflowx.com', phone: '+৮৮০ ১XXX-XXXXXX' };
+  const links = content.links || {};
+
+  return (
+    <div className="rounded-lg bg-foreground text-background p-6 space-y-4">
+      <div className="grid grid-cols-4 gap-4 text-xs">
+        {/* Brand */}
+        <div className="col-span-2 space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
+              <Pill className="w-3 h-3 text-primary-foreground" />
+            </div>
+            <span className="font-bold">{brand.name}</span>
+          </div>
+          <p className="text-background/70 line-clamp-2">{brand.description}</p>
+          <div className="space-y-1 text-background/70">
+            <p className="flex items-center gap-1"><Mail className="w-3 h-3" />{contact.email}</p>
+            <p className="flex items-center gap-1"><Phone className="w-3 h-3" />{contact.phone}</p>
+          </div>
+        </div>
+
+        {/* Links */}
+        <div>
+          <p className="font-bold mb-2">প্রোডাক্ট</p>
+          <ul className="space-y-1 text-background/70">
+            {(links.product || []).slice(0, 3).map((l: any, i: number) => (
+              <li key={i}>{l.text}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="font-bold mb-2">কোম্পানি</p>
+          <ul className="space-y-1 text-background/70">
+            {(links.company || []).slice(0, 3).map((l: any, i: number) => (
+              <li key={i}>{l.text}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div className="border-t border-background/10 pt-3 flex justify-between items-center text-xs text-background/60">
+        <p>{content.copyright || '© 2025 MedFlowx। সর্বস্বত্ব সংরক্ষিত।'}</p>
+        <div className="flex gap-2">
+          <div className="w-6 h-6 rounded bg-background/10" />
+          <div className="w-6 h-6 rounded bg-background/10" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NavbarPreview({ content }: { content: any }) {
+  const navLinks = content.navLinks || [];
+  
+  return (
+    <div className="rounded-lg bg-card border p-4">
+      <div className="flex items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <Pill className="w-4 h-4 text-primary-foreground" />
+          </div>
+          <span className="font-bold text-sm">
+            {content.logoText?.replace(content.logoHighlight, '') || 'Med'}
+            <span className="text-primary">{content.logoHighlight || 'Flow'}</span>x
+          </span>
+        </div>
+
+        {/* Nav Links */}
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          {navLinks.slice(0, 4).map((link: any, i: number) => (
+            <span key={i} className="hover:text-foreground cursor-pointer">{link.label}</span>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="ghost" className="text-xs h-7">
+            {content.loginText || 'লগইন'}
+          </Button>
+          <Button size="sm" className="text-xs h-7">
+            {content.signupText || 'ফ্রি ট্রায়াল'}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
