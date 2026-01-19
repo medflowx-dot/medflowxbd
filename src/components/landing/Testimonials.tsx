@@ -1,11 +1,12 @@
 import { Star, Quote, Sparkles } from 'lucide-react';
+import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
 
-const testimonials = [
+// Fallback testimonials
+const fallbackTestimonials = [
   {
     name: 'মোঃ রফিকুল ইসলাম',
     role: 'মালিক, নিউ লাইফ ফার্মেসি',
     location: 'মিরপুর, ঢাকা',
-    image: null,
     rating: 5,
     text: 'MedFlowx ব্যবহার করার পর থেকে আমার ফার্মেসিতে এক্সপায়ার্ড ওষুধের লস প্রায় শূন্যে নেমে এসেছে। আগে প্রতি মাসে হাজার হাজার টাকার ওষুধ নষ্ট হতো।',
   },
@@ -13,7 +14,6 @@ const testimonials = [
     name: 'ফাতেমা খাতুন',
     role: 'ম্যানেজার, গ্রিন মেডিকেল হল',
     location: 'চট্টগ্রাম',
-    image: null,
     rating: 5,
     text: 'দৈনিক ক্যাশ ফ্লো ফিচারটা অসাধারণ! আগে রাতে ঘন্টা খরচ করে হিসাব মেলাতে হতো, এখন সব অটোমেটিক। সময় বাঁচছে, ভুলও কমেছে।',
   },
@@ -21,7 +21,6 @@ const testimonials = [
     name: 'আব্দুল করিম',
     role: 'মালিক, করিম ফার্মেসি',
     location: 'রাজশাহী',
-    image: null,
     rating: 5,
     text: 'সাপ্লায়ার বাকি ট্র্যাক করা এখন অনেক সহজ। কোন সাপ্লায়ারকে কত দিতে হবে, কবে দিয়েছি — সব এক জায়গায় পরিষ্কার দেখতে পাই।',
   },
@@ -29,7 +28,6 @@ const testimonials = [
     name: 'নাজমুল হাসান',
     role: 'মালিক, হাসান মেডিকেল স্টোর',
     location: 'সিলেট',
-    image: null,
     rating: 5,
     text: 'স্টাফদের আলাদা আলাদা পারমিশন দিতে পারি, এটা দারুণ। কে কী দেখতে পারবে সেটা আমি কন্ট্রোল করি। ফার্মেসি ম্যানেজমেন্ট এখন অনেক সহজ।',
   },
@@ -37,7 +35,6 @@ const testimonials = [
     name: 'সালমা বেগম',
     role: 'মালিক, সালমা ফার্মেসি',
     location: 'খুলনা',
-    image: null,
     rating: 5,
     text: 'মোবাইলে সব কাজ করতে পারি। দোকানে না থাকলেও বিক্রয় রিপোর্ট, স্টক সব দেখতে পাই। সত্যিই জীবন সহজ করে দিয়েছে MedFlowx।',
   },
@@ -45,13 +42,19 @@ const testimonials = [
     name: 'মোঃ আনোয়ার হোসেন',
     role: 'মালিক, আনোয়ার ড্রাগ হাউস',
     location: 'বরিশাল',
-    image: null,
     rating: 5,
     text: 'PDF রিপোর্ট জেনারেট করে সরাসরি হোয়াটসঅ্যাপে শেয়ার করি। সাপ্লায়ারদের অর্ডার পাঠানো এখন মাত্র কয়েক ক্লিকে হয়ে যায়।',
   },
 ];
 
 const Testimonials = () => {
+  const { data: cmsContent } = useCMSContent('testimonials');
+  
+  const title = getCMSValue(cmsContent, 'title', 'তাদের অভিজ্ঞতা, তাদের ভাষায়');
+  const subtitle = getCMSValue(cmsContent, 'subtitle', 'বাংলাদেশের বিভিন্ন প্রান্তের ফার্মেসি মালিকরা MedFlowx নিয়ে কী বলছেন।');
+  const testimonials = getCMSValue(cmsContent, 'items', fallbackTestimonials);
+  const trustBadgeText = getCMSValue(cmsContent, 'trust_badge_text', '৫০০+ ফার্মেসি');
+
   return (
     <section className="py-16 md:py-24 bg-gradient-to-b from-muted/30 via-background to-muted/30 relative overflow-hidden">
       {/* Background Decorations */}
@@ -66,16 +69,16 @@ const Testimonials = () => {
             <span className="text-secondary-foreground text-sm font-semibold">গ্রাহকদের কথা</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
-            তাদের অভিজ্ঞতা, তাদের ভাষায়
+            {title}
           </h2>
           <p className="text-lg text-muted-foreground">
-            বাংলাদেশের বিভিন্ন প্রান্তের ফার্মেসি মালিকরা MedFlowx নিয়ে কী বলছেন।
+            {subtitle}
           </p>
         </div>
 
         {/* Testimonials Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-          {testimonials.map((testimonial, index) => (
+          {testimonials.map((testimonial: any, index: number) => (
             <div
               key={index}
               className="group glass-feature-card hover:scale-[1.02]"
@@ -87,7 +90,7 @@ const Testimonials = () => {
 
               {/* Rating */}
               <div className="flex items-center gap-1 mb-4">
-                {[...Array(testimonial.rating)].map((_, i) => (
+                {[...Array(testimonial.rating || 5)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 fill-secondary text-secondary" />
                 ))}
               </div>
@@ -132,7 +135,7 @@ const Testimonials = () => {
               ))}
             </div>
             <div className="text-left">
-              <p className="text-lg font-bold text-foreground">৫০০+ ফার্মেসি</p>
+              <p className="text-lg font-bold text-foreground">{trustBadgeText}</p>
               <p className="text-sm text-muted-foreground">ইতিমধ্যে MedFlowx ব্যবহার করছে</p>
             </div>
           </div>

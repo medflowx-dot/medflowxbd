@@ -1,29 +1,45 @@
-import { XCircle, CheckCircle2, AlertTriangle, Calculator, Users, Truck, ArrowRight } from 'lucide-react';
+import { XCircle, CheckCircle2, AlertTriangle, Calculator, Users, Truck, ArrowRight, LucideIcon } from 'lucide-react';
+import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
 
-const problems = [
+// Icon mapping
+const iconMap: Record<string, LucideIcon> = {
+  AlertTriangle,
+  Calculator,
+  Users,
+  Truck,
+};
+
+// Fallback data
+const fallbackProblems = [
   {
-    icon: AlertTriangle,
+    icon: 'AlertTriangle',
     problem: 'ওষুধ এক্সপায়ার হয়ে যায়, টাকা নষ্ট হয়',
     solution: '৩০/৬০/৯০ দিন আগে এলার্ট পান, সময় মতো বিক্রি করুন',
   },
   {
-    icon: Calculator,
+    icon: 'Calculator',
     problem: 'দৈনিক হিসাব মেলানো কঠিন',
     solution: 'স্বয়ংক্রিয় ক্যাশ ফ্লো — ওপেনিং থেকে ক্লোজিং পর্যন্ত',
   },
   {
-    icon: Users,
+    icon: 'Users',
     problem: 'কাস্টমার বাকি মনে রাখা যায় না',
     solution: 'সব বাকি এক জায়গায়, পেমেন্ট হিস্ট্রি সহ',
   },
   {
-    icon: Truck,
+    icon: 'Truck',
     problem: 'সাপ্লায়ার পেমেন্ট গোলমাল হয়',
     solution: 'সাপ্লায়ার ড্যাশবোর্ড — কত দিলাম, কত বাকি সব পরিষ্কার',
   },
 ];
 
 const WhyChooseUs = () => {
+  const { data: cmsContent } = useCMSContent('why_choose_us');
+  
+  const title = getCMSValue(cmsContent, 'title', 'আপনার সমস্যার সমাধান আমাদের কাছে');
+  const subtitle = getCMSValue(cmsContent, 'subtitle', 'ফার্মেসি চালাতে গিয়ে যে সমস্যাগুলোর মুখে পড়েন, তার সবকিছুর সমাধান এক জায়গায়।');
+  const problems = getCMSValue(cmsContent, 'items', fallbackProblems);
+
   return (
     <section className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
       {/* Background Decorations */}
@@ -38,16 +54,16 @@ const WhyChooseUs = () => {
             <span className="text-secondary-foreground text-sm font-semibold">কেন MedFlowx?</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
-            আপনার সমস্যার সমাধান আমাদের কাছে
+            {title}
           </h2>
           <p className="text-lg text-muted-foreground">
-            ফার্মেসি চালাতে গিয়ে যে সমস্যাগুলোর মুখে পড়েন, তার সবকিছুর সমাধান এক জায়গায়।
+            {subtitle}
           </p>
         </div>
 
         {/* Problem-Solution Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-          {problems.map((item, index) => (
+          {problems.map((item: any, index: number) => (
             <div
               key={index}
               className="group glass-card rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-500 hover:-translate-y-1"
