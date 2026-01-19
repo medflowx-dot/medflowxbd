@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useCMSPages, useCMSSections, useUpdateCMSSection, usePublishCMSPage, CMSSection } from '@/hooks/useOwnerData';
-import { Loader2, Globe, Edit, Eye, EyeOff, Save, FileText, Layout, List, HelpCircle, Phone, Image, MessageSquare, BarChart3, DollarSign, Star } from 'lucide-react';
+import { Loader2, Globe, Edit, Eye, EyeOff, Save, FileText, Layout, List, HelpCircle, Phone, Image, MessageSquare, BarChart3, DollarSign, Star, Building2 } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   HeroEditor,
@@ -16,6 +16,7 @@ import {
   FAQEditor,
   TestimonialsEditor,
   ContactEditor,
+  ManufacturersEditor,
 } from '@/components/owner/cms-editors';
 
 export default function CMSManager() {
@@ -93,13 +94,15 @@ export default function CMSManager() {
         return <MessageSquare className="h-4 w-4" />;
       case 'statistics':
         return <BarChart3 className="h-4 w-4" />;
+      case 'manufacturers':
+        return <Building2 className="h-4 w-4" />;
       default:
         return <FileText className="h-4 w-4" />;
     }
   };
 
   const hasFormEditor = (sectionKey: string) => {
-    return ['hero', 'statistics', 'pricing', 'faq', 'testimonials', 'contact'].includes(sectionKey);
+    return ['hero', 'statistics', 'pricing', 'faq', 'testimonials', 'contact', 'manufacturers'].includes(sectionKey);
   };
 
   const renderFormEditor = () => {
@@ -152,6 +155,14 @@ export default function CMSManager() {
       case 'contact':
         return (
           <ContactEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'manufacturers':
+        return (
+          <ManufacturersEditor
             content={content}
             onSave={handleSaveWithContent}
             isSaving={updateSection.isPending}

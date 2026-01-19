@@ -1,4 +1,6 @@
-// Imported logos
+import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
+
+// Imported logos as fallbacks
 import squareLogo from '@/assets/logos/square.png';
 import inceptaLogo from '@/assets/logos/incepta.png';
 import renataLogo from '@/assets/logos/renata.png';
@@ -22,7 +24,8 @@ interface Manufacturer {
   logo: string;
 }
 
-const manufacturers: Manufacturer[] = [
+// Fallback manufacturers with local logos
+const fallbackManufacturers: Manufacturer[] = [
   { name: 'Square', namebn: 'স্কয়ার', logo: squareLogo },
   { name: 'Incepta', namebn: 'ইনসেপ্টা', logo: inceptaLogo },
   { name: 'Beximco', namebn: 'বেক্সিমকো', logo: beximcoLogo },
@@ -66,17 +69,29 @@ const ManufacturerCard = ({ manufacturer }: { manufacturer: Manufacturer }) => {
 };
 
 const Manufacturers = () => {
-  const firstRow = manufacturers.slice(0, 8);
-  const secondRow = manufacturers.slice(8, 16);
+  const { data: cmsContent } = useCMSContent('manufacturers');
+  
+  const badge = getCMSValue(cmsContent, 'badge', 'আমাদের ডাটাবেসে আছে');
+  const title = getCMSValue(cmsContent, 'title', 'বাংলাদেশের শীর্ষ ২৮+ ফার্মাসিউটিক্যাল কোম্পানি');
+  const highlightNumber = getCMSValue(cmsContent, 'highlightNumber', '৪৭০+');
+  const bottomText = getCMSValue(cmsContent, 'bottomText', 'ওষুধ আগে থেকেই লোড করা — ম্যানুয়াল এন্ট্রি ছাড়াই শুরু করুন');
+  
+  // Use CMS manufacturers if available, otherwise use fallback
+  const cmsManufacturers = getCMSValue(cmsContent, 'manufacturers', []) as Manufacturer[];
+  const manufacturers = cmsManufacturers.length > 0 ? cmsManufacturers : fallbackManufacturers;
+  
+  const halfLength = Math.ceil(manufacturers.length / 2);
+  const firstRow = manufacturers.slice(0, halfLength);
+  const secondRow = manufacturers.slice(halfLength);
 
   return (
     <section className="py-16 md:py-20 bg-muted/30 overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-10">
-          <p className="text-sm font-medium text-muted-foreground mb-2">আমাদের ডাটাবেসে আছে</p>
+          <p className="text-sm font-medium text-muted-foreground mb-2">{badge}</p>
           <h3 className="text-xl md:text-2xl font-display font-bold text-foreground">
-            বাংলাদেশের শীর্ষ ২৮+ ফার্মাসিউটিক্যাল কোম্পানি
+            {title}
           </h3>
         </div>
 
@@ -98,27 +113,28 @@ const Manufacturers = () => {
         </div>
 
         {/* Second Row - Reverse Direction */}
-        <div className="relative mt-4">
-          {/* Gradient Masks */}
-          <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-muted/80 to-transparent z-10" />
-          <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-muted/80 to-transparent z-10" />
-          
-          {/* Scrolling Container - Reverse */}
-          <div className="flex gap-5 md:gap-6 animate-marquee-reverse">
-            {[...secondRow, ...secondRow, ...secondRow].map((manufacturer, index) => (
-              <ManufacturerCard 
-                key={`${manufacturer.name}-reverse-${index}`} 
-                manufacturer={manufacturer}
-              />
-            ))}
+        {secondRow.length > 0 && (
+          <div className="relative mt-4">
+            {/* Gradient Masks */}
+            <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-muted/80 to-transparent z-10" />
+            <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-muted/80 to-transparent z-10" />
+            
+            {/* Scrolling Container - Reverse */}
+            <div className="flex gap-5 md:gap-6 animate-marquee-reverse">
+              {[...secondRow, ...secondRow, ...secondRow].map((manufacturer, index) => (
+                <ManufacturerCard 
+                  key={`${manufacturer.name}-reverse-${index}`} 
+                  manufacturer={manufacturer}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Bottom Text */}
         <div className="text-center mt-10">
           <p className="text-muted-foreground">
-            <span className="text-primary font-semibold">৪৭০+</span> ওষুধ আগে থেকেই লোড করা — 
-            <span className="text-foreground font-medium"> ম্যানুয়াল এন্ট্রি ছাড়াই শুরু করুন</span>
+            <span className="text-primary font-semibold">{highlightNumber}</span> {bottomText}
           </p>
         </div>
       </div>
