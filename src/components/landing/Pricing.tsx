@@ -105,8 +105,8 @@ const Pricing = () => {
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
-                  <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground text-xs font-bold shadow-lg shadow-secondary/30">
-                    <Sparkles className="w-3.5 h-3.5" />
+                  <div className="popular-badge flex items-center gap-1.5 px-5 py-2 rounded-full bg-white text-primary text-xs font-bold shadow-xl shadow-black/25 border border-white/50">
+                    <Sparkles className="w-3.5 h-3.5 sparkle-icon" />
                     সবচেয়ে জনপ্রিয়
                   </div>
                 </div>
