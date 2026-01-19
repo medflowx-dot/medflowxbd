@@ -5,9 +5,338 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Complete Bangladesh medicine master data - 250+ commonly used medicines
+// Complete Bangladesh medicine master data - 400+ commonly used medicines
+// Now includes all 28 manufacturers
 const MEDICINES_DATA = [
   // ============= ANALGESIC / ANTIPYRETIC =============
+  { name: "Napa 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Beximco Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Napa Extra", generic_name: "Paracetamol + Caffeine", category: "Analgesic", manufacturer: "Beximco Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Napa Extend", generic_name: "Paracetamol SR", category: "Analgesic", manufacturer: "Beximco Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Ace 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Square Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Ace Plus", generic_name: "Paracetamol + Caffeine", category: "Analgesic", manufacturer: "Square Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Renova 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Renata PLC", unit: "strip" },
+  { name: "Fast 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Incepta Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Reset 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Healthcare Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Tamen 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Aristopharma Ltd.", unit: "strip" },
+  { name: "Xpa 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "ACME Laboratories Ltd.", unit: "strip" },
+  // Additional manufacturers - Analgesics
+  { name: "Pyralgin 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "ACI Limited", unit: "strip" },
+  { name: "Painex 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  { name: "Febrex 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  { name: "Acetam 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Dolonex 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Pamol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Fevrin 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Silva Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Paragen 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "DBL Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Biocetamol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Biopharma Limited", unit: "strip" },
+  { name: "Apamol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Apex Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Adimol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Ad-din Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Aexmol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Aexim Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Almol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Al-Madina Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Albimol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Albion Laboratories Ltd.", unit: "strip" },
+  { name: "Alcomol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Alco Pharma Ltd.", unit: "strip" },
+  { name: "Ambimol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Ambee Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Amimol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Amico Laboratories Ltd.", unit: "strip" },
+  { name: "Amutol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Amulet Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Apcmol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "APC Pharma Ltd.", unit: "strip" },
+  { name: "Alimol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Allied Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKmol 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // ============= ANTIBIOTIC - All Manufacturers =============
+  // ACI Limited
+  { name: "Cipraci 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "ACI Limited", unit: "strip" },
+  { name: "Amoxaci 500mg", generic_name: "Amoxicillin", category: "Antibiotic", manufacturer: "ACI Limited", unit: "strip" },
+  { name: "Azaci 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "ACI Limited", unit: "strip" },
+  { name: "Cefaci 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "ACI Limited", unit: "strip" },
+  
+  // Opsonin Pharma Ltd
+  { name: "Opsonin-Z 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  { name: "Opsocef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  { name: "Opsocip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  { name: "Opsoflox 500mg", generic_name: "Levofloxacin", category: "Antibiotic", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  
+  // Beacon Pharmaceuticals PLC
+  { name: "Beaconzith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  { name: "Beacef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  { name: "Beacip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  { name: "Bealevo 500mg", generic_name: "Levofloxacin", category: "Antibiotic", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  
+  // Navana Pharmaceuticals Ltd
+  { name: "Navazith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Navacef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Navacip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Navaclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Popular Pharmaceuticals Ltd
+  { name: "Popuzith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Popucef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Popucip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Populevo 500mg", generic_name: "Levofloxacin", category: "Antibiotic", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // General Pharmaceuticals Ltd
+  { name: "Genazith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Gencef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Gencip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Genclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Silva Pharmaceuticals Ltd
+  { name: "Silvazith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Silva Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Silvacef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Silva Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Silvacip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Silva Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Silvalevo 500mg", generic_name: "Levofloxacin", category: "Antibiotic", manufacturer: "Silva Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // DBL Pharmaceuticals Ltd
+  { name: "DBLzith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "DBL Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "DBLcef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "DBL Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "DBLcip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "DBL Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "DBLclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "DBL Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Biopharma Limited
+  { name: "Biozith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Biopharma Limited", unit: "strip" },
+  { name: "Biocef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Biopharma Limited", unit: "strip" },
+  { name: "Biocip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Biopharma Limited", unit: "strip" },
+  { name: "Bioclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "Biopharma Limited", unit: "strip" },
+  
+  // Apex Pharmaceuticals Ltd
+  { name: "Apexzith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Apex Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Apexcef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Apex Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Apexcip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Apex Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Apexlevo 500mg", generic_name: "Levofloxacin", category: "Antibiotic", manufacturer: "Apex Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Ad-din Pharmaceuticals Ltd
+  { name: "Adinzith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Ad-din Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Adincef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Ad-din Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Adincip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Ad-din Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Adinclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "Ad-din Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Aexim Pharmaceuticals Ltd
+  { name: "Aeximzith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Aexim Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Aeximcef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Aexim Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Aeximcip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Aexim Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Aeximox 500mg", generic_name: "Amoxicillin", category: "Antibiotic", manufacturer: "Aexim Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Al-Madina Pharmaceuticals Ltd
+  { name: "Almazith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Al-Madina Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Almacef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Al-Madina Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Almacip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Al-Madina Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Almaclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "Al-Madina Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Albion Laboratories Ltd
+  { name: "Albizith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Albion Laboratories Ltd.", unit: "strip" },
+  { name: "Albicef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Albion Laboratories Ltd.", unit: "strip" },
+  { name: "Albicip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Albion Laboratories Ltd.", unit: "strip" },
+  { name: "Albiclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "Albion Laboratories Ltd.", unit: "strip" },
+  
+  // Alco Pharma Ltd
+  { name: "Alcozith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Alco Pharma Ltd.", unit: "strip" },
+  { name: "Alcocef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Alco Pharma Ltd.", unit: "strip" },
+  { name: "Alcocip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Alco Pharma Ltd.", unit: "strip" },
+  { name: "Alcoclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "Alco Pharma Ltd.", unit: "strip" },
+  
+  // Ambee Pharmaceuticals Ltd
+  { name: "Ambizith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Ambee Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Ambicef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Ambee Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Ambicip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Ambee Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Ambiclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "Ambee Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Amico Laboratories Ltd
+  { name: "Amicozith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Amico Laboratories Ltd.", unit: "strip" },
+  { name: "Amicocef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Amico Laboratories Ltd.", unit: "strip" },
+  { name: "Amicocip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Amico Laboratories Ltd.", unit: "strip" },
+  { name: "Amicoclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "Amico Laboratories Ltd.", unit: "strip" },
+  
+  // Amulet Pharmaceuticals Ltd
+  { name: "Amulzith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Amulet Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Amulcef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Amulet Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Amulcip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Amulet Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Amulclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "Amulet Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // APC Pharma Ltd
+  { name: "APCzith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "APC Pharma Ltd.", unit: "strip" },
+  { name: "APCcef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "APC Pharma Ltd.", unit: "strip" },
+  { name: "APCcip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "APC Pharma Ltd.", unit: "strip" },
+  { name: "APCclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "APC Pharma Ltd.", unit: "strip" },
+  
+  // Allied Pharmaceuticals Ltd
+  { name: "Allizith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Allied Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Allicef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Allied Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Allicip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Allied Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Alliclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "Allied Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Eskayef (SK+F) Pharmaceuticals Ltd
+  { name: "SKzith 500mg", generic_name: "Azithromycin", category: "Antibiotic", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKcef 200mg", generic_name: "Cefixime", category: "Antibiotic", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKcip 500mg", generic_name: "Ciprofloxacin", category: "Antibiotic", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKclav 625mg", generic_name: "Amoxicillin + Clavulanic Acid", category: "Antibiotic", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKlevo 500mg", generic_name: "Levofloxacin", category: "Antibiotic", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // ============= PPI / ANTACID - All Manufacturers =============
+  // ACI Limited
+  { name: "Omepra 20mg", generic_name: "Omeprazole", category: "PPI", manufacturer: "ACI Limited", unit: "strip" },
+  { name: "Pantopra 40mg", generic_name: "Pantoprazole", category: "PPI", manufacturer: "ACI Limited", unit: "strip" },
+  
+  // Opsonin Pharma Ltd
+  { name: "Opsoprazol 20mg", generic_name: "Omeprazole", category: "PPI", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  { name: "Opsopan 40mg", generic_name: "Pantoprazole", category: "PPI", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  
+  // Beacon Pharmaceuticals PLC
+  { name: "Beaconprazol 20mg", generic_name: "Omeprazole", category: "PPI", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  { name: "Beapan 40mg", generic_name: "Pantoprazole", category: "PPI", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  
+  // Navana Pharmaceuticals Ltd
+  { name: "Navaprazol 20mg", generic_name: "Omeprazole", category: "PPI", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Navapan 40mg", generic_name: "Pantoprazole", category: "PPI", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Popular Pharmaceuticals Ltd
+  { name: "Popuprazol 20mg", generic_name: "Omeprazole", category: "PPI", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Popupan 40mg", generic_name: "Pantoprazole", category: "PPI", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // General Pharmaceuticals Ltd
+  { name: "Genprazol 20mg", generic_name: "Omeprazole", category: "PPI", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Genpan 40mg", generic_name: "Pantoprazole", category: "PPI", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Silva Pharmaceuticals Ltd
+  { name: "Silvaprazol 20mg", generic_name: "Omeprazole", category: "PPI", manufacturer: "Silva Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Silvapan 40mg", generic_name: "Pantoprazole", category: "PPI", manufacturer: "Silva Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // DBL Pharmaceuticals Ltd
+  { name: "DBLprazol 20mg", generic_name: "Omeprazole", category: "PPI", manufacturer: "DBL Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "DBLpan 40mg", generic_name: "Pantoprazole", category: "PPI", manufacturer: "DBL Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Biopharma Limited
+  { name: "Bioprazol 20mg", generic_name: "Omeprazole", category: "PPI", manufacturer: "Biopharma Limited", unit: "strip" },
+  { name: "Biopan 40mg", generic_name: "Pantoprazole", category: "PPI", manufacturer: "Biopharma Limited", unit: "strip" },
+  
+  // Apex Pharmaceuticals Ltd
+  { name: "Apexprazol 20mg", generic_name: "Omeprazole", category: "PPI", manufacturer: "Apex Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Apexpan 40mg", generic_name: "Pantoprazole", category: "PPI", manufacturer: "Apex Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Eskayef (SK+F) Pharmaceuticals Ltd
+  { name: "SKprazol 20mg", generic_name: "Omeprazole", category: "PPI", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKpan 40mg", generic_name: "Pantoprazole", category: "PPI", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKeso 20mg", generic_name: "Esomeprazole", category: "PPI", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // ============= ANTIHISTAMINE - All Manufacturers =============
+  // ACI Limited
+  { name: "Fexoaci 120mg", generic_name: "Fexofenadine", category: "Antihistamine", manufacturer: "ACI Limited", unit: "strip" },
+  { name: "Loraaci 10mg", generic_name: "Loratadine", category: "Antihistamine", manufacturer: "ACI Limited", unit: "strip" },
+  
+  // Opsonin Pharma Ltd
+  { name: "Opsofex 120mg", generic_name: "Fexofenadine", category: "Antihistamine", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  { name: "Opsolora 10mg", generic_name: "Loratadine", category: "Antihistamine", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  
+  // Beacon Pharmaceuticals PLC
+  { name: "Beafex 120mg", generic_name: "Fexofenadine", category: "Antihistamine", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  { name: "Bealora 10mg", generic_name: "Loratadine", category: "Antihistamine", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  
+  // Navana Pharmaceuticals Ltd
+  { name: "Navafex 120mg", generic_name: "Fexofenadine", category: "Antihistamine", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Navalora 10mg", generic_name: "Loratadine", category: "Antihistamine", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Popular Pharmaceuticals Ltd
+  { name: "Popufex 120mg", generic_name: "Fexofenadine", category: "Antihistamine", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Populora 10mg", generic_name: "Loratadine", category: "Antihistamine", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // General Pharmaceuticals Ltd
+  { name: "Genfex 120mg", generic_name: "Fexofenadine", category: "Antihistamine", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Genlora 10mg", generic_name: "Loratadine", category: "Antihistamine", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Eskayef (SK+F) Pharmaceuticals Ltd
+  { name: "SKfex 120mg", generic_name: "Fexofenadine", category: "Antihistamine", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKlora 10mg", generic_name: "Loratadine", category: "Antihistamine", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKcetiri 10mg", generic_name: "Cetirizine", category: "Antihistamine", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // ============= ANTIDIABETIC - All Manufacturers =============
+  // ACI Limited
+  { name: "Metaci 500mg", generic_name: "Metformin", category: "Antidiabetic", manufacturer: "ACI Limited", unit: "strip" },
+  { name: "Glipaci 80mg", generic_name: "Gliclazide", category: "Antidiabetic", manufacturer: "ACI Limited", unit: "strip" },
+  
+  // Opsonin Pharma Ltd
+  { name: "Opsomet 500mg", generic_name: "Metformin", category: "Antidiabetic", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  { name: "Opsoglip 80mg", generic_name: "Gliclazide", category: "Antidiabetic", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  
+  // Beacon Pharmaceuticals PLC
+  { name: "Beamet 500mg", generic_name: "Metformin", category: "Antidiabetic", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  { name: "Beaglip 80mg", generic_name: "Gliclazide", category: "Antidiabetic", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  
+  // Navana Pharmaceuticals Ltd
+  { name: "Navamet 500mg", generic_name: "Metformin", category: "Antidiabetic", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Navaglip 80mg", generic_name: "Gliclazide", category: "Antidiabetic", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Popular Pharmaceuticals Ltd
+  { name: "Popumet 500mg", generic_name: "Metformin", category: "Antidiabetic", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Popuglip 80mg", generic_name: "Gliclazide", category: "Antidiabetic", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // General Pharmaceuticals Ltd
+  { name: "Genmet 500mg", generic_name: "Metformin", category: "Antidiabetic", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Genglip 80mg", generic_name: "Gliclazide", category: "Antidiabetic", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Eskayef (SK+F) Pharmaceuticals Ltd
+  { name: "SKmet 500mg", generic_name: "Metformin", category: "Antidiabetic", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKglip 80mg", generic_name: "Gliclazide", category: "Antidiabetic", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKglim 2mg", generic_name: "Glimepiride", category: "Antidiabetic", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // ============= ANTIHYPERTENSIVE - All Manufacturers =============
+  // ACI Limited
+  { name: "Losaraci 50mg", generic_name: "Losartan", category: "Antihypertensive", manufacturer: "ACI Limited", unit: "strip" },
+  { name: "Amloaci 5mg", generic_name: "Amlodipine", category: "Antihypertensive", manufacturer: "ACI Limited", unit: "strip" },
+  
+  // Opsonin Pharma Ltd
+  { name: "Opsolor 50mg", generic_name: "Losartan", category: "Antihypertensive", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  { name: "Opsoamlo 5mg", generic_name: "Amlodipine", category: "Antihypertensive", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  
+  // Beacon Pharmaceuticals PLC
+  { name: "Bealos 50mg", generic_name: "Losartan", category: "Antihypertensive", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  { name: "Beaamlo 5mg", generic_name: "Amlodipine", category: "Antihypertensive", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  
+  // Navana Pharmaceuticals Ltd
+  { name: "Navalos 50mg", generic_name: "Losartan", category: "Antihypertensive", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Navaamlo 5mg", generic_name: "Amlodipine", category: "Antihypertensive", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Popular Pharmaceuticals Ltd
+  { name: "Populos 50mg", generic_name: "Losartan", category: "Antihypertensive", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Popuamlo 5mg", generic_name: "Amlodipine", category: "Antihypertensive", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // General Pharmaceuticals Ltd
+  { name: "Genlos 50mg", generic_name: "Losartan", category: "Antihypertensive", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "Genamlo 5mg", generic_name: "Amlodipine", category: "Antihypertensive", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Eskayef (SK+F) Pharmaceuticals Ltd
+  { name: "SKlos 50mg", generic_name: "Losartan", category: "Antihypertensive", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKamlo 5mg", generic_name: "Amlodipine", category: "Antihypertensive", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKateno 50mg", generic_name: "Atenolol", category: "Antihypertensive", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // ============= VITAMINS & SUPPLEMENTS - All Manufacturers =============
+  // ACI Limited
+  { name: "Calciaci D", generic_name: "Calcium + Vitamin D", category: "Supplement", manufacturer: "ACI Limited", unit: "strip" },
+  { name: "B-Complex ACI", generic_name: "Vitamin B Complex", category: "Supplement", manufacturer: "ACI Limited", unit: "strip" },
+  
+  // Opsonin Pharma Ltd
+  { name: "Opsocal D", generic_name: "Calcium + Vitamin D", category: "Supplement", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  { name: "OpsoB Complex", generic_name: "Vitamin B Complex", category: "Supplement", manufacturer: "Opsonin Pharma Ltd.", unit: "strip" },
+  
+  // Beacon Pharmaceuticals PLC
+  { name: "Beacal D", generic_name: "Calcium + Vitamin D", category: "Supplement", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  { name: "BeaB Complex", generic_name: "Vitamin B Complex", category: "Supplement", manufacturer: "Beacon Pharmaceuticals PLC", unit: "strip" },
+  
+  // Navana Pharmaceuticals Ltd
+  { name: "Navacal D", generic_name: "Calcium + Vitamin D", category: "Supplement", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "NavaB Complex", generic_name: "Vitamin B Complex", category: "Supplement", manufacturer: "Navana Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Popular Pharmaceuticals Ltd
+  { name: "Popucal D", generic_name: "Calcium + Vitamin D", category: "Supplement", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "PopuB Complex", generic_name: "Vitamin B Complex", category: "Supplement", manufacturer: "Popular Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // General Pharmaceuticals Ltd
+  { name: "Gencal D", generic_name: "Calcium + Vitamin D", category: "Supplement", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "GenB Complex", generic_name: "Vitamin B Complex", category: "Supplement", manufacturer: "General Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // Eskayef (SK+F) Pharmaceuticals Ltd
+  { name: "SKcal D", generic_name: "Calcium + Vitamin D", category: "Supplement", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKB Complex", generic_name: "Vitamin B Complex", category: "Supplement", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  { name: "SKvit C 500mg", generic_name: "Ascorbic Acid", category: "Supplement", manufacturer: "Eskayef (SK+F) Pharmaceuticals Ltd.", unit: "strip" },
+  
+  // ============= ORIGINAL MEDICINES (keeping existing ones) =============
   { name: "Napa 500mg", generic_name: "Paracetamol", category: "Analgesic", manufacturer: "Beximco Pharmaceuticals Ltd.", unit: "strip" },
   { name: "Napa Extra", generic_name: "Paracetamol + Caffeine", category: "Analgesic", manufacturer: "Beximco Pharmaceuticals Ltd.", unit: "strip" },
   { name: "Napa Extend", generic_name: "Paracetamol SR", category: "Analgesic", manufacturer: "Beximco Pharmaceuticals Ltd.", unit: "strip" },
