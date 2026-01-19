@@ -309,7 +309,7 @@
   }
 
   .glass-pricing-popular {
-    @apply relative overflow-hidden rounded-2xl p-6 md:p-8 transition-all duration-500;
+    @apply relative rounded-2xl p-6 md:p-8 transition-all duration-500;
     background: linear-gradient(160deg, hsla(174, 72%, 32%, 1) 0%, hsla(174, 75%, 22%, 1) 100%);
     border: 2px solid transparent;
     box-shadow: 
