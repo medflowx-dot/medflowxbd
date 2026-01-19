@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Play, Shield, Zap, BarChart3, Package, TrendingUp, Wallet, AlertTriangle, Users, ShoppingCart } from 'lucide-react';
+import { ArrowRight, Play, Shield, Zap, BarChart3, Package, TrendingUp, Wallet, AlertTriangle, Users, ShoppingCart, ChevronDown } from 'lucide-react';
 
 const DashboardMockup = () => {
   return (
@@ -243,6 +243,14 @@ const Hero = () => {
 
         {/* Dashboard Mockup */}
         <DashboardMockup />
+
+        {/* Scroll Indicator */}
+        <div className="flex flex-col items-center mt-12 md:mt-16 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <span className="text-primary-foreground/60 text-sm mb-2">নিচে স্ক্রল করুন</span>
+          <div className="w-8 h-12 rounded-full border-2 border-primary-foreground/30 flex items-start justify-center p-2">
+            <ChevronDown className="w-4 h-4 text-primary-foreground/60 animate-bounce" />
+          </div>
+        </div>
       </div>
 
     </section>
