@@ -71,6 +71,69 @@ export const en = {
     addBtn: 'Add Manufacturer',
   },
 
+  // Batches Page
+  batches: {
+    title: 'Batches',
+    subtitle: 'Manage medicine batches and track expiry dates',
+    subtitleView: 'View medicine batches and expiry information',
+    // Stats cards
+    totalBatches: 'Total Batches',
+    acrossMedicines: 'Across {count} medicines',
+    expired: 'Expired',
+    needToBeRemoved: 'Need to be removed',
+    expiringSoon: 'Expiring Soon',
+    within30Days: 'Within 30 days',
+    // Actions
+    deleteAllExpired: 'Delete All Expired',
+    deleteAllExpiredTitle: 'Delete All Expired Batches',
+    deleteAllExpiredDesc: 'Are you sure you want to permanently delete all {count} expired batches? This action cannot be undone.',
+    deleting: 'Deleting...',
+    deleteAll: 'Delete All',
+    // Filters
+    batchList: 'Batch List',
+    searchOrFilter: 'Search for medicines or filter by status',
+    searchPlaceholder: 'Search medicines or batches...',
+    allMedicines: 'All Medicines',
+    allStatus: 'All Status',
+    active: 'Active',
+    expiring: 'Expiring Soon',
+    // Table headers
+    medicine: 'Medicine',
+    batchNo: 'Batch #',
+    expiryDate: 'Expiry Date',
+    supplier: 'Supplier',
+    actions: 'Actions',
+    // Empty state
+    noBatchesFound: 'No batches found',
+    tryAdjustingFilters: 'Try adjusting your filters or add a new batch.',
+    // Delete dialog
+    deleteBatch: 'Delete Batch',
+    deleteExpiredBatch: 'Delete Expired Batch',
+    deleteExpiredBatchDesc: 'This batch "{batch}" has expired. Are you sure you want to permanently delete it?',
+    deleteBatchDesc: 'Are you sure you want to delete batch "{batch}"? This action cannot be undone.',
+    // Add/Edit dialog
+    addBatch: 'Add Batch',
+    editBatch: 'Edit Batch',
+    addNewBatch: 'Add New Batch',
+    updateBatchInfo: 'Update batch information',
+    selectMedicineAndAdd: 'Select a medicine and add batch details',
+    medicineLabel: 'Medicine *',
+    selectMedicine: 'Select medicine...',
+    searchMedicines: 'Search medicines...',
+    noMedicineFound: 'No medicine found.',
+    batchNumber: 'Batch Number *',
+    batchNumberPlaceholder: 'e.g., BT-2024-001',
+    expiryDateLabel: 'Expiry Date *',
+    manufacturedDate: 'Manufactured Date',
+    pickDate: 'Pick a date',
+    supplierName: 'Supplier Name',
+    supplierPlaceholder: 'e.g., ABC Distributors',
+    notes: 'Notes',
+    notesPlaceholder: 'Any additional notes...',
+    saving: 'Saving...',
+    updateBatch: 'Update Batch',
+  },
+
   // Menu Groups
   menuGroups: {
     inventory: 'Inventory',
