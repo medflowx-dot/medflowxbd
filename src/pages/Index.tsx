@@ -10,6 +10,7 @@ import MobileAppComingSoon from '@/components/landing/MobileAppComingSoon';
 import Testimonials from '@/components/landing/Testimonials';
 import Pricing from '@/components/landing/Pricing';
 import FAQ from '@/components/landing/FAQ';
+import Contact from '@/components/landing/Contact';
 import CTA from '@/components/landing/CTA';
 import Footer from '@/components/landing/Footer';
 
@@ -28,6 +29,7 @@ const Index = () => {
       <Testimonials />
       <Pricing />
       <FAQ />
+      <Contact />
       <CTA />
       <Footer />
     </div>
