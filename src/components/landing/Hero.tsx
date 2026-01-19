@@ -156,7 +156,7 @@ const DashboardMockup = () => {
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex flex-col justify-center pt-20 pb-32 overflow-hidden">
+    <section className="relative min-h-screen flex flex-col justify-center pt-20 pb-16 overflow-hidden">
       {/* Background Gradient */}
       <div className="absolute inset-0 bg-hero-overlay" />
       
