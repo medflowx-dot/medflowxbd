@@ -131,6 +131,35 @@ export function useGlobalMedicines() {
     },
   });
 
+  const bulkCopyToLocal = useMutation({
+    mutationFn: async (medicines: GlobalMedicine[]) => {
+      const results = [];
+      for (const medicine of medicines) {
+        try {
+          await createMedicine.mutateAsync({
+            name: medicine.name,
+            generic_name: medicine.generic_name || undefined,
+            category: medicine.category || undefined,
+            unit: medicine.unit,
+            is_tax_applicable: medicine.is_tax_applicable,
+          });
+          results.push({ success: true, name: medicine.name });
+        } catch (error) {
+          results.push({ success: false, name: medicine.name });
+        }
+      }
+      return results;
+    },
+    onSuccess: (results) => {
+      queryClient.invalidateQueries({ queryKey: ['medicines'] });
+      const successCount = results.filter(r => r.success).length;
+      toast.success(`${successCount} medicine(s) copied to your inventory`);
+    },
+    onError: (error) => {
+      toast.error('Failed to copy: ' + error.message);
+    },
+  });
+
   const bulkCreate = useMutation({
     mutationFn: async (medicines: CreateGlobalMedicineData[]) => {
       const { data, error } = await supabase
@@ -158,6 +187,7 @@ export function useGlobalMedicines() {
     updateGlobalMedicine,
     deleteGlobalMedicine,
     copyToLocal,
+    bulkCopyToLocal,
     bulkCreate,
   };
 }

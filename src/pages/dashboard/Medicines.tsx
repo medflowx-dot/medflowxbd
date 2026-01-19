@@ -13,23 +13,23 @@ import { useMedicines, useExpiryAlerts } from '@/hooks/useMedicines';
 import { useGlobalMedicines, GlobalMedicine } from '@/hooks/useGlobalMedicines';
 import { usePermissions } from '@/hooks/usePermissions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
 export default function Medicines() {
   const [searchTerm, setSearchTerm] = useState('');
   const [globalSearchTerm, setGlobalSearchTerm] = useState('');
   const [shelfFilter, setShelfFilter] = useState<string>('all');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const { medicines, isLoading } = useMedicines();
-  const { medicines: globalMedicines, isLoading: globalLoading, copyToLocal } = useGlobalMedicines();
+  const { medicines: globalMedicines, isLoading: globalLoading, copyToLocal, bulkCopyToLocal } = useGlobalMedicines();
   const { expired, expiring30, totalAlerts } = useExpiryAlerts();
   const { hasPermission } = usePermissions();
   
   const canManageMedicines = hasPermission('manage_medicines');
 
   const shelfLocations = useMemo(() => {
-    const locations = medicines
-      .map(m => m.shelf_location)
-      .filter((loc): loc is string => !!loc && loc.trim() !== '');
+    const locations = medicines.map(m => m.shelf_location).filter((loc): loc is string => !!loc && loc.trim() !== '');
     return [...new Set(locations)].sort();
   }, [medicines]);
 
@@ -42,6 +42,27 @@ export default function Medicines() {
     return medicines.some(m => m.name.toLowerCase() === globalMed.name.toLowerCase());
   };
 
+  const copyableMedicines = filteredGlobalMedicines.filter(m => !isAlreadyCopied(m));
+  const allCopyableSelected = copyableMedicines.length > 0 && copyableMedicines.every(m => selectedIds.has(m.id));
+
+  const toggleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (allCopyableSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(copyableMedicines.map(m => m.id)));
+    }
+  };
+
   const handleCopy = async (medicine: GlobalMedicine) => {
     if (isAlreadyCopied(medicine)) {
       toast.info('This medicine is already in your inventory');
@@ -49,6 +70,21 @@ export default function Medicines() {
     }
     await copyToLocal.mutateAsync(medicine);
   };
+
+  const handleBulkCopy = async () => {
+    const selectedMedicines = globalMedicines.filter(m => selectedIds.has(m.id) && !isAlreadyCopied(m));
+    if (selectedMedicines.length === 0) {
+      toast.info('No new medicines selected');
+      return;
+    }
+    await bulkCopyToLocal.mutateAsync(selectedMedicines);
+    setSelectedIds(new Set());
+  };
+
+  const selectedCount = Array.from(selectedIds).filter(id => {
+    const med = globalMedicines.find(m => m.id === id);
+    return med && !isAlreadyCopied(med);
+  }).length;
 
   return (
     <div className="space-y-6">
@@ -151,8 +187,18 @@ export default function Medicines() {
         <TabsContent value="global" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Global Medicines</CardTitle>
-              <CardDescription>Browse and copy medicines from the master list to your inventory</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Global Medicines</CardTitle>
+                  <CardDescription>Browse and copy medicines from the master list</CardDescription>
+                </div>
+                {selectedCount > 0 && (
+                  <Button onClick={handleBulkCopy} disabled={bulkCopyToLocal.isPending}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    {bulkCopyToLocal.isPending ? 'Copying...' : `Copy Selected (${selectedCount})`}
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="relative">
@@ -171,6 +217,13 @@ export default function Medicines() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-[50px]">
+                          <Checkbox
+                            checked={allCopyableSelected && copyableMedicines.length > 0}
+                            onCheckedChange={toggleSelectAll}
+                            disabled={copyableMedicines.length === 0}
+                          />
+                        </TableHead>
                         <TableHead>Medicine Name</TableHead>
                         <TableHead>Generic Name</TableHead>
                         <TableHead>Manufacturer</TableHead>
@@ -182,6 +235,13 @@ export default function Medicines() {
                         const alreadyCopied = isAlreadyCopied(medicine);
                         return (
                           <TableRow key={medicine.id}>
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedIds.has(medicine.id)}
+                                onCheckedChange={() => toggleSelect(medicine.id)}
+                                disabled={alreadyCopied}
+                              />
+                            </TableCell>
                             <TableCell className="font-medium">{medicine.name}</TableCell>
                             <TableCell>{medicine.generic_name || '-'}</TableCell>
                             <TableCell>{medicine.manufacturer?.name || '-'}</TableCell>

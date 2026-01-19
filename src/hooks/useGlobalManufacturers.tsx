@@ -108,6 +108,29 @@ export function useGlobalManufacturers() {
     },
   });
 
+  const bulkCopyToLocal = useMutation({
+    mutationFn: async (manufacturers: GlobalManufacturer[]) => {
+      const results = [];
+      for (const manufacturer of manufacturers) {
+        try {
+          await createManufacturer.mutateAsync({ name: manufacturer.name });
+          results.push({ success: true, name: manufacturer.name });
+        } catch (error) {
+          results.push({ success: false, name: manufacturer.name });
+        }
+      }
+      return results;
+    },
+    onSuccess: (results) => {
+      queryClient.invalidateQueries({ queryKey: ['manufacturers'] });
+      const successCount = results.filter(r => r.success).length;
+      toast.success(`${successCount} manufacturer(s) copied to your list`);
+    },
+    onError: (error) => {
+      toast.error('Failed to copy: ' + error.message);
+    },
+  });
+
   const bulkCreate = useMutation({
     mutationFn: async (names: string[]) => {
       const uniqueNames = [...new Set(names.map(n => n.trim()).filter(Boolean))];
@@ -136,6 +159,7 @@ export function useGlobalManufacturers() {
     updateGlobalManufacturer,
     deleteGlobalManufacturer,
     copyToLocal,
+    bulkCopyToLocal,
     bulkCreate,
   };
 }
