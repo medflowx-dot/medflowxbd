@@ -33,16 +33,7 @@ const stats = [
 
 const Statistics = () => {
   return (
-    <section className="pt-0 pb-16 md:pb-24 bg-hero-gradient relative overflow-hidden">
-      {/* Top Wave - connects to Hero section */}
-      <div className="absolute top-0 left-0 right-0 -translate-y-[1px]">
-        <svg viewBox="0 0 1440 120" fill="none" className="w-full rotate-180" preserveAspectRatio="none">
-          <path 
-            d="M0 120L48 110C96 100 192 80 288 70C384 60 480 60 576 65C672 70 768 80 864 85C960 90 1056 90 1152 85C1248 80 1344 70 1392 65L1440 60V120H1392C1344 120 1248 120 1152 120C1056 120 960 120 864 120C768 120 672 120 576 120C480 120 384 120 288 120C192 120 96 120 48 120H0Z" 
-            fill="hsl(var(--background))"
-          />
-        </svg>
-      </div>
+    <section className="py-16 md:py-24 bg-hero-gradient relative overflow-hidden">
       
       {/* Decorative Elements */}
       <div className="absolute top-20 left-0 w-64 h-64 bg-primary-foreground/5 rounded-full blur-3xl" />
