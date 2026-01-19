@@ -45,6 +45,8 @@ import CMSManager from "./pages/owner/CMSManager";
 import AuditLogs from "./pages/owner/AuditLogs";
 import OwnerSettings from "./pages/owner/OwnerSettings";
 import EmailTemplates from "./pages/owner/EmailTemplates";
+import GlobalManufacturers from "./pages/owner/GlobalManufacturers";
+import GlobalMedicines from "./pages/owner/GlobalMedicines";
 
 const queryClient = new QueryClient();
 
@@ -113,6 +115,8 @@ const App = () => (
               <Route path="subscriptions" element={<SubscriptionManagement />} />
               <Route path="payments" element={<PaymentManagement />} />
               <Route path="pricing" element={<PricingPlans />} />
+              <Route path="global-manufacturers" element={<GlobalManufacturers />} />
+              <Route path="global-medicines" element={<GlobalMedicines />} />
               <Route path="feature-flags" element={<FeatureFlags />} />
               <Route path="system-review" element={<SystemReview />} />
               <Route path="cms" element={<CMSManager />} />
