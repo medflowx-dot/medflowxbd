@@ -2,15 +2,20 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useCMSPages, useCMSSections, useUpdateCMSSection, usePublishCMSPage, CMSSection } from '@/hooks/useOwnerData';
-import { Loader2, Globe, Edit, Eye, EyeOff, Save, FileText, Layout, List, HelpCircle, Phone, Image } from 'lucide-react';
+import { Loader2, Globe, Edit, Eye, EyeOff, Save, FileText, Layout, List, HelpCircle, Phone, Image, MessageSquare, BarChart3, DollarSign, Star } from 'lucide-react';
 import { format } from 'date-fns';
+import {
+  HeroEditor,
+  StatisticsEditor,
+  PricingEditor,
+  FAQEditor,
+  TestimonialsEditor,
+} from '@/components/owner/cms-editors';
 
 export default function CMSManager() {
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
@@ -46,6 +51,16 @@ export default function CMSManager() {
     }
   };
 
+  const handleSaveWithContent = async (content: any) => {
+    if (!editingSection) return;
+    
+    await updateSection.mutateAsync({
+      sectionId: editingSection.id,
+      content,
+    });
+    setEditingSection(null);
+  };
+
   const handleToggleVisibility = async (section: CMSSection) => {
     await updateSection.mutateAsync({
       sectionId: section.id,
@@ -68,13 +83,73 @@ export default function CMSManager() {
       case 'features':
         return <List className="h-4 w-4" />;
       case 'pricing':
-        return <FileText className="h-4 w-4" />;
+        return <DollarSign className="h-4 w-4" />;
       case 'faq':
         return <HelpCircle className="h-4 w-4" />;
       case 'contact':
         return <Phone className="h-4 w-4" />;
+      case 'testimonials':
+        return <MessageSquare className="h-4 w-4" />;
+      case 'statistics':
+        return <BarChart3 className="h-4 w-4" />;
       default:
         return <FileText className="h-4 w-4" />;
+    }
+  };
+
+  const hasFormEditor = (sectionKey: string) => {
+    return ['hero', 'statistics', 'pricing', 'faq', 'testimonials'].includes(sectionKey);
+  };
+
+  const renderFormEditor = () => {
+    if (!editingSection) return null;
+
+    const sectionKey = editingSection.section_key;
+    const content = editingSection.content as any;
+
+    switch (sectionKey) {
+      case 'hero':
+        return (
+          <HeroEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'statistics':
+        return (
+          <StatisticsEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'pricing':
+        return (
+          <PricingEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'faq':
+        return (
+          <FAQEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      case 'testimonials':
+        return (
+          <TestimonialsEditor
+            content={content}
+            onSave={handleSaveWithContent}
+            isSaving={updateSection.isPending}
+          />
+        );
+      default:
+        return null;
     }
   };
 
@@ -191,7 +266,12 @@ export default function CMSManager() {
                     <div className="flex items-center gap-3">
                       {getSectionIcon(section.section_type)}
                       <div>
-                        <p className="font-medium capitalize">{section.section_key.replace(/_/g, ' ')}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium capitalize">{section.section_key.replace(/_/g, ' ')}</p>
+                          {hasFormEditor(section.section_key) && (
+                            <Badge variant="secondary" className="text-xs">Form Editor</Badge>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground capitalize">{section.section_type}</p>
                       </div>
                     </div>
@@ -234,35 +314,48 @@ export default function CMSManager() {
 
       {/* Edit Section Dialog */}
       <Dialog open={!!editingSection} onOpenChange={() => setEditingSection(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto">
           <DialogHeader>
-            <DialogTitle>Edit {editingSection?.section_key.replace(/_/g, ' ')}</DialogTitle>
+            <DialogTitle className="capitalize">
+              Edit {editingSection?.section_key.replace(/_/g, ' ')}
+            </DialogTitle>
             <DialogDescription>
-              Edit the JSON content for this section
+              {hasFormEditor(editingSection?.section_key || '') 
+                ? 'Use the form below to edit this section content'
+                : 'Edit the JSON content for this section'}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Content (JSON)</Label>
-              <Textarea
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-                className="font-mono text-sm min-h-[300px]"
-                placeholder="Enter valid JSON..."
-              />
-              <p className="text-xs text-muted-foreground">
-                Edit the JSON content. Make sure to maintain valid JSON format.
-              </p>
+          
+          {editingSection && hasFormEditor(editingSection.section_key) ? (
+            <div className="py-4">
+              {renderFormEditor()}
             </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingSection(null)}>Cancel</Button>
-            <Button onClick={handleSaveSection} disabled={updateSection.isPending}>
-              {updateSection.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              <Save className="h-4 w-4 mr-2" />
-              Save Changes
-            </Button>
-          </DialogFooter>
+          ) : (
+            <>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Content (JSON)</Label>
+                  <Textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    className="font-mono text-sm min-h-[300px]"
+                    placeholder="Enter valid JSON..."
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Edit the JSON content. Make sure to maintain valid JSON format.
+                  </p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setEditingSection(null)}>Cancel</Button>
+                <Button onClick={handleSaveSection} disabled={updateSection.isPending}>
+                  {updateSection.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
