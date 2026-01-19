@@ -32,6 +32,8 @@ export default function SectionPreview({ sectionKey, content }: SectionPreviewPr
       return <TestimonialsPreview content={content} />;
     case 'contact':
       return <ContactPreview content={content} />;
+    case 'manufacturers':
+      return <ManufacturersPreview content={content} />;
     default:
       return (
         <div className="p-4 bg-muted/50 rounded-lg">
@@ -372,6 +374,55 @@ function ContactPreview({ content }: { content: any }) {
             </Button>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ManufacturersPreview({ content }: { content: any }) {
+  const manufacturers = content.manufacturers || [];
+  
+  return (
+    <div className="rounded-lg bg-muted/30 p-6 space-y-4">
+      {/* Header */}
+      <div className="text-center">
+        <p className="text-xs text-muted-foreground mb-1">{content.badge}</p>
+        <h2 className="text-lg font-bold">{content.title}</h2>
+      </div>
+
+      {/* Manufacturers Grid */}
+      <div className="grid grid-cols-4 gap-2">
+        {manufacturers.slice(0, 8).map((manufacturer: any, i: number) => (
+          <div key={i} className="flex items-center gap-2 p-2 bg-card rounded-lg border text-xs">
+            {manufacturer.logo ? (
+              <img 
+                src={manufacturer.logo} 
+                alt={manufacturer.name}
+                className="w-8 h-8 rounded object-contain bg-white border"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded bg-muted flex items-center justify-center text-[10px]">
+                ?
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="font-medium truncate">{manufacturer.name}</p>
+              <p className="text-muted-foreground truncate text-[10px]">{manufacturer.namebn}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {manufacturers.length > 8 && (
+        <p className="text-center text-xs text-muted-foreground">
+          +{manufacturers.length - 8} more manufacturers
+        </p>
+      )}
+
+      {/* Bottom Text */}
+      <div className="text-center text-xs">
+        <span className="text-primary font-semibold">{content.highlightNumber}</span>
+        {' '}{content.bottomText}
       </div>
     </div>
   );
