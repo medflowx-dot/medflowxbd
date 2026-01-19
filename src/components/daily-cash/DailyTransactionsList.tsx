@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDailySales, useDailyCustomerPayments, useDailySupplierPayments, useDailyCosts, useDeleteDailyCost } from '@/hooks/useDailyCash';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Loader2, Trash2, ShoppingCart, CreditCard, Truck, Receipt } from 'lucide-react';
 import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -18,6 +19,7 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
   const { data: supplierPayments, isLoading: supplierPaymentsLoading } = useDailySupplierPayments(date);
   const { data: costs, isLoading: costsLoading } = useDailyCosts(date);
   const deleteCost = useDeleteDailyCost();
+  const { t } = useLanguage();
 
   const isLoading = salesLoading || customerPaymentsLoading || supplierPaymentsLoading || costsLoading;
 
@@ -44,22 +46,22 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
       <TabsList className="grid w-full grid-cols-4 h-auto">
         <TabsTrigger value="sales" className="flex items-center gap-1 px-2 py-2">
           <ShoppingCart className="h-4 w-4" />
-          <span className="hidden sm:inline text-xs">Sales</span>
+          <span className="hidden sm:inline text-xs">{t.dailyCash.salesTab}</span>
           <Badge variant="secondary" className="ml-1 h-5 px-1 text-xs">{sales?.length || 0}</Badge>
         </TabsTrigger>
         <TabsTrigger value="due-collected" className="flex items-center gap-1 px-2 py-2">
           <CreditCard className="h-4 w-4" />
-          <span className="hidden sm:inline text-xs">Due</span>
+          <span className="hidden sm:inline text-xs">{t.dailyCash.dueTab}</span>
           <Badge variant="secondary" className="ml-1 h-5 px-1 text-xs">{customerPayments?.length || 0}</Badge>
         </TabsTrigger>
         <TabsTrigger value="supplier-payments" className="flex items-center gap-1 px-2 py-2">
           <Truck className="h-4 w-4" />
-          <span className="hidden sm:inline text-xs">Supplier</span>
+          <span className="hidden sm:inline text-xs">{t.dailyCash.supplierTab}</span>
           <Badge variant="secondary" className="ml-1 h-5 px-1 text-xs">{supplierPayments?.length || 0}</Badge>
         </TabsTrigger>
         <TabsTrigger value="costs" className="flex items-center gap-1 px-2 py-2">
           <Receipt className="h-4 w-4" />
-          <span className="hidden sm:inline text-xs">Costs</span>
+          <span className="hidden sm:inline text-xs">{t.dailyCash.costsTab}</span>
           <Badge variant="secondary" className="ml-1 h-5 px-1 text-xs">{costs?.length || 0}</Badge>
         </TabsTrigger>
       </TabsList>
@@ -68,34 +70,34 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
       <TabsContent value="sales">
         <Card>
           <CardHeader>
-            <CardTitle>Sales</CardTitle>
-            <CardDescription>All sales transactions for {format(date, 'MMMM d, yyyy')}</CardDescription>
+            <CardTitle>{t.dailyCash.salesTab}</CardTitle>
+            <CardDescription>{t.dailyCash.noSalesForDate.replace('No sales for this date', `All sales transactions for ${format(date, 'MMMM d, yyyy')}`)}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Invoice</TableHead>
-                    <TableHead className="hidden sm:table-cell">Customer</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                    <TableHead className="text-right hidden md:table-cell">Paid</TableHead>
-                    <TableHead className="text-right hidden md:table-cell">Due</TableHead>
-                    <TableHead className="hidden lg:table-cell">Method</TableHead>
+                    <TableHead>{t.dailyCash.invoice}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t.dailyCash.customer}</TableHead>
+                    <TableHead className="text-right">{t.dailyCash.total}</TableHead>
+                    <TableHead className="text-right hidden md:table-cell">{t.dailyCash.paid}</TableHead>
+                    <TableHead className="text-right hidden md:table-cell">{t.dailyCash.due}</TableHead>
+                    <TableHead className="hidden lg:table-cell">{t.dailyCash.method}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {!sales?.length ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                        No sales for this date
+                        {t.dailyCash.noSalesForDate}
                       </TableCell>
                     </TableRow>
                   ) : (
                     sales.map((sale: any) => (
                       <TableRow key={sale.id}>
                         <TableCell className="font-mono text-xs sm:text-sm">{sale.invoice_number}</TableCell>
-                        <TableCell className="hidden sm:table-cell">{sale.customers?.name || 'Walk-in'}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{sale.customers?.name || t.dailyCash.walkIn}</TableCell>
                         <TableCell className="text-right">৳{Number(sale.total_amount).toLocaleString()}</TableCell>
                         <TableCell className="text-right text-green-600 hidden md:table-cell">৳{Number(sale.paid_amount).toLocaleString()}</TableCell>
                         <TableCell className={`text-right hidden md:table-cell ${Number(sale.due_amount) > 0 ? 'text-red-600' : ''}`}>

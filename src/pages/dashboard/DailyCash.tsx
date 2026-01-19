@@ -10,6 +10,7 @@ import { Wallet, Download, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useDailyCashSummary, useDailySales, useDailyCustomerPayments, useDailySupplierPayments, useDailyCosts } from '@/hooks/useDailyCash';
 import { generateDailyClosingCashPDF, type DailyTransaction } from '@/lib/pdfGenerator';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function DailyCash() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -21,6 +22,7 @@ export default function DailyCash() {
   const { data: customerPayments } = useDailyCustomerPayments(selectedDate);
   const { data: supplierPayments } = useDailySupplierPayments(selectedDate);
   const { data: costs } = useDailyCosts(selectedDate);
+  const { t } = useLanguage();
 
   const handleExportPDF = () => {
     if (!summary) return;
@@ -104,9 +106,9 @@ export default function DailyCash() {
             <Wallet className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Daily Cash</h1>
+            <h1 className="text-2xl font-bold">{t.dailyCash.title}</h1>
             <p className="text-muted-foreground">
-              Auto-calculated cash flow from all transactions
+              {t.dailyCash.subtitle}
             </p>
           </div>
         </div>
@@ -117,7 +119,7 @@ export default function DailyCash() {
             <DatePicker
               date={selectedDate}
               onDateChange={(date) => date && setSelectedDate(date)}
-              placeholder="Select date"
+              placeholder={t.dailyCash.selectDate}
               showClearButton={false}
             />
           </div>
@@ -143,7 +145,7 @@ export default function DailyCash() {
               ) : (
                 <Download className="h-4 w-4 sm:mr-2" />
               )}
-              <span className="hidden sm:inline">Export</span>
+              <span className="hidden sm:inline">{t.dailyCash.export}</span>
             </Button>
           </div>
         </div>
@@ -152,8 +154,7 @@ export default function DailyCash() {
       {/* Info Banner */}
       <div className="bg-muted/50 rounded-lg p-3 sm:p-4 border">
         <p className="text-xs sm:text-sm text-muted-foreground">
-          <strong>Note:</strong> Cash flow is auto-calculated from sales, due collections, supplier payments, and daily costs. 
-          Only <strong>cash transactions</strong> are counted.
+          <strong>{t.labels.notes}:</strong> {t.dailyCash.infoBanner} <strong>{t.dailyCash.cashOnly}</strong>
         </p>
       </div>
 
