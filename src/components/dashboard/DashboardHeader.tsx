@@ -7,9 +7,11 @@ import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useCustomerDuesSummary } from '@/hooks/useCustomerDues';
 import { useSupplierDuesSummary } from '@/hooks/useSuppliers';
 import { useNotificationSound } from '@/hooks/useNotificationSound';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,11 +35,12 @@ export function DashboardHeader() {
   const { data: customerDuesData } = useCustomerDuesSummary();
   const { data: supplierDuesData } = useSupplierDuesSummary();
   const { checkAndPlaySound } = useNotificationSound();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
-    toast.success('Signed out successfully');
+    toast.success(t.header.signedOutSuccess);
     navigate('/');
   };
 
@@ -62,21 +65,21 @@ export function DashboardHeader() {
         return (
           <Badge variant="destructive" className="gap-1">
             <Shield className="h-3 w-3" />
-            Owner
+            {t.roles.owner}
           </Badge>
         );
       case 'client_admin':
         return (
           <Badge variant="default" className="gap-1">
             <UserCog className="h-3 w-3" />
-            Admin
+            {t.roles.admin}
           </Badge>
         );
       case 'client_staff':
         return (
           <Badge variant="secondary" className="gap-1">
             <Users className="h-3 w-3" />
-            Staff
+            {t.roles.staff}
           </Badge>
         );
       default:
@@ -87,13 +90,13 @@ export function DashboardHeader() {
   const getRoleLabel = () => {
     switch (role) {
       case 'owner_admin':
-        return 'Owner Admin';
+        return t.roles.ownerAdmin;
       case 'client_admin':
-        return 'Pharmacy Admin';
+        return t.roles.pharmacyAdmin;
       case 'client_staff':
-        return 'Staff Member';
+        return t.roles.staffMember;
       default:
-        return 'User';
+        return t.roles.user;
     }
   };
 
@@ -102,6 +105,9 @@ export function DashboardHeader() {
       <SidebarTrigger className="-ml-2" />
       
       <div className="flex-1" />
+
+      {/* Language Switcher */}
+      <LanguageSwitcher />
 
       {/* Notification Bell with Dropdown */}
       <DropdownMenu>
@@ -117,10 +123,10 @@ export function DashboardHeader() {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-80" align="end" forceMount>
           <DropdownMenuLabel className="flex items-center justify-between">
-            <span>Notifications</span>
+            <span>{t.header.notifications}</span>
             {totalNotifications > 0 && (
               <Badge variant="secondary" className="text-xs">
-                {totalNotifications} alerts
+                {totalNotifications} {t.header.alerts}
               </Badge>
             )}
           </DropdownMenuLabel>
@@ -128,7 +134,7 @@ export function DashboardHeader() {
           <ScrollArea className="h-[300px]">
             {totalNotifications === 0 ? (
               <div className="p-4 text-center text-muted-foreground text-sm">
-                No alerts at this time
+                {t.header.noAlerts}
               </div>
             ) : (
               <div className="space-y-1 p-1">
@@ -142,13 +148,13 @@ export function DashboardHeader() {
                       <AlertTriangle className="h-4 w-4 text-destructive" />
                     </div>
                     <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium">Expired Medicines</p>
+                      <p className="text-sm font-medium">{t.notifications.expiredMedicines}</p>
                       <p className="text-xs text-muted-foreground">
-                        {expired.length} batch{expired.length > 1 ? 'es' : ''} expired
+                        {expired.length} {expired.length > 1 ? t.notifications.batchesExpired : t.notifications.batchExpired}
                       </p>
                     </div>
                     <Badge variant="destructive" className="text-xs">
-                      Urgent
+                      {t.notifications.urgent}
                     </Badge>
                   </DropdownMenuItem>
                 )}
@@ -163,13 +169,13 @@ export function DashboardHeader() {
                       <Clock className="h-4 w-4 text-orange-500" />
                     </div>
                     <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium">Expiring Soon</p>
+                      <p className="text-sm font-medium">{t.notifications.expiringSoon}</p>
                       <p className="text-xs text-muted-foreground">
-                        {expiring30.length} batch{expiring30.length > 1 ? 'es' : ''} expiring in 30 days
+                        {expiring30.length} {expiring30.length > 1 ? t.notifications.batchesExpiring : t.notifications.batchExpiring}
                       </p>
                     </div>
                     <Badge variant="outline" className="text-xs border-orange-500 text-orange-500">
-                      Warning
+                      {t.notifications.warning}
                     </Badge>
                   </DropdownMenuItem>
                 )}
@@ -184,13 +190,13 @@ export function DashboardHeader() {
                       <Wallet className="h-4 w-4 text-blue-500" />
                     </div>
                     <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium">Customer Dues</p>
+                      <p className="text-sm font-medium">{t.notifications.customerDues}</p>
                       <p className="text-xs text-muted-foreground">
-                        {customersWithDue} customer{customersWithDue > 1 ? 's' : ''} owe ৳{totalCustomerDues.toLocaleString()}
+                        {customersWithDue} {customersWithDue > 1 ? t.notifications.customersOwe : t.notifications.customerOwe} ৳{totalCustomerDues.toLocaleString()}
                       </p>
                     </div>
                     <Badge variant="outline" className="text-xs border-blue-500 text-blue-500">
-                      Collect
+                      {t.notifications.collect}
                     </Badge>
                   </DropdownMenuItem>
                 )}
@@ -205,13 +211,13 @@ export function DashboardHeader() {
                       <Truck className="h-4 w-4 text-purple-500" />
                     </div>
                     <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium">Supplier Dues</p>
+                      <p className="text-sm font-medium">{t.notifications.supplierDues}</p>
                       <p className="text-xs text-muted-foreground">
-                        {suppliersWithDue} supplier{suppliersWithDue > 1 ? 's' : ''} owed ৳{totalSupplierDues.toLocaleString()}
+                        {suppliersWithDue} {suppliersWithDue > 1 ? t.notifications.suppliersOwed : t.notifications.supplierOwed} ৳{totalSupplierDues.toLocaleString()}
                       </p>
                     </div>
                     <Badge variant="outline" className="text-xs border-purple-500 text-purple-500">
-                      Pay
+                      {t.notifications.pay}
                     </Badge>
                   </DropdownMenuItem>
                 )}
@@ -225,7 +231,7 @@ export function DashboardHeader() {
                 className="text-center justify-center text-primary text-sm font-medium cursor-pointer"
                 onClick={() => navigate('/dashboard/alerts')}
               >
-                View All Alerts
+                {t.header.viewAllAlerts}
               </DropdownMenuItem>
             </>
           )}
@@ -259,12 +265,12 @@ export function DashboardHeader() {
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
             <User className="mr-2 h-4 w-4" />
-            Profile & Settings
+            {t.header.profileSettings}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
             <LogOut className="mr-2 h-4 w-4" />
-            Sign out
+            {t.header.signOut}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
