@@ -209,6 +209,25 @@ export function useGlobalMedicines() {
     },
   });
 
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('global_medicines')
+        .update({ is_active: false })
+        .in('id', ids);
+      
+      if (error) throw error;
+      return ids.length;
+    },
+    onSuccess: (count) => {
+      queryClient.invalidateQueries({ queryKey: ['global-medicines'] });
+      toast.success(`${count} medicines deleted`);
+    },
+    onError: (error) => {
+      toast.error('Failed to delete: ' + error.message);
+    },
+  });
+
   return {
     medicines,
     isLoading,
@@ -219,5 +238,6 @@ export function useGlobalMedicines() {
     copyToLocal,
     bulkCopyToLocal,
     bulkCreate,
+    bulkDelete,
   };
 }
