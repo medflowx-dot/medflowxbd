@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { generateCashFlowSummaryPDF } from '@/lib/pdfGenerator';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type ReportType = 'this_week' | 'last_week' | 'this_month' | 'last_month' | 'custom';
 
@@ -32,6 +33,7 @@ export function CashFlowReportDialog() {
   const [customEndDate, setCustomEndDate] = useState<Date>();
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const getDateRange = (): { start: Date; end: Date } | null => {
     const today = new Date();
@@ -141,7 +143,7 @@ export function CashFlowReportDialog() {
   const handleGenerateReport = async () => {
     const dateRange = getDateRange();
     if (!dateRange) {
-      toast.error('Please select a valid date range');
+      toast.error(t.dailyCash.invalidDateRange);
       return;
     }
 
@@ -159,22 +161,22 @@ export function CashFlowReportDialog() {
 
       // Generate PDF
       generateCashFlowSummaryPDF(dailySummaries, dateRange);
-      toast.success('Report generated successfully');
+      toast.success(t.dailyCash.reportSuccess);
       setOpen(false);
     } catch (error) {
       console.error('Error generating report:', error);
-      toast.error('Failed to generate report');
+      toast.error(t.dailyCash.reportError);
     } finally {
       setLoading(false);
     }
   };
 
   const reportTypeLabels: Record<ReportType, string> = {
-    this_week: 'This Week (Sat-Fri)',
-    last_week: 'Last Week',
-    this_month: 'This Month',
-    last_month: 'Last Month',
-    custom: 'Custom Range',
+    this_week: t.dailyCash.thisWeek,
+    last_week: t.dailyCash.lastWeek,
+    this_month: t.dailyCash.thisMonth,
+    last_month: t.dailyCash.lastMonth,
+    custom: t.dailyCash.customRange,
   };
 
   return (
@@ -182,23 +184,23 @@ export function CashFlowReportDialog() {
       <DialogTrigger asChild>
         <Button variant="outline" className="flex-1 sm:flex-none">
           <FileText className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">Report</span>
+          <span className="hidden sm:inline">{t.dailyCash.report}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Cash Flow Report</DialogTitle>
+          <DialogTitle>{t.dailyCash.cashFlowReport}</DialogTitle>
           <DialogDescription>
-            Generate a weekly or monthly cash flow summary report
+            {t.dailyCash.cashFlowReportDesc}
           </DialogDescription>
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label>Report Period</Label>
+            <Label>{t.dailyCash.reportPeriod}</Label>
             <Select value={reportType} onValueChange={(v) => setReportType(v as ReportType)}>
               <SelectTrigger>
-                <SelectValue placeholder="Select period" />
+                <SelectValue placeholder={t.dailyCash.selectPeriod} />
               </SelectTrigger>
               <SelectContent>
                 {Object.entries(reportTypeLabels).map(([key, label]) => (
@@ -211,19 +213,19 @@ export function CashFlowReportDialog() {
           {reportType === 'custom' && (
             <>
               <div className="grid gap-2">
-                <Label>Start Date</Label>
+                <Label>{t.dailyCash.startDate}</Label>
                 <DatePicker
                   date={customStartDate}
                   onDateChange={setCustomStartDate}
-                  placeholder="Select start date"
+                  placeholder={t.dailyCash.selectStartDate}
                 />
               </div>
               <div className="grid gap-2">
-                <Label>End Date</Label>
+                <Label>{t.dailyCash.endDate}</Label>
                 <DatePicker
                   date={customEndDate}
                   onDateChange={setCustomEndDate}
-                  placeholder="Select end date"
+                  placeholder={t.dailyCash.selectEndDate}
                 />
               </div>
             </>
@@ -233,11 +235,11 @@ export function CashFlowReportDialog() {
           {getDateRange() && (
             <div className="rounded-lg border bg-muted/50 p-3">
               <p className="text-sm text-muted-foreground">
-                <strong>Period:</strong>{' '}
+                <strong>{t.dailyCash.period}:</strong>{' '}
                 {format(getDateRange()!.start, 'MMM d, yyyy')} - {format(getDateRange()!.end, 'MMM d, yyyy')}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                {eachDayOfInterval({ start: getDateRange()!.start, end: getDateRange()!.end }).length} days
+                {eachDayOfInterval({ start: getDateRange()!.start, end: getDateRange()!.end }).length} {t.dailyCash.days}
               </p>
             </div>
           )}
@@ -245,14 +247,14 @@ export function CashFlowReportDialog() {
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
+            {t.actions.cancel}
           </Button>
           <Button 
             onClick={handleGenerateReport} 
             disabled={loading || (reportType === 'custom' && (!customStartDate || !customEndDate))}
           >
             {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Generate PDF
+            {t.dailyCash.generatePDF}
           </Button>
         </DialogFooter>
       </DialogContent>
