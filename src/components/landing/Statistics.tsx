@@ -61,45 +61,47 @@ const Statistics = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 max-w-5xl mx-auto items-stretch">
           {stats.map((stat, index) => (
             <div
               key={stat.label}
-              className="relative group"
+              className="relative group h-full"
             >
-              <div className="glass-stats-card rounded-2xl p-6 md:p-8 text-center transition-all duration-500">
+              <div className="glass-stats-card rounded-2xl p-6 md:p-8 text-center transition-all duration-500 h-full flex flex-col justify-between">
                 {/* Glow Effect */}
                 <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-b from-white/10 to-transparent" />
                 
-                {/* Icon */}
-                <div className={`relative w-14 h-14 md:w-16 md:h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 ${
-                  stat.color === 'primary' 
-                    ? 'bg-gradient-to-br from-primary-foreground/25 to-primary-foreground/10' 
-                    : stat.color === 'secondary'
-                    ? 'bg-gradient-to-br from-secondary/40 to-secondary/20'
-                    : 'bg-gradient-to-br from-success/40 to-success/20'
-                }`}>
-                  <stat.icon className={`w-7 h-7 md:w-8 md:h-8 ${
+                <div>
+                  {/* Icon */}
+                  <div className={`relative w-14 h-14 md:w-16 md:h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 ${
                     stat.color === 'primary' 
-                      ? 'text-primary-foreground' 
+                      ? 'bg-gradient-to-br from-primary-foreground/25 to-primary-foreground/10' 
                       : stat.color === 'secondary'
-                      ? 'text-secondary'
-                      : 'text-success'
-                  }`} />
+                      ? 'bg-gradient-to-br from-secondary/40 to-secondary/20'
+                      : 'bg-gradient-to-br from-success/40 to-success/20'
+                  }`}>
+                    <stat.icon className={`w-7 h-7 md:w-8 md:h-8 ${
+                      stat.color === 'primary' 
+                        ? 'text-primary-foreground' 
+                        : stat.color === 'secondary'
+                        ? 'text-secondary'
+                        : 'text-success'
+                    }`} />
+                  </div>
+
+                  {/* Value */}
+                  <h3 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-primary-foreground mb-2 transition-transform duration-300 group-hover:scale-105">
+                    {stat.value}
+                  </h3>
+
+                  {/* Label */}
+                  <p className="text-base md:text-lg font-semibold text-primary-foreground/90 mb-1">
+                    {stat.label}
+                  </p>
                 </div>
 
-                {/* Value */}
-                <h3 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-primary-foreground mb-2 transition-transform duration-300 group-hover:scale-105">
-                  {stat.value}
-                </h3>
-
-                {/* Label */}
-                <p className="text-base md:text-lg font-semibold text-primary-foreground/90 mb-1">
-                  {stat.label}
-                </p>
-
                 {/* Description */}
-                <p className="text-xs md:text-sm text-primary-foreground/60">
+                <p className="text-xs md:text-sm text-primary-foreground/60 mt-auto">
                   {stat.description}
                 </p>
               </div>
