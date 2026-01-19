@@ -21,15 +21,25 @@ const Index = () => {
       <Hero />
       <Statistics />
       <Manufacturers />
-      <Features />
+      <section id="features">
+        <Features />
+      </section>
       <WhyChooseUs />
       <SpecialFeatures />
-      <HowItWorks />
+      <section id="how-it-works">
+        <HowItWorks />
+      </section>
       <MobileAppComingSoon />
       <Testimonials />
-      <Pricing />
-      <FAQ />
-      <Contact />
+      <section id="pricing">
+        <Pricing />
+      </section>
+      <section id="faq">
+        <FAQ />
+      </section>
+      <section id="contact">
+        <Contact />
+      </section>
       <CTA />
       <Footer />
     </div>
