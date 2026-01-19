@@ -1,4 +1,4 @@
-import { Star, Quote } from 'lucide-react';
+import { Star, Quote, Sparkles } from 'lucide-react';
 
 const testimonials = [
   {
@@ -53,11 +53,16 @@ const testimonials = [
 
 const Testimonials = () => {
   return (
-    <section className="py-20 md:py-32 bg-muted/30">
-      <div className="container mx-auto px-4">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-muted/30 via-background to-muted/30 relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-secondary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+      
+      <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 mb-6">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-secondary/15 to-secondary/5 border border-secondary/20 backdrop-blur-sm mb-6">
+            <Sparkles className="w-4 h-4 text-secondary" />
             <span className="text-secondary-foreground text-sm font-semibold">গ্রাহকদের কথা</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
@@ -73,11 +78,11 @@ const Testimonials = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-card rounded-2xl border border-border shadow-card p-6 md:p-8 hover:shadow-lg transition-all duration-300 relative"
+              className="group glass-feature-card hover:scale-[1.02]"
             >
               {/* Quote Icon */}
-              <div className="absolute top-6 right-6">
-                <Quote className="w-8 h-8 text-primary/20" />
+              <div className="absolute top-6 right-6 opacity-20 group-hover:opacity-40 transition-opacity">
+                <Quote className="w-10 h-10 text-primary" />
               </div>
 
               {/* Rating */}
@@ -88,13 +93,13 @@ const Testimonials = () => {
               </div>
 
               {/* Testimonial Text */}
-              <p className="text-foreground leading-relaxed mb-6">
+              <p className="text-foreground leading-relaxed mb-6 relative z-10">
                 "{testimonial.text}"
               </p>
 
               {/* Author Info */}
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-hero-gradient flex items-center justify-center text-primary-foreground font-bold text-lg">
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-14 h-14 rounded-2xl bg-hero-gradient flex items-center justify-center text-primary-foreground font-bold text-lg shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
                   {testimonial.name.charAt(0)}
                 </div>
                 <div>
@@ -104,7 +109,7 @@ const Testimonials = () => {
                   <p className="text-sm text-muted-foreground">
                     {testimonial.role}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-primary">
                     {testimonial.location}
                   </p>
                 </div>
@@ -115,20 +120,20 @@ const Testimonials = () => {
 
         {/* Trust Badge */}
         <div className="mt-16 text-center">
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-card border border-border shadow-card">
-            <div className="flex -space-x-2">
+          <div className="inline-flex items-center gap-4 px-8 py-4 rounded-2xl glass-card hover:shadow-lg transition-all duration-300">
+            <div className="flex -space-x-3">
               {['ম', 'ফ', 'আ', 'ন'].map((letter, i) => (
                 <div
                   key={i}
-                  className="w-8 h-8 rounded-full bg-hero-gradient flex items-center justify-center text-primary-foreground text-xs font-bold border-2 border-card"
+                  className="w-10 h-10 rounded-xl bg-hero-gradient flex items-center justify-center text-primary-foreground text-sm font-bold border-2 border-card shadow-md"
                 >
                   {letter}
                 </div>
               ))}
             </div>
             <div className="text-left">
-              <p className="text-sm font-semibold text-foreground">৫০০+ ফার্মেসি</p>
-              <p className="text-xs text-muted-foreground">ইতিমধ্যে MedFlowx ব্যবহার করছে</p>
+              <p className="text-lg font-bold text-foreground">৫০০+ ফার্মেসি</p>
+              <p className="text-sm text-muted-foreground">ইতিমধ্যে MedFlowx ব্যবহার করছে</p>
             </div>
           </div>
         </div>

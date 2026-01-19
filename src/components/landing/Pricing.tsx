@@ -1,4 +1,4 @@
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -74,11 +74,16 @@ const plans = [
 
 const Pricing = () => {
   return (
-    <section id="pricing" className="py-20 md:py-32 bg-background">
-      <div className="container mx-auto px-4">
+    <section id="pricing" className="py-20 md:py-32 bg-gradient-to-b from-muted/30 via-background to-background relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-secondary/5 rounded-full blur-3xl" />
+      
+      <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 mb-6">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-secondary/15 to-secondary/5 border border-secondary/20 backdrop-blur-sm mb-6">
+            <Star className="w-4 h-4 text-secondary" />
             <span className="text-secondary-foreground text-sm font-semibold">সহজ প্রাইসিং</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-6">
@@ -91,27 +96,24 @@ const Pricing = () => {
 
         {/* Pricing Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-          {plans.map((plan) => (
+          {plans.map((plan, index) => (
             <div
               key={plan.name}
-              className={`relative p-6 md:p-8 rounded-2xl border transition-all duration-300 ${
-                plan.popular
-                  ? 'bg-hero-gradient border-transparent shadow-glow scale-[1.02]'
-                  : 'bg-card border-border hover:border-primary/30 shadow-card hover:shadow-lg'
-              }`}
+              className={`relative ${plan.popular ? 'glass-pricing-popular' : 'glass-pricing-card'} ${plan.popular ? 'scale-[1.02] lg:scale-105' : ''}`}
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Popular Badge */}
               {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-bold shadow-lg">
-                    <Sparkles className="w-3 h-3" />
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+                  <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground text-xs font-bold shadow-lg shadow-secondary/30">
+                    <Sparkles className="w-3.5 h-3.5" />
                     সবচেয়ে জনপ্রিয়
                   </div>
                 </div>
               )}
 
               {/* Plan Header */}
-              <div className={plan.popular ? 'text-primary-foreground' : ''}>
+              <div className={`relative z-10 ${plan.popular ? 'text-primary-foreground' : ''}`}>
                 <h3 className="text-xl font-display font-bold mb-2">{plan.name}</h3>
                 <p className={`text-sm mb-4 ${plan.popular ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
                   {plan.description}
@@ -126,19 +128,23 @@ const Pricing = () => {
               </div>
 
               {/* Features */}
-              <ul className="space-y-3 mb-8">
+              <ul className="relative z-10 space-y-3 mb-8">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2">
-                    <Check className={`w-5 h-5 mt-0.5 flex-shrink-0 ${
-                      plan.popular ? 'text-secondary' : 'text-success'
-                    }`} />
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                      plan.popular ? 'bg-secondary/30' : 'bg-success/20'
+                    }`}>
+                      <Check className={`w-3 h-3 ${
+                        plan.popular ? 'text-secondary' : 'text-success'
+                      }`} />
+                    </div>
                     <span className={`text-sm ${plan.popular ? 'text-primary-foreground/90' : 'text-foreground'}`}>
                       {feature}
                     </span>
                   </li>
                 ))}
                 {plan.limitations.map((limitation) => (
-                  <li key={limitation} className="flex items-start gap-2">
+                  <li key={limitation} className="flex items-start gap-2 pl-7">
                     <span className={`text-sm italic ${plan.popular ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
                       * {limitation}
                     </span>
@@ -149,7 +155,7 @@ const Pricing = () => {
               {/* CTA */}
               <Button
                 variant={plan.popular ? 'hero' : 'default'}
-                className="w-full"
+                className={`relative z-10 w-full ${plan.popular ? 'shadow-lg shadow-secondary/30' : ''}`}
                 size="lg"
                 asChild
               >
@@ -162,16 +168,15 @@ const Pricing = () => {
         {/* Payment Methods */}
         <div className="mt-16 text-center">
           <p className="text-muted-foreground mb-4">নিরাপদ পেমেন্ট মাধ্যম</p>
-          <div className="flex items-center justify-center gap-8 flex-wrap">
-            <div className="px-4 py-2 rounded-lg bg-card border border-border text-foreground font-semibold">
-              বিকাশ
-            </div>
-            <div className="px-4 py-2 rounded-lg bg-card border border-border text-foreground font-semibold">
-              নগদ
-            </div>
-            <div className="px-4 py-2 rounded-lg bg-card border border-border text-foreground font-semibold">
-              এসএসএল কমার্স
-            </div>
+          <div className="flex items-center justify-center gap-4 md:gap-8 flex-wrap">
+            {['বিকাশ', 'নগদ', 'এসএসএল কমার্স'].map((method) => (
+              <div 
+                key={method}
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-card to-muted/50 border border-border text-foreground font-semibold backdrop-blur-sm hover:border-primary/30 transition-all duration-300 hover:shadow-lg"
+              >
+                {method}
+              </div>
+            ))}
           </div>
         </div>
       </div>
