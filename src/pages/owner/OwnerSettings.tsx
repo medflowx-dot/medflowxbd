@@ -411,8 +411,8 @@ export default function OwnerSettings() {
               <div className="relative">
                 <Input
                   type={showApiKey ? 'text' : 'password'}
-                  value={localSettings.uddoktapay_api_key?.replace(/"/g, '') || ''}
-                  onChange={(e) => handleChange('uddoktapay_api_key', `"${e.target.value}"`)}
+                  value={String(localSettings.uddoktapay_api_key || '').replace(/"/g, '')}
+                  onChange={(e) => handleChange('uddoktapay_api_key', e.target.value)}
                   placeholder="Enter UddoktaPay API Key"
                   className="pr-10"
                 />
@@ -431,8 +431,8 @@ export default function OwnerSettings() {
             <div className="space-y-2">
               <Label>Base URL</Label>
               <Select 
-                value={localSettings.uddoktapay_base_url?.replace(/"/g, '') || 'https://sandbox.uddoktapay.com'}
-                onValueChange={(value) => handleChange('uddoktapay_base_url', `"${value}"`)}
+                value={String(localSettings.uddoktapay_base_url || 'https://sandbox.uddoktapay.com').replace(/"/g, '')}
+                onValueChange={(value) => handleChange('uddoktapay_base_url', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select environment" />
