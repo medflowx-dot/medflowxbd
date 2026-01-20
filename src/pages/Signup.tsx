@@ -7,9 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useTheme } from 'next-themes';
-import logoLight from '@/assets/logo-light.png';
-import logoDark from '@/assets/logo-dark.png';
+import logoAuth from '@/assets/logo-auth.png';
 
 // Plan display configuration
 const planConfig: Record<string, { title: string; subtitle: string; buttonText: string }> = {
@@ -48,9 +46,6 @@ export default function Signup() {
   const [success, setSuccess] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
-  const { resolvedTheme } = useTheme();
-
-  const logo = resolvedTheme === 'dark' ? logoDark : logoLight;
 
   const currentPlanConfig = useMemo(() => {
     return planConfig[plan] || planConfig.trial;
@@ -107,7 +102,7 @@ export default function Signup() {
       <Card className="w-full max-w-md shadow-elegant">
         <CardHeader className="text-center space-y-4">
           <Link to="/" className="inline-flex items-center justify-center">
-            <img src={logo} alt="MedFlowx" className="h-10 w-auto" />
+            <img src={logoAuth} alt="MedFlowx" className="h-16 w-auto" />
           </Link>
           <div>
             <CardTitle className="text-2xl font-display">{currentPlanConfig.title}</CardTitle>
