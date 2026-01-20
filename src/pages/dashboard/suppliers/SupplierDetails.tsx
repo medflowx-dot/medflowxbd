@@ -16,14 +16,14 @@ import {
   MapPin, 
   User, 
   Building2, 
-  CreditCard, 
   ShoppingCart, 
   History, 
   Pencil, 
   Trash2, 
   Plus,
   FileText,
-  MessageCircle
+  MessageCircle,
+  Wallet
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useSuppliers } from '@/hooks/useSuppliers';
@@ -206,15 +206,6 @@ export default function SupplierDetails() {
             <FileText className="h-4 w-4 mr-2" />
             {t.suppliers.quickReport}
           </Button>
-          <SupplierPaymentDialog
-            supplier={supplier}
-            trigger={
-              <Button size="sm">
-                <CreditCard className="h-4 w-4 mr-2" />
-                {supplier.total_due > 0 ? t.suppliers.payDue : t.suppliers.makePayment}
-              </Button>
-            }
-          />
           <AddSupplierDialog
             supplier={supplier}
             trigger={
@@ -300,7 +291,7 @@ export default function SupplierDetails() {
         <Card className="stat-card-expense">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
+              <Wallet className="h-4 w-4" />
               {t.suppliers.currentDue}
             </CardDescription>
           </CardHeader>
