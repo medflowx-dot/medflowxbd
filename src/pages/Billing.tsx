@@ -54,15 +54,13 @@ export default function Billing() {
       // Show success after brief delay for webhook processing
       setTimeout(() => {
         setPaymentStatus('success');
-        toast.success(t.billing?.paymentSuccess || 'পেমেন্ট সফল হয়েছে! আপনার সাবস্ক্রিপশন সক্রিয় হচ্ছে।');
+        toast.success(t.billing?.paymentSuccess || 'পেমেন্ট সফল হয়েছে! ড্যাশবোর্ডে নিয়ে যাচ্ছি...');
         clearInterval(pollInterval);
         
-        // Final refresh after 5 seconds
+        // Redirect to dashboard after 3 seconds
         setTimeout(() => {
-          refetchPaymentRequests();
-          queryClient.invalidateQueries({ queryKey: ['subscription-status'] });
-          setPaymentStatus(null);
-        }, 5000);
+          navigate('/dashboard', { replace: true });
+        }, 3000);
       }, 3000);
 
       return () => clearInterval(pollInterval);
