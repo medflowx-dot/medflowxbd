@@ -983,5 +983,9 @@ export const bn: TranslationKeys = {
     needHelp: 'সাহায্য দরকার?',
     contactSupport: 'সহায়তার জন্য সাপোর্ট টিমে যোগাযোগ করুন',
     signOutDifferent: 'সাইন আউট করে অন্য অ্যাকাউন্ট ব্যবহার করুন',
+    logoutSuccess: 'সফলভাবে লগ আউট হয়েছে',
+    logoutError: 'লগ আউট করতে ব্যর্থ। পুনরায় চেষ্টা করুন।',
+    loading: 'সাবস্ক্রিপশন তথ্য লোড হচ্ছে...',
+    loggingOut: 'সাইন আউট হচ্ছে...',
   },
 };

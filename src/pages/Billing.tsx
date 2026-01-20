@@ -9,15 +9,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePricingPlansPublic } from '@/hooks/usePricingPlansPublic';
 import { useUserPaymentRequests } from '@/hooks/usePaymentRequests';
 import { PaymentRequestDialog } from '@/components/billing/PaymentRequestDialog';
-import { Loader2, CreditCard, AlertTriangle, Clock, Crown, Check, Phone, Mail, MessageCircle, CheckCircle, XCircle, RefreshCw, ArrowLeft } from 'lucide-react';
+import { Loader2, CreditCard, AlertTriangle, Clock, Crown, Check, Phone, Mail, MessageCircle, CheckCircle, XCircle, RefreshCw, ArrowLeft, LogOut } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { toast } from 'sonner';
 
 export default function Billing() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { t } = useLanguage();
-  const { isActive, isTrial, isExpired, isSuspended, planType, daysRemaining, isLoading } = useSubscriptionStatus();
+  const { isActive, isTrial, isExpired, isSuspended, planType, daysRemaining, isLoading: subscriptionLoading } = useSubscriptionStatus();
   const { data: plans, isLoading: plansLoading, error: plansError, refetch: refetchPlans } = usePricingPlansPublic();
   const { data: paymentRequests } = useUserPaymentRequests();
   
@@ -28,10 +29,20 @@ export default function Billing() {
     planType: string;
   } | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
-    await signOut();
-    navigate('/login');
+    try {
+      setIsLoggingOut(true);
+      await signOut();
+      toast.success(t.billing?.logoutSuccess || 'Successfully logged out');
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error(t.billing?.logoutError || 'Failed to logout. Please try again.');
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   const handleChoosePlan = (plan: { id: string; display_name: string; price: number; plan_name: string }) => {
@@ -54,10 +65,16 @@ export default function Billing() {
   // Find current plan from plans list
   const currentPlan = plans?.find(p => p.plan_name === planType);
 
-  if (isLoading) {
+  // Combined loading state
+  const isPageLoading = subscriptionLoading;
+
+  if (isPageLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+          <p className="text-muted-foreground text-sm">{t.billing?.loading || 'Loading...'}</p>
+        </div>
       </div>
     );
   }
@@ -341,8 +358,23 @@ export default function Billing() {
 
         {/* Logout Option */}
         <div className="text-center mt-8">
-          <Button variant="ghost" onClick={handleLogout}>
-            {t.billing.signOutDifferent}
+          <Button 
+            variant="destructive" 
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="gap-2"
+          >
+            {isLoggingOut ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {t.billing.loggingOut}
+              </>
+            ) : (
+              <>
+                <LogOut className="h-4 w-4" />
+                {t.billing.signOutDifferent}
+              </>
+            )}
           </Button>
         </div>
       </div>
