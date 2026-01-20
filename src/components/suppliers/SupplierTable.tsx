@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Pencil, Trash2, CreditCard, Phone, Mail, Building2, Plus, FileText, History, ShoppingCart } from 'lucide-react';
+import { Pencil, Trash2, CreditCard, Phone, Mail, Building2, Plus, FileText, History, ShoppingCart, Eye } from 'lucide-react';
 import { Supplier, useSuppliers } from '@/hooks/useSuppliers';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { AddSupplierDialog } from './AddSupplierDialog';
@@ -24,6 +25,7 @@ interface SupplierTableProps {
 }
 
 export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
+  const navigate = useNavigate();
   const { deleteSupplier, updateSupplier, payments, purchases } = useSuppliers();
   const { manufacturers } = useManufacturers();
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -139,7 +141,10 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
             {filteredSuppliers.map((supplier) => (
               <TableRow key={supplier.id}>
                 <TableCell>
-                  <div>
+                  <div 
+                    className="cursor-pointer hover:text-primary transition-colors"
+                    onClick={() => navigate(`/dashboard/suppliers/${supplier.id}`)}
+                  >
                     <div className="font-medium">{supplier.name}</div>
                     {supplier.contact_person && (
                       <div className="text-sm text-muted-foreground">{supplier.contact_person}</div>

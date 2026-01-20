@@ -575,6 +575,9 @@ export const en = {
     totalPurchaseAmount: 'Total Purchase',
     addPurchase: 'Add Purchase',
     purchasesLabel: 'purchases',
+    // Details page
+    viewDetails: 'View Details',
+    backToList: 'Back to List',
   },
 
   // Settings Page
