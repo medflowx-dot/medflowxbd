@@ -4,8 +4,18 @@ import { AppSidebar } from './AppSidebar';
 import { DashboardHeader } from './DashboardHeader';
 import { ImpersonationBanner } from './ImpersonationBanner';
 import { SubscriptionBanner } from './SubscriptionBanner';
+import { MobileLayout } from '@/components/mobile/MobileLayout';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export function DashboardLayout() {
+  const isMobile = useIsMobile();
+
+  // Render mobile layout for mobile devices
+  if (isMobile) {
+    return <MobileLayout />;
+  }
+
+  // Desktop layout
   return (
     <SidebarProvider>
       <div className="min-h-screen flex flex-col w-full overflow-x-hidden">
