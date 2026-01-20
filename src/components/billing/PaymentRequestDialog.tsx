@@ -102,6 +102,7 @@ export function PaymentRequestDialog({ open, onOpenChange, plan }: PaymentReques
           user_id: user.id,
           plan_id: plan.id,
           amount: plan.price,
+          plan_type: plan.planType, // Pass actual plan type
           full_name: user.email?.split('@')[0] || 'Customer',
           email: user.email,
           redirect_url: `${window.location.origin}/billing?status=success`,

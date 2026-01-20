@@ -19,9 +19,9 @@ serve(async (req) => {
     );
 
     // Get request body
-    const { user_id, plan_id, amount, full_name, email, redirect_url, cancel_url } = await req.json();
+    const { user_id, plan_id, amount, full_name, email, redirect_url, cancel_url, plan_type } = await req.json();
 
-    console.log("Creating UddoktaPay charge for user:", user_id, "plan:", plan_id);
+    console.log("Creating UddoktaPay charge for user:", user_id, "plan:", plan_id, "type:", plan_type);
 
     // Fetch UddoktaPay settings from platform_settings
     const { data: settings, error: settingsError } = await supabaseClient
@@ -62,7 +62,7 @@ serve(async (req) => {
         amount,
         payment_method: "uddoktapay",
         transaction_id: "", // Will be updated after UddoktaPay response
-        plan_type: "uddoktapay",
+        plan_type: plan_type || "unknown", // Store actual plan type
         status: "pending",
       })
       .select()

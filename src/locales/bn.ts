@@ -987,5 +987,13 @@ export const bn: TranslationKeys = {
     logoutError: 'লগ আউট করতে ব্যর্থ। পুনরায় চেষ্টা করুন।',
     loading: 'সাবস্ক্রিপশন তথ্য লোড হচ্ছে...',
     loggingOut: 'সাইন আউট হচ্ছে...',
+    paymentSuccess: 'পেমেন্ট সফল হয়েছে! আপনার সাবস্ক্রিপশন সক্রিয় হচ্ছে।',
+    paymentCancelled: 'পেমেন্ট বাতিল করা হয়েছে।',
+    paymentProcessing: 'পেমেন্ট প্রক্রিয়াধীন...',
+    paymentSuccessTitle: 'পেমেন্ট সফল!',
+    paymentSuccessDesc: 'আপনার সাবস্ক্রিপশন সক্রিয় হয়েছে। MedFlowX ব্যবহার উপভোগ করুন!',
+    paymentCancelledTitle: 'পেমেন্ট বাতিল',
+    paymentCancelledDesc: 'আপনার পেমেন্ট বাতিল হয়েছে। যেকোনো সময় আবার চেষ্টা করতে পারেন।',
+    upgradePlan: 'আপগ্রেড',
   },
 };
