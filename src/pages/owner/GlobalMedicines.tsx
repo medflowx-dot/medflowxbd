@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Pill, Search, Plus, Upload, MoreHorizontal, Pencil, Trash2, Database, Download, Loader2, Globe } from 'lucide-react';
+import { Pill, Search, Plus, Upload, MoreHorizontal, Pencil, Trash2, Database, Download, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useGlobalMedicines, GlobalMedicine, CreateGlobalMedicineData } from '@/hooks/useGlobalMedicines';
 import { useGlobalManufacturers } from '@/hooks/useGlobalManufacturers';
@@ -54,17 +54,14 @@ import * as XLSX from 'xlsx';
 const UNITS = ['pcs', 'strip', 'box', 'bottle', 'tube', 'vial', 'sachet'];
 
 export default function GlobalMedicines() {
-  const { medicines, totalCount, isLoading, createGlobalMedicine, updateGlobalMedicine, deleteGlobalMedicine, bulkCreate, bulkDelete } = useGlobalMedicines();
+  const { medicines, isLoading, createGlobalMedicine, updateGlobalMedicine, deleteGlobalMedicine, bulkCreate } = useGlobalMedicines();
   const { manufacturers } = useGlobalManufacturers();
   const [searchTerm, setSearchTerm] = useState('');
   const [manufacturerFilter, setManufacturerFilter] = useState<string>('all');
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
-  const [manufacturerDeleteDialogOpen, setManufacturerDeleteDialogOpen] = useState(false);
   const [selectedMedicine, setSelectedMedicine] = useState<GlobalMedicine | null>(null);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<CreateGlobalMedicineData>({
@@ -76,8 +73,7 @@ export default function GlobalMedicines() {
     is_tax_applicable: false,
   });
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isImportingMedex, setIsImportingMedex] = useState(false);
-  const [importingFunction, setImportingFunction] = useState<string | null>(null);
+
   const filteredMedicines = medicines.filter(m => {
     const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       m.generic_name?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -97,37 +93,23 @@ export default function GlobalMedicines() {
   };
 
   const handleAdd = async () => {
-    if (!formData.name.trim()) {
-      toast.error('Medicine name is required');
-      return;
-    }
-    if (!formData.manufacturer_id) {
-      toast.error('Manufacturer is required');
-      return;
-    }
+    if (!formData.name.trim()) return;
     await createGlobalMedicine.mutateAsync({
       ...formData,
       name: formData.name.trim(),
-      manufacturer_id: formData.manufacturer_id,
+      manufacturer_id: formData.manufacturer_id || undefined,
     });
     resetForm();
     setAddDialogOpen(false);
   };
 
   const handleEdit = async () => {
-    if (!selectedMedicine || !formData.name.trim()) {
-      toast.error('Medicine name is required');
-      return;
-    }
-    if (!formData.manufacturer_id) {
-      toast.error('Manufacturer is required');
-      return;
-    }
+    if (!selectedMedicine || !formData.name.trim()) return;
     await updateGlobalMedicine.mutateAsync({
       id: selectedMedicine.id,
       ...formData,
       name: formData.name.trim(),
-      manufacturer_id: formData.manufacturer_id,
+      manufacturer_id: formData.manufacturer_id || undefined,
     });
     resetForm();
     setEditDialogOpen(false);
@@ -141,47 +123,6 @@ export default function GlobalMedicines() {
     setSelectedMedicine(null);
   };
 
-  const handleBulkDelete = async () => {
-    if (selectedIds.size === 0) return;
-    await bulkDelete.mutateAsync(Array.from(selectedIds));
-    setSelectedIds(new Set());
-    setBulkDeleteDialogOpen(false);
-  };
-
-  const toggleSelect = (id: string) => {
-    const newSelected = new Set(selectedIds);
-    if (newSelected.has(id)) {
-      newSelected.delete(id);
-    } else {
-      newSelected.add(id);
-    }
-    setSelectedIds(newSelected);
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedIds.size === filteredMedicines.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filteredMedicines.map(m => m.id)));
-    }
-  };
-
-  const handleDeleteByManufacturer = async () => {
-    if (manufacturerFilter === 'all') return;
-    const medicineIds = medicines
-      .filter(m => m.manufacturer_id === manufacturerFilter)
-      .map(m => m.id);
-    if (medicineIds.length === 0) return;
-    await bulkDelete.mutateAsync(medicineIds);
-    setManufacturerDeleteDialogOpen(false);
-    setManufacturerFilter('all');
-  };
-
-  const selectedManufacturerName = manufacturers.find(m => m.id === manufacturerFilter)?.name;
-  const medicinesCountByManufacturer = manufacturerFilter !== 'all' 
-    ? medicines.filter(m => m.manufacturer_id === manufacturerFilter).length 
-    : 0;
-
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -192,7 +133,6 @@ export default function GlobalMedicines() {
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json<Record<string, string>>(sheet);
       
-      let skippedNoManufacturer = 0;
       const medicinesData: CreateGlobalMedicineData[] = rows
         .filter(row => row.Name || row.name || row['Medicine Name'])
         .map(row => {
@@ -209,26 +149,11 @@ export default function GlobalMedicines() {
             unit: row.Unit || row.unit || 'pcs',
             is_tax_applicable: row['Tax Applicable']?.toLowerCase() === 'yes' || false,
           };
-        })
-        .filter(med => {
-          if (!med.manufacturer_id) {
-            skippedNoManufacturer++;
-            return false;
-          }
-          return true;
         });
 
       if (medicinesData.length === 0) {
-        if (skippedNoManufacturer > 0) {
-          toast.error(`No valid data found. ${skippedNoManufacturer} medicines skipped due to missing manufacturer.`);
-        } else {
-          toast.error('No valid data found in file');
-        }
+        toast.error('No valid data found in file');
         return;
-      }
-      
-      if (skippedNoManufacturer > 0) {
-        toast.warning(`${skippedNoManufacturer} medicines skipped due to missing manufacturer`);
       }
 
       await bulkCreate.mutateAsync(medicinesData);
@@ -263,49 +188,6 @@ export default function GlobalMedicines() {
     window.open('/templates/global-medicines-template.csv', '_blank');
   };
 
-  const handleImportFromMedex = async () => {
-    setIsImportingMedex(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('import-medex-medicines');
-      
-      if (error) throw error;
-      
-      if (data.success) {
-        toast.success(`${data.inserted} herbal medicines imported, ${data.skipped} already existed`);
-      } else {
-        toast.error(data.error || 'Failed to import from MedEx');
-      }
-    } catch (error: any) {
-      console.error('Error importing from MedEx:', error);
-      toast.error(error.message || 'Failed to import from MedEx');
-    } finally {
-      setIsImportingMedex(false);
-    }
-  };
-
-  const handleImportPharma = async (functionName: string, label: string) => {
-    setImportingFunction(functionName);
-    try {
-      const { data, error } = await supabase.functions.invoke(functionName);
-      
-      if (error) throw error;
-      
-      if (data.success) {
-        toast.success(`${data.inserted} medicines imported from ${label}. ${data.skipped} skipped.`);
-        if (data.missingManufacturers?.length > 0) {
-          toast.warning(`Missing manufacturers: ${data.missingManufacturers.slice(0, 5).join(', ')}${data.missingManufacturers.length > 5 ? '...' : ''}`);
-        }
-      } else {
-        toast.error(data.error || 'Failed to import');
-      }
-    } catch (error: unknown) {
-      console.error('Error importing:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      toast.error(errorMessage || 'Failed to import');
-    } finally {
-      setImportingFunction(null);
-    }
-  };
   const MedicineForm = ({ onSubmit, submitLabel, isLoading: formLoading }: { onSubmit: () => void; submitLabel: string; isLoading: boolean }) => (
     <div className="space-y-4 py-4">
       <div className="grid grid-cols-2 gap-4">
@@ -420,42 +302,9 @@ export default function GlobalMedicines() {
             <Download className="h-4 w-4 mr-2" />
             Template
           </Button>
-          <Button 
-            variant="default" 
-            onClick={async () => {
-              setIsGenerating(true);
-              try {
-                const { data, error } = await supabase.functions.invoke('import-allopathic-medicines');
-                if (error) throw error;
-                if (data.success) {
-                  toast.success(`${data.inserted} allopathic medicines imported`);
-                }
-              } catch (e: any) {
-                toast.error(e.message || 'Failed to import');
-              } finally {
-                setIsGenerating(false);
-              }
-            }}
-            disabled={isGenerating}
-          >
-            {isGenerating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Database className="h-4 w-4 mr-2" />}
-            Import All Medicines
-          </Button>
           <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
             <Upload className="h-4 w-4 mr-2" />
             Bulk Import
-          </Button>
-          <Button 
-            variant="secondary" 
-            onClick={handleImportFromMedex}
-            disabled={isImportingMedex}
-          >
-            {isImportingMedex ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Globe className="h-4 w-4 mr-2" />
-            )}
-            {isImportingMedex ? 'Importing...' : 'Import from MedEx'}
           </Button>
           <Button 
             variant="secondary" 
@@ -469,35 +318,6 @@ export default function GlobalMedicines() {
             )}
             {isGenerating ? 'Generating...' : 'Generate Master Data'}
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" disabled={importingFunction !== null}>
-                {importingFunction ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Globe className="h-4 w-4 mr-2" />
-                )}
-                {importingFunction ? 'Importing...' : 'Import Pharma Medicines'}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleImportPharma('import-major-pharma-medicines', 'Major Pharma (Square, Renata, ACI)')}>
-                Major Pharma (Square, Renata, ACI)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleImportPharma('import-midtier-pharma-medicines', 'Midtier Pharma')}>
-                Midtier Pharma (Orion, Delta, Jayson...)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleImportPharma('import-regional-pharma-medicines', 'Regional Pharma')}>
-                Regional Pharma (Pacific, Globe, Everest...)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleImportPharma('import-specialty-pharma-medicines', 'Specialty Pharma')}>
-                Specialty Pharma (Kemiko, Hamdard, General...)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleImportPharma('import-remaining-pharma-medicines', 'Remaining Pharma')}>
-                Remaining Pharma (Other manufacturers)
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
           <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
               <Button>
@@ -524,7 +344,7 @@ export default function GlobalMedicines() {
             <Pill className="h-4 w-4" />
             Total Medicines
           </CardDescription>
-          <CardTitle className="text-2xl">{totalCount.toLocaleString()}</CardTitle>
+          <CardTitle className="text-2xl">{medicines.length}</CardTitle>
         </CardHeader>
       </Card>
 
@@ -555,27 +375,6 @@ export default function GlobalMedicines() {
                 ))}
               </SelectContent>
             </Select>
-            {manufacturerFilter !== 'all' && medicinesCountByManufacturer > 0 && (
-              <Button 
-                variant="outline" 
-                className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
-                onClick={() => setManufacturerDeleteDialogOpen(true)}
-                disabled={bulkDelete.isPending}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete All {selectedManufacturerName} ({medicinesCountByManufacturer})
-              </Button>
-            )}
-            {selectedIds.size > 0 && (
-              <Button 
-                variant="destructive" 
-                onClick={() => setBulkDeleteDialogOpen(true)}
-                disabled={bulkDelete.isPending}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Selected ({selectedIds.size})
-              </Button>
-            )}
           </div>
 
           {isLoading ? (
@@ -590,12 +389,6 @@ export default function GlobalMedicines() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[50px]">
-                      <Checkbox
-                        checked={selectedIds.size === filteredMedicines.length && filteredMedicines.length > 0}
-                        onCheckedChange={toggleSelectAll}
-                      />
-                    </TableHead>
                     <TableHead>Medicine Name</TableHead>
                     <TableHead>Generic Name</TableHead>
                     <TableHead>Manufacturer</TableHead>
@@ -606,12 +399,6 @@ export default function GlobalMedicines() {
                 <TableBody>
                   {filteredMedicines.map((medicine) => (
                     <TableRow key={medicine.id}>
-                      <TableCell>
-                        <Checkbox
-                          checked={selectedIds.has(medicine.id)}
-                          onCheckedChange={() => toggleSelect(medicine.id)}
-                        />
-                      </TableCell>
                       <TableCell className="font-medium">{medicine.name}</TableCell>
                       <TableCell>{medicine.generic_name || '-'}</TableCell>
                       <TableCell>{medicine.manufacturer?.name || '-'}</TableCell>
@@ -686,50 +473,6 @@ export default function GlobalMedicines() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
               Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Bulk Delete Confirmation */}
-      <AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete {selectedIds.size} Medicines?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will remove {selectedIds.size} selected medicines from the global list. Clients who have already copied these medicines will not be affected.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleBulkDelete} 
-              className="bg-destructive text-destructive-foreground"
-              disabled={bulkDelete.isPending}
-            >
-              {bulkDelete.isPending ? 'Deleting...' : `Delete ${selectedIds.size} Medicines`}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Manufacturer Delete Confirmation */}
-      <AlertDialog open={manufacturerDeleteDialogOpen} onOpenChange={setManufacturerDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete All {selectedManufacturerName} Medicines?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will remove all {medicinesCountByManufacturer} medicines from {selectedManufacturerName} from the global list. Clients who have already copied these medicines will not be affected.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteByManufacturer} 
-              className="bg-destructive text-destructive-foreground"
-              disabled={bulkDelete.isPending}
-            >
-              {bulkDelete.isPending ? 'Deleting...' : `Delete All ${medicinesCountByManufacturer} Medicines`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

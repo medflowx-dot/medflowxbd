@@ -32,27 +32,3 @@ verify_jwt = false
 
 [functions.seed-global-medicines]
 verify_jwt = false
-
-[functions.import-medex-manufacturers]
-verify_jwt = false
-
-[functions.import-medex-medicines]
-verify_jwt = false
-
-[functions.import-allopathic-medicines]
-verify_jwt = false
-
-[functions.import-major-pharma-medicines]
-verify_jwt = false
-
-[functions.import-midtier-pharma-medicines]
-verify_jwt = false
-
-[functions.import-regional-pharma-medicines]
-verify_jwt = false
-
-[functions.import-specialty-pharma-medicines]
-verify_jwt = false
-
-[functions.import-remaining-pharma-medicines]
-verify_jwt = false

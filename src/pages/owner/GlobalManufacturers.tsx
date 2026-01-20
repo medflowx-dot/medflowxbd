@@ -2,8 +2,7 @@ import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Building2, Search, Plus, Upload, MoreHorizontal, Pencil, Trash2, Globe, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Building2, Search, Plus, Upload, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { useGlobalManufacturers, GlobalManufacturer } from '@/hooks/useGlobalManufacturers';
 import {
   Dialog,
@@ -51,7 +50,6 @@ export default function GlobalManufacturers() {
   const [selectedManufacturer, setSelectedManufacturer] = useState<GlobalManufacturer | null>(null);
   const [name, setName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isImportingMedex, setIsImportingMedex] = useState(false);
 
   const filteredManufacturers = manufacturers.filter(m =>
     m.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -106,26 +104,6 @@ export default function GlobalManufacturers() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleImportFromMedex = async () => {
-    setIsImportingMedex(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('import-medex-manufacturers');
-      
-      if (error) throw error;
-      
-      if (data.success) {
-        toast.success(`${data.inserted} manufacturers imported, ${data.skipped} already existed`);
-      } else {
-        toast.error(data.error || 'Failed to import from MedEx');
-      }
-    } catch (error: any) {
-      console.error('Error importing from MedEx:', error);
-      toast.error(error.message || 'Failed to import from MedEx');
-    } finally {
-      setIsImportingMedex(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -135,7 +113,7 @@ export default function GlobalManufacturers() {
             Master list of manufacturers for all clients
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2">
           <input
             ref={fileInputRef}
             type="file"
@@ -143,18 +121,6 @@ export default function GlobalManufacturers() {
             className="hidden"
             onChange={handleFileUpload}
           />
-          <Button 
-            variant="secondary" 
-            onClick={handleImportFromMedex}
-            disabled={isImportingMedex}
-          >
-            {isImportingMedex ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Globe className="h-4 w-4 mr-2" />
-            )}
-            {isImportingMedex ? 'Importing...' : 'Import from MedEx'}
-          </Button>
           <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
             <Upload className="h-4 w-4 mr-2" />
             Bulk Import

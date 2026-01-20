@@ -9,7 +9,7 @@ export interface GlobalMedicine {
   name: string;
   generic_name: string | null;
   category: string | null;
-  manufacturer_id: string;
+  manufacturer_id: string | null;
   unit: string;
   is_tax_applicable: boolean;
   is_active: boolean;
@@ -25,7 +25,7 @@ export interface CreateGlobalMedicineData {
   name: string;
   generic_name?: string;
   category?: string;
-  manufacturer_id: string;
+  manufacturer_id?: string;
   unit?: string;
   is_tax_applicable?: boolean;
 }
@@ -34,21 +34,6 @@ export function useGlobalMedicines() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { createMedicine } = useMedicines();
-
-  // Fetch total count separately (bypasses 1000 row limit)
-  const { data: totalCount = 0 } = useQuery({
-    queryKey: ['global-medicines-count'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('global_medicines')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_active', true);
-      
-      if (error) throw error;
-      return count || 0;
-    },
-    enabled: !!user,
-  });
 
   const { data: medicines = [], isLoading, error } = useQuery({
     queryKey: ['global-medicines'],
@@ -60,8 +45,7 @@ export function useGlobalMedicines() {
           manufacturer:global_manufacturers(id, name)
         `)
         .eq('is_active', true)
-        .order('name')
-        .limit(5000); // Increase limit to fetch more medicines
+        .order('name');
       
       if (error) throw error;
       return data as GlobalMedicine[];
@@ -225,28 +209,8 @@ export function useGlobalMedicines() {
     },
   });
 
-  const bulkDelete = useMutation({
-    mutationFn: async (ids: string[]) => {
-      const { error } = await supabase
-        .from('global_medicines')
-        .update({ is_active: false })
-        .in('id', ids);
-      
-      if (error) throw error;
-      return ids.length;
-    },
-    onSuccess: (count) => {
-      queryClient.invalidateQueries({ queryKey: ['global-medicines'] });
-      toast.success(`${count} medicines deleted`);
-    },
-    onError: (error) => {
-      toast.error('Failed to delete: ' + error.message);
-    },
-  });
-
   return {
     medicines,
-    totalCount,
     isLoading,
     error,
     createGlobalMedicine,
@@ -255,6 +219,5 @@ export function useGlobalMedicines() {
     copyToLocal,
     bulkCopyToLocal,
     bulkCreate,
-    bulkDelete,
   };
 }
