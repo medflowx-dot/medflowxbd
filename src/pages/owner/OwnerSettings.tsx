@@ -631,16 +631,54 @@ export default function OwnerSettings() {
                 ব্যালেন্স দেখুন
               </Button>
               {smsBalance && (
-                <div className="px-4 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800">
-                  <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                <div className={`px-4 py-2 rounded-lg border ${
+                  Number(smsBalance.balance) <= Number(localSettings.sms_low_balance_threshold || 100)
+                    ? 'bg-destructive/10 border-destructive/50'
+                    : 'bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-800'
+                }`}>
+                  <span className={`text-lg font-bold ${
+                    Number(smsBalance.balance) <= Number(localSettings.sms_low_balance_threshold || 100)
+                      ? 'text-destructive'
+                      : 'text-emerald-600 dark:text-emerald-400'
+                  }`}>
                     {smsBalance.balance} {smsBalance.currency}
                   </span>
+                  {Number(smsBalance.balance) <= Number(localSettings.sms_low_balance_threshold || 100) && (
+                    <span className="text-xs text-destructive ml-2">⚠️ Low Balance!</span>
+                  )}
                 </div>
               )}
             </div>
             {!localSettings.bulksmsbd_api_key && (
               <p className="text-xs text-muted-foreground mt-2">API Key কনফিগার করুন</p>
             )}
+            
+            {/* Low Balance Threshold Setting */}
+            <div className="mt-4 flex items-center gap-4">
+              <div className="flex-1">
+                <Label className="text-sm">Low Balance Alert Threshold (BDT)</Label>
+                <Input
+                  type="number"
+                  value={String(localSettings.sms_low_balance_threshold || '100').replace(/"/g, '')}
+                  onChange={(e) => handleChange('sms_low_balance_threshold', e.target.value)}
+                  placeholder="100"
+                  className="mt-1"
+                />
+              </div>
+              <div className="flex-1">
+                <Label className="text-sm">Alert Email</Label>
+                <Input
+                  type="email"
+                  value={String(localSettings.sms_alert_email || '').replace(/"/g, '')}
+                  onChange={(e) => handleChange('sms_alert_email', e.target.value)}
+                  placeholder="admin@example.com"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              ব্যালেন্স threshold এর নিচে গেলে প্রতিদিন email alert পাঠানো হবে
+            </p>
           </div>
 
           {/* Test SMS Section */}

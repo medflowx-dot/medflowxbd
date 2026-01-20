@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.send-client-notification]
 verify_jwt = false
+
+[functions.check-sms-balance]
+verify_jwt = false
