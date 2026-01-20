@@ -98,7 +98,7 @@ export function CustomerPaymentHistory({
                     {t.customerDues?.currentDue || 'Current Due'}
                   </p>
                   <p className="text-xl font-bold text-destructive">
-                    ৳{Number(customer?.total_due || 0).toFixed(2)}
+                    ৳{Number(customer?.total_due || 0) > 0 ? Number(customer?.total_due).toFixed(2) : '0.00'}
                   </p>
                 </div>
               </div>

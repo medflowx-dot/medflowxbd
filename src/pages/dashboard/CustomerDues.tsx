@@ -153,7 +153,7 @@ export default function CustomerDues() {
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400">
-              ৳{summary?.totalDue.toFixed(0) || '0'}
+              ৳{(summary?.totalDue ?? 0) > 0 ? summary?.totalDue.toFixed(0) : '0'}
             </div>
           </CardContent>
         </Card>

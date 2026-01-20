@@ -81,7 +81,7 @@ export function CustomerDuesReportView({ dateRange }: CustomerDuesReportProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600">৳{totalDue.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-amber-600">৳{totalDue > 0 ? totalDue.toLocaleString() : '0'}</div>
           </CardContent>
         </Card>
       </div>
@@ -180,7 +180,11 @@ function CustomerRow({ customer, isExpanded, onToggle, onWhatsApp, t }: Customer
         </TableCell>
         <TableCell>{customer.phone || '-'}</TableCell>
         <TableCell className="text-right">
-          <Badge variant="destructive">৳{customer.total_due.toLocaleString()}</Badge>
+          {customer.total_due > 0 ? (
+            <Badge variant="destructive">৳{customer.total_due.toLocaleString()}</Badge>
+          ) : (
+            <Badge variant="secondary">৳0</Badge>
+          )}
         </TableCell>
         <TableCell className="text-right">
           <Button
