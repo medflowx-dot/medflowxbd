@@ -103,7 +103,7 @@ export default function Manufacturers() {
           </TabsTrigger>
           <TabsTrigger 
             value="global" 
-            className="gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white"
+            className="gap-2 data-[state=active]:bg-info data-[state=active]:text-info-foreground"
           >
             <Globe className="h-4 w-4" />
             {t.manufacturers.globalManufacturers} ({globalManufacturers.length})

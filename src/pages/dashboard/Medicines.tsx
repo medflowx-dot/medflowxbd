@@ -116,7 +116,7 @@ export default function Medicines() {
             <CardTitle className="text-xs sm:text-sm font-medium">{t.medicines.totalMedicines}</CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0">
-            <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{medicines.length}</div>
+            <div className="text-xl sm:text-2xl font-bold text-info">{medicines.length}</div>
             <p className="text-xs text-muted-foreground">{t.medicines.registeredInSystem}</p>
           </CardContent>
         </Card>
@@ -129,7 +129,7 @@ export default function Medicines() {
             <CardTitle className="text-xs sm:text-sm font-medium">{t.medicines.expiryAlerts}</CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0">
-            <div className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400">{totalAlerts}</div>
+            <div className="text-xl sm:text-2xl font-bold text-destructive">{totalAlerts}</div>
             <p className="text-xs text-muted-foreground">{expired.length} {t.medicines.expired}, {expiring30.length} {t.medicines.expiringSoon}</p>
           </CardContent>
         </Card>
@@ -149,7 +149,7 @@ export default function Medicines() {
             {totalAlerts > 0 && (
               <span className={cn(
                 "absolute -top-1 -right-1 h-4 w-4 rounded-full text-[10px] font-bold flex items-center justify-center",
-                "bg-gradient-to-r from-red-500 to-red-600 text-white",
+                "bg-destructive text-destructive-foreground",
                 "badge-animated"
               )}>
                 {totalAlerts > 9 ? '9+' : totalAlerts}
@@ -160,7 +160,7 @@ export default function Medicines() {
 
         <TabsContent value="inventory" className="space-y-4">
           <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-950/30 dark:to-transparent">
+            <CardHeader className="bg-info/10">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <CardTitle className="flex items-center gap-2">

@@ -93,7 +93,7 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
                 {showBadge && (
                   <span className={cn(
                     "absolute -top-1 -right-1 h-4 w-4 rounded-full text-[10px] font-bold flex items-center justify-center",
-                    "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md",
+                    "bg-destructive text-destructive-foreground shadow-md",
                     "badge-animated"
                   )}>
                     {(badges?.expiryAlerts || 0) > 9 ? '9+' : badges?.expiryAlerts}

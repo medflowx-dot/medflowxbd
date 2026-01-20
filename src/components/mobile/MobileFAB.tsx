@@ -71,7 +71,7 @@ export function MobileFAB({ actions }: MobileFABProps) {
             "transition-all duration-300 ease-out",
             "active:scale-95 touch-manipulation",
             isExpanded 
-              ? "bg-gradient-to-br from-red-500 to-red-600 rotate-45 shadow-lg shadow-red-500/30" 
+              ? "bg-destructive rotate-45 shadow-lg shadow-destructive/30" 
               : "fab-gradient"
           )}
         >

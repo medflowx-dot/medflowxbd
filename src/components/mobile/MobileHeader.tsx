@@ -148,7 +148,7 @@ export function MobileHeader({
               {expiryAlerts > 0 && (
                 <span className={cn(
                   "absolute top-0.5 right-0.5 h-4 w-4 rounded-full text-[10px] font-bold flex items-center justify-center",
-                  "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg",
+                  "bg-destructive text-destructive-foreground shadow-lg",
                   "badge-animated"
                 )}>
                   {expiryAlerts > 9 ? '9+' : expiryAlerts}

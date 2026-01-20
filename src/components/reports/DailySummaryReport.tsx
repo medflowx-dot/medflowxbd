@@ -80,17 +80,17 @@ export function DailySummaryReportView({ dateRange }: DailySummaryReportProps) {
             <p className="text-sm text-muted-foreground">{t.reports.totalSales}</p>
             <p className="text-xl font-bold">৳{totals.totalSales.toLocaleString()}</p>
           </div>
-          <div className="p-4 rounded-lg bg-green-500/10">
+          <div className="p-4 rounded-lg bg-success/10">
             <p className="text-sm text-muted-foreground">{t.reports.totalPaid}</p>
-            <p className="text-xl font-bold text-green-600">৳{totals.totalPaid.toLocaleString()}</p>
+            <p className="text-xl font-bold text-success">৳{totals.totalPaid.toLocaleString()}</p>
           </div>
-          <div className="p-4 rounded-lg bg-red-500/10">
+          <div className="p-4 rounded-lg bg-destructive/10">
             <p className="text-sm text-muted-foreground">{t.reports.totalDue}</p>
-            <p className="text-xl font-bold text-red-600">৳{totals.totalDue.toLocaleString()}</p>
+            <p className="text-xl font-bold text-destructive">৳{totals.totalDue.toLocaleString()}</p>
           </div>
-          <div className="p-4 rounded-lg bg-blue-500/10">
+          <div className="p-4 rounded-lg bg-info/10">
             <p className="text-sm text-muted-foreground">{t.reports.netCashFlow}</p>
-            <p className={`text-xl font-bold ${totals.netCashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`text-xl font-bold ${totals.netCashFlow >= 0 ? 'text-success' : 'text-destructive'}`}>
               ৳{totals.netCashFlow.toLocaleString()}
             </p>
           </div>

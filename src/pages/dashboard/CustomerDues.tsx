@@ -250,11 +250,11 @@ export default function CustomerDues() {
                       </TableCell>
                       <TableCell className="text-right">
                         {Number(customer.total_due) > 0 ? (
-                          <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white border-0 shadow-sm">
+                          <Badge className="bg-destructive text-destructive-foreground border-0 shadow-sm">
                             ৳{Number(customer.total_due).toFixed(0)}
                           </Badge>
                         ) : (
-                          <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white border-0 shadow-sm">
+                          <Badge className="bg-success text-success-foreground border-0 shadow-sm">
                             {t.customerDues.paid}
                           </Badge>
                         )}
