@@ -7,7 +7,7 @@ import { MobileMoreMenu } from './MobileMoreMenu';
 import { PullToRefresh } from './PullToRefresh';
 import { ImpersonationBanner } from '@/components/dashboard/ImpersonationBanner';
 import { SubscriptionBanner } from '@/components/dashboard/SubscriptionBanner';
-import { ShoppingCart, Package, Layers, Wallet, Factory, Truck, Users, Clock, FileText, Settings } from 'lucide-react';
+import { Factory, Truck, Users, Clock, FileText, Settings } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -73,34 +73,6 @@ export function MobileLayout() {
   }, [location.pathname, queryClient]);
 
   const fabActions = [
-    {
-      id: 'quickSale',
-      label: t.sales?.quickEntry || 'দ্রুত বিক্রয়',
-      icon: ShoppingCart,
-      onClick: () => navigate('/dashboard/sales'),
-      color: 'bg-success text-success-foreground',
-    },
-    {
-      id: 'addMedicine',
-      label: t.medicines?.addMedicine || 'ওষুধ যোগ',
-      icon: Package,
-      onClick: () => navigate('/dashboard/medicines'),
-      color: 'bg-info text-info-foreground',
-    },
-    {
-      id: 'addBatch',
-      label: t.batches?.addBatch || 'ব্যাচ যোগ',
-      icon: Layers,
-      onClick: () => navigate('/dashboard/batches'),
-      color: 'bg-purple text-purple-foreground',
-    },
-    {
-      id: 'addCost',
-      label: t.dailyCash?.addCost || 'খরচ যোগ',
-      icon: Wallet,
-      onClick: () => navigate('/dashboard/daily-cash'),
-      color: 'bg-warning text-warning-foreground',
-    },
     {
       id: 'manufacturers',
       label: t.nav?.manufacturers || 'প্রস্তুতকারক',
