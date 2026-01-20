@@ -628,6 +628,42 @@ export type Database = {
           },
         ]
       }
+      notification_logs: {
+        Row: {
+          channel: string
+          created_at: string
+          days_before_expiry: number | null
+          error_message: string | null
+          id: string
+          notification_type: string
+          sent_at: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          days_before_expiry?: number | null
+          error_message?: string | null
+          id?: string
+          notification_type: string
+          sent_at?: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          days_before_expiry?: number | null
+          error_message?: string | null
+          id?: string
+          notification_type?: string
+          sent_at?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       opening_cash: {
         Row: {
           amount: number
