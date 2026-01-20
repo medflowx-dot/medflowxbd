@@ -145,15 +145,28 @@ serve(async (req: Request): Promise<Response> => {
     );
 
     const body = await req.json();
-    const { userId, channel = "both", testMode, testPhone, testMessage } = body;
+    const { userId, channel = "both", testMode, testPhone, testMessage, testApiKey, testSenderId } = body;
 
-    // Handle test SMS mode
+    // Handle test SMS mode - can use direct credentials from request body for testing
     if (testMode && testPhone && testMessage) {
       console.log("Test SMS mode - sending to:", testPhone);
-      const smsConfig = await getSmsConfig(supabaseAdmin);
       
-      if (!smsConfig.enabled || !smsConfig.apiKey || !smsConfig.senderId) {
-        throw new Error("BulkSMSBD is not configured or enabled");
+      let smsConfig: { apiKey: string; senderId: string; enabled: boolean };
+      
+      // If test credentials are provided directly, use them (for testing before save)
+      if (testApiKey && testSenderId) {
+        smsConfig = {
+          apiKey: testApiKey,
+          senderId: testSenderId,
+          enabled: true,
+        };
+        console.log("Using test credentials from request");
+      } else {
+        // Otherwise, get from database
+        smsConfig = await getSmsConfig(supabaseAdmin);
+        if (!smsConfig.enabled || !smsConfig.apiKey || !smsConfig.senderId) {
+          throw new Error("BulkSMSBD is not configured or enabled. Please save settings first.");
+        }
       }
 
       const smsSent = await sendSMS(testPhone, testMessage, smsConfig);
