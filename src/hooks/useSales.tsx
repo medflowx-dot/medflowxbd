@@ -244,6 +244,37 @@ export function useSales(dateFilter?: Date) {
     },
   });
 
+  const updateSale = useMutation({
+    mutationFn: async ({
+      id,
+      ...updates
+    }: {
+      id: string;
+      discount?: number;
+      paid_amount?: number;
+      due_amount?: number;
+      payment_method?: string;
+      notes?: string;
+    }) => {
+      const { data, error } = await supabase
+        .from('sales')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sales'] });
+      toast({ title: 'Sale updated successfully' });
+    },
+    onError: (error) => {
+      toast({ title: 'Failed to update sale', description: error.message, variant: 'destructive' });
+    },
+  });
+
   const deleteSale = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -285,6 +316,7 @@ export function useSales(dateFilter?: Date) {
     error: salesQuery.error,
     createSale,
     createQuickSale,
+    updateSale,
     deleteSale,
     todayStats: {
       total: todayTotal,

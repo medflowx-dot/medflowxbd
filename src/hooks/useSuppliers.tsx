@@ -227,6 +227,47 @@ export function useSuppliers() {
     },
   });
 
+  const updatePurchaseMutation = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<SupplierPurchase> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('supplier_purchases')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['supplier-purchases'] });
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      toast.success('Purchase updated successfully');
+    },
+    onError: (error) => {
+      toast.error('Failed to update purchase: ' + error.message);
+    },
+  });
+
+  const deletePurchaseMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('supplier_purchases')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['supplier-purchases'] });
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      toast.success('Purchase deleted successfully');
+    },
+    onError: (error) => {
+      toast.error('Failed to delete purchase: ' + error.message);
+    },
+  });
+
   const addPaymentMutation = useMutation({
     mutationFn: async (payment: Omit<SupplierPayment, 'id' | 'user_id' | 'created_at' | 'supplier'>) => {
       if (!user) throw new Error('User not authenticated');
@@ -303,6 +344,8 @@ export function useSuppliers() {
     updateSupplier: updateSupplierMutation.mutateAsync,
     deleteSupplier: deleteSupplierMutation.mutateAsync,
     addPurchase: addPurchaseMutation.mutateAsync,
+    updatePurchase: updatePurchaseMutation.mutateAsync,
+    deletePurchase: deletePurchaseMutation.mutateAsync,
     addPayment: addPaymentMutation.mutateAsync,
     updatePayment: updatePaymentMutation.mutateAsync,
     deletePayment: deletePaymentMutation.mutateAsync,

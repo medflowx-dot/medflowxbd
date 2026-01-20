@@ -439,6 +439,10 @@ export const en = {
     anyNotes: 'Any notes...',
     processing: 'Processing...',
     completeSale: 'Complete Sale',
+    // Edit Sale
+    editSale: 'Edit Sale',
+    editSaleDesc: 'Update sale payment details',
+    updateSale: 'Update Sale',
   },
 
   // Suppliers Page
@@ -555,6 +559,15 @@ export const en = {
     deletePayment: 'Delete Payment',
     deletePaymentConfirm: 'Are you sure you want to delete this payment?',
     deletePaymentWarning: 'This will update the supplier\'s due balance. This action cannot be undone.',
+    // Purchase Edit/Delete
+    editPurchase: 'Edit Purchase',
+    editPurchaseDesc: 'Update the purchase details',
+    updatePurchase: 'Update Purchase',
+    deletePurchase: 'Delete Purchase',
+    deletePurchaseConfirm: 'Are you sure you want to delete this purchase?',
+    deletePurchaseWarning: 'This will update the supplier\'s due balance.',
+    invoiceNumber: 'Invoice #',
+    dueAmount: 'Due Amount',
   },
 
   // Settings Page
@@ -683,6 +696,10 @@ export const en = {
     selectDateRange: 'Select a date range for the report',
     reportGenerated: 'Report Generated',
     pdfDownloaded: 'PDF report for {name} has been downloaded.',
+    // Edit/Update
+    editCustomer: 'Edit Customer',
+    editCustomerDesc: 'Update customer information',
+    updateCustomer: 'Update Customer',
   },
 
   // Daily Cash Page
@@ -797,6 +814,10 @@ export const en = {
     reportSuccess: 'Report generated successfully',
     reportError: 'Failed to generate report',
     invalidDateRange: 'Please select a valid date range',
+    // Edit Cost
+    editCost: 'Edit Cost',
+    editCostDesc: 'Update the cost details',
+    updateCost: 'Update Cost',
   },
 
   // Reports Page

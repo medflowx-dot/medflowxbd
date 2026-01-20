@@ -441,6 +441,10 @@ export const bn: TranslationKeys = {
     anyNotes: 'কোনো নোট...',
     processing: 'প্রসেসিং...',
     completeSale: 'বিক্রয় সম্পন্ন করুন',
+    // Edit Sale
+    editSale: 'সেল সম্পাদনা',
+    editSaleDesc: 'সেল পেমেন্ট বিবরণ আপডেট করুন',
+    updateSale: 'সেল আপডেট করুন',
   },
 
   // Suppliers Page
@@ -557,6 +561,15 @@ export const bn: TranslationKeys = {
     deletePayment: 'পেমেন্ট মুছুন',
     deletePaymentConfirm: 'আপনি কি এই পেমেন্ট মুছে ফেলতে চান?',
     deletePaymentWarning: 'এটি সরবরাহকারীর বকেয়া ব্যালেন্স আপডেট করবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।',
+    // Purchase Edit/Delete
+    editPurchase: 'ক্রয় সম্পাদনা',
+    editPurchaseDesc: 'ক্রয়ের বিবরণ আপডেট করুন',
+    updatePurchase: 'ক্রয় আপডেট করুন',
+    deletePurchase: 'ক্রয় মুছুন',
+    deletePurchaseConfirm: 'আপনি কি এই ক্রয় মুছে ফেলতে চান?',
+    deletePurchaseWarning: 'এটি সরবরাহকারীর বকেয়া ব্যালেন্স আপডেট করবে।',
+    invoiceNumber: 'ইনভয়েস #',
+    dueAmount: 'বকেয়া পরিমাণ',
   },
 
   // Settings Page
@@ -685,6 +698,10 @@ export const bn: TranslationKeys = {
     selectDateRange: 'রিপোর্টের জন্য তারিখ পরিসীমা নির্বাচন করুন',
     reportGenerated: 'রিপোর্ট তৈরি হয়েছে',
     pdfDownloaded: '{name} এর জন্য PDF রিপোর্ট ডাউনলোড হয়েছে।',
+    // Edit/Update
+    editCustomer: 'গ্রাহক সম্পাদনা',
+    editCustomerDesc: 'গ্রাহকের তথ্য আপডেট করুন',
+    updateCustomer: 'গ্রাহক আপডেট করুন',
   },
 
   // Daily Cash Page
@@ -799,6 +816,10 @@ export const bn: TranslationKeys = {
     reportSuccess: 'রিপোর্ট সফলভাবে তৈরি হয়েছে',
     reportError: 'রিপোর্ট তৈরি করতে ব্যর্থ',
     invalidDateRange: 'দয়া করে একটি বৈধ তারিখ পরিসীমা নির্বাচন করুন',
+    // Edit Cost
+    editCost: 'খরচ সম্পাদনা',
+    editCostDesc: 'খরচের বিবরণ আপডেট করুন',
+    updateCost: 'খরচ আপডেট করুন',
   },
 
   // Reports Page
