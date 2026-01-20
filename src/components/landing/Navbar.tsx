@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
 import { useTheme } from 'next-themes';
-import logoLight from '@/assets/logo-light.png';
-import logoDark from '@/assets/logo-dark.png';
+import { usePlatformBranding } from '@/hooks/usePlatformBranding';
+import logoLightFallback from '@/assets/logo-light.png';
+import logoDarkFallback from '@/assets/logo-dark.png';
 
 // Default navigation links
 const defaultNavLinks = [
@@ -20,6 +21,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data: cmsContent } = useCMSContent('navbar');
   const { resolvedTheme } = useTheme();
+  const { logoLight, logoDark } = usePlatformBranding();
 
   const loginText = getCMSValue(cmsContent, 'loginText', 'লগইন');
   const signupText = getCMSValue(cmsContent, 'signupText', 'ফ্রি ট্রায়াল শুরু করুন');
@@ -44,8 +46,10 @@ const Navbar = () => {
     setIsOpen(false);
   }, []);
 
-  // Choose logo based on theme
-  const logo = resolvedTheme === 'dark' ? logoDark : logoLight;
+  // Choose logo based on theme (with fallbacks for static imports)
+  const lightLogo = logoLight.startsWith('/src') ? logoLightFallback : logoLight;
+  const darkLogo = logoDark.startsWith('/src') ? logoDarkFallback : logoDark;
+  const logo = resolvedTheme === 'dark' ? darkLogo : lightLogo;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50">

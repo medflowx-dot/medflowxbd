@@ -14,7 +14,8 @@ import {
   Apple,
   Chrome
 } from 'lucide-react';
-import logoAuth from '@/assets/logo-auth.png';
+import { usePlatformBranding } from '@/hooks/usePlatformBranding';
+import logoAuthFallback from '@/assets/logo-auth.png';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -23,6 +24,8 @@ interface BeforeInstallPromptEvent extends Event {
 
 export default function Install() {
   const navigate = useNavigate();
+  const { logoAuth } = usePlatformBranding();
+  const platformLogo = logoAuth.startsWith('/src') ? logoAuthFallback : logoAuth;
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -129,7 +132,7 @@ export default function Install() {
         {/* Hero Section */}
         <div className="text-center mb-8">
           <div className="mx-auto w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-lg">
-            <img src={logoAuth} alt="MedFlowx" className="w-full h-full object-cover" />
+            <img src={platformLogo} alt="MedFlowx" className="w-full h-full object-cover" />
           </div>
           <h2 className="text-2xl font-bold mb-2">MedFlowx অ্যাপ ইনস্টল করুন</h2>
           <p className="text-muted-foreground">

@@ -9,6 +9,7 @@ import { usePlatformSettings, useUpdatePlatformSetting } from '@/hooks/useOwnerD
 import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send, CreditCard, ExternalLink, Bell, MessageSquare, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { PlatformBrandingUpload } from '@/components/owner/PlatformBrandingUpload';
 
 export default function OwnerSettings() {
   const { data: settings, isLoading } = usePlatformSettings();
@@ -187,6 +188,9 @@ export default function OwnerSettings() {
           </Button>
         )}
       </div>
+
+      {/* Platform Branding Assets Upload */}
+      <PlatformBrandingUpload settings={localSettings} />
 
       {/* Branding Settings */}
       <Card className="border-0 shadow-card">
