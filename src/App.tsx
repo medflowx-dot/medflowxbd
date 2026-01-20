@@ -57,6 +57,7 @@ const OwnerSettings = lazy(() => import("./pages/owner/OwnerSettings"));
 const EmailTemplates = lazy(() => import("./pages/owner/EmailTemplates"));
 const GlobalManufacturers = lazy(() => import("./pages/owner/GlobalManufacturers"));
 const GlobalMedicines = lazy(() => import("./pages/owner/GlobalMedicines"));
+const NotificationLogs = lazy(() => import("./pages/owner/NotificationLogs"));
 
 const queryClient = new QueryClient();
 
@@ -143,6 +144,7 @@ const App = () => (
                     <Route path="system-review" element={<SystemReview />} />
                     <Route path="cms" element={<CMSManager />} />
                     <Route path="email-templates" element={<EmailTemplates />} />
+                    <Route path="notification-logs" element={<NotificationLogs />} />
                     <Route path="logs" element={<AuditLogs />} />
                     <Route path="settings" element={<OwnerSettings />} />
                   </Route>

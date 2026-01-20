@@ -18,6 +18,7 @@ import {
   Shield,
   Crown,
   Mail,
+  Bell,
   Building2,
   Pill,
   Database,
@@ -96,6 +97,11 @@ const systemItems = [
     title: 'Email Templates',
     href: '/owner/email-templates',
     icon: Mail,
+  },
+  {
+    title: 'Notification Logs',
+    href: '/owner/notification-logs',
+    icon: Bell,
   },
   {
     title: 'Audit Logs',
