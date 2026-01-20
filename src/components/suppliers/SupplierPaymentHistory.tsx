@@ -18,8 +18,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { SupplierPayment, SupplierPaymentType, useSuppliers } from '@/hooks/useSuppliers';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Wallet, ArrowUpCircle, MoreHorizontal, Trash2, Search, Filter, X } from 'lucide-react';
+import { Wallet, ArrowUpCircle, MoreHorizontal, Trash2, Search, Filter, X, FileDown } from 'lucide-react';
 import { EditSupplierPaymentDialog } from './EditSupplierPaymentDialog';
+import { generateSupplierPaymentHistoryPDF, SupplierPaymentHistoryItem } from '@/lib/pdfGenerator';
 
 interface SupplierPaymentHistoryProps {
   payments: SupplierPayment[];
@@ -173,6 +174,36 @@ export function SupplierPaymentHistory({ payments }: SupplierPaymentHistoryProps
   // Calculate totals
   const totalFiltered = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
 
+  // Export to PDF handler
+  const handleExportPDF = () => {
+    const pdfPayments: SupplierPaymentHistoryItem[] = filteredPayments.map(p => ({
+      id: p.id,
+      supplier_name: p.supplier?.name || 'Unknown',
+      amount: p.amount,
+      payment_date: p.payment_date,
+      payment_method: p.payment_method,
+      payment_type: p.payment_type || 'due_payment',
+      reference_number: p.reference_number,
+      notes: p.notes,
+    }));
+
+    // Get supplier name for filter display
+    const supplierName = supplierFilter !== 'all' 
+      ? uniqueSuppliers.find(s => s.id === supplierFilter)?.name || supplierFilter
+      : undefined;
+
+    generateSupplierPaymentHistoryPDF({
+      payments: pdfPayments,
+      filters: {
+        dateRange: dateFilter !== 'all' ? dateFilter : undefined,
+        paymentType: paymentTypeFilter !== 'all' ? paymentTypeFilter : undefined,
+        supplier: supplierName,
+        searchQuery: searchQuery || undefined,
+      },
+      totalAmount: totalFiltered,
+    });
+  };
+
   if (payments.length === 0) {
     return (
       <Card>
@@ -203,17 +234,25 @@ export function SupplierPaymentHistory({ payments }: SupplierPaymentHistoryProps
                 }
               </CardDescription>
             </div>
-            {hasActiveFilters && (
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="text-sm">
-                  {t.labels?.total || 'Total'}: ৳{totalFiltered.toFixed(2)}
-                </Badge>
-                <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8">
-                  <X className="h-4 w-4 mr-1" />
-                  {t.suppliers?.clearFilters || 'Clear'}
+            <div className="flex items-center gap-2 flex-wrap">
+              {filteredPayments.length > 0 && (
+                <Button variant="outline" size="sm" onClick={handleExportPDF} className="h-8">
+                  <FileDown className="h-4 w-4 mr-1" />
+                  {t.reports?.exportPDF || 'Export PDF'}
                 </Button>
-              </div>
-            )}
+              )}
+              {hasActiveFilters && (
+                <>
+                  <Badge variant="secondary" className="text-sm">
+                    {t.labels?.total || 'Total'}: ৳{totalFiltered.toFixed(2)}
+                  </Badge>
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8">
+                    <X className="h-4 w-4 mr-1" />
+                    {t.suppliers?.clearFilters || 'Clear'}
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
