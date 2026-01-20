@@ -658,6 +658,68 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_requests: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          payment_method: string
+          phone_number: string | null
+          plan_id: string | null
+          plan_type: string
+          rejection_reason: string | null
+          status: string
+          submitted_at: string
+          transaction_id: string
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_method: string
+          phone_number?: string | null
+          plan_id?: string | null
+          plan_type: string
+          rejection_reason?: string | null
+          status?: string
+          submitted_at?: string
+          transaction_id: string
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_method?: string
+          phone_number?: string | null
+          plan_id?: string | null
+          plan_type?: string
+          rejection_reason?: string | null
+          status?: string
+          submitted_at?: string
+          transaction_id?: string
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_requests_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
