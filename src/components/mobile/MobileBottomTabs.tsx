@@ -1,7 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, ShoppingCart, Package, Bell, Menu } from 'lucide-react';
+import { Home, ShoppingCart, Layers, Wallet, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useSidebarBadges } from '@/hooks/useSidebarBadges';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TabItem {
@@ -15,8 +14,8 @@ interface TabItem {
 const tabs: TabItem[] = [
   { id: 'home', labelKey: 'home', icon: Home, path: '/dashboard' },
   { id: 'sales', labelKey: 'sales', icon: ShoppingCart, path: '/dashboard/sales' },
-  { id: 'medicines', labelKey: 'medicines', icon: Package, path: '/dashboard/medicines' },
-  { id: 'alerts', labelKey: 'alerts', icon: Bell, path: '/dashboard/alerts' },
+  { id: 'batches', labelKey: 'batches', icon: Layers, path: '/dashboard/batches' },
+  { id: 'dailyCash', labelKey: 'dailyCash', icon: Wallet, path: '/dashboard/daily-cash' },
   { id: 'more', labelKey: 'more', icon: Menu, action: 'more' },
 ];
 
@@ -27,7 +26,6 @@ interface MobileBottomTabsProps {
 export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { data: badges } = useSidebarBadges();
   const { t } = useLanguage();
 
   const isActive = (path?: string) => {
@@ -50,8 +48,8 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
     const labels: Record<string, string> = {
       home: t.nav?.dashboard || 'হোম',
       sales: t.nav?.sales || 'বিক্রয়',
-      medicines: t.nav?.medicines || 'ওষুধ',
-      alerts: t.nav?.alerts || 'এলার্ট',
+      batches: t.nav?.batches || 'ব্যাচ',
+      dailyCash: t.nav?.dailyCash || 'ক্যাশ',
       more: 'আরও',
     };
     return labels[key] || key;
@@ -63,7 +61,6 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           const Icon = tab.icon;
-          const showBadge = tab.id === 'alerts' && (badges?.expiryAlerts || 0) > 0;
 
           return (
             <button
@@ -90,15 +87,6 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
                     active && "scale-110"
                   )} />
                 </div>
-                {showBadge && (
-                  <span className={cn(
-                    "absolute -top-1 -right-1 h-4 w-4 rounded-full text-[10px] font-bold flex items-center justify-center",
-                    "bg-destructive text-destructive-foreground shadow-md",
-                    "badge-animated"
-                  )}>
-                    {(badges?.expiryAlerts || 0) > 9 ? '9+' : badges?.expiryAlerts}
-                  </span>
-                )}
               </div>
               <span className={cn(
                 "text-[10px] font-medium transition-all duration-200",
