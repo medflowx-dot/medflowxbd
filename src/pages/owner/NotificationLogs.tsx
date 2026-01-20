@@ -13,10 +13,11 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Loader2, Search, Bell, Mail, MessageSquare, CheckCircle2, XCircle, 
-  RefreshCw, Filter, CalendarIcon, Clock, AlertTriangle, TrendingUp
+  RefreshCw, Filter, CalendarIcon, Clock, AlertTriangle, TrendingUp, Play
 } from 'lucide-react';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { bn } from 'date-fns/locale';
+import { toast } from 'sonner';
 
 interface NotificationLog {
   id: string;
@@ -120,11 +121,35 @@ export default function NotificationLogs() {
     from: subDays(new Date(), 7),
     to: new Date(),
   });
+  const [isRunning, setIsRunning] = useState(false);
 
   const { data: logs, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['notification-logs', dateRange],
     queryFn: () => fetchNotificationLogs(dateRange.from, dateRange.to),
   });
+
+  const handleRunNow = async () => {
+    setIsRunning(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('subscription-expiry-notifications');
+      
+      if (error) throw error;
+      
+      const results = data?.results || {};
+      toast.success(
+        `নোটিফিকেশন সম্পন্ন: ${results.emailsSent || 0} Email, ${results.smsSent || 0} SMS পাঠানো হয়েছে। প্রসেস: ${results.processed || 0}, স্কিপ: ${results.skipped || 0}`,
+        { duration: 5000 }
+      );
+      
+      // Refresh the logs
+      setTimeout(() => refetch(), 1000);
+    } catch (error: any) {
+      console.error('Error running notifications:', error);
+      toast.error(error.message || 'নোটিফিকেশন রান করতে সমস্যা হয়েছে');
+    } finally {
+      setIsRunning(false);
+    }
+  };
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -176,10 +201,24 @@ export default function NotificationLogs() {
             <p className="text-muted-foreground">Track all email & SMS notifications</p>
           </div>
         </div>
-        <Button variant="outline" onClick={() => refetch()} disabled={isFetching}>
-          <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            onClick={handleRunNow} 
+            disabled={isRunning}
+            className="bg-success hover:bg-success/90"
+          >
+            {isRunning ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Play className="h-4 w-4 mr-2" />
+            )}
+            Run Now
+          </Button>
+          <Button variant="outline" onClick={() => refetch()} disabled={isFetching}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
