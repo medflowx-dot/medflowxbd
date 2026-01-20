@@ -162,8 +162,7 @@ export default function Reports() {
                 value="sales" 
                 className={cn(
                   "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
-                  "data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600",
-                  "data-[state=active]:text-white data-[state=active]:shadow-md"
+                  "data-[state=active]:bg-success data-[state=active]:text-success-foreground data-[state=active]:shadow-md"
                 )}
               >
                 <TrendingUp className="h-4 w-4" />
@@ -174,8 +173,7 @@ export default function Reports() {
                 value="supplier-reports" 
                 className={cn(
                   "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
-                  "data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600",
-                  "data-[state=active]:text-white data-[state=active]:shadow-md"
+                  "data-[state=active]:bg-info data-[state=active]:text-info-foreground data-[state=active]:shadow-md"
                 )}
               >
                 <Package className="h-4 w-4" />
@@ -186,8 +184,7 @@ export default function Reports() {
                 value="supplier-due" 
                 className={cn(
                   "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
-                  "data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-amber-600",
-                  "data-[state=active]:text-white data-[state=active]:shadow-md"
+                  "data-[state=active]:bg-warning data-[state=active]:text-warning-foreground data-[state=active]:shadow-md"
                 )}
               >
                 <Truck className="h-4 w-4" />
@@ -198,8 +195,7 @@ export default function Reports() {
                 value="customer-due" 
                 className={cn(
                   "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
-                  "data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600",
-                  "data-[state=active]:text-white data-[state=active]:shadow-md"
+                  "data-[state=active]:bg-purple data-[state=active]:text-purple-foreground data-[state=active]:shadow-md"
                 )}
               >
                 <Users className="h-4 w-4" />
