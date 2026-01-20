@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Building2, Search, Plus, Upload, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Building2, Search, Plus, Upload, MoreHorizontal, Pencil, Trash2, Download } from 'lucide-react';
 import { useGlobalManufacturers, GlobalManufacturer } from '@/hooks/useGlobalManufacturers';
 import {
   Dialog,
@@ -121,9 +121,16 @@ export default function GlobalManufacturers() {
             className="hidden"
             onChange={handleFileUpload}
           />
-          <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+          <Button 
+            variant="outline" 
+            onClick={() => window.open('/templates/global-manufacturers-template.csv', '_blank')}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Download Template
+          </Button>
+          <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={bulkCreate.isPending}>
             <Upload className="h-4 w-4 mr-2" />
-            Bulk Import
+            {bulkCreate.isPending ? 'Importing...' : 'Bulk Import'}
           </Button>
           <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
