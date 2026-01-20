@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, ShoppingCart, Layers, Wallet, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSidebarBadges } from '@/hooks/useSidebarBadges';
 
 interface TabItem {
   id: string;
@@ -9,6 +10,7 @@ interface TabItem {
   icon: React.ElementType;
   path?: string;
   action?: 'more';
+  badge?: 'alerts';
 }
 
 const tabs: TabItem[] = [
@@ -16,7 +18,7 @@ const tabs: TabItem[] = [
   { id: 'sales', labelKey: 'sales', icon: ShoppingCart, path: '/dashboard/sales' },
   { id: 'batches', labelKey: 'batches', icon: Layers, path: '/dashboard/batches' },
   { id: 'dailyCash', labelKey: 'dailyCash', icon: Wallet, path: '/dashboard/daily-cash' },
-  { id: 'more', labelKey: 'more', icon: Menu, action: 'more' },
+  { id: 'more', labelKey: 'more', icon: Menu, action: 'more', badge: 'alerts' },
 ];
 
 interface MobileBottomTabsProps {
@@ -27,6 +29,7 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { data: badges } = useSidebarBadges();
 
   const isActive = (path?: string) => {
     if (!path) return false;
@@ -54,6 +57,8 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
     };
     return labels[key] || key;
   };
+
+  const totalAlerts = (badges?.expiryAlerts || 0) + (badges?.customerDues || 0) + (badges?.supplierDues || 0);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 mobile-tab-glass border-t border-border/50 md:hidden safe-area-bottom">
@@ -87,6 +92,11 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
                     active && "scale-110"
                   )} />
                 </div>
+                {tab.badge === 'alerts' && totalAlerts > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full text-[9px] font-bold flex items-center justify-center bg-destructive text-destructive-foreground shadow-sm">
+                    {totalAlerts > 9 ? '9+' : totalAlerts}
+                  </span>
+                )}
               </div>
               <span className={cn(
                 "text-[10px] font-medium transition-colors duration-100",

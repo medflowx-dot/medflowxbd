@@ -9,6 +9,7 @@ import {
   LogOut,
   Layers,
   Clock,
+  Bell,
 } from 'lucide-react';
 import {
   Drawer,
@@ -27,7 +28,7 @@ interface MenuItem {
   labelKey: string;
   icon: React.ElementType;
   path: string;
-  badge?: 'customerDues' | 'supplierDues';
+  badge?: 'customerDues' | 'supplierDues' | 'expiryAlerts';
   iconClass?: string;
 }
 
@@ -37,6 +38,7 @@ const menuItems: MenuItem[] = [
   { id: 'batches', labelKey: 'batches', icon: Layers, path: '/dashboard/batches', iconClass: 'icon-container-primary' },
   { id: 'dailyCash', labelKey: 'dailyCash', icon: Calendar, path: '/dashboard/daily-cash', iconClass: 'icon-container-success' },
   { id: 'customerDues', labelKey: 'customerDues', icon: Users, path: '/dashboard/customer-dues', badge: 'customerDues', iconClass: 'icon-container-warning' },
+  { id: 'alerts', labelKey: 'alerts', icon: Bell, path: '/dashboard/alerts', badge: 'expiryAlerts', iconClass: 'icon-container-danger' },
   { id: 'expiry', labelKey: 'expiryMonitoring', icon: Clock, path: '/dashboard/expiry', iconClass: 'icon-container-danger' },
   { id: 'reports', labelKey: 'reports', icon: FileText, path: '/dashboard/reports', iconClass: 'icon-container-primary' },
   { id: 'settings', labelKey: 'settings', icon: Settings, path: '/dashboard/settings', iconClass: 'bg-muted' },
@@ -60,6 +62,7 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
       batches: t.nav?.batches || 'ব্যাচ',
       dailyCash: t.nav?.dailyCash || 'দৈনিক ক্যাশ',
       customerDues: t.nav?.customerDues || 'গ্রাহক বাকি',
+      alerts: t.nav?.alerts || 'এলার্ট',
       expiryMonitoring: t.nav?.expiryMonitor || 'মেয়াদ পর্যবেক্ষণ',
       reports: t.nav?.reports || 'রিপোর্ট',
       settings: t.nav?.settings || 'সেটিংস',
@@ -67,9 +70,10 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
     return labels[key] || key;
   };
 
-  const getBadgeCount = (badge?: 'customerDues' | 'supplierDues') => {
+  const getBadgeCount = (badge?: 'customerDues' | 'supplierDues' | 'expiryAlerts') => {
     if (badge === 'customerDues') return badges?.customerDues || 0;
     if (badge === 'supplierDues') return badges?.supplierDues || 0;
+    if (badge === 'expiryAlerts') return badges?.expiryAlerts || 0;
     return 0;
   };
 
