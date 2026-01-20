@@ -303,7 +303,7 @@ export default function DashboardHome() {
                         >
                           <span className="text-[10px] sm:text-sm truncate max-w-[55%]">{customer.name}</span>
                           <span className="text-[10px] sm:text-sm font-semibold text-warning">
-                            ৳{customer.totalDue.toLocaleString()}
+                            ৳{customer.totalDue > 0 ? customer.totalDue.toLocaleString() : '0'}
                           </span>
                         </div>
                       ))
@@ -311,7 +311,7 @@ export default function DashboardHome() {
                   </div>
                   <Link to="/dashboard/customer-dues">
                     <Button variant="ghost" size="sm" className="w-full gap-0.5 text-[10px] sm:text-xs h-6 sm:h-8 px-1 sm:px-2">
-                      <span className="truncate">{t.dashboard.total}: ৳{dueAlerts?.totalCustomerDue?.toLocaleString() || 0}</span>
+                      <span className="truncate">{t.dashboard.total}: ৳{(dueAlerts?.totalCustomerDue ?? 0) > 0 ? dueAlerts?.totalCustomerDue?.toLocaleString() : '0'}</span>
                       <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
                     </Button>
                   </Link>
@@ -336,7 +336,7 @@ export default function DashboardHome() {
                         >
                           <span className="text-[10px] sm:text-sm truncate max-w-[55%]">{supplier.name}</span>
                           <span className="text-[10px] sm:text-sm font-semibold text-info">
-                            ৳{supplier.totalDue.toLocaleString()}
+                            ৳{supplier.totalDue > 0 ? supplier.totalDue.toLocaleString() : '0'}
                           </span>
                         </div>
                       ))
@@ -344,7 +344,7 @@ export default function DashboardHome() {
                   </div>
                   <Link to="/dashboard/suppliers">
                     <Button variant="ghost" size="sm" className="w-full gap-0.5 text-[10px] sm:text-xs h-6 sm:h-8 px-1 sm:px-2">
-                      <span className="truncate">{t.dashboard.total}: ৳{dueAlerts?.totalSupplierDue?.toLocaleString() || 0}</span>
+                      <span className="truncate">{t.dashboard.total}: ৳{(dueAlerts?.totalSupplierDue ?? 0) > 0 ? dueAlerts?.totalSupplierDue?.toLocaleString() : '0'}</span>
                       <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
                     </Button>
                   </Link>
