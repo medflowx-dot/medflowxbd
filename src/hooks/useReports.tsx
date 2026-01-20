@@ -18,6 +18,11 @@ export interface DailySummaryReport {
   supplierPayments: number;
   dailyCosts: number;
   netCashFlow: number;
+  // Cash-only values for accurate cash flow
+  cashPaid: number;
+  cashDueCollected: number;
+  cashSupplierPayments: number;
+  cashDailyCosts: number;
 }
 
 export interface SalesReportItem {
@@ -49,115 +54,107 @@ export function useDailySummaryReport(dateRange: ReportDateRange) {
       const startStr = format(dateRange.start, 'yyyy-MM-dd');
       const endStr = format(dateRange.end, 'yyyy-MM-dd');
 
-      // Get sales data
+      // Get sales data (all sales for totals)
       const { data: salesData } = await supabase
         .from('sales')
-        .select('sale_date, total_amount, paid_amount, due_amount')
+        .select('sale_date, total_amount, paid_amount, due_amount, payment_method')
         .gte('sale_date', startStr)
         .lte('sale_date', endStr);
 
-      // Get customer payments
+      // Get customer payments (cash only for net cash flow)
       const { data: customerPayments } = await supabase
         .from('customer_payments')
-        .select('payment_date, amount')
+        .select('payment_date, amount, payment_method')
         .gte('payment_date', startStr)
         .lte('payment_date', endStr);
 
-      // Get supplier payments
+      // Get supplier payments (cash only for net cash flow)
       const { data: supplierPaymentsData } = await supabase
         .from('supplier_payments')
-        .select('payment_date, amount')
+        .select('payment_date, amount, payment_method')
         .gte('payment_date', startStr)
         .lte('payment_date', endStr);
 
-      // Get daily costs
+      // Get daily costs (cash only for net cash flow)
       const { data: costsData } = await supabase
         .from('daily_costs')
-        .select('cost_date, amount')
+        .select('cost_date, amount, payment_method')
         .gte('cost_date', startStr)
         .lte('cost_date', endStr);
 
       // Group by date
       const dateMap = new Map<string, DailySummaryReport>();
 
+      const getDefaultReport = (date: string): DailySummaryReport => ({
+        date,
+        totalSales: 0,
+        totalPaid: 0,
+        totalDue: 0,
+        salesCount: 0,
+        dueCollected: 0,
+        supplierPayments: 0,
+        dailyCosts: 0,
+        netCashFlow: 0,
+        cashPaid: 0,
+        cashDueCollected: 0,
+        cashSupplierPayments: 0,
+        cashDailyCosts: 0,
+      });
+
       // Process sales
       salesData?.forEach(sale => {
         const date = sale.sale_date;
-        const existing = dateMap.get(date) || {
-          date,
-          totalSales: 0,
-          totalPaid: 0,
-          totalDue: 0,
-          salesCount: 0,
-          dueCollected: 0,
-          supplierPayments: 0,
-          dailyCosts: 0,
-          netCashFlow: 0,
-        };
+        const existing = dateMap.get(date) || getDefaultReport(date);
         existing.totalSales += Number(sale.total_amount);
         existing.totalPaid += Number(sale.paid_amount);
         existing.totalDue += Number(sale.due_amount);
         existing.salesCount += 1;
+        // Track cash payments separately
+        if (sale.payment_method === 'cash') {
+          existing.cashPaid += Number(sale.paid_amount);
+        }
         dateMap.set(date, existing);
       });
 
       // Process customer payments
       customerPayments?.forEach(payment => {
         const date = payment.payment_date;
-        const existing = dateMap.get(date) || {
-          date,
-          totalSales: 0,
-          totalPaid: 0,
-          totalDue: 0,
-          salesCount: 0,
-          dueCollected: 0,
-          supplierPayments: 0,
-          dailyCosts: 0,
-          netCashFlow: 0,
-        };
+        const existing = dateMap.get(date) || getDefaultReport(date);
         existing.dueCollected += Number(payment.amount);
+        // Track cash payments separately
+        if (payment.payment_method === 'cash') {
+          existing.cashDueCollected += Number(payment.amount);
+        }
         dateMap.set(date, existing);
       });
 
       // Process supplier payments
       supplierPaymentsData?.forEach(payment => {
         const date = payment.payment_date;
-        const existing = dateMap.get(date) || {
-          date,
-          totalSales: 0,
-          totalPaid: 0,
-          totalDue: 0,
-          salesCount: 0,
-          dueCollected: 0,
-          supplierPayments: 0,
-          dailyCosts: 0,
-          netCashFlow: 0,
-        };
+        const existing = dateMap.get(date) || getDefaultReport(date);
         existing.supplierPayments += Number(payment.amount);
+        // Track cash payments separately
+        if (payment.payment_method === 'cash') {
+          existing.cashSupplierPayments += Number(payment.amount);
+        }
         dateMap.set(date, existing);
       });
 
       // Process costs
       costsData?.forEach(cost => {
         const date = cost.cost_date;
-        const existing = dateMap.get(date) || {
-          date,
-          totalSales: 0,
-          totalPaid: 0,
-          totalDue: 0,
-          salesCount: 0,
-          dueCollected: 0,
-          supplierPayments: 0,
-          dailyCosts: 0,
-          netCashFlow: 0,
-        };
+        const existing = dateMap.get(date) || getDefaultReport(date);
         existing.dailyCosts += Number(cost.amount);
+        // Track cash payments separately
+        if (cost.payment_method === 'cash') {
+          existing.cashDailyCosts += Number(cost.amount);
+        }
         dateMap.set(date, existing);
       });
 
-      // Calculate net cash flow
+      // Calculate net cash flow (cash-only transactions)
       dateMap.forEach((value) => {
-        value.netCashFlow = value.totalPaid + value.dueCollected - value.supplierPayments - value.dailyCosts;
+        value.netCashFlow = value.cashPaid + value.cashDueCollected - value.cashSupplierPayments - value.cashDailyCosts;
       });
 
       return Array.from(dateMap.values()).sort((a, b) => b.date.localeCompare(a.date));
