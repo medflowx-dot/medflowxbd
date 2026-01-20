@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, Truck, Users, CreditCard } from 'lucide-react';
+import { Search, Truck, Users, CreditCard, Loader2 } from 'lucide-react';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { AddSupplierDialog } from '@/components/suppliers/AddSupplierDialog';
 import { SupplierTable } from '@/components/suppliers/SupplierTable';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 export default function SupplierList() {
   const { suppliers, isLoading } = useSuppliers();
@@ -28,7 +29,7 @@ export default function SupplierList() {
           </div>
           <Skeleton className="h-10 w-32" />
         </div>
-        <div className="grid gap-4 sm:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <Card key={i}>
               <CardHeader className="pb-2">
@@ -54,47 +55,76 @@ export default function SupplierList() {
         <AddSupplierDialog />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
+      {/* Summary Cards */}
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 stagger-children">
+        <Card className="stat-card-info transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="flex flex-row items-center gap-3 pb-2 p-3 sm:p-4">
+            <div className="icon-container-info shrink-0">
+              <Users className="h-4 w-4 text-white" />
+            </div>
+            <CardDescription className="text-xs sm:text-sm font-medium">
               {t.suppliers.totalSuppliers}
             </CardDescription>
-            <CardTitle className="text-2xl">{totalSuppliers}</CardTitle>
           </CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <CardTitle className="text-xl sm:text-2xl text-blue-600 dark:text-blue-400">{totalSuppliers}</CardTitle>
+          </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-2">
-              <Truck className="h-4 w-4" />
+        
+        <Card className="stat-card-due transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="flex flex-row items-center gap-3 pb-2 p-3 sm:p-4">
+            <div className="icon-container-warning shrink-0">
+              <Truck className="h-4 w-4 text-white" />
+            </div>
+            <CardDescription className="text-xs sm:text-sm font-medium">
               {t.suppliers.withDue}
             </CardDescription>
-            <CardTitle className="text-2xl text-amber-600">{suppliersWithDue}</CardTitle>
           </CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <CardTitle className="text-xl sm:text-2xl text-amber-600 dark:text-amber-400">{suppliersWithDue}</CardTitle>
+          </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
+        
+        <Card className="stat-card-sales transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="flex flex-row items-center gap-3 pb-2 p-3 sm:p-4">
+            <div className="icon-container-success shrink-0">
+              <CreditCard className="h-4 w-4 text-white" />
+            </div>
+            <CardDescription className="text-xs sm:text-sm font-medium">
               {t.suppliers.totalPaid}
             </CardDescription>
-            <CardTitle className="text-2xl text-green-600">৳{totalPaid.toFixed(2)}</CardTitle>
           </CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <CardTitle className="text-xl sm:text-2xl text-green-600 dark:text-green-400">৳{totalPaid.toFixed(0)}</CardTitle>
+          </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>{t.suppliers.totalDue}</CardDescription>
-            <CardTitle className="text-2xl text-destructive">৳{totalDue.toFixed(2)}</CardTitle>
+        
+        <Card className="stat-card-expense transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="flex flex-row items-center gap-3 pb-2 p-3 sm:p-4">
+            <div className="icon-container-danger shrink-0">
+              <Truck className="h-4 w-4 text-white" />
+            </div>
+            <CardDescription className="text-xs sm:text-sm font-medium">
+              {t.suppliers.totalDue}
+            </CardDescription>
           </CardHeader>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <CardTitle className="text-xl sm:text-2xl text-red-600 dark:text-red-400">৳{totalDue.toFixed(0)}</CardTitle>
+          </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
+      {/* Suppliers Table */}
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-950/30 dark:to-transparent">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle>{t.suppliers.allSuppliers}</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <div className="icon-container-info p-1.5">
+                  <Truck className="h-4 w-4 text-white" />
+                </div>
+                {t.suppliers.allSuppliers}
+              </CardTitle>
               <CardDescription>{t.suppliers.supplierDetails}</CardDescription>
             </div>
             <div className="relative w-full sm:w-64">
@@ -108,11 +138,11 @@ export default function SupplierList() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 sm:p-4">
           {suppliers.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="p-4 rounded-full bg-muted mb-4">
-                <Truck className="h-8 w-8 text-muted-foreground" />
+              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4">
+                <Truck className="h-8 w-8 text-primary/50" />
               </div>
               <h3 className="font-semibold text-lg">{t.suppliers.noSuppliersAdded}</h3>
               <p className="text-muted-foreground text-sm max-w-sm mt-1">
