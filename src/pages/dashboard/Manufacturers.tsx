@@ -80,42 +80,62 @@ export default function Manufacturers() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.manufacturers.title}</h1>
-          <p className="text-muted-foreground mt-1">{t.manufacturers.subtitle}</p>
+        <div className="flex items-center gap-3">
+          <div className="icon-container-primary">
+            <Building2 className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.manufacturers.title}</h1>
+            <p className="text-muted-foreground mt-1">{t.manufacturers.subtitle}</p>
+          </div>
         </div>
         <AddManufacturerDialog />
       </div>
 
       <Tabs defaultValue="my" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="my" className="gap-2">
+        <TabsList className="bg-muted/50 p-1">
+          <TabsTrigger 
+            value="my" 
+            className="gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground"
+          >
             <Building2 className="h-4 w-4" />
             {t.manufacturers.myManufacturers} ({manufacturers.length})
           </TabsTrigger>
-          <TabsTrigger value="global" className="gap-2">
+          <TabsTrigger 
+            value="global" 
+            className="gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white"
+          >
             <Globe className="h-4 w-4" />
             {t.manufacturers.globalManufacturers} ({globalManufacturers.length})
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="my" className="space-y-6">
-          <Card>
+        <TabsContent value="my" className="space-y-6 animate-card-enter">
+          <Card className="stat-card-info">
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-2">
-                <Building2 className="h-4 w-4" />
+                <div className="icon-container-info">
+                  <Building2 className="h-3.5 w-3.5" />
+                </div>
                 {t.manufacturers.totalManufacturers}
               </CardDescription>
-              <CardTitle className="text-2xl">{manufacturers.length}</CardTitle>
+              <CardTitle className="text-3xl font-bold">{manufacturers.length}</CardTitle>
             </CardHeader>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{t.manufacturers.myManufacturers}</CardTitle>
-              <CardDescription>{t.manufacturers.viewAndManage}</CardDescription>
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-950/30">
+              <div className="flex items-center gap-3">
+                <div className="icon-container-info">
+                  <Building2 className="h-4 w-4" />
+                </div>
+                <div>
+                  <CardTitle>{t.manufacturers.myManufacturers}</CardTitle>
+                  <CardDescription>{t.manufacturers.viewAndManage}</CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-6">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input placeholder={t.manufacturers.searchManufacturers} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
@@ -129,33 +149,44 @@ export default function Manufacturers() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="global" className="space-y-6">
-          <Card>
+        <TabsContent value="global" className="space-y-6 animate-card-enter">
+          <Card className="stat-card-sales">
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-2">
-                <Globe className="h-4 w-4" />
+                <div className="icon-container-success">
+                  <Globe className="h-3.5 w-3.5" />
+                </div>
                 {t.manufacturers.availableGlobal}
               </CardDescription>
-              <CardTitle className="text-2xl">{globalManufacturers.length}</CardTitle>
+              <CardTitle className="text-3xl font-bold">{globalManufacturers.length}</CardTitle>
             </CardHeader>
           </Card>
 
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-teal-50 to-transparent dark:from-teal-950/30">
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>{t.manufacturers.globalManufacturers}</CardTitle>
-                  <CardDescription>{t.manufacturers.browseAndCopy}</CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="icon-container-success">
+                    <Globe className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <CardTitle>{t.manufacturers.globalManufacturers}</CardTitle>
+                    <CardDescription>{t.manufacturers.browseAndCopy}</CardDescription>
+                  </div>
                 </div>
                 {selectedCount > 0 && (
-                  <Button onClick={handleBulkCopy} disabled={bulkCopyToLocal.isPending}>
+                  <Button 
+                    onClick={handleBulkCopy} 
+                    disabled={bulkCopyToLocal.isPending}
+                    className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600"
+                  >
                     <Copy className="h-4 w-4 mr-2" />
                     {bulkCopyToLocal.isPending ? t.manufacturers.copying : `${t.manufacturers.copySelected} (${selectedCount})`}
                   </Button>
                 )}
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-6">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input placeholder={t.manufacturers.searchGlobalManufacturers} value={globalSearchTerm} onChange={(e) => setGlobalSearchTerm(e.target.value)} className="pl-9" />
@@ -164,15 +195,17 @@ export default function Manufacturers() {
               {globalLoading ? (
                 <div className="py-8 text-center text-muted-foreground">{t.manufacturers.loading}</div>
               ) : filteredGlobalManufacturers.length === 0 ? (
-                <div className="py-8 text-center text-muted-foreground">
-                  <Globe className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                  <p>{t.manufacturers.noGlobalFound}</p>
+                <div className="py-10 text-center rounded-xl bg-gradient-to-br from-teal-50/50 to-emerald-50/50 dark:from-teal-950/20 dark:to-emerald-950/20 border border-dashed border-teal-200 dark:border-teal-800/50">
+                  <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900/50 dark:to-emerald-900/50 flex items-center justify-center mb-4">
+                    <Globe className="h-8 w-8 text-teal-500" />
+                  </div>
+                  <p className="text-muted-foreground">{t.manufacturers.noGlobalFound}</p>
                 </div>
               ) : (
-                <div className="rounded-md border">
+                <div className="rounded-lg border overflow-hidden">
                   <Table>
                     <TableHeader>
-                      <TableRow>
+                      <TableRow className="bg-muted/50">
                         <TableHead className="w-[50px]">
                           <Checkbox
                             checked={allCopyableSelected && copyableManufacturers.length > 0}
@@ -188,7 +221,7 @@ export default function Manufacturers() {
                       {filteredGlobalManufacturers.map((manufacturer) => {
                         const alreadyCopied = isAlreadyCopied(manufacturer);
                         return (
-                          <TableRow key={manufacturer.id}>
+                          <TableRow key={manufacturer.id} className="hover:bg-muted/30">
                             <TableCell>
                               <Checkbox
                                 checked={selectedIds.has(manufacturer.id)}
@@ -198,15 +231,22 @@ export default function Manufacturers() {
                             </TableCell>
                             <TableCell className="font-medium">{manufacturer.name}</TableCell>
                             <TableCell>
-                              <Button
-                                variant={alreadyCopied ? "secondary" : "outline"}
-                                size="sm"
-                                onClick={() => handleCopy(manufacturer)}
-                                disabled={copyToLocal.isPending || alreadyCopied}
-                              >
-                                <Copy className="h-4 w-4 mr-2" />
-                                {alreadyCopied ? t.manufacturers.added : t.manufacturers.copy}
-                              </Button>
+                              {alreadyCopied ? (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 dark:from-emerald-900/50 dark:to-teal-900/50 dark:text-emerald-300">
+                                  ✓ {t.manufacturers.added}
+                                </span>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleCopy(manufacturer)}
+                                  disabled={copyToLocal.isPending}
+                                  className="hover:bg-gradient-to-r hover:from-teal-500 hover:to-emerald-500 hover:text-white hover:border-transparent"
+                                >
+                                  <Copy className="h-4 w-4 mr-2" />
+                                  {t.manufacturers.copy}
+                                </Button>
+                              )}
                             </TableCell>
                           </TableRow>
                         );
