@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DailySummaryReportView } from '@/components/reports/DailySummaryReport';
@@ -8,7 +8,7 @@ import { CustomerDuesReportView } from '@/components/reports/CustomerDuesReport'
 import { SupplierReportsView } from '@/components/reports/SupplierReports';
 import { getDateRangePresets, ReportDateRange } from '@/hooks/useReports';
 import { DatePicker } from '@/components/ui/date-picker';
-import { FileText, TrendingUp, Truck, BarChart3, Users, Package, Calendar } from 'lucide-react';
+import { FileText, TrendingUp, Truck, BarChart3, Users, Package, Calendar, ChevronRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +22,26 @@ export default function Reports() {
   const [customStartDate, setCustomStartDate] = useState<Date>();
   const [customEndDate, setCustomEndDate] = useState<Date>();
   const { t } = useLanguage();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showRightIndicator, setShowRightIndicator] = useState(true);
+  const [showLeftIndicator, setShowLeftIndicator] = useState(false);
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setShowLeftIndicator(scrollLeft > 10);
+      setShowRightIndicator(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      handleScroll();
+      el.addEventListener('scroll', handleScroll);
+      return () => el.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
 
   const handlePresetChange = (preset: string) => {
     setSelectedPreset(preset);
@@ -100,69 +120,94 @@ export default function Reports() {
 
       {/* Report Tabs */}
       <Tabs defaultValue="daily-summary" className="space-y-4">
-        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-          <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 sm:grid sm:grid-cols-5 bg-muted/50 p-1 rounded-xl">
-            <TabsTrigger 
-              value="daily-summary" 
-              className={cn(
-                "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
-                "data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80",
-                "data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
-              )}
-            >
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">{t.reports.dailySummary}</span>
-              <span className="sm:hidden text-xs">{t.reports.summary}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="sales" 
-              className={cn(
-                "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
-                "data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600",
-                "data-[state=active]:text-white data-[state=active]:shadow-md"
-              )}
-            >
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">{t.reports.salesReport}</span>
-              <span className="sm:hidden text-xs">{t.reports.sales}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="supplier-reports" 
-              className={cn(
-                "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
-                "data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600",
-                "data-[state=active]:text-white data-[state=active]:shadow-md"
-              )}
-            >
-              <Package className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">{t.reports.supplierReports}</span>
-              <span className="sm:hidden text-xs">{t.reports.supplier}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="supplier-due" 
-              className={cn(
-                "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
-                "data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-amber-600",
-                "data-[state=active]:text-white data-[state=active]:shadow-md"
-              )}
-            >
-              <Truck className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">{t.reports.supplierDue}</span>
-              <span className="sm:hidden text-xs">{t.reports.due}</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="customer-due" 
-              className={cn(
-                "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
-                "data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600",
-                "data-[state=active]:text-white data-[state=active]:shadow-md"
-              )}
-            >
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">{t.reports.customerDue}</span>
-              <span className="sm:hidden text-xs">{t.reports.customer}</span>
-            </TabsTrigger>
-          </TabsList>
+        <div className="relative">
+          {/* Left fade indicator */}
+          <div 
+            className={cn(
+              "absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none transition-opacity duration-300 sm:hidden",
+              showLeftIndicator ? "opacity-100" : "opacity-0"
+            )}
+          />
+          
+          {/* Right fade indicator with swipe hint */}
+          <div 
+            className={cn(
+              "absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background via-background/80 to-transparent z-10 pointer-events-none transition-opacity duration-300 sm:hidden flex items-center justify-end pr-1",
+              showRightIndicator ? "opacity-100" : "opacity-0"
+            )}
+          >
+            <div className="animate-pulse">
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
+
+          <div 
+            ref={scrollRef}
+            className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide"
+          >
+            <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 sm:grid sm:grid-cols-5 bg-muted/50 p-1 rounded-xl">
+              <TabsTrigger 
+                value="daily-summary" 
+                className={cn(
+                  "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
+                  "data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80",
+                  "data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
+                )}
+              >
+                <BarChart3 className="h-4 w-4" />
+                <span className="hidden sm:inline text-sm">{t.reports.dailySummary}</span>
+                <span className="sm:hidden text-xs">{t.reports.summary}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="sales" 
+                className={cn(
+                  "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
+                  "data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600",
+                  "data-[state=active]:text-white data-[state=active]:shadow-md"
+                )}
+              >
+                <TrendingUp className="h-4 w-4" />
+                <span className="hidden sm:inline text-sm">{t.reports.salesReport}</span>
+                <span className="sm:hidden text-xs">{t.reports.sales}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="supplier-reports" 
+                className={cn(
+                  "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
+                  "data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600",
+                  "data-[state=active]:text-white data-[state=active]:shadow-md"
+                )}
+              >
+                <Package className="h-4 w-4" />
+                <span className="hidden sm:inline text-sm">{t.reports.supplierReports}</span>
+                <span className="sm:hidden text-xs">{t.reports.supplier}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="supplier-due" 
+                className={cn(
+                  "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
+                  "data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-amber-600",
+                  "data-[state=active]:text-white data-[state=active]:shadow-md"
+                )}
+              >
+                <Truck className="h-4 w-4" />
+                <span className="hidden sm:inline text-sm">{t.reports.supplierDue}</span>
+                <span className="sm:hidden text-xs">{t.reports.due}</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="customer-due" 
+                className={cn(
+                  "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200",
+                  "data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600",
+                  "data-[state=active]:text-white data-[state=active]:shadow-md"
+                )}
+              >
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline text-sm">{t.reports.customerDue}</span>
+                <span className="sm:hidden text-xs">{t.reports.customer}</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
         </div>
 
         <TabsContent value="daily-summary" className="animate-card-enter">
