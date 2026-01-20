@@ -18,8 +18,11 @@ export default function OwnerSettings() {
   const [hasChanges, setHasChanges] = useState(false);
   const [showSmtpPassword, setShowSmtpPassword] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
+  const [showSmsApiKey, setShowSmsApiKey] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
   const [testEmailAddress, setTestEmailAddress] = useState('');
+  const [testingSms, setTestingSms] = useState(false);
+  const [testPhoneNumber, setTestPhoneNumber] = useState('');
 
   useEffect(() => {
     if (settings) {
@@ -82,6 +85,41 @@ export default function OwnerSettings() {
     }
   };
 
+  const handleTestSms = async () => {
+    if (!testPhoneNumber) {
+      toast.error('Please enter a phone number');
+      return;
+    }
+    
+    setTestingSms(true);
+    try {
+      const apiKey = String(localSettings.bulksmsbd_api_key || '').replace(/"/g, '');
+      const senderId = String(localSettings.bulksmsbd_sender_id || '').replace(/"/g, '');
+      
+      if (!apiKey || !senderId) {
+        throw new Error('API Key এবং Sender ID প্রয়োজন');
+      }
+
+      // Call the edge function to test SMS
+      const { data, error } = await supabase.functions.invoke('send-client-notification', {
+        body: {
+          testMode: true,
+          testPhone: testPhoneNumber,
+          testMessage: 'BulkSMSBD টেস্ট মেসেজ - MedFlowX থেকে পাঠানো হয়েছে।',
+        },
+      });
+      
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      
+      toast.success('টেস্ট SMS সফলভাবে পাঠানো হয়েছে!');
+    } catch (error: any) {
+      console.error('Test SMS error:', error);
+      toast.error(error.message || 'SMS পাঠাতে সমস্যা হয়েছে');
+    } finally {
+      setTestingSms(false);
+    }
+  };
   if (isLoading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
@@ -477,6 +515,113 @@ export default function OwnerSettings() {
                   প্রতিদিন নির্ধারিত সময়ে সিস্টেম স্বয়ংক্রিয়ভাবে চেক করে কোন ক্লায়েন্টের সাবস্ক্রিপশন শেষ হতে যাচ্ছে এবং তাদের Email/SMS পাঠায়।
                   একই দিনে একই ক্লায়েন্টকে দ্বিতীয়বার নোটিফিকেশন পাঠানো হয় না।
                 </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* BulkSMSBD SMS Gateway */}
+      <Card className="border-0 shadow-card">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-primary" />
+            <CardTitle>BulkSMSBD SMS Gateway</CardTitle>
+          </div>
+          <CardDescription>Configure BulkSMSBD for sending SMS notifications to clients</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+            <div>
+              <Label>Enable BulkSMSBD</Label>
+              <p className="text-sm text-muted-foreground">Allow system to send SMS via BulkSMSBD</p>
+            </div>
+            <Switch
+              checked={localSettings.bulksmsbd_enabled === true || localSettings.bulksmsbd_enabled === 'true'}
+              onCheckedChange={(checked) => handleChange('bulksmsbd_enabled', checked)}
+            />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>API Key</Label>
+              <div className="relative">
+                <Input
+                  type={showSmsApiKey ? 'text' : 'password'}
+                  value={String(localSettings.bulksmsbd_api_key || '').replace(/"/g, '')}
+                  onChange={(e) => handleChange('bulksmsbd_api_key', e.target.value)}
+                  placeholder="Enter BulkSMSBD API Key"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowSmsApiKey(!showSmsApiKey)}
+                >
+                  {showSmsApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Get API key from BulkSMSBD Dashboard</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Sender ID</Label>
+              <Input
+                type="text"
+                value={String(localSettings.bulksmsbd_sender_id || '').replace(/"/g, '')}
+                onChange={(e) => handleChange('bulksmsbd_sender_id', e.target.value)}
+                placeholder="8809617XXXXXX or BRAND_NAME"
+              />
+              <p className="text-xs text-muted-foreground">Your approved Sender ID (Masking or Non-Masking)</p>
+            </div>
+          </div>
+
+          {/* Test SMS Section */}
+          <div className="border-t pt-4 mt-4">
+            <Label className="mb-2 block">টেস্ট SMS পাঠান</Label>
+            <div className="flex gap-2">
+              <Input
+                type="tel"
+                value={testPhoneNumber}
+                onChange={(e) => setTestPhoneNumber(e.target.value)}
+                placeholder="01XXXXXXXXX"
+                className="flex-1"
+              />
+              <Button 
+                onClick={handleTestSms} 
+                disabled={testingSms || !localSettings.bulksmsbd_api_key || !localSettings.bulksmsbd_sender_id}
+                variant="outline"
+              >
+                {testingSms ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Send className="h-4 w-4 mr-2" />
+                )}
+                টেস্ট SMS
+              </Button>
+            </div>
+            {(!localSettings.bulksmsbd_api_key || !localSettings.bulksmsbd_sender_id) && (
+              <p className="text-xs text-muted-foreground mt-2">API Key এবং Sender ID কনফিগার করুন</p>
+            )}
+          </div>
+          
+          {/* Info box */}
+          <div className="p-4 rounded-lg bg-accent/50 border border-border">
+            <div className="flex items-start gap-3">
+              <ExternalLink className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">BulkSMSBD Integration</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  বাংলাদেশের সকল মোবাইল অপারেটরে SMS পাঠানো যায়। Masking (Brand Name) বা Non-Masking (Phone Number) Sender ID সাপোর্ট করে।
+                </p>
+                <a 
+                  href="https://bulksmsbd.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline mt-2 inline-flex items-center gap-1"
+                >
+                  Visit BulkSMSBD <ExternalLink className="h-3 w-3" />
+                </a>
               </div>
             </div>
           </div>
