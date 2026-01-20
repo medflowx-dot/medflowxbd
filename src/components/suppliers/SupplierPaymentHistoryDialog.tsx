@@ -86,18 +86,15 @@ export function SupplierPaymentHistoryDialog({ supplier, payments, trigger }: Su
               <p className="text-sm text-muted-foreground">{t.suppliers.totalPaid}</p>
               <p className="text-xl font-bold text-green-600">৳{totalPayments.toFixed(2)}</p>
             </div>
-            <div className={cn(
-              "rounded-lg p-3",
-              supplier.total_due >= 0 ? "bg-destructive/10" : "bg-green-500/10"
-            )}>
+            <div className="bg-destructive/10 rounded-lg p-3">
               <p className="text-sm text-muted-foreground">
-                {supplier.total_due >= 0 ? t.suppliers.currentDue : t.suppliers.advance}
+                {t.suppliers.currentDue}
               </p>
               <p className={cn(
                 "text-xl font-bold",
-                supplier.total_due >= 0 ? "text-destructive" : "text-green-600"
+                supplier.total_due > 0 ? "text-destructive" : "text-muted-foreground"
               )}>
-                ৳{Math.abs(supplier.total_due).toFixed(2)}
+                ৳{supplier.total_due > 0 ? supplier.total_due.toFixed(2) : '0.00'}
               </p>
             </div>
           </div>

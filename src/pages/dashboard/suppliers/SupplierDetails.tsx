@@ -297,25 +297,20 @@ export default function SupplierDetails() {
           </CardContent>
         </Card>
 
-        <Card className={cn(
-          supplier.total_due >= 0 ? "stat-card-expense" : "stat-card-sales"
-        )}>
+        <Card className="stat-card-expense">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
-              {supplier.total_due >= 0 ? t.suppliers.currentDue : t.suppliers.advance}
+              {t.suppliers.currentDue}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className={cn(
               "text-2xl font-bold",
-              supplier.total_due >= 0 ? "text-destructive" : "text-success"
+              supplier.total_due > 0 ? "text-destructive" : "text-muted-foreground"
             )}>
-              ৳{Math.abs(supplier.total_due).toFixed(0)}
+              ৳{supplier.total_due > 0 ? supplier.total_due.toFixed(0) : '0'}
             </p>
-            {supplier.total_due < 0 && (
-              <p className="text-xs text-success">{t.suppliers.advance}</p>
-            )}
           </CardContent>
         </Card>
       </div>
