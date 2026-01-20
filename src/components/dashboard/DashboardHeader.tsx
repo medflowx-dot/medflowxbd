@@ -179,8 +179,8 @@ export function DashboardHeader() {
                     className="flex items-start gap-3 p-3 cursor-pointer"
                     onClick={() => navigate('/dashboard/expiry')}
                   >
-                    <div className="rounded-full bg-orange-500/10 p-2">
-                      <Clock className="h-4 w-4 text-orange-500" />
+                    <div className="rounded-full bg-warning/10 p-2">
+                      <Clock className="h-4 w-4 text-warning" />
                     </div>
                     <div className="flex-1 space-y-1">
                       <p className="text-sm font-medium">{t.notifications.expiringSoon}</p>
@@ -188,7 +188,7 @@ export function DashboardHeader() {
                         {expiring30.length} {expiring30.length > 1 ? t.notifications.batchesExpiring : t.notifications.batchExpiring}
                       </p>
                     </div>
-                    <Badge variant="outline" className="text-xs border-orange-500 text-orange-500">
+                    <Badge variant="outline" className="text-xs border-warning text-warning">
                       {t.notifications.warning}
                     </Badge>
                   </DropdownMenuItem>
@@ -200,8 +200,8 @@ export function DashboardHeader() {
                     className="flex items-start gap-3 p-3 cursor-pointer"
                     onClick={() => navigate('/dashboard/customer-dues')}
                   >
-                    <div className="rounded-full bg-blue-500/10 p-2">
-                      <Wallet className="h-4 w-4 text-blue-500" />
+                    <div className="rounded-full bg-info/10 p-2">
+                      <Wallet className="h-4 w-4 text-info" />
                     </div>
                     <div className="flex-1 space-y-1">
                       <p className="text-sm font-medium">{t.notifications.customerDues}</p>
@@ -209,7 +209,7 @@ export function DashboardHeader() {
                         {customersWithDue} {customersWithDue > 1 ? t.notifications.customersOwe : t.notifications.customerOwe} ৳{totalCustomerDues.toLocaleString()}
                       </p>
                     </div>
-                    <Badge variant="outline" className="text-xs border-blue-500 text-blue-500">
+                    <Badge variant="outline" className="text-xs border-info text-info">
                       {t.notifications.collect}
                     </Badge>
                   </DropdownMenuItem>
@@ -221,8 +221,8 @@ export function DashboardHeader() {
                     className="flex items-start gap-3 p-3 cursor-pointer"
                     onClick={() => navigate('/dashboard/suppliers')}
                   >
-                    <div className="rounded-full bg-purple-500/10 p-2">
-                      <Truck className="h-4 w-4 text-purple-500" />
+                    <div className="rounded-full bg-purple/10 p-2">
+                      <Truck className="h-4 w-4 text-purple" />
                     </div>
                     <div className="flex-1 space-y-1">
                       <p className="text-sm font-medium">{t.notifications.supplierDues}</p>
@@ -230,7 +230,7 @@ export function DashboardHeader() {
                         {suppliersWithDue} {suppliersWithDue > 1 ? t.notifications.suppliersOwed : t.notifications.supplierOwed} ৳{totalSupplierDues.toLocaleString()}
                       </p>
                     </div>
-                    <Badge variant="outline" className="text-xs border-purple-500 text-purple-500">
+                    <Badge variant="outline" className="text-xs border-purple text-purple">
                       {t.notifications.pay}
                     </Badge>
                   </DropdownMenuItem>

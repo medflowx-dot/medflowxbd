@@ -54,13 +54,13 @@ export function SupplierDueReportView() {
       <CardContent>
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-3 mb-6">
-          <div className="p-4 rounded-lg bg-amber-500/10">
+          <div className="p-4 rounded-lg bg-warning/10">
             <p className="text-sm text-muted-foreground">{t.reports.totalOutstanding}</p>
-            <p className="text-2xl font-bold text-amber-600">৳{totalDue.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-warning">৳{totalDue.toLocaleString()}</p>
           </div>
-          <div className="p-4 rounded-lg bg-green-500/10">
+          <div className="p-4 rounded-lg bg-success/10">
             <p className="text-sm text-muted-foreground">{t.reports.totalPaidAllTime}</p>
-            <p className="text-2xl font-bold text-green-600">৳{totalPaid.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-success">৳{totalPaid.toLocaleString()}</p>
           </div>
           <div className="p-4 rounded-lg bg-muted">
             <p className="text-sm text-muted-foreground">{t.reports.suppliersWithDues}</p>

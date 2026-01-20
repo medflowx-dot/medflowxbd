@@ -29,28 +29,28 @@ export function MobileLayout() {
       label: t.sales?.quickEntry || 'দ্রুত বিক্রয়',
       icon: ShoppingCart,
       onClick: () => navigate('/dashboard/sales'),
-      color: 'bg-green-500 text-white',
+      color: 'bg-success text-success-foreground',
     },
     {
       id: 'addMedicine',
       label: t.medicines?.addMedicine || 'ওষুধ যোগ',
       icon: Package,
       onClick: () => navigate('/dashboard/medicines'),
-      color: 'bg-blue-500 text-white',
+      color: 'bg-info text-info-foreground',
     },
     {
       id: 'addBatch',
       label: t.batches?.addBatch || 'ব্যাচ যোগ',
       icon: Layers,
       onClick: () => navigate('/dashboard/batches'),
-      color: 'bg-purple-500 text-white',
+      color: 'bg-purple text-purple-foreground',
     },
     {
       id: 'addCost',
       label: t.dailyCash?.addCost || 'খরচ যোগ',
       icon: Wallet,
       onClick: () => navigate('/dashboard/daily-cash'),
-      color: 'bg-orange-500 text-white',
+      color: 'bg-warning text-warning-foreground',
     },
   ];
 
