@@ -17,7 +17,8 @@ export default function SupplierList() {
   const totalSuppliers = suppliers.length;
   const totalPaid = suppliers.reduce((sum, s) => sum + s.total_paid, 0);
   const totalDue = suppliers.reduce((sum, s) => sum + s.total_due, 0);
-  const suppliersWithDue = suppliers.filter((s) => s.total_due > 0).length;
+  // Count suppliers with non-zero dues (positive due OR negative/advance)
+  const suppliersWithDue = suppliers.filter((s) => s.total_due !== 0).length;
 
   if (isLoading) {
     return (
