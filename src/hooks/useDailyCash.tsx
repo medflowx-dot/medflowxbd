@@ -215,6 +215,42 @@ export function useAddDailyCost() {
   });
 }
 
+export function useUpdateDailyCost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      ...updates
+    }: {
+      id: string;
+      category?: string;
+      description?: string;
+      amount?: number;
+      payment_method?: string;
+      notes?: string;
+    }) => {
+      const { data, error } = await supabase
+        .from('daily_costs')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['daily-costs'] });
+      queryClient.invalidateQueries({ queryKey: ['daily-cash-summary'] });
+      toast.success('Cost updated successfully');
+    },
+    onError: (error) => {
+      toast.error('Failed to update cost: ' + error.message);
+    },
+  });
+}
+
 export function useDeleteDailyCost() {
   const queryClient = useQueryClient();
 

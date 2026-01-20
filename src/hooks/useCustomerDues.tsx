@@ -255,6 +255,49 @@ export function useRecordPayment() {
   });
 }
 
+export function useUpdateCustomer() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      ...updates
+    }: {
+      id: string;
+      name?: string;
+      phone?: string;
+      address?: string;
+      notes?: string;
+    }) => {
+      const { data, error } = await supabase
+        .from('customers')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-dues-summary'] });
+      toast({
+        title: 'Customer updated',
+        description: 'Customer information has been updated.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: 'Failed to update customer.',
+        variant: 'destructive',
+      });
+      console.error('Update customer error:', error);
+    },
+  });
+}
+
 export function useDeleteCustomer() {
   const queryClient = useQueryClient();
 
@@ -282,6 +325,38 @@ export function useDeleteCustomer() {
         variant: 'destructive',
       });
       console.error('Delete customer error:', error);
+    },
+  });
+}
+
+export function useDeleteCustomerPayment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (paymentId: string) => {
+      const { error } = await supabase
+        .from('customer_payments')
+        .delete()
+        .eq('id', paymentId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-dues-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-payments'] });
+      toast({
+        title: 'Payment deleted',
+        description: 'Payment record has been removed.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete payment.',
+        variant: 'destructive',
+      });
+      console.error('Delete payment error:', error);
     },
   });
 }
