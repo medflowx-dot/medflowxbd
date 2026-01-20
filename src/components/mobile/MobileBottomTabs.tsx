@@ -67,7 +67,7 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
               key={tab.id}
               onClick={() => handleTabClick(tab)}
               className={cn(
-                "flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-all duration-200 relative",
+                "flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors duration-100 relative",
                 "active:scale-95 touch-manipulation",
                 active ? "text-primary" : "text-muted-foreground"
               )}
@@ -79,17 +79,17 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
               
               <div className="relative">
                 <div className={cn(
-                  "p-1.5 rounded-xl transition-all duration-200",
+                  "p-1.5 rounded-xl transition-colors duration-100",
                   active && "bg-primary/10"
                 )}>
                   <Icon className={cn(
-                    "h-5 w-5 transition-all duration-200",
+                    "h-5 w-5 transition-transform duration-100",
                     active && "scale-110"
                   )} />
                 </div>
               </div>
               <span className={cn(
-                "text-[10px] font-medium transition-all duration-200",
+                "text-[10px] font-medium transition-colors duration-100",
                 active && "font-semibold text-primary"
               )}>
                 {getLabel(tab.labelKey)}
