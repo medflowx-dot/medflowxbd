@@ -700,6 +700,14 @@ export const en = {
     editCustomer: 'Edit Customer',
     editCustomerDesc: 'Update customer information',
     updateCustomer: 'Update Customer',
+    // Payment Edit/Delete
+    editPayment: 'Edit Payment',
+    editPaymentDesc: 'Update payment details',
+    updatePayment: 'Update Payment',
+    deletePayment: 'Delete Payment',
+    deletePaymentConfirm: 'Are you sure you want to delete this payment? The customer\'s due will be recalculated.',
+    amount: 'Amount',
+    bank: 'Bank',
   },
 
   // Daily Cash Page

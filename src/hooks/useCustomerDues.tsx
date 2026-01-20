@@ -329,6 +329,58 @@ export function useDeleteCustomer() {
   });
 }
 
+export function useUpdateCustomerPayment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      amount,
+      payment_method,
+      payment_date,
+      notes,
+    }: {
+      id: string;
+      amount: number;
+      payment_method: string;
+      payment_date: string;
+      notes?: string | null;
+    }) => {
+      const { data, error } = await supabase
+        .from('customer_payments')
+        .update({
+          amount,
+          payment_method,
+          payment_date,
+          notes,
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-dues-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-payments'] });
+      toast({
+        title: 'Payment updated',
+        description: 'Payment record has been updated.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: 'Failed to update payment.',
+        variant: 'destructive',
+      });
+      console.error('Update payment error:', error);
+    },
+  });
+}
+
 export function useDeleteCustomerPayment() {
   const queryClient = useQueryClient();
 
