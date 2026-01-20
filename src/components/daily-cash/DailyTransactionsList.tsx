@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDailySales, useDailyCustomerPayments, useDailySupplierPayments, useDailyCosts, useDeleteDailyCost } from '@/hooks/useDailyCash';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Loader2, Trash2, ShoppingCart, CreditCard, Truck, Receipt } from 'lucide-react';
+import { Loader2, Trash2, ShoppingCart, CreditCard, Truck, Receipt, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { EditCostDialog } from './EditCostDialog';
 
 interface DailyTransactionsListProps {
   date: Date;
@@ -256,30 +257,33 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="text-red-600">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>{t.dailyCash.deleteCost}</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  {t.dailyCash.deleteCostConfirm}
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteCost.mutate(cost.id)}
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  {t.actions.delete}
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                          <div className="flex items-center justify-end gap-1">
+                            <EditCostDialog cost={cost} />
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>{t.dailyCash.deleteCost}</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    {t.dailyCash.deleteCostConfirm}
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteCost.mutate(cost.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    {t.actions.delete}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
