@@ -250,6 +250,28 @@ export function useSuppliers() {
     },
   });
 
+  const updatePaymentMutation = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<SupplierPayment> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('supplier_payments')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['supplier-payments'] });
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      toast.success('Payment updated successfully');
+    },
+    onError: (error) => {
+      toast.error('Failed to update payment: ' + error.message);
+    },
+  });
+
   const deletePaymentMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -279,6 +301,7 @@ export function useSuppliers() {
     deleteSupplier: deleteSupplierMutation.mutateAsync,
     addPurchase: addPurchaseMutation.mutateAsync,
     addPayment: addPaymentMutation.mutateAsync,
+    updatePayment: updatePaymentMutation.mutateAsync,
     deletePayment: deletePaymentMutation.mutateAsync,
   };
 }

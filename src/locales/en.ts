@@ -531,6 +531,13 @@ export const en = {
     paymentsToSuppliers: 'Payments made to suppliers',
     noPaymentsYet: 'No payments recorded yet.',
     last10Payments: 'Last 10 payments to suppliers',
+    // Edit/Delete Payment
+    editPayment: 'Edit Payment',
+    editPaymentDesc: 'Update the payment details',
+    updatePayment: 'Update Payment',
+    deletePayment: 'Delete Payment',
+    deletePaymentConfirm: 'Are you sure you want to delete this payment?',
+    deletePaymentWarning: 'This will update the supplier\'s due balance. This action cannot be undone.',
   },
 
   // Settings Page

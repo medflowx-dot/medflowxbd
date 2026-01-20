@@ -533,6 +533,13 @@ export const bn: TranslationKeys = {
     paymentsToSuppliers: 'সরবরাহকারীদের দেওয়া পেমেন্ট',
     noPaymentsYet: 'এখনো কোনো পেমেন্ট রেকর্ড করা হয়নি।',
     last10Payments: 'সর্বশেষ ১০টি পেমেন্ট',
+    // Edit/Delete Payment
+    editPayment: 'পেমেন্ট সম্পাদনা',
+    editPaymentDesc: 'পেমেন্টের বিবরণ আপডেট করুন',
+    updatePayment: 'পেমেন্ট আপডেট করুন',
+    deletePayment: 'পেমেন্ট মুছুন',
+    deletePaymentConfirm: 'আপনি কি এই পেমেন্ট মুছে ফেলতে চান?',
+    deletePaymentWarning: 'এটি সরবরাহকারীর বকেয়া ব্যালেন্স আপডেট করবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।',
   },
 
   // Settings Page
