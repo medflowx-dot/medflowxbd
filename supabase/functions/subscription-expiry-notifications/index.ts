@@ -32,9 +32,8 @@ const planTypeNames: Record<string, string> = {
 };
 
 // Send SMS via BulkSMSBD
-async function sendSMS(phone: string, message: string): Promise<boolean> {
-  const apiKey = Deno.env.get("BULKSMSBD_API_KEY");
-  const senderId = Deno.env.get("BULKSMSBD_SENDER_ID");
+async function sendSMS(phone: string, message: string, smsConfig: { apiKey: string; senderId: string }): Promise<boolean> {
+  const { apiKey, senderId } = smsConfig;
 
   if (!apiKey || !senderId) {
     console.log("BulkSMSBD credentials not configured, skipping SMS");
@@ -229,18 +228,35 @@ serve(async (req: Request): Promise<Response> => {
     const { data: settingsData } = await supabaseAdmin
       .from("platform_settings")
       .select("setting_key, setting_value")
-      .in("setting_key", ["notification_email_enabled", "notification_sms_enabled", "notification_days_before"]);
+      .in("setting_key", [
+        "notification_email_enabled", 
+        "notification_sms_enabled", 
+        "notification_days_before",
+        "bulksmsbd_enabled",
+        "bulksmsbd_api_key",
+        "bulksmsbd_sender_id"
+      ]);
 
     const notificationSettings: Record<string, any> = {};
     (settingsData || []).forEach((s: any) => {
-      notificationSettings[s.setting_key] = s.setting_value;
+      let value = s.setting_value;
+      if (typeof value === "string") {
+        value = value.replace(/^"|"$/g, "");
+      }
+      notificationSettings[s.setting_key] = value;
     });
 
-    const emailEnabled = notificationSettings.notification_email_enabled !== false;
-    const smsEnabled = notificationSettings.notification_sms_enabled !== false;
+    const emailEnabled = notificationSettings.notification_email_enabled !== false && notificationSettings.notification_email_enabled !== "false";
+    const smsEnabled = notificationSettings.notification_sms_enabled !== false && notificationSettings.notification_sms_enabled !== "false";
+    const bulkSmsEnabled = notificationSettings.bulksmsbd_enabled === true || notificationSettings.bulksmsbd_enabled === "true";
     const daysBefore = Number(notificationSettings.notification_days_before) || 3;
+    
+    const smsConfig = {
+      apiKey: notificationSettings.bulksmsbd_api_key || "",
+      senderId: notificationSettings.bulksmsbd_sender_id || "",
+    };
 
-    console.log("Notification settings:", { emailEnabled, smsEnabled, daysBefore });
+    console.log("Notification settings:", { emailEnabled, smsEnabled, bulkSmsEnabled, daysBefore });
 
     if (!emailEnabled && !smsEnabled) {
       console.log("Both email and SMS notifications are disabled");
@@ -403,11 +419,11 @@ serve(async (req: Request): Promise<Response> => {
         }
       }
 
-      // Send SMS notification (if enabled)
-      if (smsEnabled && userPhone && smsMessage) {
+      // Send SMS notification (if enabled and BulkSMSBD is configured)
+      if (smsEnabled && bulkSmsEnabled && userPhone && smsMessage && smsConfig.apiKey && smsConfig.senderId) {
         const smsAlreadySent = await wasNotificationSentToday(supabaseAdmin, sub.user_id, notificationType, "sms");
         if (!smsAlreadySent) {
-          const smsSent = await sendSMS(userPhone, smsMessage);
+          const smsSent = await sendSMS(userPhone, smsMessage, smsConfig);
           await logNotification(
             supabaseAdmin,
             sub.user_id,

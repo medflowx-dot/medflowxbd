@@ -8,9 +8,8 @@ const corsHeaders = {
 };
 
 // Send SMS via BulkSMSBD
-async function sendSMS(phone: string, message: string): Promise<boolean> {
-  const apiKey = Deno.env.get("BULKSMSBD_API_KEY");
-  const senderId = Deno.env.get("BULKSMSBD_SENDER_ID");
+async function sendSMS(phone: string, message: string, smsConfig: { apiKey: string; senderId: string }): Promise<boolean> {
+  const { apiKey, senderId } = smsConfig;
 
   if (!apiKey || !senderId) {
     console.log("BulkSMSBD credentials not configured, skipping SMS");
@@ -111,6 +110,29 @@ async function sendEmail(
   }
 }
 
+// Get SMS config from platform_settings
+async function getSmsConfig(supabaseAdmin: any): Promise<{ apiKey: string; senderId: string; enabled: boolean }> {
+  const { data: settings } = await supabaseAdmin
+    .from("platform_settings")
+    .select("setting_key, setting_value")
+    .in("setting_key", ["bulksmsbd_enabled", "bulksmsbd_api_key", "bulksmsbd_sender_id"]);
+
+  const config: Record<string, any> = {};
+  (settings || []).forEach((s: any) => {
+    let value = s.setting_value;
+    if (typeof value === "string") {
+      value = value.replace(/^"|"$/g, "");
+    }
+    config[s.setting_key] = value;
+  });
+
+  return {
+    apiKey: config.bulksmsbd_api_key || "",
+    senderId: config.bulksmsbd_sender_id || "",
+    enabled: config.bulksmsbd_enabled === true || config.bulksmsbd_enabled === "true",
+  };
+}
+
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -122,13 +144,33 @@ serve(async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { userId, channel = "both" } = await req.json();
+    const body = await req.json();
+    const { userId, channel = "both", testMode, testPhone, testMessage } = body;
+
+    // Handle test SMS mode
+    if (testMode && testPhone && testMessage) {
+      console.log("Test SMS mode - sending to:", testPhone);
+      const smsConfig = await getSmsConfig(supabaseAdmin);
+      
+      if (!smsConfig.enabled || !smsConfig.apiKey || !smsConfig.senderId) {
+        throw new Error("BulkSMSBD is not configured or enabled");
+      }
+
+      const smsSent = await sendSMS(testPhone, testMessage, smsConfig);
+      return new Response(
+        JSON.stringify({ success: smsSent, message: smsSent ? "Test SMS sent" : "SMS sending failed" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     if (!userId) {
       throw new Error("User ID is required");
     }
 
     console.log(`Sending manual notification to user ${userId}, channel: ${channel}`);
+
+    // Get SMS config
+    const smsConfig = await getSmsConfig(supabaseAdmin);
 
     // Fetch user profile
     const { data: profile, error: profileError } = await supabaseAdmin
@@ -221,10 +263,10 @@ serve(async (req: Request): Promise<Response> => {
       });
     }
 
-    // Send SMS
-    if ((channel === "both" || channel === "sms") && userPhone) {
+    // Send SMS (only if BulkSMSBD is enabled and configured)
+    if ((channel === "both" || channel === "sms") && userPhone && smsConfig.enabled && smsConfig.apiKey && smsConfig.senderId) {
       const smsMessage = `${pharmacyName}, আপনার MedFlowX ${planTypeName} সাবস্ক্রিপশন ${expiryDateStr} তারিখে শেষ হবে। রিনিউ করুন: ${billingUrl}`;
-      results.smsSent = await sendSMS(userPhone, smsMessage);
+      results.smsSent = await sendSMS(userPhone, smsMessage, smsConfig);
 
       // Log notification
       await supabaseAdmin.from("notification_logs").insert({
