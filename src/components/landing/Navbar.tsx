@@ -79,47 +79,43 @@ const Navbar = () => {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-3">
             {/* Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-              className="h-10 w-10 rounded-full hover:bg-primary/10"
+              className="relative h-10 w-10 rounded-full bg-muted/50 backdrop-blur-sm border border-border/50 flex items-center justify-center hover:bg-primary/10 hover:border-primary/30 transition-all duration-300 group"
               aria-label="Toggle theme"
             >
-              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </Button>
+              <Sun className="h-5 w-5 text-warning rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 text-primary rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100" />
+            </button>
             
             <Button variant="ghost" size="default" asChild>
               <Link to="/login">{loginText}</Link>
             </Button>
-            <Button variant="default" size="default" asChild>
+            <Button variant="default" size="default" className="shadow-lg shadow-primary/20" asChild>
               <Link to="/signup">{signupText}</Link>
             </Button>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-1">
+          <div className="md:hidden flex items-center gap-2">
             {/* Mobile Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-              className="h-10 w-10 rounded-full hover:bg-primary/10"
+              className="relative h-9 w-9 rounded-full bg-muted/50 backdrop-blur-sm border border-border/50 flex items-center justify-center hover:bg-primary/10 transition-all duration-300"
               aria-label="Toggle theme"
             >
-              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </Button>
+              <Sun className="h-4 w-4 text-warning rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-4 w-4 text-primary rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100" />
+            </button>
             
             <button
-              className="p-2 text-foreground"
+              className="h-9 w-9 rounded-full bg-muted/50 backdrop-blur-sm border border-border/50 flex items-center justify-center hover:bg-primary/10 transition-all duration-300"
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle menu"
             >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
