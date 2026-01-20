@@ -68,7 +68,7 @@ export default function SupplierList() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0">
-            <CardTitle className="text-xl sm:text-2xl text-blue-600 dark:text-blue-400">{totalSuppliers}</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl text-info">{totalSuppliers}</CardTitle>
           </CardContent>
         </Card>
         
@@ -82,7 +82,7 @@ export default function SupplierList() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0">
-            <CardTitle className="text-xl sm:text-2xl text-amber-600 dark:text-amber-400">{suppliersWithDue}</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl text-warning">{suppliersWithDue}</CardTitle>
           </CardContent>
         </Card>
         
@@ -96,7 +96,7 @@ export default function SupplierList() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0">
-            <CardTitle className="text-xl sm:text-2xl text-green-600 dark:text-green-400">৳{totalPaid.toFixed(0)}</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl text-success">৳{totalPaid.toFixed(0)}</CardTitle>
           </CardContent>
         </Card>
         

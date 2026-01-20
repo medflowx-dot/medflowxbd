@@ -29,7 +29,7 @@ export default function Sales() {
       icon: Zap,
       cardClass: 'stat-card-due',
       iconClass: 'icon-container-warning',
-      valueClass: 'text-amber-600 dark:text-amber-400'
+      valueClass: 'text-warning'
     },
     {
       label: t.sales.detailedSales,
@@ -39,7 +39,7 @@ export default function Sales() {
       icon: ClipboardList,
       cardClass: 'stat-card-info',
       iconClass: 'icon-container-info',
-      valueClass: 'text-blue-600 dark:text-blue-400'
+      valueClass: 'text-info'
     },
     {
       label: t.sales.totalToday,
@@ -49,7 +49,7 @@ export default function Sales() {
       icon: TrendingUp,
       cardClass: 'stat-card-sales',
       iconClass: 'icon-container-success',
-      valueClass: 'text-green-600 dark:text-green-400'
+      valueClass: 'text-success'
     },
     {
       label: t.sales.cashCollected,
@@ -59,7 +59,7 @@ export default function Sales() {
       icon: Wallet,
       cardClass: 'stat-card-sales',
       iconClass: 'icon-container-success',
-      valueClass: 'text-green-600 dark:text-green-400'
+      valueClass: 'text-success'
     },
   ];
 

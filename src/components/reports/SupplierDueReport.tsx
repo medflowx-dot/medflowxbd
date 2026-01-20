@@ -92,10 +92,10 @@ export function SupplierDueReportView() {
                   <TableRow key={supplier.id}>
                     <TableCell className="font-medium">{supplier.name}</TableCell>
                     <TableCell>{supplier.phone || '-'}</TableCell>
-                    <TableCell className="text-right text-amber-600 font-medium">
+                    <TableCell className="text-right text-warning font-medium">
                       ৳{supplier.total_due.toLocaleString()}
                     </TableCell>
-                    <TableCell className="text-right text-green-600">
+                    <TableCell className="text-right text-success">
                       ৳{supplier.total_paid.toLocaleString()}
                     </TableCell>
                     <TableCell className="text-muted-foreground">

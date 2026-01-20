@@ -74,7 +74,7 @@ export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProp
       {/* Cash In */}
       <Card className="cash-in-card hover:shadow-lg transition-all duration-300">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
-          <CardTitle className="text-xs sm:text-sm font-medium text-green-600 dark:text-green-400">
+          <CardTitle className="text-xs sm:text-sm font-medium text-success">
             {t.dailyCash.cashIn}
           </CardTitle>
           <div className="icon-container-success p-1.5">
@@ -82,7 +82,7 @@ export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProp
           </div>
         </CardHeader>
         <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
-          <div className="text-lg sm:text-2xl font-bold text-green-600 dark:text-green-400">
+          <div className="text-lg sm:text-2xl font-bold text-success">
             +৳{summary?.totalIn?.toLocaleString() || 0}
           </div>
           <div className="text-xs text-muted-foreground space-y-0.5 mt-1 hidden sm:block">
@@ -115,7 +115,7 @@ export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProp
       {/* Cash Out */}
       <Card className="cash-out-card hover:shadow-lg transition-all duration-300">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
-          <CardTitle className="text-xs sm:text-sm font-medium text-red-600 dark:text-red-400">
+          <CardTitle className="text-xs sm:text-sm font-medium text-destructive">
             {t.dailyCash.cashOut}
           </CardTitle>
           <div className="icon-container-danger p-1.5">
@@ -123,7 +123,7 @@ export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProp
           </div>
         </CardHeader>
         <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
-          <div className="text-lg sm:text-2xl font-bold text-red-600 dark:text-red-400">
+          <div className="text-lg sm:text-2xl font-bold text-destructive">
             -৳{summary?.totalOut?.toLocaleString() || 0}
           </div>
           <div className="text-xs text-muted-foreground space-y-0.5 mt-1 hidden sm:block">
@@ -154,7 +154,7 @@ export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProp
         <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
           <div className={cn(
             "text-lg sm:text-2xl font-bold",
-            isPositiveBalance ? "text-primary" : "text-red-600 dark:text-red-400"
+            isPositiveBalance ? "text-primary" : "text-destructive"
           )}>
             ৳{summary?.closingCash?.toLocaleString() || 0}
           </div>

@@ -81,7 +81,7 @@ export function CustomerDuesReportView({ dateRange }: CustomerDuesReportProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600">৳{totalDue > 0 ? totalDue.toLocaleString() : '0'}</div>
+            <div className="text-2xl font-bold text-warning">৳{totalDue > 0 ? totalDue.toLocaleString() : '0'}</div>
           </CardContent>
         </Card>
       </div>
@@ -196,7 +196,7 @@ function CustomerRow({ customer, isExpanded, onToggle, onWhatsApp, t }: Customer
             }}
             disabled={!customer.phone}
           >
-            <MessageSquare className="h-4 w-4 text-green-600" />
+            <MessageSquare className="h-4 w-4 text-success" />
           </Button>
         </TableCell>
       </TableRow>

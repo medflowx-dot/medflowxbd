@@ -168,12 +168,12 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                     <TableCell className="text-right font-medium">
                       ৳{Number(sale.total_amount).toFixed(0)}
                     </TableCell>
-                    <TableCell className="text-right text-green-600 hidden md:table-cell">
+                    <TableCell className="text-right text-success hidden md:table-cell">
                       ৳{Number(sale.paid_amount).toFixed(0)}
                     </TableCell>
                     <TableCell className="text-right">
                       {Number(sale.due_amount) > 0 ? (
-                        <span className="text-orange-600 font-medium">৳{Number(sale.due_amount).toFixed(0)}</span>
+                        <span className="text-warning font-medium">৳{Number(sale.due_amount).toFixed(0)}</span>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
