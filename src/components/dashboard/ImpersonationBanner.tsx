@@ -30,7 +30,7 @@ export function ImpersonationBanner() {
   }
 
   return (
-    <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white px-4 py-2.5 shadow-lg">
+    <div className="bg-warning text-warning-foreground px-4 py-2.5 shadow-lg">
       <div className="container max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-1">
@@ -52,7 +52,7 @@ export function ImpersonationBanner() {
           variant="secondary"
           onClick={handleEndSession}
           disabled={isEnding}
-          className="bg-white text-orange-600 hover:bg-white/90 font-medium"
+          className="bg-white text-warning hover:bg-white/90 font-medium"
         >
           {isEnding ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
