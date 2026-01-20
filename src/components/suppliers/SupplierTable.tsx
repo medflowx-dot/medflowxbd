@@ -5,11 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Pencil, Trash2, CreditCard, Phone, Mail, Building2, Plus, FileText } from 'lucide-react';
+import { Pencil, Trash2, CreditCard, Phone, Mail, Building2, Plus, FileText, History, ShoppingCart } from 'lucide-react';
 import { Supplier, useSuppliers } from '@/hooks/useSuppliers';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { AddSupplierDialog } from './AddSupplierDialog';
 import { SupplierPaymentDialog } from './SupplierPaymentDialog';
+import { SupplierPaymentHistoryDialog } from './SupplierPaymentHistoryDialog';
+import { SupplierPurchaseHistoryDialog } from './SupplierPurchaseHistoryDialog';
 import { QuickReportDialog } from '@/components/reports/QuickReportDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { generateIndividualSupplierPDF } from '@/lib/pdfGenerator';
@@ -22,7 +24,7 @@ interface SupplierTableProps {
 }
 
 export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
-  const { deleteSupplier, updateSupplier } = useSuppliers();
+  const { deleteSupplier, updateSupplier, payments, purchases } = useSuppliers();
   const { manufacturers } = useManufacturers();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -224,6 +226,24 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                     >
                       <FileText className="h-4 w-4" />
                     </Button>
+                    <SupplierPaymentHistoryDialog
+                      supplier={supplier}
+                      payments={payments}
+                      trigger={
+                        <Button size="icon" variant="ghost" title={t.suppliers.paymentHistory}>
+                          <History className="h-4 w-4" />
+                        </Button>
+                      }
+                    />
+                    <SupplierPurchaseHistoryDialog
+                      supplier={supplier}
+                      purchases={purchases}
+                      trigger={
+                        <Button size="icon" variant="ghost" title={t.suppliers.purchaseHistory}>
+                          <ShoppingCart className="h-4 w-4" />
+                        </Button>
+                      }
+                    />
                     <SupplierPaymentDialog
                       supplier={supplier}
                       trigger={

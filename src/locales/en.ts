@@ -568,6 +568,13 @@ export const en = {
     deletePurchaseWarning: 'This will update the supplier\'s due balance.',
     invoiceNumber: 'Invoice #',
     dueAmount: 'Due Amount',
+    // Purchase History
+    purchaseHistory: 'Purchase History',
+    purchaseHistoryDesc: 'All purchases from this supplier',
+    noPurchasesYet: 'No purchases recorded yet',
+    totalPurchaseAmount: 'Total Purchase',
+    addPurchase: 'Add Purchase',
+    purchasesLabel: 'purchases',
   },
 
   // Settings Page
