@@ -985,6 +985,14 @@ export const en = {
     logoutError: 'Failed to logout. Please try again.',
     loading: 'Loading subscription details...',
     loggingOut: 'Signing out...',
+    paymentSuccess: 'Payment successful! Your subscription is being activated.',
+    paymentCancelled: 'Payment was cancelled.',
+    paymentProcessing: 'Processing your payment...',
+    paymentSuccessTitle: 'Payment Successful!',
+    paymentSuccessDesc: 'Your subscription has been activated. Enjoy using MedFlowX!',
+    paymentCancelledTitle: 'Payment Cancelled',
+    paymentCancelledDesc: 'Your payment was cancelled. You can try again anytime.',
+    upgradePlan: 'Upgrade',
   },
 };
 

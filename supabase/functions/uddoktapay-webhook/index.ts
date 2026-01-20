@@ -215,6 +215,13 @@ serve(async (req) => {
         .eq("id", metadata.plan_id)
         .single();
 
+      // Get current subscription to check for renewal
+      const { data: existingSubscription } = await supabaseClient
+        .from("subscriptions")
+        .select("*")
+        .eq("user_id", metadata.user_id)
+        .single();
+
       // Get user details for email
       const { data: authUser } = await supabaseClient.auth.admin.getUserById(metadata.user_id);
       const { data: profile } = await supabaseClient
@@ -224,9 +231,23 @@ serve(async (req) => {
         .single();
 
       if (plan) {
-        const currentPeriodEnd = plan.duration_days
-          ? new Date(Date.now() + plan.duration_days * 24 * 60 * 60 * 1000).toISOString()
-          : null;
+        let currentPeriodEnd: string | null = null;
+        
+        // Calculate period end - for renewals, add to existing end date if still active
+        if (plan.duration_days) {
+          const now = new Date();
+          let startDate = now;
+          
+          // If user has active subscription with remaining time, extend from that date
+          if (existingSubscription?.current_period_end && 
+              existingSubscription.status === "active" &&
+              new Date(existingSubscription.current_period_end) > now) {
+            startDate = new Date(existingSubscription.current_period_end);
+            console.log("Extending subscription from:", startDate.toISOString());
+          }
+          
+          currentPeriodEnd = new Date(startDate.getTime() + plan.duration_days * 24 * 60 * 60 * 1000).toISOString();
+        }
 
         const lifetimeServiceDueDate = plan.plan_name === "lifetime"
           ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()

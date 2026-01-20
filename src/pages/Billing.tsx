@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,18 +9,21 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePricingPlansPublic } from '@/hooks/usePricingPlansPublic';
 import { useUserPaymentRequests } from '@/hooks/usePaymentRequests';
 import { PaymentRequestDialog } from '@/components/billing/PaymentRequestDialog';
-import { Loader2, CreditCard, AlertTriangle, Clock, Crown, Check, Phone, Mail, MessageCircle, CheckCircle, XCircle, RefreshCw, ArrowLeft, LogOut } from 'lucide-react';
+import { Loader2, CreditCard, AlertTriangle, Clock, Crown, Check, Phone, Mail, MessageCircle, CheckCircle, XCircle, RefreshCw, ArrowLeft, LogOut, PartyPopper, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Billing() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const { user, signOut } = useAuth();
   const { t } = useLanguage();
   const { isActive, isTrial, isExpired, isSuspended, planType, daysRemaining, isLoading: subscriptionLoading } = useSubscriptionStatus();
   const { data: plans, isLoading: plansLoading, error: plansError, refetch: refetchPlans } = usePricingPlansPublic();
-  const { data: paymentRequests } = useUserPaymentRequests();
+  const { data: paymentRequests, refetch: refetchPaymentRequests } = useUserPaymentRequests();
   
   const [selectedPlan, setSelectedPlan] = useState<{
     id: string;
@@ -30,6 +33,46 @@ export default function Billing() {
   } | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<'success' | 'cancelled' | 'processing' | null>(null);
+
+  // Handle payment redirect status from UddoktaPay
+  useEffect(() => {
+    const status = searchParams.get('status');
+    const invoiceId = searchParams.get('invoice_id');
+    
+    if (status === 'success') {
+      setPaymentStatus('processing');
+      // Clear the URL params
+      setSearchParams({});
+      
+      // Poll for payment verification (webhook might take a moment)
+      const pollInterval = setInterval(async () => {
+        await refetchPaymentRequests();
+        await queryClient.invalidateQueries({ queryKey: ['subscription-status'] });
+      }, 2000);
+
+      // Show success after brief delay for webhook processing
+      setTimeout(() => {
+        setPaymentStatus('success');
+        toast.success(t.billing?.paymentSuccess || 'পেমেন্ট সফল হয়েছে! আপনার সাবস্ক্রিপশন সক্রিয় হচ্ছে।');
+        clearInterval(pollInterval);
+        
+        // Final refresh after 5 seconds
+        setTimeout(() => {
+          refetchPaymentRequests();
+          queryClient.invalidateQueries({ queryKey: ['subscription-status'] });
+          setPaymentStatus(null);
+        }, 5000);
+      }, 3000);
+
+      return () => clearInterval(pollInterval);
+    } else if (status === 'cancelled') {
+      setPaymentStatus('cancelled');
+      setSearchParams({});
+      toast.error(t.billing?.paymentCancelled || 'পেমেন্ট বাতিল করা হয়েছে।');
+      setTimeout(() => setPaymentStatus(null), 5000);
+    }
+  }, [searchParams]);
 
   const handleLogout = async () => {
     try {
@@ -103,8 +146,39 @@ export default function Billing() {
           </p>
         </div>
 
+        {/* Payment Status Alerts */}
+        {paymentStatus === 'processing' && (
+          <Alert className="mb-6 border-primary/30 bg-primary/10 animate-pulse">
+            <Loader2 className="h-5 w-5 text-primary animate-spin" />
+            <AlertTitle className="text-primary">{t.billing.paymentProcessing}</AlertTitle>
+            <AlertDescription className="text-primary/80">
+              অনুগ্রহ করে অপেক্ষা করুন...
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {paymentStatus === 'success' && (
+          <Alert className="mb-6 border-success/30 bg-success/10">
+            <PartyPopper className="h-5 w-5 text-success" />
+            <AlertTitle className="text-success">{t.billing.paymentSuccessTitle}</AlertTitle>
+            <AlertDescription className="text-success/80">
+              {t.billing.paymentSuccessDesc}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {paymentStatus === 'cancelled' && (
+          <Alert className="mb-6 border-warning/30 bg-warning/10">
+            <AlertCircle className="h-5 w-5 text-warning" />
+            <AlertTitle className="text-warning">{t.billing.paymentCancelledTitle}</AlertTitle>
+            <AlertDescription className="text-warning/80">
+              {t.billing.paymentCancelledDesc}
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Pending Payment Request Alert */}
-        {pendingRequest && (
+        {pendingRequest && !paymentStatus && (
           <Alert className="mb-6 border-info/30 bg-info/10">
             <Clock className="h-5 w-5 text-info" />
             <AlertTitle className="text-info">
