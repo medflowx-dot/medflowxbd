@@ -24,6 +24,17 @@ export interface DailyTransaction {
   time: string;
 }
 
+export interface SupplierPaymentHistoryItem {
+  id: string;
+  supplier_name: string;
+  amount: number;
+  payment_date: string;
+  payment_method: string;
+  payment_type: string;
+  reference_number: string | null;
+  notes: string | null;
+}
+
 function addHeader(doc: jsPDF, title: string, dateRange?: { start: Date; end: Date }) {
   // Title
   doc.setFontSize(18);
@@ -998,4 +1009,131 @@ export function generateCashFlowSummaryPDF(
 
   addFooter(doc);
   doc.save(`cash-flow-report-${format(dateRange.start, 'yyyy-MM-dd')}-to-${format(dateRange.end, 'yyyy-MM-dd')}.pdf`);
+}
+
+export interface SupplierPaymentHistoryReportData {
+  payments: SupplierPaymentHistoryItem[];
+  filters: {
+    dateRange?: string;
+    paymentType?: string;
+    supplier?: string;
+    searchQuery?: string;
+  };
+  totalAmount: number;
+}
+
+export function generateSupplierPaymentHistoryPDF(data: SupplierPaymentHistoryReportData) {
+  const doc = new jsPDF();
+  const startY = addHeader(doc, 'Supplier Payment History');
+
+  // Active Filters Section
+  let filterY = startY;
+  const activeFilters: string[] = [];
+  
+  if (data.filters.dateRange && data.filters.dateRange !== 'all') {
+    const dateLabels: Record<string, string> = {
+      today: 'Today',
+      this_week: 'This Week',
+      this_month: 'This Month',
+      last_7_days: 'Last 7 Days',
+      last_30_days: 'Last 30 Days',
+    };
+    activeFilters.push(`Date: ${dateLabels[data.filters.dateRange] || data.filters.dateRange}`);
+  }
+  
+  if (data.filters.paymentType && data.filters.paymentType !== 'all') {
+    const typeLabels: Record<string, string> = {
+      due_payment: 'Due Payment',
+      advance: 'Advance',
+      others: 'Others',
+    };
+    activeFilters.push(`Type: ${typeLabels[data.filters.paymentType] || data.filters.paymentType}`);
+  }
+  
+  if (data.filters.supplier && data.filters.supplier !== 'all') {
+    activeFilters.push(`Supplier: ${data.filters.supplier}`);
+  }
+  
+  if (data.filters.searchQuery) {
+    activeFilters.push(`Search: "${data.filters.searchQuery}"`);
+  }
+
+  if (activeFilters.length > 0) {
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(100);
+    doc.text(`Filters: ${activeFilters.join(' | ')}`, 14, filterY);
+    doc.setTextColor(0);
+    filterY += 8;
+  }
+
+  // Summary Section
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Summary', 14, filterY);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text(`Total Payments: ${data.payments.length}`, 14, filterY + 6);
+  doc.text(`Total Amount: ${CURRENCY}${data.totalAmount.toLocaleString()}`, 80, filterY + 6);
+
+  // Payment Type Breakdown
+  const typeBreakdown = data.payments.reduce((acc, p) => {
+    const type = p.payment_type || 'due_payment';
+    acc[type] = (acc[type] || 0) + p.amount;
+    return acc;
+  }, {} as Record<string, number>);
+
+  let breakdownY = filterY + 12;
+  if (Object.keys(typeBreakdown).length > 1) {
+    doc.setFontSize(8);
+    const typeLabels: Record<string, string> = {
+      due_payment: 'Due',
+      advance: 'Advance',
+      others: 'Others',
+    };
+    const breakdownText = Object.entries(typeBreakdown)
+      .map(([type, amount]) => `${typeLabels[type] || type}: ${CURRENCY}${amount.toLocaleString()}`)
+      .join('  |  ');
+    doc.text(breakdownText, 14, breakdownY);
+    breakdownY += 6;
+  }
+
+  // Payment Table
+  autoTable(doc, {
+    startY: breakdownY + 4,
+    head: [['#', 'Date', 'Supplier', 'Type', 'Method', 'Amount']],
+    body: data.payments.map((payment, index) => {
+      const typeLabels: Record<string, string> = {
+        due_payment: 'Due Payment',
+        advance: 'Advance',
+        others: 'Others',
+      };
+      return [
+        (index + 1).toString(),
+        format(new Date(payment.payment_date), 'dd MMM yyyy'),
+        payment.supplier_name,
+        typeLabels[payment.payment_type] || 'Due Payment',
+        payment.payment_method,
+        `${CURRENCY}${payment.amount.toLocaleString()}`,
+      ];
+    }),
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [34, 197, 94] }, // green color
+    columnStyles: {
+      0: { cellWidth: 12 },
+      5: { halign: 'right', fontStyle: 'bold' },
+    },
+  });
+
+  // Footer with grand total
+  const finalY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+  doc.setFillColor(240, 253, 244); // light green
+  doc.rect(120, finalY + 4, 76, 12, 'F');
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Grand Total: ${CURRENCY}${data.totalAmount.toLocaleString()}`, 124, finalY + 12);
+
+  addFooter(doc);
+  doc.save(`supplier-payment-history-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 }
