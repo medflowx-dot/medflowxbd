@@ -430,19 +430,15 @@ export default function OwnerSettings() {
             </div>
             <div className="space-y-2">
               <Label>Base URL</Label>
-              <Select 
-                value={String(localSettings.uddoktapay_base_url || 'https://sandbox.uddoktapay.com').replace(/"/g, '')}
-                onValueChange={(value) => handleChange('uddoktapay_base_url', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select environment" />
-                </SelectTrigger>
-                <SelectContent position="popper" className="z-50">
-                  <SelectItem value="https://sandbox.uddoktapay.com">Sandbox (Testing)</SelectItem>
-                  <SelectItem value="https://pay.uddoktapay.com">Production (Live)</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">Use Sandbox for testing, Production for live payments</p>
+              <Input
+                type="text"
+                value={String(localSettings.uddoktapay_base_url || '').replace(/"/g, '')}
+                onChange={(e) => handleChange('uddoktapay_base_url', e.target.value)}
+                placeholder="https://sandbox.uddoktapay.com"
+              />
+              <p className="text-xs text-muted-foreground">
+                Enter your UddoktaPay API base URL (e.g., https://sandbox.uddoktapay.com or your custom domain)
+              </p>
             </div>
           </div>
           
