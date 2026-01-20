@@ -38,6 +38,10 @@ export function DailySummaryReportView({ dateRange }: DailySummaryReportProps) {
       supplierPayments: acc.supplierPayments + row.supplierPayments,
       dailyCosts: acc.dailyCosts + row.dailyCosts,
       netCashFlow: acc.netCashFlow + row.netCashFlow,
+      cashPaid: acc.cashPaid + row.cashPaid,
+      cashDueCollected: acc.cashDueCollected + row.cashDueCollected,
+      cashSupplierPayments: acc.cashSupplierPayments + row.cashSupplierPayments,
+      cashDailyCosts: acc.cashDailyCosts + row.cashDailyCosts,
     }),
     {
       totalSales: 0,
@@ -48,8 +52,16 @@ export function DailySummaryReportView({ dateRange }: DailySummaryReportProps) {
       supplierPayments: 0,
       dailyCosts: 0,
       netCashFlow: 0,
+      cashPaid: 0,
+      cashDueCollected: 0,
+      cashSupplierPayments: 0,
+      cashDailyCosts: 0,
     }
-  ) || { totalSales: 0, totalPaid: 0, totalDue: 0, salesCount: 0, dueCollected: 0, supplierPayments: 0, dailyCosts: 0, netCashFlow: 0 };
+  ) || { 
+    totalSales: 0, totalPaid: 0, totalDue: 0, salesCount: 0, 
+    dueCollected: 0, supplierPayments: 0, dailyCosts: 0, netCashFlow: 0,
+    cashPaid: 0, cashDueCollected: 0, cashSupplierPayments: 0, cashDailyCosts: 0 
+  };
 
   if (isLoading) {
     return (
@@ -125,12 +137,12 @@ export function DailySummaryReportView({ dateRange }: DailySummaryReportProps) {
                       {format(new Date(row.date), 'MMM dd, yyyy')}
                     </TableCell>
                     <TableCell className="text-right">৳{row.totalSales.toLocaleString()}</TableCell>
-                    <TableCell className="text-right text-green-600">৳{row.totalPaid.toLocaleString()}</TableCell>
-                    <TableCell className="text-right text-red-600">৳{row.totalDue.toLocaleString()}</TableCell>
-                    <TableCell className="text-right text-green-600">৳{row.dueCollected.toLocaleString()}</TableCell>
-                    <TableCell className="text-right text-red-600">৳{row.supplierPayments.toLocaleString()}</TableCell>
-                    <TableCell className="text-right text-red-600">৳{row.dailyCosts.toLocaleString()}</TableCell>
-                    <TableCell className={`text-right font-medium ${row.netCashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <TableCell className="text-right text-success">৳{row.totalPaid.toLocaleString()}</TableCell>
+                    <TableCell className="text-right text-destructive">৳{row.totalDue.toLocaleString()}</TableCell>
+                    <TableCell className="text-right text-success">৳{row.dueCollected.toLocaleString()}</TableCell>
+                    <TableCell className="text-right text-destructive">৳{row.supplierPayments.toLocaleString()}</TableCell>
+                    <TableCell className="text-right text-destructive">৳{row.dailyCosts.toLocaleString()}</TableCell>
+                    <TableCell className={`text-right font-medium ${row.netCashFlow >= 0 ? 'text-success' : 'text-destructive'}`}>
                       ৳{row.netCashFlow.toLocaleString()}
                     </TableCell>
                   </TableRow>
