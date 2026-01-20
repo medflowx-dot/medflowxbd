@@ -71,6 +71,12 @@
     --warning: 38 92% 50%;
     --warning-foreground: 38 95% 12%;
 
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+
+    --purple: 270 70% 55%;
+    --purple-foreground: 0 0% 100%;
+
     /* Borders & Inputs */
     --border: 210 20% 88%;
     --input: 210 20% 88%;
@@ -133,6 +139,12 @@
 
     --success: 152 60% 45%;
     --success-foreground: 0 0% 100%;
+
+    --info: 217 80% 55%;
+    --info-foreground: 0 0% 100%;
+
+    --purple: 270 60% 60%;
+    --purple-foreground: 0 0% 100%;
 
     --border: 210 30% 20%;
     --input: 210 30% 20%;
