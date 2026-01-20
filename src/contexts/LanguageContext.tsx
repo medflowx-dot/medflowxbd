@@ -17,32 +17,50 @@ const translations: Record<Language, TranslationKeys> = {
   bn,
 };
 
+const LANGUAGE_STORAGE_KEY = 'medflowx-language';
+
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const { data: profile, isLoading: profileLoading } = useProfile();
   const updateProfile = useUpdateProfile();
-  const [language, setLanguageState] = useState<Language>('en');
+  
+  // Initialize from localStorage first for immediate effect
+  const [language, setLanguageState] = useState<Language>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      if (stored === 'en' || stored === 'bn') {
+        return stored;
+      }
+    }
+    return 'bn'; // Default to Bengali
+  });
+  
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load language from profile on mount
+  // Sync with profile when available (profile takes precedence if set)
   useEffect(() => {
     if (profile?.language && !isInitialized) {
       const profileLang = profile.language as Language;
       if (profileLang === 'en' || profileLang === 'bn') {
         setLanguageState(profileLang);
+        localStorage.setItem(LANGUAGE_STORAGE_KEY, profileLang);
       }
       setIsInitialized(true);
-    } else if (!profileLoading && !profile && !isInitialized) {
-      // No profile, use default
+    } else if (!profileLoading && !isInitialized) {
+      // No profile or profile has no language, keep localStorage value
       setIsInitialized(true);
     }
   }, [profile, profileLoading, isInitialized]);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    // Save to profile
-    updateProfile.mutate({ language: lang });
+    // Save to localStorage immediately
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    // Save to profile if user is logged in
+    if (profile) {
+      updateProfile.mutate({ language: lang });
+    }
   };
 
   const t = translations[language];
@@ -60,9 +78,9 @@ export function useLanguage() {
     // Return default values if provider is not available yet
     // This can happen during initial render before providers are mounted
     return {
-      language: 'en' as const,
+      language: 'bn' as const,
       setLanguage: () => {},
-      t: translations.en,
+      t: translations.bn,
       isLoading: true,
     };
   }
