@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePlatformSettings, useUpdatePlatformSetting } from '@/hooks/useOwnerData';
-import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send } from 'lucide-react';
+import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send, CreditCard, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -17,6 +17,7 @@ export default function OwnerSettings() {
   const [localSettings, setLocalSettings] = useState<Record<string, any>>({});
   const [hasChanges, setHasChanges] = useState(false);
   const [showSmtpPassword, setShowSmtpPassword] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
   const [testEmailAddress, setTestEmailAddress] = useState('');
 
@@ -380,6 +381,91 @@ export default function OwnerSettings() {
             {!localSettings.smtp_host?.replace(/"/g, '') && (
               <p className="text-xs text-muted-foreground mt-2">Configure SMTP settings and save before testing</p>
             )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* UddoktaPay Payment Gateway */}
+      <Card className="border-0 shadow-card">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5 text-primary" />
+            <CardTitle>UddoktaPay Payment Gateway</CardTitle>
+          </div>
+          <CardDescription>Configure UddoktaPay for subscription payments (bKash, Nagad, Rocket, Bank)</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+            <div>
+              <Label>Enable UddoktaPay</Label>
+              <p className="text-sm text-muted-foreground">Allow users to pay via UddoktaPay gateway</p>
+            </div>
+            <Switch
+              checked={localSettings.uddoktapay_enabled === true || localSettings.uddoktapay_enabled === 'true'}
+              onCheckedChange={(checked) => handleChange('uddoktapay_enabled', checked)}
+            />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>API Key</Label>
+              <div className="relative">
+                <Input
+                  type={showApiKey ? 'text' : 'password'}
+                  value={localSettings.uddoktapay_api_key?.replace(/"/g, '') || ''}
+                  onChange={(e) => handleChange('uddoktapay_api_key', `"${e.target.value}"`)}
+                  placeholder="Enter UddoktaPay API Key"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                >
+                  {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Get API key from UddoktaPay Dashboard</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Base URL</Label>
+              <Select 
+                value={localSettings.uddoktapay_base_url?.replace(/"/g, '') || 'https://sandbox.uddoktapay.com'}
+                onValueChange={(value) => handleChange('uddoktapay_base_url', `"${value}"`)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="https://sandbox.uddoktapay.com">Sandbox (Testing)</SelectItem>
+                  <SelectItem value="https://pay.uddoktapay.com">Production (Live)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Use Sandbox for testing, Production for live payments</p>
+            </div>
+          </div>
+          
+          {/* Info box */}
+          <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
+            <div className="flex items-start gap-3">
+              <ExternalLink className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+              <div>
+                <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">UddoktaPay Integration</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                  Supports bKash, Nagad, Rocket, Upay and Bank payments. Users will be redirected to UddoktaPay checkout page to complete payment. 
+                  Subscription will be activated automatically after successful payment.
+                </p>
+                <a 
+                  href="https://uddoktapay.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-flex items-center gap-1"
+                >
+                  Visit UddoktaPay <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

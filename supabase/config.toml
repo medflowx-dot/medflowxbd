@@ -32,3 +32,12 @@ verify_jwt = false
 
 [functions.seed-global-medicines]
 verify_jwt = false
+
+[functions.uddoktapay-create-charge]
+verify_jwt = false
+
+[functions.uddoktapay-webhook]
+verify_jwt = false
+
+[functions.uddoktapay-verify]
+verify_jwt = false
