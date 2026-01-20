@@ -1,10 +1,11 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Bell, Search } from 'lucide-react';
+import { ArrowLeft, Bell, Search, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useProfile } from '@/hooks/useProfile';
 import { useSidebarBadges } from '@/hooks/useSidebarBadges';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 
 interface MobileHeaderProps {
@@ -27,6 +28,7 @@ export function MobileHeader({
   const { data: profile } = useProfile();
   const { data: badges } = useSidebarBadges();
   const { t } = useLanguage();
+  const { theme, setTheme } = useTheme();
 
   // Determine if we should show back button
   const shouldShowBack = showBack ?? location.pathname !== '/dashboard';
@@ -112,7 +114,18 @@ export function MobileHeader({
         </h1>
 
         {/* Right Section */}
-        <div className="flex items-center gap-1 min-w-[60px] justify-end">
+        <div className="flex items-center gap-0.5 min-w-[90px] justify-end">
+          {/* Theme Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="h-9 w-9 hover:bg-primary/10"
+          >
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          </Button>
+
           {showSearch && (
             <Button
               variant="ghost"
