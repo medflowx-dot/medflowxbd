@@ -399,7 +399,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           is_tax_applicable: boolean | null
-          manufacturer_id: string | null
+          manufacturer_id: string
           name: string
           unit: string | null
           updated_at: string | null
@@ -411,7 +411,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_tax_applicable?: boolean | null
-          manufacturer_id?: string | null
+          manufacturer_id: string
           name: string
           unit?: string | null
           updated_at?: string | null
@@ -423,7 +423,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_tax_applicable?: boolean | null
-          manufacturer_id?: string | null
+          manufacturer_id?: string
           name?: string
           unit?: string | null
           updated_at?: string | null
