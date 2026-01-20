@@ -129,9 +129,11 @@ export function BatchTable({ batches, medicines, canManage }: BatchTableProps) {
                         batch={batch}
                         defaultMedicineId={batch.medicine_id}
                         trigger={
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          <span>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </span>
                         }
                       />
                       <AlertDialog>

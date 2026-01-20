@@ -74,11 +74,8 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
   };
 
   const handleMenuClick = (path: string) => {
+    navigate(path);
     onOpenChange(false);
-    // Small delay for animation
-    setTimeout(() => {
-      navigate(path);
-    }, 150);
   };
 
   const handleSignOut = async () => {
@@ -96,7 +93,7 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
         </DrawerHeader>
 
         <ScrollArea className="flex-1 px-4 py-2">
-          <div className="grid grid-cols-3 gap-3 py-4 stagger-children">
+          <div className="grid grid-cols-3 gap-3 py-4">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const badgeCount = getBadgeCount(item.badge);
@@ -107,9 +104,9 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
                   onClick={() => handleMenuClick(item.path)}
                   className={cn(
                     "flex flex-col items-center justify-center gap-2 p-4 rounded-xl",
-                    "bg-gradient-to-br from-muted/50 to-muted/20 hover:from-muted hover:to-muted/50 transition-all duration-200",
+                    "bg-gradient-to-br from-muted/50 to-muted/20 hover:from-muted hover:to-muted/50 transition-all duration-100",
                     "active:scale-95 touch-manipulation",
-                    "border border-border/50 hover:border-primary/30 hover:shadow-md"
+                    "border border-border/50 hover:border-primary/30"
                   )}
                 >
                   <div className="relative">
@@ -144,7 +141,7 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
               className={cn(
                 "w-full flex items-center justify-center gap-3 p-4 rounded-xl",
                 "bg-gradient-to-r from-red-500/10 to-red-600/10 text-red-600 dark:text-red-400",
-                "hover:from-red-500/20 hover:to-red-600/20 transition-all duration-200",
+                "hover:from-red-500/20 hover:to-red-600/20 transition-all duration-100",
                 "active:scale-95 touch-manipulation",
                 "border border-red-200 dark:border-red-900"
               )}
