@@ -11,9 +11,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 interface EditSaleDialogProps {
   sale: Sale;
+  trigger?: React.ReactNode;
 }
 
-export function EditSaleDialog({ sale }: EditSaleDialogProps) {
+export function EditSaleDialog({ sale, trigger }: EditSaleDialogProps) {
   const [open, setOpen] = useState(false);
   const { updateSale } = useSales();
   const { t } = useLanguage();
@@ -60,9 +61,11 @@ export function EditSaleDialog({ sale }: EditSaleDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Pencil className="h-4 w-4" />
-        </Button>
+        {trigger || (
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Pencil className="h-4 w-4" />
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>

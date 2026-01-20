@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Trash2, Receipt, ChevronDown, ChevronRight, Zap, ClipboardList } from 'lucide-react';
+import { Trash2, Receipt, ChevronDown, ChevronRight, Zap, ClipboardList, Pencil } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -31,6 +31,7 @@ import { useSales, type Sale } from '@/hooks/useSales';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { EditSaleDialog } from './EditSaleDialog';
 
 interface SalesTableProps {
   sales: Sale[];
@@ -184,6 +185,14 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <EditSaleDialog
+                          sale={sale}
+                          trigger={
+                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10">
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          }
+                        />
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
