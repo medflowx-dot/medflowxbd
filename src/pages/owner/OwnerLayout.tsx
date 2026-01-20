@@ -16,20 +16,19 @@ import {
   LogOut,
   Loader2,
   Shield,
-  Crown,
   Mail,
   Bell,
   Building2,
   Pill,
   Database,
   Menu,
-  X,
   Smartphone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import logoAuth from '@/assets/logo-auth.png';
 
 const navItems = [
   {
@@ -134,9 +133,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       {/* Logo/Brand */}
       <div className="p-4 md:p-6 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-primary to-primary-dark">
-            <Crown className="h-5 w-5 md:h-6 md:w-6 text-primary-foreground" />
-          </div>
+          <img src={logoAuth} alt="MedFlowx" className="h-10 w-10 rounded-lg" />
           <div>
             <h1 className="font-bold text-base md:text-lg">Owner Panel</h1>
             <p className="text-xs text-muted-foreground">Master Control</p>
@@ -280,9 +277,7 @@ export default function OwnerLayout() {
       {/* Mobile Header */}
       <header className="md:hidden sticky top-0 z-50 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 rounded-lg bg-gradient-to-br from-primary to-primary-dark">
-            <Crown className="h-4 w-4 text-primary-foreground" />
-          </div>
+          <img src={logoAuth} alt="MedFlowx" className="h-8 w-8 rounded-lg" />
           <div>
             <h1 className="font-bold text-sm">Owner Panel</h1>
           </div>
