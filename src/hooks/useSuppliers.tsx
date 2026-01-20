@@ -26,6 +26,8 @@ export interface Supplier {
   };
 }
 
+export type SupplierPaymentType = 'due_payment' | 'advance' | 'others';
+
 export interface SupplierPayment {
   id: string;
   user_id: string;
@@ -33,6 +35,7 @@ export interface SupplierPayment {
   amount: number;
   payment_date: string;
   payment_method: string;
+  payment_type: SupplierPaymentType;
   reference_number: string | null;
   notes: string | null;
   created_at: string;
