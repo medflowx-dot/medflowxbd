@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,34 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Pill, Loader2, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Plan display configuration
+const planConfig: Record<string, { title: string; subtitle: string; buttonText: string }> = {
+  trial: {
+    title: 'Start your free trial',
+    subtitle: '7 days free, no credit card required',
+    buttonText: 'Start Free Trial',
+  },
+  monthly: {
+    title: 'Start Monthly Plan',
+    subtitle: 'Get full access with monthly billing',
+    buttonText: 'Start Monthly Plan',
+  },
+  yearly: {
+    title: 'Start Yearly Plan',
+    subtitle: 'Save 17% with annual billing',
+    buttonText: 'Start Yearly Plan',
+  },
+  lifetime: {
+    title: 'Get Lifetime Access',
+    subtitle: 'One-time payment, forever yours',
+    buttonText: 'Get Lifetime Access',
+  },
+};
+
 export default function Signup() {
+  const [searchParams] = useSearchParams();
+  const plan = searchParams.get('plan') || 'trial';
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -18,6 +45,10 @@ export default function Signup() {
   const [success, setSuccess] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
+
+  const currentPlanConfig = useMemo(() => {
+    return planConfig[plan] || planConfig.trial;
+  }, [plan]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,8 +107,8 @@ export default function Signup() {
             <span className="text-2xl font-display font-bold text-primary">MedFlowx</span>
           </Link>
           <div>
-            <CardTitle className="text-2xl font-display">Start your free trial</CardTitle>
-            <CardDescription>7 days free, no credit card required</CardDescription>
+            <CardTitle className="text-2xl font-display">{currentPlanConfig.title}</CardTitle>
+            <CardDescription>{currentPlanConfig.subtitle}</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
@@ -149,7 +180,7 @@ export default function Signup() {
                   Creating account...
                 </>
               ) : (
-                'Start Free Trial'
+                currentPlanConfig.buttonText
               )}
             </Button>
           </form>
