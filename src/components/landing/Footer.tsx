@@ -1,5 +1,8 @@
-import { Pill, Mail, Phone, MapPin, Facebook, MessageCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, MessageCircle } from 'lucide-react';
 import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
+import { useTheme } from 'next-themes';
+import logoLight from '@/assets/logo-light.png';
+import logoDark from '@/assets/logo-dark.png';
 
 // Fallback footer data
 const fallbackFooterLinks = {
@@ -24,6 +27,7 @@ const fallbackFooterLinks = {
 
 const Footer = () => {
   const { data: cmsContent } = useCMSContent('footer');
+  const { resolvedTheme } = useTheme();
   const currentYear = new Date().getFullYear();
   
   const brand = getCMSValue(cmsContent, 'brand', {
@@ -42,6 +46,9 @@ const Footer = () => {
   });
   const copyrightText = getCMSValue(cmsContent, 'copyright', '© {year} MedFlowx। সর্বস্বত্ব সংরক্ষিত।');
 
+  // Footer has dark background, so use inverted logo (dark theme uses light logo here)
+  const logo = resolvedTheme === 'dark' ? logoDark : logoDark;
+
   return (
     <footer className="bg-foreground text-background">
       <div className="container mx-auto px-4">
@@ -49,13 +56,12 @@ const Footer = () => {
         <div className="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-2">
-            <a href="/" className="flex items-center gap-2 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                <Pill className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-display font-bold">
-                Med<span className="text-primary">Flow</span>x
-              </span>
+            <a href="/" className="flex items-center mb-6">
+              <img 
+                src={logo} 
+                alt="MedFlowx" 
+                className="h-8 md:h-10 w-auto"
+              />
             </a>
             <p className="text-background/70 mb-6 max-w-sm leading-relaxed">
               {brand.description}
