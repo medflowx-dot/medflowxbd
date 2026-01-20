@@ -87,25 +87,28 @@ export default function OwnerSettings() {
 
   const handleTestSms = async () => {
     if (!testPhoneNumber) {
-      toast.error('Please enter a phone number');
+      toast.error('ফোন নম্বর দিন');
+      return;
+    }
+    
+    const apiKey = String(localSettings.bulksmsbd_api_key || '').replace(/"/g, '');
+    const senderId = String(localSettings.bulksmsbd_sender_id || '').replace(/"/g, '');
+    
+    if (!apiKey || !senderId) {
+      toast.error('API Key এবং Sender ID প্রয়োজন');
       return;
     }
     
     setTestingSms(true);
     try {
-      const apiKey = String(localSettings.bulksmsbd_api_key || '').replace(/"/g, '');
-      const senderId = String(localSettings.bulksmsbd_sender_id || '').replace(/"/g, '');
-      
-      if (!apiKey || !senderId) {
-        throw new Error('API Key এবং Sender ID প্রয়োজন');
-      }
-
-      // Call the edge function to test SMS
+      // Call the edge function with test credentials
       const { data, error } = await supabase.functions.invoke('send-client-notification', {
         body: {
           testMode: true,
           testPhone: testPhoneNumber,
           testMessage: 'BulkSMSBD টেস্ট মেসেজ - MedFlowX থেকে পাঠানো হয়েছে।',
+          testApiKey: apiKey,
+          testSenderId: senderId,
         },
       });
       
