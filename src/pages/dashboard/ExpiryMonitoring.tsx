@@ -66,31 +66,36 @@ export default function ExpiryMonitoring() {
   const getStatusBadge = (status: string, daysUntilExpiry: number) => {
     switch (status) {
       case 'expired':
-        return <Badge variant="destructive">{t.expiryMonitoring.expired}</Badge>;
+        return <Badge className="expiry-badge-expired">{t.expiryMonitoring.expired}</Badge>;
       case 'critical':
-        return <Badge className="bg-red-500">{daysUntilExpiry}{t.expiryMonitoring.daysLeft}</Badge>;
+        return <Badge className="expiry-badge-critical">{daysUntilExpiry}{t.expiryMonitoring.daysLeft}</Badge>;
       case 'warning':
-        return <Badge className="bg-orange-500">{daysUntilExpiry}{t.expiryMonitoring.daysLeft}</Badge>;
+        return <Badge className="expiry-badge-warning">{daysUntilExpiry}{t.expiryMonitoring.daysLeft}</Badge>;
       case 'caution':
-        return <Badge className="bg-yellow-500 text-black">{daysUntilExpiry}{t.expiryMonitoring.daysLeft}</Badge>;
+        return <Badge className="expiry-badge-caution">{daysUntilExpiry}{t.expiryMonitoring.daysLeft}</Badge>;
       default:
-        return <Badge variant="outline">{daysUntilExpiry}{t.expiryMonitoring.daysLeft}</Badge>;
+        return <Badge variant="outline" className="expiry-badge-safe">{daysUntilExpiry}{t.expiryMonitoring.daysLeft}</Badge>;
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.expiryMonitoring.title}</h1>
-          <p className="text-muted-foreground mt-1">
-            {t.expiryMonitoring.subtitle}
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="icon-container-primary">
+            <AlertTriangle className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.expiryMonitoring.title}</h1>
+            <p className="text-muted-foreground mt-1">
+              {t.expiryMonitoring.subtitle}
+            </p>
+          </div>
         </div>
         <Button 
-          variant="outline" 
           onClick={handleExportPDF}
           disabled={!batches || batches.length === 0 || exporting}
+          className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-md"
         >
           {exporting ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -103,49 +108,64 @@ export default function ExpiryMonitoring() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <Card className="border-red-200 bg-red-50/50 dark:bg-red-950/20">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-red-600">{t.expiryMonitoring.expired}</CardDescription>
+        <Card className="stat-card-expense">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+            <CardDescription className="text-red-600 dark:text-red-400">{t.expiryMonitoring.expired}</CardDescription>
+            <div className="icon-container-danger">
+              <AlertTriangle className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{summary?.expired.count || 0}</div>
+            <div className="text-2xl font-bold text-red-600 dark:text-red-400">{summary?.expired.count || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">{t.expiryMonitoring.batches}</p>
           </CardContent>
         </Card>
 
-        <Card className="border-orange-200 bg-orange-50/50 dark:bg-orange-950/20">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-orange-600">{t.expiryMonitoring.within30Days}</CardDescription>
+        <Card className="stat-card-due">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+            <CardDescription className="text-orange-600 dark:text-orange-400">{t.expiryMonitoring.within30Days}</CardDescription>
+            <div className="icon-container-warning">
+              <Clock className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{summary?.within30Days.count || 0}</div>
+            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{summary?.within30Days.count || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">{t.expiryMonitoring.batches}</p>
           </CardContent>
         </Card>
 
-        <Card className="border-yellow-200 bg-yellow-50/50 dark:bg-yellow-950/20">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-yellow-600">{t.expiryMonitoring.within60Days}</CardDescription>
+        <Card className="border-yellow-200/50 dark:border-yellow-800/30 bg-gradient-to-br from-yellow-50/80 to-amber-50/50 dark:from-yellow-950/30 dark:to-amber-950/20">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+            <CardDescription className="text-yellow-600 dark:text-yellow-400">{t.expiryMonitoring.within60Days}</CardDescription>
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-yellow-500/20 to-amber-500/20 flex items-center justify-center text-yellow-600 dark:text-yellow-400">
+              <Clock className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{summary?.within60Days.count || 0}</div>
+            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{summary?.within60Days.count || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">{t.expiryMonitoring.batches}</p>
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-950/20">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-blue-600">{t.expiryMonitoring.within90Days}</CardDescription>
+        <Card className="stat-card-info">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+            <CardDescription className="text-blue-600 dark:text-blue-400">{t.expiryMonitoring.within90Days}</CardDescription>
+            <div className="icon-container-info">
+              <Clock className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{summary?.within90Days.count || 0}</div>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary?.within90Days.count || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">{t.expiryMonitoring.batches}</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
+        <Card className="border-destructive/30 dark:border-destructive/50 bg-gradient-to-br from-destructive/10 to-destructive/5 dark:from-destructive/20 dark:to-destructive/10">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardDescription>{t.expiryMonitoring.totalAtRisk}</CardDescription>
+            <div className="icon-container-danger">
+              <Package className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">
@@ -159,13 +179,15 @@ export default function ExpiryMonitoring() {
       </div>
 
       {/* Filter Tabs */}
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-amber-50 to-transparent dark:from-amber-950/30 dark:to-transparent">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              {t.expiryMonitoring.batchExpiryList}
-            </CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="icon-container-warning">
+                <Package className="h-4 w-4" />
+              </div>
+              <CardTitle>{t.expiryMonitoring.batchExpiryList}</CardTitle>
+            </div>
             
             {/* Custom Date Range */}
             <div className="flex flex-wrap items-center gap-2">
@@ -182,20 +204,25 @@ export default function ExpiryMonitoring() {
                 placeholder={t.expiryMonitoring.to}
                 className="w-[130px]"
               />
-              <Button size="sm" onClick={handleCustomRangeApply} disabled={!dateFrom || !dateTo}>
+              <Button 
+                size="sm" 
+                onClick={handleCustomRangeApply} 
+                disabled={!dateFrom || !dateTo}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+              >
                 {t.expiryMonitoring.apply}
               </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <Tabs value={filter} onValueChange={(v) => setFilter(v as ExpiryFilter)} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
-              <TabsTrigger value="all">{t.expiryMonitoring.all}</TabsTrigger>
-              <TabsTrigger value="expired" className="text-red-600">{t.expiryMonitoring.expired}</TabsTrigger>
-              <TabsTrigger value="30days">{t.expiryMonitoring.days30}</TabsTrigger>
-              <TabsTrigger value="60days">{t.expiryMonitoring.days60}</TabsTrigger>
-              <TabsTrigger value="90days">{t.expiryMonitoring.days90}</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid bg-muted/50">
+              <TabsTrigger value="all" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white">{t.expiryMonitoring.all}</TabsTrigger>
+              <TabsTrigger value="expired" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-rose-500 data-[state=active]:text-white">{t.expiryMonitoring.expired}</TabsTrigger>
+              <TabsTrigger value="30days" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white">{t.expiryMonitoring.days30}</TabsTrigger>
+              <TabsTrigger value="60days" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-amber-400 data-[state=active]:text-white">{t.expiryMonitoring.days60}</TabsTrigger>
+              <TabsTrigger value="90days" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white">{t.expiryMonitoring.days90}</TabsTrigger>
             </TabsList>
 
             <TabsContent value={filter} className="mt-4">

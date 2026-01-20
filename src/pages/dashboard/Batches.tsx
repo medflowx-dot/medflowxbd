@@ -146,10 +146,12 @@ export default function Batches() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
+        <Card className="stat-card-info">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t.batches.totalBatches}</CardTitle>
-            <Layers className="h-4 w-4 text-muted-foreground" />
+            <div className="icon-container-info">
+              <Layers className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -159,10 +161,12 @@ export default function Batches() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="stat-card-expense">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t.batches.expired}</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <div className="icon-container-danger">
+              <AlertTriangle className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">{stats.expired}</div>
@@ -172,10 +176,12 @@ export default function Batches() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="stat-card-due">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t.batches.expiringSoon}</CardTitle>
-            <Package className="h-4 w-4 text-orange-500" />
+            <div className="icon-container-warning">
+              <Package className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-500">{stats.expiringSoon}</div>
@@ -187,14 +193,19 @@ export default function Batches() {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-950/30 dark:to-transparent">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <CardTitle>{t.batches.batchList}</CardTitle>
-              <CardDescription>
-                {t.batches.searchOrFilter}
-              </CardDescription>
+            <div className="flex items-center gap-3">
+              <div className="icon-container-primary">
+                <Layers className="h-4 w-4" />
+              </div>
+              <div>
+                <CardTitle>{t.batches.batchList}</CardTitle>
+                <CardDescription>
+                  {t.batches.searchOrFilter}
+                </CardDescription>
+              </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <div className="relative w-full sm:w-64">
