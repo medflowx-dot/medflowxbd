@@ -638,6 +638,8 @@ export const en = {
     tapToEdit: 'Tap to edit',
     cashIn: 'Cash In',
     sales: 'Sales',
+    totalSales: 'Total Sales',
+    cashSales: 'Cash Sales',
     dueCollected: 'Due Collected',
     dueSales: 'Due Sales',
     pendingCollection: "Today's pending dues",

@@ -640,6 +640,8 @@ export const bn: TranslationKeys = {
     tapToEdit: 'সম্পাদনা করতে ট্যাপ করুন',
     cashIn: 'ক্যাশ ইন',
     sales: 'বিক্রয়',
+    totalSales: 'মোট বিক্রি',
+    cashSales: 'নগদ বিক্রি',
     dueCollected: 'বকেয়া আদায়',
     dueSales: 'বাকিতে বিক্রি',
     pendingCollection: 'আজকের বাকি',
