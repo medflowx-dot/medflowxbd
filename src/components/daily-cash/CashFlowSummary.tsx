@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDailyCashSummary } from '@/hooks/useDailyCash';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ArrowDownLeft, ArrowUpRight, Wallet, TrendingUp, TrendingDown, Loader2, Pencil, Clock } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Wallet, TrendingUp, TrendingDown, Loader2, Pencil, Clock, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CashFlowSummaryProps {
@@ -25,7 +25,7 @@ export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProp
   const isGrowth = summary && summary.closingCash >= summary.openingCash;
 
   return (
-    <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-5 stagger-children">
+    <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-6 stagger-children">
       {/* Opening Cash */}
       <Card 
         className="cursor-pointer hover:shadow-lg transition-all duration-300 group bg-gradient-to-br from-muted/30 to-muted/10"
@@ -47,6 +47,27 @@ export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProp
           <p className="text-xs text-muted-foreground hidden sm:block">
             {t.dailyCash.tapToEdit}
           </p>
+        </CardContent>
+      </Card>
+
+      {/* Total Sales - মোট বিক্রি */}
+      <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-info/10 to-info/5 border-info/30">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
+          <CardTitle className="text-xs sm:text-sm font-medium text-info">
+            {t.dailyCash.totalSales}
+          </CardTitle>
+          <div className="p-1.5 rounded-lg bg-info">
+            <ShoppingCart className="h-4 w-4 text-info-foreground" />
+          </div>
+        </CardHeader>
+        <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+          <div className="text-lg sm:text-2xl font-bold text-info">
+            ৳{summary?.totalSales?.toLocaleString() || 0}
+          </div>
+          <div className="text-xs text-muted-foreground space-y-0.5 mt-1 hidden sm:block">
+            <p>{t.dailyCash.cashSales}: ৳{summary?.salesCashIn?.toLocaleString() || 0}</p>
+            <p>{t.dailyCash.dueSales}: ৳{summary?.dueSales?.toLocaleString() || 0}</p>
+          </div>
         </CardContent>
       </Card>
 

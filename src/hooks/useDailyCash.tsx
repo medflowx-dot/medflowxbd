@@ -31,6 +31,7 @@ export interface DailyCashSummary {
   openingCash: number;
   salesCashIn: number;
   dueSales: number; // বাকিতে বিক্রি - আজকের বাকি
+  totalSales: number; // মোট বিক্রি (Cash + Due)
   dueCollected: number;
   supplierPayments: number;
   dailyCosts: number;
@@ -139,6 +140,10 @@ export function useDailyCashSummary(date: Date) {
         ?.filter(c => c.payment_method === 'cash')
         .reduce((sum, c) => sum + Number(c.amount), 0) || 0;
 
+      // Calculate total sales (cash paid + due amount)
+      const totalSales = salesData
+        ?.reduce((sum, s) => sum + Number(s.paid_amount) + Number(s.due_amount || 0), 0) || 0;
+
       const totalIn = salesCashIn + dueCollected;
       const totalOut = supplierPayments + dailyCosts;
       const closingCash = openingCash + totalIn - totalOut;
@@ -147,6 +152,7 @@ export function useDailyCashSummary(date: Date) {
         openingCash,
         salesCashIn,
         dueSales,
+        totalSales,
         dueCollected,
         supplierPayments,
         dailyCosts,
