@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import logoAuth from '@/assets/logo-auth.png';
 
 export default function Billing() {
   const navigate = useNavigate();
@@ -134,6 +135,9 @@ export default function Billing() {
               {t.billing.backToDashboard}
             </Button>
           )}
+          <div className="mx-auto w-16 h-16 rounded-xl overflow-hidden mb-4 shadow-md">
+            <img src={logoAuth} alt="MedFlowx" className="w-full h-full object-cover" />
+          </div>
           <h1 className="text-3xl font-bold mb-2">
             {isManagementMode ? t.billing.subscriptionManagement : t.billing.subscriptionRequired}
           </h1>
