@@ -82,22 +82,38 @@ export default function GlobalManufacturers() {
     if (!file) return;
 
     try {
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data);
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json<{ Name?: string; name?: string; 'Company Name'?: string }>(sheet);
+      let names: string[] = [];
       
-      const names = rows
-        .map(row => row.Name || row.name || row['Company Name'] || '')
-        .filter(Boolean);
+      // Check if it's a CSV file
+      if (file.name.endsWith('.csv')) {
+        // Read CSV as text to handle encoding properly
+        const text = await file.text();
+        const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+        
+        // Skip header if it looks like a header
+        const startIndex = lines[0]?.toLowerCase().includes('name') ? 1 : 0;
+        names = lines.slice(startIndex).filter(name => name.length > 0);
+      } else {
+        // For Excel files
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json<{ Name?: string; name?: string; 'Company Name'?: string }>(sheet);
+        
+        names = rows
+          .map(row => row.Name || row.name || row['Company Name'] || '')
+          .filter(Boolean);
+      }
 
       if (names.length === 0) {
         toast.error('No valid data found in file');
         return;
       }
 
+      toast.info(`Found ${names.length} manufacturers to import...`);
       await bulkCreate.mutateAsync(names);
     } catch (error) {
+      console.error('File upload error:', error);
       toast.error('Failed to read file');
     }
     
