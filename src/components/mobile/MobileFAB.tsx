@@ -32,38 +32,45 @@ export function MobileFAB({ actions }: MobileFABProps) {
         />
       )}
 
-      {/* FAB Container */}
-      <div className="fixed bottom-20 right-4 z-50 flex flex-col-reverse items-end gap-3 md:hidden">
-        {/* Action Buttons */}
-        {isExpanded && actions.map((action, index) => {
-          const Icon = action.icon;
-          return (
-            <button
-              key={action.id}
-              onClick={() => handleActionClick(action)}
-              className={cn(
-                "flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-full shadow-lg",
-                "bg-card/95 backdrop-blur-lg border border-border/50",
-                "animate-in slide-in-from-right-2 fade-in duration-200",
-                "active:scale-95 touch-manipulation",
-                "hover:shadow-xl transition-shadow"
-              )}
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <span className="text-sm font-medium text-foreground whitespace-nowrap">
-                {action.label}
-              </span>
-              <div className={cn(
-                "h-10 w-10 rounded-full flex items-center justify-center shadow-md",
-                action.color || "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground"
-              )}>
-                <Icon className="h-5 w-5" />
-              </div>
-            </button>
-          );
-        })}
+      {/* Grid Menu Panel */}
+      {isExpanded && (
+        <div className="fixed bottom-36 right-4 left-4 z-50 md:hidden animate-in slide-in-from-bottom-4 fade-in duration-300">
+          <div className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl p-4">
+            <div className="grid grid-cols-2 gap-3">
+              {actions.map((action, index) => {
+                const Icon = action.icon;
+                return (
+                  <button
+                    key={action.id}
+                    onClick={() => handleActionClick(action)}
+                    className={cn(
+                      "flex flex-col items-center gap-2 p-4 rounded-xl",
+                      "bg-background/50 border border-border/30",
+                      "animate-in zoom-in-95 fade-in duration-200",
+                      "active:scale-95 touch-manipulation",
+                      "hover:bg-background/80 transition-colors"
+                    )}
+                    style={{ animationDelay: `${index * 30}ms` }}
+                  >
+                    <div className={cn(
+                      "h-12 w-12 rounded-full flex items-center justify-center shadow-md",
+                      action.color || "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground"
+                    )}>
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <span className="text-xs font-medium text-foreground text-center leading-tight">
+                      {action.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
-        {/* Main FAB Button */}
+      {/* Main FAB Button */}
+      <div className="fixed bottom-20 right-4 z-50 md:hidden">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(
