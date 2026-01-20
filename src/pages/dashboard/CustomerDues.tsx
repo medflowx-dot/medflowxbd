@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Users, Wallet, Plus, Search, Phone, MessageCircle, Trash2, FileText, Loader2 } from 'lucide-react';
+import { Users, Wallet, Plus, Search, Phone, MessageCircle, Trash2, FileText, Loader2, Pencil } from 'lucide-react';
 import { useCustomers, useCustomerDuesSummary, useDeleteCustomer, shareViaWhatsApp, Customer } from '@/hooks/useCustomerDues';
 import { supabase } from '@/integrations/supabase/client';
 import { generateIndividualCustomerPDF } from '@/lib/pdfGenerator';
@@ -13,6 +13,7 @@ import { AddCustomerDialog } from '@/components/customer-dues/AddCustomerDialog'
 import { AddDueDialog } from '@/components/customer-dues/AddDueDialog';
 import { RecordPaymentDialog } from '@/components/customer-dues/RecordPaymentDialog';
 import { CustomerPaymentHistory } from '@/components/customer-dues/CustomerPaymentHistory';
+import { EditCustomerDialog } from '@/components/customer-dues/EditCustomerDialog';
 import { QuickReportDialog } from '@/components/reports/QuickReportDialog';
 import { cn } from '@/lib/utils';
 import {
@@ -261,6 +262,19 @@ export default function CustomerDues() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-0.5 sm:gap-1">
+                          <EditCustomerDialog
+                            customer={customer}
+                            trigger={
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                title={t.customerDues?.editCustomer || 'Edit Customer'}
+                                className="h-8 w-8 p-0 hover:bg-primary/10"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            }
+                          />
                           <Button
                             variant="ghost"
                             size="sm"
