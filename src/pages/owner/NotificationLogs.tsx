@@ -13,12 +13,12 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Loader2, Search, Bell, Mail, MessageSquare, CheckCircle2, XCircle, 
-  RefreshCw, Filter, CalendarIcon, Clock, AlertTriangle, TrendingUp, Play
+  RefreshCw, Filter, CalendarIcon, Clock, AlertTriangle, TrendingUp, Play, BarChart3
 } from 'lucide-react';
-import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { format, subDays, startOfDay, endOfDay, eachDayOfInterval, parseISO, startOfWeek, endOfWeek, eachWeekOfInterval } from 'date-fns';
 import { bn } from 'date-fns/locale';
 import { toast } from 'sonner';
-
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 interface NotificationLog {
   id: string;
   user_id: string;
@@ -164,6 +164,76 @@ export default function NotificationLogs() {
     };
   }, [logs]);
 
+  // Daily chart data
+  const dailyChartData = useMemo(() => {
+    if (!logs || !dateRange.from || !dateRange.to) return [];
+    
+    const days = eachDayOfInterval({ start: dateRange.from, end: dateRange.to });
+    
+    return days.map(day => {
+      const dayStart = startOfDay(day);
+      const dayEnd = endOfDay(day);
+      
+      const dayLogs = logs.filter(log => {
+        const logDate = parseISO(log.sent_at);
+        return logDate >= dayStart && logDate <= dayEnd;
+      });
+      
+      return {
+        date: format(day, 'dd MMM'),
+        fullDate: format(day, 'dd MMM yyyy'),
+        email: dayLogs.filter(l => l.channel === 'email').length,
+        sms: dayLogs.filter(l => l.channel === 'sms').length,
+        total: dayLogs.length,
+        sent: dayLogs.filter(l => l.status === 'sent').length,
+        failed: dayLogs.filter(l => l.status === 'failed').length,
+      };
+    });
+  }, [logs, dateRange]);
+
+  // Weekly chart data
+  const weeklyChartData = useMemo(() => {
+    if (!logs || !dateRange.from || !dateRange.to) return [];
+    
+    const weeks = eachWeekOfInterval({ start: dateRange.from, end: dateRange.to }, { weekStartsOn: 0 });
+    
+    return weeks.map(weekStart => {
+      const weekEnd = endOfWeek(weekStart, { weekStartsOn: 0 });
+      
+      const weekLogs = logs.filter(log => {
+        const logDate = parseISO(log.sent_at);
+        return logDate >= weekStart && logDate <= weekEnd;
+      });
+      
+      return {
+        week: `${format(weekStart, 'dd MMM')} - ${format(weekEnd, 'dd MMM')}`,
+        email: weekLogs.filter(l => l.channel === 'email').length,
+        sms: weekLogs.filter(l => l.channel === 'sms').length,
+        total: weekLogs.length,
+        sent: weekLogs.filter(l => l.status === 'sent').length,
+        failed: weekLogs.filter(l => l.status === 'failed').length,
+      };
+    });
+  }, [logs, dateRange]);
+
+  // Pie chart data for channel distribution
+  const channelPieData = useMemo(() => {
+    if (!logs) return [];
+    return [
+      { name: 'Email', value: stats.emails, color: 'hsl(var(--info))' },
+      { name: 'SMS', value: stats.sms, color: 'hsl(var(--chart-4))' },
+    ].filter(d => d.value > 0);
+  }, [logs, stats]);
+
+  // Pie chart data for status distribution
+  const statusPieData = useMemo(() => {
+    if (!logs) return [];
+    return [
+      { name: 'Sent', value: stats.sent, color: 'hsl(var(--success))' },
+      { name: 'Failed', value: stats.failed, color: 'hsl(var(--destructive))' },
+    ].filter(d => d.value > 0);
+  }, [logs, stats]);
+
   // Filter logs
   const filteredLogs = useMemo(() => {
     return logs?.filter(log => {
@@ -275,6 +345,201 @@ export default function NotificationLogs() {
             <div className="flex items-center gap-2">
               <XCircle className="h-5 w-5 text-destructive" />
               <span className="text-2xl font-bold text-destructive">{stats.failed}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Daily/Weekly Trend Chart */}
+        <Card className="border-0 shadow-card lg:col-span-2">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Notification Trend</CardTitle>
+              </div>
+              <Tabs defaultValue="daily" className="w-auto">
+                <TabsList className="h-8">
+                  <TabsTrigger value="daily" className="text-xs px-3">Daily</TabsTrigger>
+                  <TabsTrigger value="weekly" className="text-xs px-3">Weekly</TabsTrigger>
+                </TabsList>
+                <TabsContent value="daily" className="mt-0">
+                  <div className="h-[280px] mt-4">
+                    {dailyChartData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={dailyChartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                          <XAxis 
+                            dataKey="date" 
+                            tick={{ fontSize: 11 }} 
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 11 }} 
+                            tickLine={false}
+                            axisLine={false}
+                            allowDecimals={false}
+                          />
+                          <RechartsTooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--card))', 
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                            }}
+                            labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
+                          />
+                          <Legend wrapperStyle={{ fontSize: '12px' }} />
+                          <Bar dataKey="email" name="Email" fill="hsl(var(--info))" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="sms" name="SMS" fill="hsl(var(--chart-4))" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-muted-foreground">
+                        No data available
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+                <TabsContent value="weekly" className="mt-0">
+                  <div className="h-[280px] mt-4">
+                    {weeklyChartData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={weeklyChartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                          <XAxis 
+                            dataKey="week" 
+                            tick={{ fontSize: 10 }} 
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 11 }} 
+                            tickLine={false}
+                            axisLine={false}
+                            allowDecimals={false}
+                          />
+                          <RechartsTooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--card))', 
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px'
+                            }}
+                          />
+                          <Legend wrapperStyle={{ fontSize: '12px' }} />
+                          <Line type="monotone" dataKey="email" name="Email" stroke="hsl(var(--info))" strokeWidth={2} dot={{ r: 4 }} />
+                          <Line type="monotone" dataKey="sms" name="SMS" stroke="hsl(var(--chart-4))" strokeWidth={2} dot={{ r: 4 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-muted-foreground">
+                        No data available
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Distribution Pie Charts */}
+        <Card className="border-0 shadow-card">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Distribution</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-4">
+              {/* Channel Distribution */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-2 font-medium">By Channel</p>
+                <div className="h-[120px]">
+                  {channelPieData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={channelPieData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={30}
+                          outerRadius={50}
+                          paddingAngle={2}
+                          dataKey="value"
+                        >
+                          {channelPieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'hsl(var(--card))', 
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px',
+                            fontSize: '12px'
+                          }}
+                        />
+                        <Legend 
+                          wrapperStyle={{ fontSize: '11px' }}
+                          formatter={(value, entry: any) => (
+                            <span className="text-foreground">{value}: {entry.payload.value}</span>
+                          )}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                      No data
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Status Distribution */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-2 font-medium">By Status</p>
+                <div className="h-[120px]">
+                  {statusPieData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={statusPieData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={30}
+                          outerRadius={50}
+                          paddingAngle={2}
+                          dataKey="value"
+                        >
+                          {statusPieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'hsl(var(--card))', 
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px',
+                            fontSize: '12px'
+                          }}
+                        />
+                        <Legend 
+                          wrapperStyle={{ fontSize: '11px' }}
+                          formatter={(value, entry: any) => (
+                            <span className="text-foreground">{value}: {entry.payload.value}</span>
+                          )}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                      No data
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
