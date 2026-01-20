@@ -16,10 +16,10 @@ export default function Suppliers() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Sub-navigation tabs */}
-      <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-        <div className="flex gap-1.5 border-b border-border/50 pb-3 min-w-max">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Sub-navigation tabs - scrollable on mobile */}
+      <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
+        <div className="flex gap-1 sm:gap-1.5 border-b border-border/50 pb-2 sm:pb-3 min-w-max">
           {supplierTabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -28,14 +28,14 @@ export default function Suppliers() {
                 to={tab.path}
                 end={tab.path === '/dashboard/suppliers'}
                 className={({ isActive }) => cn(
-                  "px-2.5 sm:px-4 py-2 text-[10px] sm:text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap flex items-center gap-1 sm:gap-1.5",
+                  "px-2 sm:px-4 py-1.5 sm:py-2 text-[9px] sm:text-sm font-medium rounded-md sm:rounded-lg transition-all duration-200 whitespace-nowrap flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1.5",
                   isActive 
                     ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20" 
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span>{tab.label}</span>
+                <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                <span className="leading-tight text-center sm:text-left">{tab.label}</span>
               </NavLink>
             );
           })}
