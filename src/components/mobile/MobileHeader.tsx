@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useProfile } from '@/hooks/useProfile';
 import { useSidebarBadges } from '@/hooks/useSidebarBadges';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface MobileHeaderProps {
   title?: string;
@@ -79,7 +80,7 @@ export function MobileHeader({
   const expiryAlerts = badges?.expiryAlerts || 0;
 
   return (
-    <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border md:hidden safe-area-top">
+    <header className="sticky top-0 z-40 mobile-header-gradient md:hidden safe-area-top">
       <div className="flex items-center justify-between h-14 px-4">
         {/* Left Section */}
         <div className="flex items-center gap-2 min-w-[60px]">
@@ -88,17 +89,17 @@ export function MobileHeader({
               variant="ghost"
               size="icon"
               onClick={handleBack}
-              className="h-9 w-9 -ml-2"
+              className="h-9 w-9 -ml-2 hover:bg-primary/10"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
           ) : (
             <Avatar
-              className="h-8 w-8 cursor-pointer"
+              className="h-9 w-9 cursor-pointer ring-2 ring-primary/20 ring-offset-2 ring-offset-background transition-all hover:ring-primary/40"
               onClick={handleProfileClick}
             >
               <AvatarImage src={profile?.pharmacy_logo || profile?.avatar_url || undefined} />
-              <AvatarFallback className="bg-primary/10 text-primary text-xs">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xs font-semibold">
                 {profile?.pharmacy_name?.charAt(0) || profile?.full_name?.charAt(0) || 'P'}
               </AvatarFallback>
             </Avatar>
@@ -117,7 +118,7 @@ export function MobileHeader({
               variant="ghost"
               size="icon"
               onClick={onSearchClick}
-              className="h-9 w-9"
+              className="h-9 w-9 hover:bg-primary/10"
             >
               <Search className="h-5 w-5" />
             </Button>
@@ -128,11 +129,15 @@ export function MobileHeader({
               variant="ghost"
               size="icon"
               onClick={handleNotificationClick}
-              className="h-9 w-9 relative"
+              className="h-9 w-9 relative hover:bg-primary/10"
             >
               <Bell className="h-5 w-5" />
               {expiryAlerts > 0 && (
-                <span className="absolute top-1 right-1 h-4 w-4 rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground flex items-center justify-center">
+                <span className={cn(
+                  "absolute top-0.5 right-0.5 h-4 w-4 rounded-full text-[10px] font-bold flex items-center justify-center",
+                  "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg",
+                  "badge-animated"
+                )}>
                   {expiryAlerts > 9 ? '9+' : expiryAlerts}
                 </span>
               )}

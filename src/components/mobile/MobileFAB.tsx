@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Plus, X, ShoppingCart, Package, Layers, Wallet } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FABAction {
   id: string;
@@ -28,7 +27,7 @@ export function MobileFAB({ actions }: MobileFABProps) {
       {/* Backdrop */}
       {isExpanded && (
         <div
-          className="fixed inset-0 bg-background/60 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-background/60 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-200"
           onClick={() => setIsExpanded(false)}
         />
       )}
@@ -44,9 +43,10 @@ export function MobileFAB({ actions }: MobileFABProps) {
               onClick={() => handleActionClick(action)}
               className={cn(
                 "flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-full shadow-lg",
-                "bg-card border border-border",
-                "animate-in slide-in-from-bottom-2 fade-in duration-200",
-                "active:scale-95 touch-manipulation"
+                "bg-card/95 backdrop-blur-lg border border-border/50",
+                "animate-in slide-in-from-right-2 fade-in duration-200",
+                "active:scale-95 touch-manipulation",
+                "hover:shadow-xl transition-shadow"
               )}
               style={{ animationDelay: `${index * 50}ms` }}
             >
@@ -54,8 +54,8 @@ export function MobileFAB({ actions }: MobileFABProps) {
                 {action.label}
               </span>
               <div className={cn(
-                "h-10 w-10 rounded-full flex items-center justify-center",
-                action.color || "bg-primary text-primary-foreground"
+                "h-10 w-10 rounded-full flex items-center justify-center shadow-md",
+                action.color || "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground"
               )}>
                 <Icon className="h-5 w-5" />
               </div>
@@ -67,17 +67,18 @@ export function MobileFAB({ actions }: MobileFABProps) {
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(
-            "h-14 w-14 rounded-full shadow-xl flex items-center justify-center",
-            "bg-primary text-primary-foreground",
+            "h-14 w-14 rounded-full flex items-center justify-center",
             "transition-all duration-300 ease-out",
             "active:scale-95 touch-manipulation",
-            isExpanded && "rotate-45 bg-destructive"
+            isExpanded 
+              ? "bg-gradient-to-br from-red-500 to-red-600 rotate-45 shadow-lg shadow-red-500/30" 
+              : "fab-gradient"
           )}
         >
           {isExpanded ? (
-            <X className="h-6 w-6" />
+            <X className="h-6 w-6 text-white" />
           ) : (
-            <Plus className="h-6 w-6" />
+            <Plus className="h-6 w-6 text-white" />
           )}
         </button>
       </div>

@@ -58,7 +58,7 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border md:hidden safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 mobile-tab-glass border-t border-border/50 md:hidden safe-area-bottom">
       <div className="flex items-center justify-around h-16">
         {tabs.map((tab) => {
           const active = isActive(tab.path);
@@ -75,25 +75,41 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
                 active ? "text-primary" : "text-muted-foreground"
               )}
             >
+              {/* Active Background Pill */}
+              {active && (
+                <div className="absolute inset-x-2 top-1 bottom-1 mobile-tab-active rounded-xl -z-10" />
+              )}
+              
               <div className="relative">
-                <Icon className={cn(
-                  "h-5 w-5 transition-all duration-200",
-                  active && "scale-110"
-                )} />
+                <div className={cn(
+                  "p-1.5 rounded-xl transition-all duration-200",
+                  active && "bg-primary/10"
+                )}>
+                  <Icon className={cn(
+                    "h-5 w-5 transition-all duration-200",
+                    active && "scale-110"
+                  )} />
+                </div>
                 {showBadge && (
-                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground flex items-center justify-center">
-                    {(badges?.expiryAlerts || 0) > 99 ? '99+' : badges?.expiryAlerts}
+                  <span className={cn(
+                    "absolute -top-1 -right-1 h-4 w-4 rounded-full text-[10px] font-bold flex items-center justify-center",
+                    "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md",
+                    "badge-animated"
+                  )}>
+                    {(badges?.expiryAlerts || 0) > 9 ? '9+' : badges?.expiryAlerts}
                   </span>
                 )}
               </div>
               <span className={cn(
                 "text-[10px] font-medium transition-all duration-200",
-                active && "font-semibold"
+                active && "font-semibold text-primary"
               )}>
                 {getLabel(tab.labelKey)}
               </span>
+              
+              {/* Active Indicator Line */}
               {active && (
-                <div className="absolute bottom-1 w-8 h-0.5 rounded-full bg-primary" />
+                <div className="absolute bottom-0 w-12 h-0.5 rounded-full bg-gradient-to-r from-primary to-primary/60" />
               )}
             </button>
           );
