@@ -2,11 +2,10 @@ import { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MoreHorizontal, Pencil, Trash2, CreditCard, Phone, Mail, Building2, Plus, FileText } from 'lucide-react';
+import { Pencil, Trash2, CreditCard, Phone, Mail, Building2, Plus, FileText } from 'lucide-react';
 import { Supplier, useSuppliers } from '@/hooks/useSuppliers';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { AddSupplierDialog } from './AddSupplierDialog';
@@ -233,31 +232,22 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                         </Button>
                       }
                     />
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button size="icon" variant="ghost">
-                          <MoreHorizontal className="h-4 w-4" />
+                    <AddSupplierDialog
+                      supplier={supplier}
+                      trigger={
+                        <Button size="icon" variant="ghost" title={t.actions.edit}>
+                          <Pencil className="h-4 w-4" />
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <AddSupplierDialog
-                          supplier={supplier}
-                          trigger={
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                              <Pencil className="h-4 w-4 mr-2" />
-                              {t.actions.edit}
-                            </DropdownMenuItem>
-                          }
-                        />
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => setDeleteId(supplier.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          {t.actions.delete}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      }
+                    />
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      title={t.actions.delete}
+                      onClick={() => setDeleteId(supplier.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
