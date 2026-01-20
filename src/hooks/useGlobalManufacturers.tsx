@@ -134,9 +134,24 @@ export function useGlobalManufacturers() {
   const bulkCreate = useMutation({
     mutationFn: async (names: string[]) => {
       const uniqueNames = [...new Set(names.map(n => n.trim()).filter(Boolean))];
+      
+      // Get existing manufacturers to avoid duplicates
+      const { data: existing } = await supabase
+        .from('global_manufacturers')
+        .select('name')
+        .eq('is_active', true);
+      
+      const existingNames = new Set((existing || []).map(m => m.name.toLowerCase()));
+      const newNames = uniqueNames.filter(name => !existingNames.has(name.toLowerCase()));
+      
+      if (newNames.length === 0) {
+        toast.info('All manufacturers already exist');
+        return [];
+      }
+      
       const { data, error } = await supabase
         .from('global_manufacturers')
-        .insert(uniqueNames.map(name => ({ name })))
+        .insert(newNames.map(name => ({ name })))
         .select();
       
       if (error) throw error;
@@ -144,7 +159,9 @@ export function useGlobalManufacturers() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['global-manufacturers'] });
-      toast.success(`${data?.length || 0} manufacturers imported`);
+      if (data && data.length > 0) {
+        toast.success(`${data.length} manufacturers imported`);
+      }
     },
     onError: (error) => {
       toast.error('Failed to import: ' + error.message);

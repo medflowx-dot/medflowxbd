@@ -25,7 +25,7 @@ export interface CreateGlobalMedicineData {
   name: string;
   generic_name?: string;
   category?: string;
-  manufacturer_id?: string;
+  manufacturer_id: string;
   unit?: string;
   is_tax_applicable?: boolean;
 }
