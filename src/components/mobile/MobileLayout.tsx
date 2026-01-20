@@ -7,7 +7,7 @@ import { MobileMoreMenu } from './MobileMoreMenu';
 import { PullToRefresh } from './PullToRefresh';
 import { ImpersonationBanner } from '@/components/dashboard/ImpersonationBanner';
 import { SubscriptionBanner } from '@/components/dashboard/SubscriptionBanner';
-import { ShoppingCart, Package, Layers, Wallet } from 'lucide-react';
+import { ShoppingCart, Package, Layers, Wallet, Factory, Truck, Users, Clock, FileText, Settings } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -100,6 +100,48 @@ export function MobileLayout() {
       icon: Wallet,
       onClick: () => navigate('/dashboard/daily-cash'),
       color: 'bg-warning text-warning-foreground',
+    },
+    {
+      id: 'manufacturers',
+      label: t.nav?.manufacturers || 'প্রস্তুতকারক',
+      icon: Factory,
+      onClick: () => navigate('/dashboard/manufacturers'),
+      color: 'bg-info text-info-foreground',
+    },
+    {
+      id: 'suppliers',
+      label: t.nav?.suppliers || 'সরবরাহকারী',
+      icon: Truck,
+      onClick: () => navigate('/dashboard/suppliers'),
+      color: 'bg-primary text-primary-foreground',
+    },
+    {
+      id: 'customerDues',
+      label: t.nav?.customerDues || 'গ্রাহক বাকি',
+      icon: Users,
+      onClick: () => navigate('/dashboard/customer-dues'),
+      color: 'bg-warning text-warning-foreground',
+    },
+    {
+      id: 'expiry',
+      label: t.nav?.expiryMonitor || 'মেয়াদ পর্যবেক্ষণ',
+      icon: Clock,
+      onClick: () => navigate('/dashboard/expiry'),
+      color: 'bg-destructive text-destructive-foreground',
+    },
+    {
+      id: 'reports',
+      label: t.nav?.reports || 'রিপোর্ট',
+      icon: FileText,
+      onClick: () => navigate('/dashboard/reports'),
+      color: 'bg-primary text-primary-foreground',
+    },
+    {
+      id: 'settings',
+      label: t.nav?.settings || 'সেটিংস',
+      icon: Settings,
+      onClick: () => navigate('/dashboard/settings'),
+      color: 'bg-muted text-muted-foreground',
     },
   ];
 
