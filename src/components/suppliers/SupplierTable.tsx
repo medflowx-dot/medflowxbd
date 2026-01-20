@@ -212,7 +212,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <span className="text-green-600">৳{supplier.total_paid.toFixed(2)}</span>
+                  <span className="text-success">৳{supplier.total_paid.toFixed(2)}</span>
                 </TableCell>
                 <TableCell className="text-right">
                   {supplier.total_due > 0 ? (
