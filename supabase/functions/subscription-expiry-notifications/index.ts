@@ -223,12 +223,39 @@ serve(async (req: Request): Promise<Response> => {
     );
 
     const now = new Date();
-    const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
     const billingUrl = "https://medflowxbd.lovable.app/billing";
 
-    console.log("Checking subscriptions expiring within 3 days...");
+    // Fetch notification settings from platform_settings
+    const { data: settingsData } = await supabaseAdmin
+      .from("platform_settings")
+      .select("setting_key, setting_value")
+      .in("setting_key", ["notification_email_enabled", "notification_sms_enabled", "notification_days_before"]);
+
+    const notificationSettings: Record<string, any> = {};
+    (settingsData || []).forEach((s: any) => {
+      notificationSettings[s.setting_key] = s.setting_value;
+    });
+
+    const emailEnabled = notificationSettings.notification_email_enabled !== false;
+    const smsEnabled = notificationSettings.notification_sms_enabled !== false;
+    const daysBefore = Number(notificationSettings.notification_days_before) || 3;
+
+    console.log("Notification settings:", { emailEnabled, smsEnabled, daysBefore });
+
+    if (!emailEnabled && !smsEnabled) {
+      console.log("Both email and SMS notifications are disabled");
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Notifications are disabled",
+          results: { processed: 0, emailsSent: 0, smsSent: 0, skipped: 0, errors: 0 },
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log(`Checking subscriptions expiring within ${daysBefore} days...`);
     console.log("Current time:", now.toISOString());
-    console.log("Three days from now:", threeDaysFromNow.toISOString());
 
     // Fetch subscriptions (without profile join since there's no direct relationship)
     // Get active subscriptions that expire within 3 days OR just expired
@@ -319,8 +346,8 @@ serve(async (req: Request): Promise<Response> => {
         notificationType = "subscription_expired";
         templateKey = "subscription_expired";
         smsMessage = `${pharmacyName}, আপনার MedFlowX ${planTypeName} সাবস্ক্রিপশনের মেয়াদ শেষ হয়ে গেছে। এখনই রিনিউ করুন: ${billingUrl}`;
-      } else if (daysUntilExpiry > 0 && daysUntilExpiry <= 3) {
-        // Expiring within 3 days
+      } else if (daysUntilExpiry > 0 && daysUntilExpiry <= daysBefore) {
+        // Expiring within configured days
         notificationType = "subscription_expiry_reminder";
         templateKey = "subscription_expiry_reminder";
         smsMessage = `${pharmacyName}, আপনার MedFlowX ${planTypeName} সাবস্ক্রিপশন ${daysUntilExpiry} দিনের মধ্যে শেষ হবে। এখনই রিনিউ করুন: ${billingUrl}`;
@@ -342,40 +369,42 @@ serve(async (req: Request): Promise<Response> => {
 
       const userEmail = userData.user.email;
 
-      // Send email notification
-      const emailAlreadySent = await wasNotificationSentToday(supabaseAdmin, sub.user_id, notificationType, "email");
-      if (!emailAlreadySent) {
-        const emailVariables = {
-          pharmacy_name: pharmacyName,
-          plan_type: planTypeName,
-          days_remaining: daysUntilExpiry.toString(),
-          expiry_date: expiryDateStr,
-          billing_url: billingUrl,
-        };
+      // Send email notification (if enabled)
+      if (emailEnabled) {
+        const emailAlreadySent = await wasNotificationSentToday(supabaseAdmin, sub.user_id, notificationType, "email");
+        if (!emailAlreadySent) {
+          const emailVariables = {
+            pharmacy_name: pharmacyName,
+            plan_type: planTypeName,
+            days_remaining: daysUntilExpiry.toString(),
+            expiry_date: expiryDateStr,
+            billing_url: billingUrl,
+          };
 
-        const emailSent = await sendEmail(supabaseAdmin, userEmail, templateKey, emailVariables);
-        await logNotification(
-          supabaseAdmin,
-          sub.user_id,
-          notificationType,
-          "email",
-          daysUntilExpiry,
-          emailSent ? "sent" : "failed",
-          emailSent ? undefined : "Email sending failed"
-        );
+          const emailSent = await sendEmail(supabaseAdmin, userEmail, templateKey, emailVariables);
+          await logNotification(
+            supabaseAdmin,
+            sub.user_id,
+            notificationType,
+            "email",
+            daysUntilExpiry,
+            emailSent ? "sent" : "failed",
+            emailSent ? undefined : "Email sending failed"
+          );
 
-        if (emailSent) {
-          results.emailsSent++;
-          console.log(`Email sent to ${userEmail} for subscription ${sub.id}`);
+          if (emailSent) {
+            results.emailsSent++;
+            console.log(`Email sent to ${userEmail} for subscription ${sub.id}`);
+          } else {
+            results.errors++;
+          }
         } else {
-          results.errors++;
+          console.log(`Email already sent today for subscription ${sub.id}`);
         }
-      } else {
-        console.log(`Email already sent today for subscription ${sub.id}`);
       }
 
-      // Send SMS notification
-      if (userPhone && smsMessage) {
+      // Send SMS notification (if enabled)
+      if (smsEnabled && userPhone && smsMessage) {
         const smsAlreadySent = await wasNotificationSentToday(supabaseAdmin, sub.user_id, notificationType, "sms");
         if (!smsAlreadySent) {
           const smsSent = await sendSMS(userPhone, smsMessage);

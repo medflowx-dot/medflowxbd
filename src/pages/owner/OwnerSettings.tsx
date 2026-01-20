@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePlatformSettings, useUpdatePlatformSetting } from '@/hooks/useOwnerData';
-import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send, CreditCard, ExternalLink } from 'lucide-react';
+import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send, CreditCard, ExternalLink, Bell, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -381,6 +381,104 @@ export default function OwnerSettings() {
             {!localSettings.smtp_host?.replace(/"/g, '') && (
               <p className="text-xs text-muted-foreground mt-2">Configure SMTP settings and save before testing</p>
             )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Notification Settings */}
+      <Card className="border-0 shadow-card">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Bell className="h-5 w-5 text-primary" />
+            <CardTitle>নোটিফিকেশন সেটিংস</CardTitle>
+          </div>
+          <CardDescription>সাবস্ক্রিপশন মেয়াদ শেষের আগে ক্লায়েন্টদের স্বয়ংক্রিয় নোটিফিকেশন পাঠানোর সেটিংস</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Email Notifications */}
+          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-primary/10">
+                <Mail className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <Label>Email নোটিফিকেশন</Label>
+                <p className="text-sm text-muted-foreground">সাবস্ক্রিপশন মেয়াদ শেষ হওয়ার আগে ইমেইল রিমাইন্ডার পাঠান</p>
+              </div>
+            </div>
+            <Switch
+              checked={localSettings.notification_email_enabled === true || localSettings.notification_email_enabled === 'true'}
+              onCheckedChange={(checked) => handleChange('notification_email_enabled', checked)}
+            />
+          </div>
+
+          {/* SMS Notifications */}
+          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-primary/10">
+                <MessageSquare className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <Label>SMS নোটিফিকেশন</Label>
+                <p className="text-sm text-muted-foreground">সাবস্ক্রিপশন মেয়াদ শেষ হওয়ার আগে SMS রিমাইন্ডার পাঠান</p>
+              </div>
+            </div>
+            <Switch
+              checked={localSettings.notification_sms_enabled === true || localSettings.notification_sms_enabled === 'true'}
+              onCheckedChange={(checked) => handleChange('notification_sms_enabled', checked)}
+            />
+          </div>
+
+          {/* Notification Timing */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>রিমাইন্ডার পাঠানোর সময় (দিন আগে)</Label>
+              <Select 
+                value={String(localSettings.notification_days_before || 3)}
+                onValueChange={(value) => handleChange('notification_days_before', parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">১ দিন আগে</SelectItem>
+                  <SelectItem value="2">২ দিন আগে</SelectItem>
+                  <SelectItem value="3">৩ দিন আগে</SelectItem>
+                  <SelectItem value="5">৫ দিন আগে</SelectItem>
+                  <SelectItem value="7">৭ দিন আগে</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>দৈনিক নোটিফিকেশন সময়</Label>
+              <Select 
+                value={String(localSettings.notification_time_utc || '03:00')}
+                onValueChange={(value) => handleChange('notification_time_utc', `"${value}"`)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="03:00">সকাল ৯:০০ (BD Time)</SelectItem>
+                  <SelectItem value="06:00">দুপুর ১২:০০ (BD Time)</SelectItem>
+                  <SelectItem value="10:00">বিকাল ৪:০০ (BD Time)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Info box */}
+          <div className="p-4 rounded-lg bg-accent/50 border border-border">
+            <div className="flex items-start gap-3">
+              <Bell className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">স্বয়ংক্রিয় নোটিফিকেশন সিস্টেম</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  প্রতিদিন নির্ধারিত সময়ে সিস্টেম স্বয়ংক্রিয়ভাবে চেক করে কোন ক্লায়েন্টের সাবস্ক্রিপশন শেষ হতে যাচ্ছে এবং তাদের Email/SMS পাঠায়।
+                  একই দিনে একই ক্লায়েন্টকে দ্বিতীয়বার নোটিফিকেশন পাঠানো হয় না।
+                </p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
