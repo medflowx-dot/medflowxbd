@@ -7,6 +7,7 @@ import { useSidebarBadges } from '@/hooks/useSidebarBadges';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
+import logoAuth from '@/assets/logo-auth.png';
 
 interface MobileHeaderProps {
   title?: string;
@@ -100,7 +101,7 @@ export function MobileHeader({
               className="h-9 w-9 cursor-pointer ring-2 ring-primary/20 ring-offset-2 ring-offset-background transition-all hover:ring-primary/40"
               onClick={handleProfileClick}
             >
-              <AvatarImage src={profile?.pharmacy_logo || profile?.avatar_url || undefined} />
+              <AvatarImage src={profile?.pharmacy_logo || profile?.avatar_url || logoAuth} />
               <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xs font-semibold">
                 {profile?.pharmacy_name?.charAt(0) || profile?.full_name?.charAt(0) || 'P'}
               </AvatarFallback>
