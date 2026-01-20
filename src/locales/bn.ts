@@ -577,6 +577,9 @@ export const bn: TranslationKeys = {
     totalPurchaseAmount: 'মোট ক্রয়',
     addPurchase: 'ক্রয় যোগ করুন',
     purchasesLabel: 'টি ক্রয়',
+    // Details page
+    viewDetails: 'বিস্তারিত দেখুন',
+    backToList: 'তালিকায় ফিরুন',
   },
 
   // Settings Page

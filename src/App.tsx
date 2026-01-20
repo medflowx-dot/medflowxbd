@@ -27,6 +27,7 @@ const Batches = lazy(() => import("./pages/dashboard/Batches"));
 const Sales = lazy(() => import("./pages/dashboard/Sales"));
 const Suppliers = lazy(() => import("./pages/dashboard/Suppliers"));
 const SupplierList = lazy(() => import("./pages/dashboard/suppliers/SupplierList"));
+const SupplierDetails = lazy(() => import("./pages/dashboard/suppliers/SupplierDetails"));
 const StockShortList = lazy(() => import("./pages/dashboard/suppliers/StockShortList"));
 const PendingOrders = lazy(() => import("./pages/dashboard/suppliers/PendingOrders"));
 const OrderedOrders = lazy(() => import("./pages/dashboard/suppliers/OrderedOrders"));
@@ -110,6 +111,7 @@ const App = () => (
                     {/* Admin-only routes - staff will be redirected */}
                     <Route path="suppliers" element={<AdminRoute><Suppliers /></AdminRoute>}>
                       <Route index element={<SupplierList />} />
+                      <Route path=":id" element={<SupplierDetails />} />
                       <Route path="stock-short" element={<StockShortList />} />
                       <Route path="pending" element={<PendingOrders />} />
                       <Route path="ordered" element={<OrderedOrders />} />
