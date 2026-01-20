@@ -72,12 +72,12 @@ export default function Billing() {
 
         {/* Pending Payment Request Alert */}
         {pendingRequest && (
-          <Alert className="mb-6 border-blue-200 bg-blue-50 dark:bg-blue-950">
-            <Clock className="h-5 w-5 text-blue-600" />
-            <AlertTitle className="text-blue-800 dark:text-blue-200">
+          <Alert className="mb-6 border-info/30 bg-info/10">
+            <Clock className="h-5 w-5 text-info" />
+            <AlertTitle className="text-info">
               পেমেন্ট ভেরিফিকেশন চলছে
             </AlertTitle>
-            <AlertDescription className="text-blue-700 dark:text-blue-300">
+            <AlertDescription className="text-info/80">
               আপনার পেমেন্ট রিকোয়েস্ট (TrxID: {pendingRequest.transaction_id}) ভেরিফিকেশনের জন্য অপেক্ষায় আছে। 
               সাধারণত ২-৪ ঘন্টার মধ্যে সম্পন্ন হয়।
             </AlertDescription>
@@ -86,12 +86,12 @@ export default function Billing() {
 
         {/* Status Alert */}
         {isExpired && !pendingRequest && (
-          <Alert className="mb-6 border-orange-200 bg-orange-50 dark:bg-orange-950">
-            <AlertTriangle className="h-5 w-5 text-orange-600" />
-            <AlertTitle className="text-orange-800 dark:text-orange-200">
+          <Alert className="mb-6 border-warning/30 bg-warning/10">
+            <AlertTriangle className="h-5 w-5 text-warning" />
+            <AlertTitle className="text-warning">
               {isTrial ? 'Free Trial Expired' : 'Subscription Expired'}
             </AlertTitle>
-            <AlertDescription className="text-orange-700 dark:text-orange-300">
+            <AlertDescription className="text-warning/80">
               {isTrial 
                 ? 'Your 7-day free trial has ended. Please choose a plan to continue.'
                 : 'Your subscription has expired. Renew now to regain access to your pharmacy data.'}
@@ -100,10 +100,10 @@ export default function Billing() {
         )}
 
         {isSuspended && (
-          <Alert className="mb-6 border-red-200 bg-red-50 dark:bg-red-950">
-            <AlertTriangle className="h-5 w-5 text-red-600" />
-            <AlertTitle className="text-red-800 dark:text-red-200">Account Suspended</AlertTitle>
-            <AlertDescription className="text-red-700 dark:text-red-300">
+          <Alert className="mb-6 border-destructive/30 bg-destructive/10">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+            <AlertTitle className="text-destructive">Account Suspended</AlertTitle>
+            <AlertDescription className="text-destructive/80">
               Your account has been suspended. Please contact support to resolve this issue.
             </AlertDescription>
           </Alert>
@@ -152,9 +152,9 @@ export default function Billing() {
                 {paymentRequests.slice(0, 3).map((req) => (
                   <div key={req.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                     <div className="flex items-center gap-3">
-                      {req.status === 'pending' && <Clock className="h-4 w-4 text-amber-500" />}
-                      {req.status === 'verified' && <CheckCircle className="h-4 w-4 text-green-500" />}
-                      {req.status === 'rejected' && <XCircle className="h-4 w-4 text-red-500" />}
+                      {req.status === 'pending' && <Clock className="h-4 w-4 text-warning" />}
+                      {req.status === 'verified' && <CheckCircle className="h-4 w-4 text-success" />}
+                      {req.status === 'rejected' && <XCircle className="h-4 w-4 text-destructive" />}
                       <div>
                         <p className="text-sm font-medium capitalize">{req.plan_type} - ৳{Number(req.amount).toLocaleString()}</p>
                         <p className="text-xs text-muted-foreground">TrxID: {req.transaction_id}</p>
@@ -201,7 +201,7 @@ export default function Billing() {
                 )}
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    {plan.plan_name === 'lifetime' && <Crown className="h-5 w-5 text-amber-500" />}
+                    {plan.plan_name === 'lifetime' && <Crown className="h-5 w-5 text-warning" />}
                     {plan.display_name}
                   </CardTitle>
                   <CardDescription>
@@ -224,14 +224,14 @@ export default function Billing() {
                     {plan.features && Object.entries(plan.features).map(([key, value]) => (
                       value && (
                         <li key={key} className="flex items-center gap-2 text-sm">
-                          <Check className="h-4 w-4 text-green-500" />
+                          <Check className="h-4 w-4 text-success" />
                           <span className="capitalize">{key.replace(/_/g, ' ')}</span>
                         </li>
                       )
                     ))}
                     {plan.user_limit && (
                       <li className="flex items-center gap-2 text-sm">
-                        <Check className="h-4 w-4 text-green-500" />
+                        <Check className="h-4 w-4 text-success" />
                         <span>Up to {plan.user_limit} staff members</span>
                       </li>
                     )}

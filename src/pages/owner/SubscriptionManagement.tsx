@@ -50,11 +50,11 @@ export default function SubscriptionManagement() {
   const getStatusBadge = (status?: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-700">Active</Badge>;
+        return <Badge className="bg-success/20 text-success">Active</Badge>;
       case 'expired':
-        return <Badge className="bg-orange-100 text-orange-700">Expired</Badge>;
+        return <Badge className="bg-warning/20 text-warning">Expired</Badge>;
       case 'suspended':
-        return <Badge className="bg-red-100 text-red-700">Suspended</Badge>;
+        return <Badge className="bg-destructive/20 text-destructive">Suspended</Badge>;
       default:
         return <Badge variant="outline">Unknown</Badge>;
     }
@@ -63,13 +63,13 @@ export default function SubscriptionManagement() {
   const getPlanBadge = (plan?: string) => {
     switch (plan) {
       case 'trial':
-        return <Badge variant="outline" className="border-blue-500 text-blue-600">Trial</Badge>;
+        return <Badge variant="outline" className="border-info text-info">Trial</Badge>;
       case 'monthly':
-        return <Badge variant="outline" className="border-green-500 text-green-600">Monthly</Badge>;
+        return <Badge variant="outline" className="border-success text-success">Monthly</Badge>;
       case 'yearly':
-        return <Badge variant="outline" className="border-purple-500 text-purple-600">Yearly</Badge>;
+        return <Badge variant="outline" className="border-purple text-purple">Yearly</Badge>;
       case 'lifetime':
-        return <Badge variant="outline" className="border-amber-500 text-amber-600"><Crown className="h-3 w-3 mr-1" />Lifetime</Badge>;
+        return <Badge variant="outline" className="border-warning text-warning"><Crown className="h-3 w-3 mr-1" />Lifetime</Badge>;
       default:
         return <Badge variant="outline">-</Badge>;
     }
@@ -104,7 +104,7 @@ export default function SubscriptionManagement() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-blue-500" />
+              <Clock className="h-5 w-5 text-info" />
               <span className="text-2xl font-bold">{trialClients.length}</span>
             </div>
           </CardContent>
@@ -115,7 +115,7 @@ export default function SubscriptionManagement() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-green-500" />
+              <CreditCard className="h-5 w-5 text-success" />
               <span className="text-2xl font-bold">{activeClients.length}</span>
             </div>
           </CardContent>
@@ -126,7 +126,7 @@ export default function SubscriptionManagement() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              <AlertTriangle className="h-5 w-5 text-warning" />
               <span className="text-2xl font-bold">{expiredClients.length}</span>
             </div>
           </CardContent>
@@ -137,7 +137,7 @@ export default function SubscriptionManagement() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Crown className="h-5 w-5 text-amber-500" />
+              <Crown className="h-5 w-5 text-warning" />
               <span className="text-2xl font-bold">
                 {clients?.filter(c => c.subscription?.plan_type === 'lifetime').length || 0}
               </span>
@@ -237,8 +237,8 @@ export default function SubscriptionManagement() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg border border-amber-200 dark:border-amber-800">
-              <p className="text-sm text-amber-800 dark:text-amber-200">
+            <div className="p-4 bg-warning/10 rounded-lg border border-warning/30">
+              <p className="text-sm text-warning">
                 Lifetime plans include a yearly service charge of ৳999. You can waive this if needed.
               </p>
             </div>
