@@ -28,17 +28,18 @@ interface MenuItem {
   icon: React.ElementType;
   path: string;
   badge?: 'customerDues' | 'supplierDues';
+  iconClass?: string;
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'manufacturers', labelKey: 'manufacturers', icon: Factory, path: '/dashboard/manufacturers' },
-  { id: 'suppliers', labelKey: 'suppliers', icon: Truck, path: '/dashboard/suppliers', badge: 'supplierDues' },
-  { id: 'batches', labelKey: 'batches', icon: Layers, path: '/dashboard/batches' },
-  { id: 'dailyCash', labelKey: 'dailyCash', icon: Calendar, path: '/dashboard/daily-cash' },
-  { id: 'customerDues', labelKey: 'customerDues', icon: Users, path: '/dashboard/customer-dues', badge: 'customerDues' },
-  { id: 'expiry', labelKey: 'expiryMonitoring', icon: Clock, path: '/dashboard/expiry' },
-  { id: 'reports', labelKey: 'reports', icon: FileText, path: '/dashboard/reports' },
-  { id: 'settings', labelKey: 'settings', icon: Settings, path: '/dashboard/settings' },
+  { id: 'manufacturers', labelKey: 'manufacturers', icon: Factory, path: '/dashboard/manufacturers', iconClass: 'icon-container-info' },
+  { id: 'suppliers', labelKey: 'suppliers', icon: Truck, path: '/dashboard/suppliers', badge: 'supplierDues', iconClass: 'icon-container-info' },
+  { id: 'batches', labelKey: 'batches', icon: Layers, path: '/dashboard/batches', iconClass: 'icon-container-primary' },
+  { id: 'dailyCash', labelKey: 'dailyCash', icon: Calendar, path: '/dashboard/daily-cash', iconClass: 'icon-container-success' },
+  { id: 'customerDues', labelKey: 'customerDues', icon: Users, path: '/dashboard/customer-dues', badge: 'customerDues', iconClass: 'icon-container-warning' },
+  { id: 'expiry', labelKey: 'expiryMonitoring', icon: Clock, path: '/dashboard/expiry', iconClass: 'icon-container-danger' },
+  { id: 'reports', labelKey: 'reports', icon: FileText, path: '/dashboard/reports', iconClass: 'icon-container-primary' },
+  { id: 'settings', labelKey: 'settings', icon: Settings, path: '/dashboard/settings', iconClass: 'bg-muted' },
 ];
 
 interface MobileMoreMenuProps {
@@ -88,14 +89,14 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[85vh]">
-        <DrawerHeader className="border-b border-border pb-4">
+        <DrawerHeader className="border-b border-border pb-4 bg-gradient-to-r from-primary/5 to-transparent">
           <DrawerTitle className="text-lg font-semibold">
             আরও মেনু
           </DrawerTitle>
         </DrawerHeader>
 
         <ScrollArea className="flex-1 px-4 py-2">
-          <div className="grid grid-cols-3 gap-3 py-4">
+          <div className="grid grid-cols-3 gap-3 py-4 stagger-children">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const badgeCount = getBadgeCount(item.badge);
@@ -106,16 +107,24 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
                   onClick={() => handleMenuClick(item.path)}
                   className={cn(
                     "flex flex-col items-center justify-center gap-2 p-4 rounded-xl",
-                    "bg-muted/50 hover:bg-muted transition-colors",
-                    "active:scale-95 touch-manipulation"
+                    "bg-gradient-to-br from-muted/50 to-muted/20 hover:from-muted hover:to-muted/50 transition-all duration-200",
+                    "active:scale-95 touch-manipulation",
+                    "border border-border/50 hover:border-primary/30 hover:shadow-md"
                   )}
                 >
                   <div className="relative">
-                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Icon className="h-6 w-6 text-primary" />
+                    <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center", item.iconClass)}>
+                      <Icon className={cn(
+                        "h-6 w-6",
+                        item.iconClass === 'bg-muted' ? "text-muted-foreground" : "text-white"
+                      )} />
                     </div>
                     {badgeCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground flex items-center justify-center">
+                      <span className={cn(
+                        "absolute -top-1 -right-1 h-5 w-5 rounded-full text-[10px] font-bold flex items-center justify-center",
+                        "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md",
+                        "badge-animated"
+                      )}>
                         {badgeCount > 99 ? '99+' : badgeCount}
                       </span>
                     )}
@@ -134,9 +143,10 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
               onClick={handleSignOut}
               className={cn(
                 "w-full flex items-center justify-center gap-3 p-4 rounded-xl",
-                "bg-destructive/10 text-destructive",
-                "hover:bg-destructive/20 transition-colors",
-                "active:scale-95 touch-manipulation"
+                "bg-gradient-to-r from-red-500/10 to-red-600/10 text-red-600 dark:text-red-400",
+                "hover:from-red-500/20 hover:to-red-600/20 transition-all duration-200",
+                "active:scale-95 touch-manipulation",
+                "border border-red-200 dark:border-red-900"
               )}
             >
               <LogOut className="h-5 w-5" />

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDailyCashSummary } from '@/hooks/useDailyCash';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ArrowDownLeft, ArrowUpRight, Wallet, TrendingUp, TrendingDown, Loader2, Pencil } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface CashFlowSummaryProps {
   date: Date;
@@ -20,11 +21,14 @@ export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProp
     );
   }
 
+  const isPositiveBalance = summary && summary.closingCash >= 0;
+  const isGrowth = summary && summary.closingCash >= summary.openingCash;
+
   return (
-    <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 stagger-children">
       {/* Opening Cash */}
       <Card 
-        className="cursor-pointer hover:bg-muted/50 transition-colors group"
+        className="cursor-pointer hover:shadow-lg transition-all duration-300 group bg-gradient-to-br from-muted/30 to-muted/10"
         onClick={onEditOpeningCash}
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
@@ -32,7 +36,9 @@ export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProp
             {t.dailyCash.openingCash}
             <Pencil className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
           </CardTitle>
-          <Wallet className="h-4 w-4 text-muted-foreground" />
+          <div className="p-1.5 rounded-lg bg-muted">
+            <Wallet className="h-4 w-4 text-muted-foreground" />
+          </div>
         </CardHeader>
         <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
           <div className="text-lg sm:text-2xl font-bold">
@@ -45,13 +51,17 @@ export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProp
       </Card>
 
       {/* Cash In */}
-      <Card className="border-green-200 dark:border-green-900">
+      <Card className="cash-in-card hover:shadow-lg transition-all duration-300">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
-          <CardTitle className="text-xs sm:text-sm font-medium text-green-600">{t.dailyCash.cashIn}</CardTitle>
-          <ArrowDownLeft className="h-4 w-4 text-green-600" />
+          <CardTitle className="text-xs sm:text-sm font-medium text-green-600 dark:text-green-400">
+            {t.dailyCash.cashIn}
+          </CardTitle>
+          <div className="icon-container-success p-1.5">
+            <ArrowDownLeft className="h-4 w-4 text-white" />
+          </div>
         </CardHeader>
         <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
-          <div className="text-lg sm:text-2xl font-bold text-green-600">
+          <div className="text-lg sm:text-2xl font-bold text-green-600 dark:text-green-400">
             +৳{summary?.totalIn?.toLocaleString() || 0}
           </div>
           <div className="text-xs text-muted-foreground space-y-0.5 mt-1 hidden sm:block">
@@ -62,13 +72,17 @@ export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProp
       </Card>
 
       {/* Cash Out */}
-      <Card className="border-red-200 dark:border-red-900">
+      <Card className="cash-out-card hover:shadow-lg transition-all duration-300">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
-          <CardTitle className="text-xs sm:text-sm font-medium text-red-600">{t.dailyCash.cashOut}</CardTitle>
-          <ArrowUpRight className="h-4 w-4 text-red-600" />
+          <CardTitle className="text-xs sm:text-sm font-medium text-red-600 dark:text-red-400">
+            {t.dailyCash.cashOut}
+          </CardTitle>
+          <div className="icon-container-danger p-1.5">
+            <ArrowUpRight className="h-4 w-4 text-white" />
+          </div>
         </CardHeader>
         <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
-          <div className="text-lg sm:text-2xl font-bold text-red-600">
+          <div className="text-lg sm:text-2xl font-bold text-red-600 dark:text-red-400">
             -৳{summary?.totalOut?.toLocaleString() || 0}
           </div>
           <div className="text-xs text-muted-foreground space-y-0.5 mt-1 hidden sm:block">
@@ -79,17 +93,28 @@ export function CashFlowSummary({ date, onEditOpeningCash }: CashFlowSummaryProp
       </Card>
 
       {/* Closing Cash */}
-      <Card className={summary && summary.closingCash >= 0 ? 'border-primary' : 'border-red-500'}>
+      <Card className={cn(
+        "hover:shadow-lg transition-all duration-300",
+        isPositiveBalance ? "cash-balance-positive" : "cash-balance-negative"
+      )}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6 sm:pb-2">
           <CardTitle className="text-xs sm:text-sm font-medium">{t.dailyCash.closingCash}</CardTitle>
-          {summary && summary.closingCash >= summary.openingCash ? (
-            <TrendingUp className="h-4 w-4 text-green-600" />
-          ) : (
-            <TrendingDown className="h-4 w-4 text-red-600" />
-          )}
+          <div className={cn(
+            "p-1.5 rounded-lg",
+            isGrowth ? "icon-container-success" : "icon-container-danger"
+          )}>
+            {isGrowth ? (
+              <TrendingUp className="h-4 w-4 text-white" />
+            ) : (
+              <TrendingDown className="h-4 w-4 text-white" />
+            )}
+          </div>
         </CardHeader>
         <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
-          <div className={`text-lg sm:text-2xl font-bold ${summary && summary.closingCash >= 0 ? 'text-primary' : 'text-red-600'}`}>
+          <div className={cn(
+            "text-lg sm:text-2xl font-bold",
+            isPositiveBalance ? "text-primary" : "text-red-600 dark:text-red-400"
+          )}>
             ৳{summary?.closingCash?.toLocaleString() || 0}
           </div>
           <p className="text-xs text-muted-foreground hidden sm:block">
