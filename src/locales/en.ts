@@ -229,6 +229,19 @@ export const en = {
     trialTitle: "🎉 You're on the Free Trial",
     trialDesc: 'days remaining. Upgrade anytime to continue.',
     upgradeNow: 'Upgrade Now',
+    // New dashboard sections
+    salesTrend: 'Sales Trend',
+    last7Days: 'Last 7 days',
+    thisWeek: 'This Week',
+    lastWeek: 'Last Week',
+    salesAmount: 'Sales',
+    recentTransactions: 'Recent Transactions',
+    todaysActivity: "Today's activity",
+    noTransactions: 'No transactions today',
+    dueAlerts: 'Due Alerts',
+    noDues: 'No outstanding dues',
+    total: 'Total',
+    supplierDuesTitle: 'Supplier Dues',
   },
 
   // Medicines Page

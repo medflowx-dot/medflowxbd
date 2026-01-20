@@ -231,6 +231,19 @@ export const bn: TranslationKeys = {
     trialTitle: '🎉 আপনি ফ্রি ট্রায়ালে আছেন',
     trialDesc: 'দিন বাকি। যেকোনো সময় আপগ্রেড করুন।',
     upgradeNow: 'এখনই আপগ্রেড করুন',
+    // New dashboard sections
+    salesTrend: 'বিক্রি ট্রেন্ড',
+    last7Days: 'শেষ ৭ দিন',
+    thisWeek: 'এ সপ্তাহ',
+    lastWeek: 'গত সপ্তাহ',
+    salesAmount: 'বিক্রি',
+    recentTransactions: 'সাম্প্রতিক লেনদেন',
+    todaysActivity: 'আজকের কার্যক্রম',
+    noTransactions: 'আজকে কোনো লেনদেন নেই',
+    dueAlerts: 'বকেয়া সতর্কতা',
+    noDues: 'কোনো বকেয়া নেই',
+    total: 'মোট',
+    supplierDuesTitle: 'সরবরাহকারী বকেয়া',
   },
 
   // Medicines Page

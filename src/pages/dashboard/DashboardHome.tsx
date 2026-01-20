@@ -1,26 +1,42 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
-  Package, 
-  ShoppingCart, 
-  Truck, 
-  Wallet, 
-  FileText,
   TrendingUp,
   AlertTriangle,
   Users,
+  Truck,
+  Wallet,
   Loader2,
-  ChevronRight
+  ChevronRight,
+  ArrowUpRight,
+  ArrowDownRight,
+  Clock,
+  ShoppingCart,
+  CreditCard,
+  Receipt,
+  TrendingDown
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useRecentTransactions, Transaction } from '@/hooks/useRecentTransactions';
+import { useSalesTrend } from '@/hooks/useSalesTrend';
+import { useDueAlerts } from '@/hooks/useDueAlerts';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent 
+} from '@/components/ui/chart';
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 
 export default function DashboardHome() {
   const { data: stats, isLoading } = useDashboardStats();
   const subscription = useSubscriptionStatus();
+  const { data: transactions, isLoading: transactionsLoading } = useRecentTransactions(5);
+  const { data: salesTrend, isLoading: trendLoading } = useSalesTrend();
+  const { data: dueAlerts, isLoading: dueLoading } = useDueAlerts(3);
   const { t } = useLanguage();
 
   const quickStats = [
@@ -65,15 +81,44 @@ export default function DashboardHome() {
     { label: t.dashboard.days90, value: stats?.expiringIn90Days || 0, badgeClass: 'expiry-badge-safe' },
   ];
 
-  const modules = [
-    { icon: Package, title: t.dashboard.medicines, description: t.dashboard.medicinesDesc, href: '/dashboard/medicines', iconClass: 'icon-container-info' },
-    { icon: ShoppingCart, title: t.dashboard.sales, description: t.dashboard.salesDesc, href: '/dashboard/sales', iconClass: 'icon-container-success' },
-    { icon: Users, title: t.dashboard.customerDuesTitle, description: t.dashboard.customerDuesDesc, href: '/dashboard/customer-dues', iconClass: 'icon-container-warning' },
-    { icon: Truck, title: t.dashboard.suppliers, description: t.dashboard.suppliersDesc, href: '/dashboard/suppliers', iconClass: 'icon-container-info' },
-    { icon: FileText, title: t.dashboard.reports, description: t.dashboard.reportsDesc, href: '/dashboard/reports', iconClass: 'icon-container-primary' },
-  ];
-
   const trialDaysRemaining = subscription.daysRemaining || 0;
+
+  const getTransactionIcon = (type: Transaction['type']) => {
+    switch (type) {
+      case 'sale':
+        return ShoppingCart;
+      case 'due_collection':
+        return CreditCard;
+      case 'daily_cost':
+        return Receipt;
+      case 'supplier_payment':
+        return Truck;
+      default:
+        return Receipt;
+    }
+  };
+
+  const getTransactionStyle = (type: Transaction['type'], isIncome: boolean) => {
+    if (isIncome) {
+      return {
+        bg: 'bg-success/10',
+        iconBg: 'bg-success',
+        text: 'text-success',
+      };
+    }
+    return {
+      bg: 'bg-destructive/10',
+      iconBg: 'bg-destructive',
+      text: 'text-destructive',
+    };
+  };
+
+  const chartConfig = {
+    amount: {
+      label: t.dashboard.salesAmount,
+      color: 'hsl(var(--success))',
+    },
+  };
 
   return (
     <div className="space-y-6">
@@ -109,7 +154,7 @@ export default function DashboardHome() {
 
       {/* Expiry Overview */}
       <Card className="overflow-hidden">
-        <CardHeader className="pb-2 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
+        <CardHeader className="pb-2 bg-gradient-to-r from-warning/10 to-warning/5">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
               <div className="icon-container-warning p-2">
@@ -137,30 +182,242 @@ export default function DashboardHome() {
         </CardContent>
       </Card>
 
-      {/* Quick Access Modules */}
-      <div>
-        <h2 className="text-lg font-display font-semibold mb-4">{t.dashboard.quickAccess}</h2>
-        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3 stagger-children">
-          {modules.map((module) => (
-            <Link key={module.title} to={module.href}>
-              <Card className="quick-access-card cursor-pointer group h-full">
-                <CardHeader className="p-4">
-                  <div className="flex items-center gap-4">
-                    <div className={cn("shrink-0 group-hover:scale-110 transition-transform", module.iconClass)}>
-                      <module.icon className="h-5 w-5 text-white" />
+      {/* Sales Trend Chart & Due Alerts Row */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {/* Sales Trend Chart */}
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-2 bg-gradient-to-r from-success/10 to-success/5">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <div className="icon-container-success p-2">
+                  <TrendingUp className="h-4 w-4 text-white" />
+                </div>
+                {t.dashboard.salesTrend}
+              </CardTitle>
+            </div>
+            <CardDescription>{t.dashboard.last7Days}</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-4">
+            {trendLoading ? (
+              <div className="h-[200px] flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <>
+                <div className="h-[160px] sm:h-[200px]">
+                  <ChartContainer config={chartConfig}>
+                    <AreaChart data={salesTrend?.dailyData || []}>
+                      <defs>
+                        <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="hsl(var(--success))" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="hsl(var(--success))" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis 
+                        dataKey="dayShort" 
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12 }}
+                      />
+                      <YAxis hide />
+                      <ChartTooltip 
+                        content={<ChartTooltipContent />}
+                        formatter={(value) => [`৳${Number(value).toLocaleString()}`, t.dashboard.salesAmount]}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="amount"
+                        stroke="hsl(var(--success))"
+                        strokeWidth={2}
+                        fill="url(#salesGradient)"
+                      />
+                    </AreaChart>
+                  </ChartContainer>
+                </div>
+                
+                {/* Week Comparison */}
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <div>
+                    <p className="text-xs text-muted-foreground">{t.dashboard.thisWeek}</p>
+                    <p className="text-lg font-bold">৳{salesTrend?.thisWeekTotal?.toLocaleString() || 0}</p>
+                  </div>
+                  <div className={cn(
+                    "flex items-center gap-1 px-2 py-1 rounded-full text-sm font-medium",
+                    salesTrend?.isPositive 
+                      ? "bg-success/10 text-success" 
+                      : "bg-destructive/10 text-destructive"
+                  )}>
+                    {salesTrend?.isPositive ? (
+                      <ArrowUpRight className="h-4 w-4" />
+                    ) : (
+                      <ArrowDownRight className="h-4 w-4" />
+                    )}
+                    {salesTrend?.percentChange || 0}%
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">{t.dashboard.lastWeek}</p>
+                    <p className="text-lg font-bold text-muted-foreground">৳{salesTrend?.lastWeekTotal?.toLocaleString() || 0}</p>
+                  </div>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Due Alerts */}
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-2 bg-gradient-to-r from-warning/10 to-warning/5">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <div className="icon-container-warning p-2">
+                  <AlertTriangle className="h-4 w-4 text-white" />
+                </div>
+                {t.dashboard.dueAlerts}
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-4">
+            {dueLoading ? (
+              <div className="h-[200px] flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                {/* Customer Dues */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm font-medium text-warning">
+                    <Users className="h-4 w-4" />
+                    {t.dashboard.customerDuesTitle}
+                  </div>
+                  <div className="space-y-2">
+                    {dueAlerts?.topCustomers.length === 0 ? (
+                      <p className="text-xs text-muted-foreground py-4 text-center">
+                        {t.dashboard.noDues}
+                      </p>
+                    ) : (
+                      dueAlerts?.topCustomers.map((customer) => (
+                        <div 
+                          key={customer.id} 
+                          className="flex items-center justify-between p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                        >
+                          <span className="text-sm truncate max-w-[60%]">{customer.name}</span>
+                          <span className="text-sm font-semibold text-warning">
+                            ৳{customer.totalDue.toLocaleString()}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="pt-2 border-t">
+                    <Link to="/dashboard/customer-dues">
+                      <Button variant="ghost" size="sm" className="w-full gap-1 text-xs">
+                        {t.dashboard.total}: ৳{dueAlerts?.totalCustomerDue?.toLocaleString() || 0}
+                        <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Supplier Dues */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm font-medium text-info">
+                    <Truck className="h-4 w-4" />
+                    {t.dashboard.supplierDuesTitle}
+                  </div>
+                  <div className="space-y-2">
+                    {dueAlerts?.topSuppliers.length === 0 ? (
+                      <p className="text-xs text-muted-foreground py-4 text-center">
+                        {t.dashboard.noDues}
+                      </p>
+                    ) : (
+                      dueAlerts?.topSuppliers.map((supplier) => (
+                        <div 
+                          key={supplier.id} 
+                          className="flex items-center justify-between p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                        >
+                          <span className="text-sm truncate max-w-[60%]">{supplier.name}</span>
+                          <span className="text-sm font-semibold text-info">
+                            ৳{supplier.totalDue.toLocaleString()}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="pt-2 border-t">
+                    <Link to="/dashboard/suppliers">
+                      <Button variant="ghost" size="sm" className="w-full gap-1 text-xs">
+                        {t.dashboard.total}: ৳{dueAlerts?.totalSupplierDue?.toLocaleString() || 0}
+                        <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Transactions */}
+      <Card className="overflow-hidden">
+        <CardHeader className="pb-2 bg-gradient-to-r from-info/10 to-info/5">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <div className="icon-container-info p-2">
+                <Clock className="h-4 w-4 text-white" />
+              </div>
+              {t.dashboard.recentTransactions}
+            </CardTitle>
+            <Link to="/dashboard/daily-cash">
+              <Button variant="ghost" size="sm" className="gap-1">
+                {t.dashboard.viewAll}
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+          <CardDescription>{t.dashboard.todaysActivity}</CardDescription>
+        </CardHeader>
+        <CardContent className="pt-4">
+          {transactionsLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : transactions?.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Receipt className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>{t.dashboard.noTransactions}</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {transactions?.map((transaction) => {
+                const Icon = getTransactionIcon(transaction.type);
+                const style = getTransactionStyle(transaction.type, transaction.isIncome);
+                
+                return (
+                  <div 
+                    key={transaction.id}
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-lg transition-colors",
+                      style.bg
+                    )}
+                  >
+                    <div className={cn("p-2 rounded-lg shrink-0", style.iconBg)}>
+                      <Icon className="h-4 w-4 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-base sm:text-lg">{module.title}</CardTitle>
-                      <CardDescription className="text-xs sm:text-sm line-clamp-1">{module.description}</CardDescription>
+                      <p className="text-sm font-medium truncate">{transaction.description}</p>
+                      <p className="text-xs text-muted-foreground">{transaction.time}</p>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                    <div className={cn("text-sm font-bold shrink-0", style.text)}>
+                      {transaction.isIncome ? '+' : '-'}৳{transaction.amount.toLocaleString()}
+                    </div>
                   </div>
-                </CardHeader>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Trial Banner */}
       {subscription?.isTrial && (
