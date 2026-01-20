@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Users, Wallet, Plus, Search, Phone, MessageCircle, Trash2, FileText } from 'lucide-react';
+import { Users, Wallet, Plus, Search, Phone, MessageCircle, Trash2, FileText, Loader2 } from 'lucide-react';
 import { useCustomers, useCustomerDuesSummary, useDeleteCustomer, shareViaWhatsApp, Customer } from '@/hooks/useCustomerDues';
 import { supabase } from '@/integrations/supabase/client';
 import { generateIndividualCustomerPDF } from '@/lib/pdfGenerator';
@@ -14,6 +14,7 @@ import { AddDueDialog } from '@/components/customer-dues/AddDueDialog';
 import { RecordPaymentDialog } from '@/components/customer-dues/RecordPaymentDialog';
 import { CustomerPaymentHistory } from '@/components/customer-dues/CustomerPaymentHistory';
 import { QuickReportDialog } from '@/components/reports/QuickReportDialog';
+import { cn } from '@/lib/utils';
 import {
   Table,
   TableBody,
@@ -134,52 +135,63 @@ export default function CustomerDues() {
             {t.customerDues.subtitle}
           </p>
         </div>
-        <Button onClick={() => setAddCustomerOpen(true)}>
+        <Button onClick={() => setAddCustomerOpen(true)} className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
           <Plus className="h-4 w-4 mr-2" />
           {t.customerDues.addCustomer}
         </Button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>{t.customerDues.totalDueAmount}</CardDescription>
-            <Wallet className="h-4 w-4 text-destructive" />
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-3 stagger-children">
+        <Card className="stat-card-expense transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="flex flex-row items-center gap-3 pb-2 p-3 sm:p-4">
+            <div className="icon-container-danger shrink-0">
+              <Wallet className="h-4 w-4 text-white" />
+            </div>
+            <CardDescription className="text-xs sm:text-sm font-medium">{t.customerDues.totalDueAmount}</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">
-              ৳{summary?.totalDue.toFixed(2) || '0.00'}
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400">
+              ৳{summary?.totalDue.toFixed(0) || '0'}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>{t.customerDues.customersWithDues}</CardDescription>
-            <Users className="h-4 w-4 text-amber-600" />
+        <Card className="stat-card-due transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="flex flex-row items-center gap-3 pb-2 p-3 sm:p-4">
+            <div className="icon-container-warning shrink-0">
+              <Users className="h-4 w-4 text-white" />
+            </div>
+            <CardDescription className="text-xs sm:text-sm font-medium">{t.customerDues.customersWithDues}</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summary?.customersWithDue || 0}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400">{summary?.customersWithDue || 0}</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription>{t.customerDues.totalCustomers}</CardDescription>
-            <Users className="h-4 w-4 text-muted-foreground" />
+        <Card className="stat-card-info transition-all duration-300 hover:shadow-lg col-span-2 lg:col-span-1">
+          <CardHeader className="flex flex-row items-center gap-3 pb-2 p-3 sm:p-4">
+            <div className="icon-container-info shrink-0">
+              <Users className="h-4 w-4 text-white" />
+            </div>
+            <CardDescription className="text-xs sm:text-sm font-medium">{t.customerDues.totalCustomers}</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{customers?.length || 0}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{customers?.length || 0}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Customers Table */}
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-amber-50 to-transparent dark:from-amber-950/30 dark:to-transparent">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle>{t.customerDues.allCustomers}</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <div className="icon-container-warning p-1.5">
+                <Users className="h-4 w-4 text-white" />
+              </div>
+              {t.customerDues.allCustomers}
+            </CardTitle>
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -191,31 +203,44 @@ export default function CustomerDues() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 sm:p-4">
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">{t.customerDues.loading}</div>
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
           ) : filteredCustomers?.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              {searchTerm ? t.customerDues.noCustomersFound : t.customerDues.noCustomersYet}
+            <div className="text-center py-12 text-muted-foreground">
+              <div className="h-16 w-16 mx-auto mb-3 rounded-full bg-muted/50 flex items-center justify-center">
+                <Users className="h-8 w-8 opacity-30" />
+              </div>
+              <p>{searchTerm ? t.customerDues.noCustomersFound : t.customerDues.noCustomersYet}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="bg-muted/30">
                     <TableHead>{t.customerDues.name}</TableHead>
-                    <TableHead>{t.customerDues.phone}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t.customerDues.phone}</TableHead>
                     <TableHead className="text-right">{t.customerDues.dueAmount}</TableHead>
                     <TableHead className="text-right">{t.medicines.actions}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredCustomers?.map((customer) => (
-                    <TableRow key={customer.id}>
-                      <TableCell className="font-medium">{customer.name}</TableCell>
-                      <TableCell>
+                    <TableRow key={customer.id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell className="font-medium">
+                        {customer.name}
+                        {customer.phone && (
+                          <span className="block sm:hidden text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <Phone className="h-3 w-3" />
+                            {customer.phone}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         {customer.phone ? (
-                          <span className="flex items-center gap-1">
+                          <span className="flex items-center gap-1 text-muted-foreground">
                             <Phone className="h-3 w-3" />
                             {customer.phone}
                           </span>
@@ -225,18 +250,23 @@ export default function CustomerDues() {
                       </TableCell>
                       <TableCell className="text-right">
                         {Number(customer.total_due) > 0 ? (
-                          <Badge variant="destructive">৳{Number(customer.total_due).toFixed(2)}</Badge>
+                          <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white border-0 shadow-sm">
+                            ৳{Number(customer.total_due).toFixed(0)}
+                          </Badge>
                         ) : (
-                          <Badge variant="outline" className="text-green-600">{t.customerDues.paid}</Badge>
+                          <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white border-0 shadow-sm">
+                            {t.customerDues.paid}
+                          </Badge>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
+                        <div className="flex justify-end gap-0.5 sm:gap-1">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleQuickReportClick(customer)}
                             title={t.customerDues.quickReport}
+                            className="h-8 w-8 p-0 hover:bg-primary/10"
                           >
                             <FileText className="h-4 w-4" />
                           </Button>
@@ -245,6 +275,7 @@ export default function CustomerDues() {
                             size="sm"
                             onClick={() => handleAddDue(customer)}
                             title={t.customerDues.addDue}
+                            className="h-8 w-8 p-0 hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600"
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
@@ -254,6 +285,7 @@ export default function CustomerDues() {
                             onClick={() => handleRecordPayment(customer)}
                             disabled={Number(customer.total_due) <= 0}
                             title={t.customerDues.recordPayment}
+                            className="h-8 w-8 p-0 hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600"
                           >
                             <Wallet className="h-4 w-4" />
                           </Button>
@@ -262,6 +294,7 @@ export default function CustomerDues() {
                             size="sm"
                             onClick={() => handleViewHistory(customer)}
                             title={t.customerDues.viewHistory}
+                            className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600"
                           >
                             <Search className="h-4 w-4" />
                           </Button>
@@ -271,7 +304,7 @@ export default function CustomerDues() {
                               size="sm"
                               onClick={() => handleWhatsApp(customer)}
                               title={t.customerDues.sendWhatsApp}
-                              className="text-green-600 hover:text-green-700"
+                              className="h-8 w-8 p-0 hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600"
                             >
                               <MessageCircle className="h-4 w-4" />
                             </Button>
@@ -284,7 +317,7 @@ export default function CustomerDues() {
                               setDeleteConfirmOpen(true);
                             }}
                             title={t.customerDues.deleteCustomer}
-                            className="text-destructive hover:text-destructive"
+                            className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -331,7 +364,7 @@ export default function CustomerDues() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground">
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-gradient-to-r from-red-500 to-red-600 text-white">
               {t.actions.delete}
             </AlertDialogAction>
           </AlertDialogFooter>

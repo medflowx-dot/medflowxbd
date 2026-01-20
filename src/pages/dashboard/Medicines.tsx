@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Package, Search, AlertTriangle, MapPin, Globe, Copy } from 'lucide-react';
+import { Package, Search, AlertTriangle, MapPin, Globe, Copy, Loader2 } from 'lucide-react';
 import { AddMedicineDialog } from '@/components/medicines/AddMedicineDialog';
 import { BulkImportDialog } from '@/components/medicines/BulkImportDialog';
 import { MedicineTable } from '@/components/medicines/MedicineTable';
@@ -16,6 +16,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export default function Medicines() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -105,52 +106,69 @@ export default function Medicines() {
         )}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t.medicines.totalMedicines}</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+      {/* Summary Cards */}
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 stagger-children">
+        <Card className="stat-card-info transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="flex flex-row items-center gap-3 pb-2 p-3 sm:p-4">
+            <div className="icon-container-info shrink-0">
+              <Package className="h-4 w-4 text-white" />
+            </div>
+            <CardTitle className="text-xs sm:text-sm font-medium">{t.medicines.totalMedicines}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{medicines.length}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{medicines.length}</div>
             <p className="text-xs text-muted-foreground">{t.medicines.registeredInSystem}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t.medicines.expiryAlerts}</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-destructive" />
+        
+        <Card className="stat-card-expense transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="flex flex-row items-center gap-3 pb-2 p-3 sm:p-4">
+            <div className="icon-container-danger shrink-0">
+              <AlertTriangle className="h-4 w-4 text-white" />
+            </div>
+            <CardTitle className="text-xs sm:text-sm font-medium">{t.medicines.expiryAlerts}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">{totalAlerts}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400">{totalAlerts}</div>
             <p className="text-xs text-muted-foreground">{expired.length} {t.medicines.expired}, {expiring30.length} {t.medicines.expiringSoon}</p>
           </CardContent>
         </Card>
       </div>
 
       <Tabs defaultValue="inventory" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="inventory">{t.medicines.myInventory}</TabsTrigger>
-          <TabsTrigger value="global" className="gap-2">
-            <Globe className="h-4 w-4" />
-            {t.medicines.globalMedicines}
+        <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:flex">
+          <TabsTrigger value="inventory" className="text-xs sm:text-sm">{t.medicines.myInventory}</TabsTrigger>
+          <TabsTrigger value="global" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+            <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">{t.medicines.globalMedicines}</span>
+            <span className="sm:hidden">গ্লোবাল</span>
           </TabsTrigger>
-          <TabsTrigger value="expiry" className="relative">
-            {t.medicines.expiryAlertsTab}
+          <TabsTrigger value="expiry" className="relative text-xs sm:text-sm">
+            <span className="hidden sm:inline">{t.medicines.expiryAlertsTab}</span>
+            <span className="sm:hidden">মেয়াদ</span>
             {totalAlerts > 0 && (
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center">
-                {totalAlerts}
+              <span className={cn(
+                "absolute -top-1 -right-1 h-4 w-4 rounded-full text-[10px] font-bold flex items-center justify-center",
+                "bg-gradient-to-r from-red-500 to-red-600 text-white",
+                "badge-animated"
+              )}>
+                {totalAlerts > 9 ? '9+' : totalAlerts}
               </span>
             )}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="inventory" className="space-y-4">
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-950/30 dark:to-transparent">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <CardTitle>{t.medicines.medicineInventory}</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <div className="icon-container-info p-1.5">
+                      <Package className="h-4 w-4 text-white" />
+                    </div>
+                    {t.medicines.medicineInventory}
+                  </CardTitle>
                   <CardDescription>{t.medicines.inventoryDesc}</CardDescription>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -174,10 +192,10 @@ export default function Medicines() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0 sm:p-4">
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : (
                 <MedicineTable medicines={medicines} searchTerm={searchTerm} shelfFilter={shelfFilter} />
@@ -187,38 +205,47 @@ export default function Medicines() {
         </TabsContent>
 
         <TabsContent value="global" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <CardTitle>{t.medicines.globalMedicines}</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <div className="icon-container-primary p-1.5">
+                      <Globe className="h-4 w-4 text-white" />
+                    </div>
+                    {t.medicines.globalMedicines}
+                  </CardTitle>
                   <CardDescription>{t.medicines.globalDesc}</CardDescription>
                 </div>
                 {selectedCount > 0 && (
-                  <Button onClick={handleBulkCopy} disabled={bulkCopyToLocal.isPending}>
+                  <Button onClick={handleBulkCopy} disabled={bulkCopyToLocal.isPending} className="bg-gradient-to-r from-primary to-primary/80">
                     <Copy className="h-4 w-4 mr-2" />
                     {bulkCopyToLocal.isPending ? t.medicines.copying : `${t.medicines.copySelected} (${selectedCount})`}
                   </Button>
                 )}
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 p-3 sm:p-6">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input placeholder={t.medicines.searchGlobal} value={globalSearchTerm} onChange={(e) => setGlobalSearchTerm(e.target.value)} className="pl-9" />
               </div>
               {globalLoading ? (
-                <div className="py-8 text-center text-muted-foreground">{t.messages.loading}</div>
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
               ) : filteredGlobalMedicines.length === 0 ? (
                 <div className="py-8 text-center text-muted-foreground">
-                  <Globe className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                  <div className="h-16 w-16 mx-auto mb-3 rounded-full bg-muted/50 flex items-center justify-center">
+                    <Globe className="h-8 w-8 opacity-30" />
+                  </div>
                   <p>{t.medicines.noGlobalFound}</p>
                 </div>
               ) : (
-                <div className="rounded-md border">
+                <div className="rounded-lg border overflow-hidden">
                   <Table>
                     <TableHeader>
-                      <TableRow>
+                      <TableRow className="bg-muted/30">
                         <TableHead className="w-[50px]">
                           <Checkbox
                             checked={allCopyableSelected && copyableMedicines.length > 0}
@@ -227,8 +254,8 @@ export default function Medicines() {
                           />
                         </TableHead>
                         <TableHead>{t.medicines.medicineName}</TableHead>
-                        <TableHead>{t.medicines.genericName}</TableHead>
-                        <TableHead>{t.medicines.manufacturer}</TableHead>
+                        <TableHead className="hidden sm:table-cell">{t.medicines.genericName}</TableHead>
+                        <TableHead className="hidden sm:table-cell">{t.medicines.manufacturer}</TableHead>
                         <TableHead className="w-[100px]">{t.medicines.actions}</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -236,7 +263,7 @@ export default function Medicines() {
                       {filteredGlobalMedicines.map((medicine) => {
                         const alreadyCopied = isAlreadyCopied(medicine);
                         return (
-                          <TableRow key={medicine.id}>
+                          <TableRow key={medicine.id} className={alreadyCopied ? "bg-green-50/50 dark:bg-green-950/20" : ""}>
                             <TableCell>
                               <Checkbox
                                 checked={selectedIds.has(medicine.id)}
@@ -244,13 +271,23 @@ export default function Medicines() {
                                 disabled={alreadyCopied}
                               />
                             </TableCell>
-                            <TableCell className="font-medium">{medicine.name}</TableCell>
-                            <TableCell>{medicine.generic_name || '-'}</TableCell>
-                            <TableCell>{medicine.manufacturer?.name || '-'}</TableCell>
+                            <TableCell className="font-medium">
+                              {medicine.name}
+                              <span className="block sm:hidden text-xs text-muted-foreground">{medicine.generic_name || '-'}</span>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell">{medicine.generic_name || '-'}</TableCell>
+                            <TableCell className="hidden sm:table-cell">{medicine.manufacturer?.name || '-'}</TableCell>
                             <TableCell>
-                              <Button variant={alreadyCopied ? "secondary" : "outline"} size="sm" onClick={() => handleCopy(medicine)} disabled={copyToLocal.isPending || alreadyCopied}>
+                              <Button 
+                                variant={alreadyCopied ? "secondary" : "outline"} 
+                                size="sm" 
+                                onClick={() => handleCopy(medicine)} 
+                                disabled={copyToLocal.isPending || alreadyCopied}
+                                className={alreadyCopied ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : ""}
+                              >
                                 <Copy className="h-4 w-4 mr-1" />
-                                {alreadyCopied ? t.medicines.added : t.medicines.copy}
+                                <span className="hidden sm:inline">{alreadyCopied ? t.medicines.added : t.medicines.copy}</span>
+                                <span className="sm:hidden">{alreadyCopied ? '✓' : '+'}</span>
                               </Button>
                             </TableCell>
                           </TableRow>
