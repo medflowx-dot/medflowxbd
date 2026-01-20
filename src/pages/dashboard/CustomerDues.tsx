@@ -152,7 +152,7 @@ export default function CustomerDues() {
             <CardDescription className="text-xs sm:text-sm font-medium">{t.customerDues.totalDueAmount}</CardDescription>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0">
-            <div className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400">
+            <div className="text-xl sm:text-2xl font-bold text-destructive">
               ৳{(summary?.totalDue ?? 0) > 0 ? summary?.totalDue.toFixed(0) : '0'}
             </div>
           </CardContent>
@@ -166,7 +166,7 @@ export default function CustomerDues() {
             <CardDescription className="text-xs sm:text-sm font-medium">{t.customerDues.customersWithDues}</CardDescription>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0">
-            <div className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400">{summary?.customersWithDue || 0}</div>
+            <div className="text-xl sm:text-2xl font-bold text-warning">{summary?.customersWithDue || 0}</div>
           </CardContent>
         </Card>
 
@@ -178,7 +178,7 @@ export default function CustomerDues() {
             <CardDescription className="text-xs sm:text-sm font-medium">{t.customerDues.totalCustomers}</CardDescription>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0">
-            <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{customers?.length || 0}</div>
+            <div className="text-xl sm:text-2xl font-bold text-info">{customers?.length || 0}</div>
           </CardContent>
         </Card>
       </div>
@@ -289,7 +289,7 @@ export default function CustomerDues() {
                             size="sm"
                             onClick={() => handleAddDue(customer)}
                             title={t.customerDues.addDue}
-                            className="h-8 w-8 p-0 hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600"
+                            className="h-8 w-8 p-0 hover:bg-warning/10 text-warning"
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
@@ -299,7 +299,7 @@ export default function CustomerDues() {
                             onClick={() => handleRecordPayment(customer)}
                             disabled={Number(customer.total_due) <= 0}
                             title={t.customerDues.recordPayment}
-                            className="h-8 w-8 p-0 hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600"
+                            className="h-8 w-8 p-0 hover:bg-success/10 text-success"
                           >
                             <Wallet className="h-4 w-4" />
                           </Button>
@@ -308,7 +308,7 @@ export default function CustomerDues() {
                             size="sm"
                             onClick={() => handleViewHistory(customer)}
                             title={t.customerDues.viewHistory}
-                            className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600"
+                            className="h-8 w-8 p-0 hover:bg-info/10 text-info"
                           >
                             <Search className="h-4 w-4" />
                           </Button>
@@ -318,7 +318,7 @@ export default function CustomerDues() {
                               size="sm"
                               onClick={() => handleWhatsApp(customer)}
                               title={t.customerDues.sendWhatsApp}
-                              className="h-8 w-8 p-0 hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600"
+                              className="h-8 w-8 p-0 hover:bg-success/10 text-success"
                             >
                               <MessageCircle className="h-4 w-4" />
                             </Button>
@@ -331,7 +331,7 @@ export default function CustomerDues() {
                               setDeleteConfirmOpen(true);
                             }}
                             title={t.customerDues.deleteCustomer}
-                            className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600"
+                            className="h-8 w-8 p-0 hover:bg-destructive/10 text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

@@ -64,9 +64,9 @@ export function SupplierPurchaseHistoryDialog({ supplier, purchases, trigger }: 
               <p className="text-sm text-muted-foreground">{t.suppliers.totalPurchaseAmount}</p>
               <p className="text-xl font-bold">৳{totalPurchaseAmount.toFixed(2)}</p>
             </div>
-            <div className="bg-green-500/10 rounded-lg p-3">
+            <div className="bg-success/10 rounded-lg p-3">
               <p className="text-sm text-muted-foreground">{t.suppliers.totalPaid}</p>
-              <p className="text-xl font-bold text-green-600">৳{totalPaidAmount.toFixed(2)}</p>
+              <p className="text-xl font-bold text-success">৳{totalPaidAmount.toFixed(2)}</p>
             </div>
             <div className={cn(
               "rounded-lg p-3",
@@ -127,7 +127,7 @@ export function SupplierPurchaseHistoryDialog({ supplier, purchases, trigger }: 
                       <TableCell className="text-right font-medium">
                         ৳{purchase.total_amount.toFixed(2)}
                       </TableCell>
-                      <TableCell className="text-right text-green-600">
+                      <TableCell className="text-right text-success">
                         ৳{purchase.paid_amount.toFixed(2)}
                       </TableCell>
                       <TableCell className="text-right">

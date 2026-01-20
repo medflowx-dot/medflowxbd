@@ -100,8 +100,8 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
                         <TableCell className="font-mono text-xs sm:text-sm">{sale.invoice_number}</TableCell>
                         <TableCell className="hidden sm:table-cell">{sale.customers?.name || t.dailyCash.walkIn}</TableCell>
                         <TableCell className="text-right">৳{Number(sale.total_amount).toLocaleString()}</TableCell>
-                        <TableCell className="text-right text-green-600 hidden md:table-cell">৳{Number(sale.paid_amount).toLocaleString()}</TableCell>
-                        <TableCell className={`text-right hidden md:table-cell ${Number(sale.due_amount) > 0 ? 'text-red-600' : ''}`}>
+                        <TableCell className="text-right text-success hidden md:table-cell">৳{Number(sale.paid_amount).toLocaleString()}</TableCell>
+                        <TableCell className={`text-right hidden md:table-cell ${Number(sale.due_amount) > 0 ? 'text-destructive' : ''}`}>
                           ৳{Number(sale.due_amount).toLocaleString()}
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
@@ -148,7 +148,7 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
                     customerPayments.map((payment: any) => (
                       <TableRow key={payment.id}>
                         <TableCell>{payment.customers?.name || '-'}</TableCell>
-                        <TableCell className="text-right text-green-600 font-medium">
+                        <TableCell className="text-right text-success font-medium">
                           +৳{Number(payment.amount).toLocaleString()}
                         </TableCell>
                         <TableCell className="hidden sm:table-cell">
@@ -196,7 +196,7 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
                     supplierPayments.map((payment: any) => (
                       <TableRow key={payment.id}>
                         <TableCell>{payment.suppliers?.name || '-'}</TableCell>
-                        <TableCell className="text-right text-red-600 font-medium">
+                        <TableCell className="text-right text-destructive font-medium">
                           -৳{Number(payment.amount).toLocaleString()}
                         </TableCell>
                         <TableCell className="hidden sm:table-cell">
@@ -248,7 +248,7 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
                           <Badge variant="outline">{cost.category}</Badge>
                         </TableCell>
                         <TableCell className="max-w-[150px] truncate">{cost.description}</TableCell>
-                        <TableCell className="text-right text-red-600 font-medium">
+                        <TableCell className="text-right text-destructive font-medium">
                           -৳{Number(cost.amount).toLocaleString()}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">

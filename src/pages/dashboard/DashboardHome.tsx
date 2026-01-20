@@ -46,7 +46,7 @@ export default function DashboardHome() {
       icon: TrendingUp, 
       cardClass: 'stat-card-sales',
       iconClass: 'icon-container-success',
-      valueClass: 'text-green-600 dark:text-green-400'
+      valueClass: 'text-success'
     },
     { 
       label: t.dashboard.todaysCosts, 
@@ -54,7 +54,7 @@ export default function DashboardHome() {
       icon: Wallet, 
       cardClass: 'stat-card-expense',
       iconClass: 'icon-container-danger',
-      valueClass: 'text-red-600 dark:text-red-400'
+      valueClass: 'text-destructive'
     },
     { 
       label: t.dashboard.customerDues, 
@@ -62,7 +62,7 @@ export default function DashboardHome() {
       icon: Users, 
       cardClass: 'stat-card-due',
       iconClass: 'icon-container-warning',
-      valueClass: 'text-amber-600 dark:text-amber-400'
+      valueClass: 'text-warning'
     },
     { 
       label: t.dashboard.supplierDues, 
@@ -70,7 +70,7 @@ export default function DashboardHome() {
       icon: Truck, 
       cardClass: 'stat-card-info',
       iconClass: 'icon-container-info',
-      valueClass: 'text-blue-600 dark:text-blue-400'
+      valueClass: 'text-info'
     },
   ];
 

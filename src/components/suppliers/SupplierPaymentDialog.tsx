@@ -217,10 +217,10 @@ export function SupplierPaymentDialog({ supplier, trigger }: SupplierPaymentDial
 
           {/* Summary based on payment type */}
           {paymentAmount > 0 && isDuePayment && (
-            <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg">
+            <div className="p-3 bg-success/10 rounded-lg">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{t.suppliers?.remainingDueAfter || 'Remaining Due After Payment'}:</span>
-                <span className={`font-semibold ${remainingDue > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                <span className={`font-semibold ${remainingDue > 0 ? 'text-destructive' : 'text-success'}`}>
                   ৳{remainingDue.toFixed(2)}
                 </span>
               </div>
@@ -228,10 +228,10 @@ export function SupplierPaymentDialog({ supplier, trigger }: SupplierPaymentDial
           )}
 
           {paymentAmount > 0 && formData.payment_type === 'advance' && (
-            <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+            <div className="p-3 bg-info/10 rounded-lg">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{t.suppliers?.advanceAmount || 'Advance Amount'}:</span>
-                <span className="font-semibold text-blue-600">
+                <span className="font-semibold text-info">
                   ৳{paymentAmount.toFixed(2)}
                 </span>
               </div>

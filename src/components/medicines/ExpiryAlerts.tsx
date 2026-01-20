@@ -76,7 +76,7 @@ export function ExpiryAlerts() {
             {/* Expiring in 30 Days */}
             {expiring30.length > 0 && (
               <div>
-                <h4 className="font-medium text-orange-600 flex items-center gap-2 mb-2">
+                <h4 className="font-medium text-warning flex items-center gap-2 mb-2">
                   <AlertTriangle className="h-4 w-4" />
                   {t.expiryAlerts.expiring30} ({expiring30.length})
                 </h4>
@@ -84,7 +84,7 @@ export function ExpiryAlerts() {
                   {expiring30.map((batch) => (
                     <div
                       key={batch.id}
-                      className="flex items-center justify-between p-2 rounded-lg bg-orange-500/10 border border-orange-500/20"
+                      className="flex items-center justify-between p-2 rounded-lg bg-warning/10 border border-warning/20"
                     >
                       <div>
                         <p className="font-medium text-sm">{batch.medicine_name}</p>
@@ -92,7 +92,7 @@ export function ExpiryAlerts() {
                           {t.expiryAlerts.batch}: {batch.batch_number}
                         </p>
                       </div>
-                      <Badge className="bg-orange-500 hover:bg-orange-600">
+                      <Badge className="bg-warning hover:bg-warning/80 text-warning-foreground">
                         {format(new Date(batch.expiry_date), 'dd MMM yyyy')}
                       </Badge>
                     </div>
@@ -104,7 +104,7 @@ export function ExpiryAlerts() {
             {/* Expiring in 60 Days */}
             {expiring60.length > 0 && (
               <div>
-                <h4 className="font-medium text-yellow-600 flex items-center gap-2 mb-2">
+                <h4 className="font-medium text-purple flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4" />
                   {t.expiryAlerts.expiring60} ({expiring60.length})
                 </h4>
@@ -112,7 +112,7 @@ export function ExpiryAlerts() {
                   {expiring60.map((batch) => (
                     <div
                       key={batch.id}
-                      className="flex items-center justify-between p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20"
+                      className="flex items-center justify-between p-2 rounded-lg bg-purple/10 border border-purple/20"
                     >
                       <div>
                         <p className="font-medium text-sm">{batch.medicine_name}</p>
@@ -120,7 +120,7 @@ export function ExpiryAlerts() {
                           {t.expiryAlerts.batch}: {batch.batch_number}
                         </p>
                       </div>
-                      <Badge className="bg-yellow-500 hover:bg-yellow-600 text-yellow-950">
+                      <Badge className="bg-purple hover:bg-purple/80 text-purple-foreground">
                         {format(new Date(batch.expiry_date), 'dd MMM yyyy')}
                       </Badge>
                     </div>
@@ -132,7 +132,7 @@ export function ExpiryAlerts() {
             {/* Expiring in 90 Days */}
             {expiring90.length > 0 && (
               <div>
-                <h4 className="font-medium text-blue-600 flex items-center gap-2 mb-2">
+                <h4 className="font-medium text-info flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4" />
                   {t.expiryAlerts.expiring90} ({expiring90.length})
                 </h4>
@@ -140,7 +140,7 @@ export function ExpiryAlerts() {
                   {expiring90.map((batch) => (
                     <div
                       key={batch.id}
-                      className="flex items-center justify-between p-2 rounded-lg bg-blue-500/10 border border-blue-500/20"
+                      className="flex items-center justify-between p-2 rounded-lg bg-info/10 border border-info/20"
                     >
                       <div>
                         <p className="font-medium text-sm">{batch.medicine_name}</p>
@@ -148,7 +148,7 @@ export function ExpiryAlerts() {
                           {t.expiryAlerts.batch}: {batch.batch_number}
                         </p>
                       </div>
-                      <Badge className="bg-blue-500 hover:bg-blue-600">
+                      <Badge className="bg-info hover:bg-info/80">
                         {format(new Date(batch.expiry_date), 'dd MMM yyyy')}
                       </Badge>
                     </div>
