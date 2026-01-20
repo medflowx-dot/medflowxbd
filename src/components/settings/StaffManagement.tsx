@@ -72,11 +72,13 @@ export function StaffManagement() {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-indigo-50 to-transparent dark:from-indigo-950/30">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-primary" />
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 text-white">
+              <Users className="h-4 w-4" />
+            </div>
             <div>
               <CardTitle>Staff Management</CardTitle>
               <CardDescription>Invite and manage your pharmacy staff</CardDescription>
@@ -85,7 +87,7 @@ export function StaffManagement() {
           {canManageStaff ? (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
                   <UserPlus className="h-4 w-4 mr-2" />
                   Invite Staff
                 </Button>
@@ -123,8 +125,8 @@ export function StaffManagement() {
                       <p className="text-sm text-destructive">{formErrors.email}</p>
                     )}
                   </div>
-                  <div className="p-3 rounded-lg bg-muted text-sm text-muted-foreground">
-                    <p>Staff members have limited access:</p>
+                  <div className="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200/50 dark:border-blue-800/30 text-sm text-muted-foreground">
+                    <p className="font-medium text-foreground">Staff members have limited access:</p>
                     <ul className="list-disc list-inside mt-1 space-y-1">
                       <li>View medicines (read-only)</li>
                       <li>Create and manage sales</li>
@@ -136,7 +138,11 @@ export function StaffManagement() {
                   <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleInvite} disabled={inviteStaff.isPending}>
+                  <Button 
+                    onClick={handleInvite} 
+                    disabled={inviteStaff.isPending}
+                    className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+                  >
                     {inviteStaff.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                     Send Invitation
                   </Button>
@@ -144,7 +150,7 @@ export function StaffManagement() {
               </DialogContent>
             </Dialog>
           ) : (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted text-sm text-muted-foreground">
               <Lock className="h-4 w-4" />
               {isTrial ? (
                 <span>Upgrade to invite staff</span>
@@ -155,116 +161,122 @@ export function StaffManagement() {
           )}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : staff && staff.length > 0 ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Added</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {staff.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell className="font-medium">
-                    {member.full_name || 'Unnamed'}
-                  </TableCell>
-                  <TableCell>{member.phone || '-'}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">Staff</Badge>
-                  </TableCell>
-                  <TableCell>
-                    {format(new Date(member.created_at), 'MMM d, yyyy')}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {canManageStaff && (
-                      <div className="flex items-center justify-end gap-1">
-                        {/* Reset Password */}
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="sm" className="text-amber-600 hover:text-amber-700 hover:bg-amber-50">
-                              <KeyRound className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Reset Password</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will generate a new password for {member.full_name || 'this staff member'}. 
-                                {' '}The new credentials will be sent via email if SMTP is configured.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleResetPassword(member)}
-                                className="bg-amber-600 text-white hover:bg-amber-700"
-                              >
-                                {resetPassword.isPending ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  'Reset Password'
-                                )}
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-
-                        {/* Remove Staff */}
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Remove Staff Member</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to remove {member.full_name || 'this staff member'}? 
-                                This action cannot be undone and will delete their account.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleRemove(member)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                {removeStaff.isPending ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  'Remove'
-                                )}
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    )}
-                  </TableCell>
+          <div className="rounded-lg border overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead>Name</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Added</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {staff.map((member) => (
+                  <TableRow key={member.id} className="hover:bg-muted/30">
+                    <TableCell className="font-medium">
+                      {member.full_name || 'Unnamed'}
+                    </TableCell>
+                    <TableCell>{member.phone || '-'}</TableCell>
+                    <TableCell>
+                      <Badge className="bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 dark:from-indigo-900/50 dark:to-purple-900/50 dark:text-indigo-300 border-0">
+                        Staff
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {format(new Date(member.created_at), 'MMM d, yyyy')}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {canManageStaff && (
+                        <div className="flex items-center justify-end gap-1">
+                          {/* Reset Password */}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30">
+                                <KeyRound className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Reset Password</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will generate a new password for {member.full_name || 'this staff member'}. 
+                                  {' '}The new credentials will be sent via email if SMTP is configured.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleResetPassword(member)}
+                                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                                >
+                                  {resetPassword.isPending ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    'Reset Password'
+                                  )}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+
+                          {/* Remove Staff */}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Remove Staff Member</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to remove {member.full_name || 'this staff member'}? 
+                                  This action cannot be undone and will delete their account.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleRemove(member)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  {removeStaff.isPending ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    'Remove'
+                                  )}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         ) : (
-          <div className="text-center py-8">
-            <Users className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-            <p className="text-muted-foreground mb-2">No staff members yet</p>
+          <div className="text-center py-10 px-4 rounded-xl bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/20 dark:to-purple-950/20 border border-dashed border-indigo-200 dark:border-indigo-800/50">
+            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 flex items-center justify-center mb-4">
+              <Users className="h-8 w-8 text-indigo-500" />
+            </div>
+            <p className="text-lg font-medium mb-1">No staff members yet</p>
             {canManageStaff ? (
               <p className="text-sm text-muted-foreground">
                 Click "Invite Staff" to add your first team member
               </p>
             ) : isTrial ? (
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 text-primary">
+              <div className="inline-flex items-center gap-2 px-4 py-2 mt-3 rounded-lg bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 text-amber-700 dark:text-amber-300">
                 <Crown className="h-4 w-4" />
                 <span className="text-sm font-medium">Upgrade your plan to add staff members</span>
               </div>
