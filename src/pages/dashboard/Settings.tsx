@@ -110,24 +110,33 @@ export default function Settings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.settings.title}</h1>
-        <p className="text-muted-foreground mt-1">
-          {t.settings.subtitle}
-        </p>
+      <div className="flex items-center gap-3">
+        <div className="icon-container-primary">
+          <User className="h-5 w-5" />
+        </div>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.settings.title}</h1>
+          <p className="text-muted-foreground mt-1">
+            {t.settings.subtitle}
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-6">
         {/* Profile Information */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
-              <CardTitle>{t.settings.profileInfo}</CardTitle>
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-950/30">
+            <div className="flex items-center gap-3">
+              <div className="icon-container-info">
+                <User className="h-4 w-4" />
+              </div>
+              <div>
+                <CardTitle>{t.settings.profileInfo}</CardTitle>
+                <CardDescription>{t.settings.updatePersonalInfo}</CardDescription>
+              </div>
             </div>
-            <CardDescription>{t.settings.updatePersonalInfo}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="fullName">{t.settings.fullName}</Label>
@@ -140,7 +149,7 @@ export default function Settings() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">{t.settings.email}</Label>
-                <Input id="email" type="email" value={user?.email || ''} disabled />
+                <Input id="email" type="email" value={user?.email || ''} disabled className="bg-muted" />
               </div>
             </div>
             <div className="space-y-2">
@@ -152,7 +161,11 @@ export default function Settings() {
                 onChange={(e) => handleChange('phone', e.target.value)}
               />
             </div>
-            <Button onClick={handleSaveProfile} disabled={updateProfile.isPending}>
+            <Button 
+              onClick={handleSaveProfile} 
+              disabled={updateProfile.isPending}
+              className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+            >
               {updateProfile.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               <Save className="h-4 w-4 mr-2" />
               {t.settings.saveChanges}
@@ -161,15 +174,19 @@ export default function Settings() {
         </Card>
 
         {/* Pharmacy Information */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-primary" />
-              <CardTitle>{t.settings.pharmacyInfo}</CardTitle>
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-teal-50 to-transparent dark:from-teal-950/30">
+            <div className="flex items-center gap-3">
+              <div className="icon-container-success">
+                <Building2 className="h-4 w-4" />
+              </div>
+              <div>
+                <CardTitle>{t.settings.pharmacyInfo}</CardTitle>
+                <CardDescription>{t.settings.updatePharmacyDetails}</CardDescription>
+              </div>
             </div>
-            <CardDescription>{t.settings.updatePharmacyDetails}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             {/* Logo Upload */}
             <PharmacyLogoUpload 
               currentLogo={profile?.pharmacy_logo || null} 
@@ -194,7 +211,11 @@ export default function Settings() {
                 onChange={(e) => handleChange('address', e.target.value)}
               />
             </div>
-            <Button onClick={handleSavePharmacy} disabled={updateProfile.isPending}>
+            <Button 
+              onClick={handleSavePharmacy} 
+              disabled={updateProfile.isPending}
+              className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600"
+            >
               {updateProfile.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               <Save className="h-4 w-4 mr-2" />
               {t.settings.saveChanges}
@@ -203,15 +224,19 @@ export default function Settings() {
         </Card>
 
         {/* Preferences */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-primary" />
-              <CardTitle>{t.settings.preferences}</CardTitle>
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-transparent dark:from-purple-950/30">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-violet-500 text-white">
+                <Globe className="h-4 w-4" />
+              </div>
+              <div>
+                <CardTitle>{t.settings.preferences}</CardTitle>
+                <CardDescription>{t.settings.customizeExperience}</CardDescription>
+              </div>
             </div>
-            <CardDescription>{t.settings.customizeExperience}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="currency">{t.settings.currency}</Label>
@@ -253,7 +278,11 @@ export default function Settings() {
                 </Select>
               </div>
             </div>
-            <Button onClick={handleSavePreferences} disabled={updateProfile.isPending}>
+            <Button 
+              onClick={handleSavePreferences} 
+              disabled={updateProfile.isPending}
+              className="bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600"
+            >
               {updateProfile.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               <Save className="h-4 w-4 mr-2" />
               {t.settings.savePreferences}
@@ -262,18 +291,22 @@ export default function Settings() {
         </Card>
 
         {/* Notification Settings */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-primary" />
-              <CardTitle>{t.settings.notifications}</CardTitle>
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-amber-50 to-transparent dark:from-amber-950/30">
+            <div className="flex items-center gap-3">
+              <div className="icon-container-warning">
+                <Bell className="h-4 w-4" />
+              </div>
+              <div>
+                <CardTitle>{t.settings.notifications}</CardTitle>
+                <CardDescription>{t.settings.manageNotifications}</CardDescription>
+              </div>
             </div>
-            <CardDescription>{t.settings.manageNotifications}</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200/50 dark:border-amber-800/30">
               <div className="space-y-0.5">
-                <Label htmlFor="sound-toggle" className="text-base">{t.settings.notificationSound}</Label>
+                <Label htmlFor="sound-toggle" className="text-base font-medium">{t.settings.notificationSound}</Label>
                 <p className="text-sm text-muted-foreground">
                   {t.settings.playSoundOnAlerts}
                 </p>
@@ -291,21 +324,28 @@ export default function Settings() {
         {isAdmin && <StaffManagement />}
 
         {/* Subscription */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-primary" />
-              <CardTitle>{t.settings.subscription}</CardTitle>
-            </div>
-            <CardDescription>{t.settings.manageSubscription}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between p-4 rounded-lg bg-muted">
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-emerald-50 to-transparent dark:from-emerald-950/30">
+            <div className="flex items-center gap-3">
+              <div className="icon-container-success">
+                <CreditCard className="h-4 w-4" />
+              </div>
               <div>
-                <p className="font-medium">{getSubscriptionLabel()}</p>
+                <CardTitle>{t.settings.subscription}</CardTitle>
+                <CardDescription>{t.settings.manageSubscription}</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border border-emerald-200/50 dark:border-emerald-800/30">
+              <div>
+                <p className="font-semibold text-lg">{getSubscriptionLabel()}</p>
                 <p className="text-sm text-muted-foreground">{getSubscriptionStatus()}</p>
               </div>
-              <Button onClick={() => navigate('/billing')}>
+              <Button 
+                onClick={() => navigate('/billing')}
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
+              >
                 {isTrial || isExpired ? t.settings.upgradePlan : t.settings.managePlan}
               </Button>
             </div>
