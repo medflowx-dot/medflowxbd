@@ -23,6 +23,7 @@ import {
   Database,
   Menu,
   X,
+  Smartphone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -44,6 +45,11 @@ const navItems = [
     title: 'Subscriptions',
     href: '/owner/subscriptions',
     icon: CreditCard,
+  },
+  {
+    title: 'Payment Requests',
+    href: '/owner/payment-requests',
+    icon: Smartphone,
   },
   {
     title: 'Payments',

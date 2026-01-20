@@ -39,6 +39,7 @@ import OwnerDashboard from "./pages/owner/OwnerDashboard";
 import ClientManagement from "./pages/owner/ClientManagement";
 import SubscriptionManagement from "./pages/owner/SubscriptionManagement";
 import PaymentManagement from "./pages/owner/PaymentManagement";
+import PaymentRequests from "./pages/owner/PaymentRequests";
 import PricingPlans from "./pages/owner/PricingPlans";
 import FeatureFlags from "./pages/owner/FeatureFlags";
 import SystemReview from "./pages/owner/SystemReview";
@@ -115,6 +116,7 @@ const App = () => (
               <Route index element={<OwnerDashboard />} />
               <Route path="clients" element={<ClientManagement />} />
               <Route path="subscriptions" element={<SubscriptionManagement />} />
+              <Route path="payment-requests" element={<PaymentRequests />} />
               <Route path="payments" element={<PaymentManagement />} />
               <Route path="pricing" element={<PricingPlans />} />
               <Route path="global-manufacturers" element={<GlobalManufacturers />} />

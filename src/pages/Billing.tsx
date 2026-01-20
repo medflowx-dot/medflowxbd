@@ -6,19 +6,44 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { useAuth } from '@/hooks/useAuth';
-import { usePricingPlans } from '@/hooks/useOwnerData';
-import { Loader2, CreditCard, AlertTriangle, Clock, Crown, Check, Phone, Mail, MessageCircle } from 'lucide-react';
+import { usePricingPlansPublic } from '@/hooks/usePricingPlansPublic';
+import { useUserPaymentRequests } from '@/hooks/usePaymentRequests';
+import { PaymentRequestDialog } from '@/components/billing/PaymentRequestDialog';
+import { Loader2, CreditCard, AlertTriangle, Clock, Crown, Check, Phone, Mail, MessageCircle, CheckCircle, XCircle } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function Billing() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { isActive, isTrial, isExpired, isSuspended, planType, daysRemaining, trialEndsAt, isLoading } = useSubscriptionStatus();
-  const { data: plans, isLoading: plansLoading } = usePricingPlans();
+  const { isActive, isTrial, isExpired, isSuspended, planType, daysRemaining, isLoading } = useSubscriptionStatus();
+  const { data: plans, isLoading: plansLoading } = usePricingPlansPublic();
+  const { data: paymentRequests } = useUserPaymentRequests();
+  
+  const [selectedPlan, setSelectedPlan] = useState<{
+    id: string;
+    name: string;
+    price: number;
+    planType: string;
+  } | null>(null);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
     navigate('/login');
   };
+
+  const handleChoosePlan = (plan: { id: string; display_name: string; price: number; plan_name: string }) => {
+    setSelectedPlan({
+      id: plan.id,
+      name: plan.display_name,
+      price: plan.price,
+      planType: plan.plan_name,
+    });
+    setPaymentDialogOpen(true);
+  };
+
+  // Check for pending payment request
+  const pendingRequest = paymentRequests?.find(r => r.status === 'pending');
 
   if (isLoading) {
     return (
@@ -45,8 +70,22 @@ export default function Billing() {
           </p>
         </div>
 
+        {/* Pending Payment Request Alert */}
+        {pendingRequest && (
+          <Alert className="mb-6 border-blue-200 bg-blue-50 dark:bg-blue-950">
+            <Clock className="h-5 w-5 text-blue-600" />
+            <AlertTitle className="text-blue-800 dark:text-blue-200">
+              পেমেন্ট ভেরিফিকেশন চলছে
+            </AlertTitle>
+            <AlertDescription className="text-blue-700 dark:text-blue-300">
+              আপনার পেমেন্ট রিকোয়েস্ট (TrxID: {pendingRequest.transaction_id}) ভেরিফিকেশনের জন্য অপেক্ষায় আছে। 
+              সাধারণত ২-৪ ঘন্টার মধ্যে সম্পন্ন হয়।
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Status Alert */}
-        {isExpired && (
+        {isExpired && !pendingRequest && (
           <Alert className="mb-6 border-orange-200 bg-orange-50 dark:bg-orange-950">
             <AlertTriangle className="h-5 w-5 text-orange-600" />
             <AlertTitle className="text-orange-800 dark:text-orange-200">
@@ -101,6 +140,44 @@ export default function Billing() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Previous Payment Requests */}
+        {paymentRequests && paymentRequests.length > 0 && (
+          <Card className="mb-8 border-0 shadow-card">
+            <CardHeader>
+              <CardTitle className="text-base">আপনার পেমেন্ট রিকোয়েস্ট</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {paymentRequests.slice(0, 3).map((req) => (
+                  <div key={req.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-3">
+                      {req.status === 'pending' && <Clock className="h-4 w-4 text-amber-500" />}
+                      {req.status === 'verified' && <CheckCircle className="h-4 w-4 text-green-500" />}
+                      {req.status === 'rejected' && <XCircle className="h-4 w-4 text-red-500" />}
+                      <div>
+                        <p className="text-sm font-medium capitalize">{req.plan_type} - ৳{Number(req.amount).toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">TrxID: {req.transaction_id}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant={
+                        req.status === 'pending' ? 'outline' : 
+                        req.status === 'verified' ? 'default' : 'destructive'
+                      }>
+                        {req.status === 'pending' ? 'অপেক্ষায়' : 
+                         req.status === 'verified' ? 'অনুমোদিত' : 'প্রত্যাখ্যাত'}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {format(new Date(req.submitted_at), 'dd MMM yyyy')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Pricing Plans */}
         <h2 className="text-xl font-bold mb-4">Choose a Plan</h2>
@@ -160,8 +237,13 @@ export default function Billing() {
                     )}
                   </ul>
 
-                  <Button className="w-full" variant={plan.plan_name === 'yearly' ? 'default' : 'outline'}>
-                    Choose {plan.display_name}
+                  <Button 
+                    className="w-full" 
+                    variant={plan.plan_name === 'yearly' ? 'default' : 'outline'}
+                    onClick={() => handleChoosePlan(plan)}
+                    disabled={!!pendingRequest}
+                  >
+                    {pendingRequest ? 'ভেরিফিকেশন চলছে...' : `Choose ${plan.display_name}`}
                   </Button>
                 </CardContent>
               </Card>
@@ -200,6 +282,13 @@ export default function Billing() {
           </Button>
         </div>
       </div>
+
+      {/* Payment Request Dialog */}
+      <PaymentRequestDialog
+        open={paymentDialogOpen}
+        onOpenChange={setPaymentDialogOpen}
+        plan={selectedPlan}
+      />
     </div>
   );
 }
