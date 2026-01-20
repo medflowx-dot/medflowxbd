@@ -435,9 +435,9 @@ export default function OwnerSettings() {
                 onValueChange={(value) => handleChange('uddoktapay_base_url', `"${value}"`)}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select environment" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper" className="z-50">
                   <SelectItem value="https://sandbox.uddoktapay.com">Sandbox (Testing)</SelectItem>
                   <SelectItem value="https://pay.uddoktapay.com">Production (Live)</SelectItem>
                 </SelectContent>
