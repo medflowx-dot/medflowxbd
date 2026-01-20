@@ -702,6 +702,14 @@ export const bn: TranslationKeys = {
     editCustomer: 'গ্রাহক সম্পাদনা',
     editCustomerDesc: 'গ্রাহকের তথ্য আপডেট করুন',
     updateCustomer: 'গ্রাহক আপডেট করুন',
+    // Payment Edit/Delete
+    editPayment: 'পেমেন্ট সম্পাদনা',
+    editPaymentDesc: 'পেমেন্টের বিবরণ আপডেট করুন',
+    updatePayment: 'পেমেন্ট আপডেট করুন',
+    deletePayment: 'পেমেন্ট মুছুন',
+    deletePaymentConfirm: 'আপনি কি নিশ্চিত এই পেমেন্ট মুছে ফেলতে চান? গ্রাহকের বকেয়া পুনরায় গণনা হবে।',
+    amount: 'পরিমাণ',
+    bank: 'ব্যাংক',
   },
 
   // Daily Cash Page
