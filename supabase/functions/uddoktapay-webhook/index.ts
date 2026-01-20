@@ -1,10 +1,126 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, rt-uddoktapay-api-key",
 };
+
+// Helper function to send payment success email
+async function sendPaymentSuccessEmail(
+  supabaseClient: any,
+  userEmail: string,
+  userName: string,
+  planName: string,
+  amount: number,
+  transactionId: string,
+  paymentMethod: string,
+  expiryDate: string | null
+) {
+  try {
+    console.log("Sending payment success email to:", userEmail);
+
+    // Fetch SMTP settings
+    const { data: smtpSettings } = await supabaseClient
+      .from("platform_settings")
+      .select("setting_key, setting_value")
+      .in("setting_key", [
+        "smtp_host", "smtp_port", "smtp_user", "smtp_password",
+        "smtp_from_email", "smtp_from_name", "smtp_secure"
+      ]);
+
+    const smtpConfig: Record<string, any> = {};
+    smtpSettings?.forEach((s: any) => {
+      let value = s.setting_value;
+      if (typeof value === "string") {
+        value = value.replace(/^"|"$/g, "");
+      }
+      smtpConfig[s.setting_key] = value;
+    });
+
+    if (!smtpConfig.smtp_host || !smtpConfig.smtp_user || !smtpConfig.smtp_password) {
+      console.log("SMTP not configured, skipping email");
+      return;
+    }
+
+    // Fetch email template
+    const { data: template } = await supabaseClient
+      .from("email_templates")
+      .select("subject, html_content")
+      .eq("template_key", "payment_success")
+      .eq("is_active", true)
+      .single();
+
+    if (!template) {
+      console.log("Payment success email template not found");
+      return;
+    }
+
+    // Replace placeholders
+    const currentYear = new Date().getFullYear().toString();
+    const activationDate = new Date().toLocaleDateString("bn-BD", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const formattedExpiry = expiryDate
+      ? new Date(expiryDate).toLocaleDateString("bn-BD", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : "লাইফটাইম";
+
+    const replacements: Record<string, string> = {
+      "{{user_name}}": userName || "গ্রাহক",
+      "{{plan_name}}": planName,
+      "{{amount}}": amount.toLocaleString(),
+      "{{transaction_id}}": transactionId,
+      "{{payment_method}}": paymentMethod.replace("uddoktapay_", "").toUpperCase(),
+      "{{activation_date}}": activationDate,
+      "{{expiry_date}}": formattedExpiry,
+      "{{dashboard_url}}": "https://medflowxbd.lovable.app/dashboard",
+      "{{current_year}}": currentYear,
+    };
+
+    let subject = template.subject;
+    let htmlContent = template.html_content;
+
+    Object.entries(replacements).forEach(([key, value]) => {
+      subject = subject.replace(new RegExp(key, "g"), value);
+      htmlContent = htmlContent.replace(new RegExp(key, "g"), value);
+    });
+
+    // Create SMTP client and send
+    const client = new SMTPClient({
+      connection: {
+        hostname: smtpConfig.smtp_host,
+        port: Number(smtpConfig.smtp_port) || 587,
+        tls: smtpConfig.smtp_secure === true || smtpConfig.smtp_secure === "true",
+        auth: {
+          username: smtpConfig.smtp_user,
+          password: smtpConfig.smtp_password,
+        },
+      },
+    });
+
+    const fromEmail = smtpConfig.smtp_from_email || smtpConfig.smtp_user;
+    const fromName = smtpConfig.smtp_from_name || "MedFlowX";
+
+    await client.send({
+      from: `${fromName} <${fromEmail}>`,
+      to: userEmail,
+      subject: subject,
+      html: htmlContent,
+    });
+
+    await client.close();
+    console.log("Payment success email sent to:", userEmail);
+  } catch (error) {
+    console.error("Error sending payment success email:", error);
+  }
+}
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -29,6 +145,7 @@ serve(async (req) => {
       metadata,
       payment_method,
       sender_number,
+      amount,
     } = webhookData;
 
     if (!metadata?.payment_request_id) {
@@ -87,7 +204,7 @@ serve(async (req) => {
 
     console.log("Payment request updated:", metadata.payment_request_id);
 
-    // If payment completed, activate subscription
+    // If payment completed, activate subscription and send email
     if (status === "COMPLETED" && metadata.user_id && metadata.plan_id) {
       console.log("Activating subscription for user:", metadata.user_id);
 
@@ -96,6 +213,14 @@ serve(async (req) => {
         .from("pricing_plans")
         .select("*")
         .eq("id", metadata.plan_id)
+        .single();
+
+      // Get user details for email
+      const { data: authUser } = await supabaseClient.auth.admin.getUserById(metadata.user_id);
+      const { data: profile } = await supabaseClient
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", metadata.user_id)
         .single();
 
       if (plan) {
@@ -126,6 +251,20 @@ serve(async (req) => {
           console.error("Failed to update subscription:", subError);
         } else {
           console.log("Subscription activated successfully");
+
+          // Send payment success email (don't await - fire and forget)
+          if (authUser?.user?.email) {
+            sendPaymentSuccessEmail(
+              supabaseClient,
+              authUser.user.email,
+              profile?.full_name || authUser.user.email.split("@")[0],
+              plan.display_name,
+              plan.price,
+              transaction_id || invoice_id,
+              payment_method || "uddoktapay",
+              currentPeriodEnd
+            ).catch((err) => console.error("Email send error:", err));
+          }
         }
       }
     }
