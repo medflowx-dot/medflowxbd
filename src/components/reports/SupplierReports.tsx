@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Download, Loader2, FileText, Users, User } from 'lucide-react';
+import { Download, Loader2, FileText, Users, User, Pencil, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ReportDateRange } from '@/hooks/useReports';
 import { 
@@ -18,6 +18,19 @@ import {
   generateAllSuppliersPDF 
 } from '@/lib/pdfGenerator';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { EditPurchaseDialog } from '@/components/suppliers/EditPurchaseDialog';
+import { useSuppliers } from '@/hooks/useSuppliers';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface SupplierReportsProps {
   dateRange: ReportDateRange;
@@ -33,6 +46,8 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
     dateRange
   );
   const { data: allSuppliersReport, isLoading: allLoading } = useAllSuppliersReport(dateRange);
+
+  const { deletePurchase } = useSuppliers();
 
   const handleExportIndividual = () => {
     if (individualReport) {
@@ -175,6 +190,7 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                             <TableHead className="text-right">{t.reports.amount}</TableHead>
                             <TableHead className="text-right">{t.reports.paid}</TableHead>
                             <TableHead className="text-right">{t.reports.due}</TableHead>
+                            <TableHead className="text-right w-20">{t.medicines?.actions || 'Actions'}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -183,8 +199,54 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
                               <TableCell>{format(new Date(purchase.purchase_date), 'dd MMM yyyy')}</TableCell>
                               <TableCell>{purchase.invoice_number || '-'}</TableCell>
                               <TableCell className="text-right">৳{Number(purchase.total_amount).toLocaleString()}</TableCell>
-                              <TableCell className="text-right text-green-600">৳{Number(purchase.paid_amount).toLocaleString()}</TableCell>
-                              <TableCell className="text-right text-red-600">৳{Number(purchase.due_amount).toLocaleString()}</TableCell>
+                              <TableCell className="text-right text-success">৳{Number(purchase.paid_amount).toLocaleString()}</TableCell>
+                              <TableCell className="text-right text-destructive">৳{Number(purchase.due_amount).toLocaleString()}</TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-1">
+                                  <EditPurchaseDialog
+                                    purchase={{
+                                      id: purchase.id,
+                                      supplier_id: selectedSupplierId,
+                                      purchase_date: purchase.purchase_date,
+                                      invoice_number: purchase.invoice_number,
+                                      total_amount: Number(purchase.total_amount),
+                                      paid_amount: Number(purchase.paid_amount),
+                                      due_amount: Number(purchase.due_amount),
+                                      notes: purchase.notes,
+                                      supplier: suppliers?.find(s => s.id === selectedSupplierId),
+                                    }}
+                                    trigger={
+                                      <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10">
+                                        <Pencil className="h-3.5 w-3.5" />
+                                      </Button>
+                                    }
+                                  />
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10">
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>{t.suppliers?.deletePurchase || 'Delete Purchase'}</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          {t.suppliers?.deletePurchaseConfirm || 'Are you sure you want to delete this purchase? This action cannot be undone.'}
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>{t.actions?.cancel || 'Cancel'}</AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() => deletePurchase(purchase.id)}
+                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        >
+                                          {t.actions?.delete || 'Delete'}
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
