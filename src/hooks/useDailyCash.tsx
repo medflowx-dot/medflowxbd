@@ -30,6 +30,7 @@ export interface OpeningCash {
 export interface DailyCashSummary {
   openingCash: number;
   salesCashIn: number;
+  dueSales: number; // বাকিতে বিক্রি - আজকের বাকি
   dueCollected: number;
   supplierPayments: number;
   dailyCosts: number;
@@ -94,15 +95,19 @@ export function useDailyCashSummary(date: Date) {
 
       const openingCash = Number(openingData?.amount || 0);
 
-      // Get sales for the day (cash payments only)
+      // Get sales for the day (cash payments only + due sales)
       const { data: salesData } = await supabase
         .from('sales')
-        .select('paid_amount, payment_method')
+        .select('paid_amount, due_amount, payment_method')
         .eq('sale_date', dateStr);
 
       const salesCashIn = salesData
         ?.filter(s => s.payment_method === 'cash')
         .reduce((sum, s) => sum + Number(s.paid_amount), 0) || 0;
+
+      // Calculate due sales (বাকিতে বিক্রি) - total due amount for today
+      const dueSales = salesData
+        ?.reduce((sum, s) => sum + Number(s.due_amount || 0), 0) || 0;
 
       // Get customer due payments for the day (cash only)
       const { data: duePayments } = await supabase
@@ -141,6 +146,7 @@ export function useDailyCashSummary(date: Date) {
       return {
         openingCash,
         salesCashIn,
+        dueSales,
         dueCollected,
         supplierPayments,
         dailyCosts,

@@ -639,6 +639,8 @@ export const en = {
     cashIn: 'Cash In',
     sales: 'Sales',
     dueCollected: 'Due Collected',
+    dueSales: 'Due Sales',
+    pendingCollection: "Today's pending dues",
     cashOut: 'Cash Out',
     supplier: 'Supplier',
     costs: 'Costs',
