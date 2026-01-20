@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Pill } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
+import appLogo from '@/assets/app-logo.png';
 
 // Default navigation links
 const defaultNavLinks = [
@@ -51,9 +52,11 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-hero-gradient flex items-center justify-center shadow-glow group-hover:scale-105 transition-transform">
-              <Pill className="w-5 h-5 text-primary-foreground" />
-            </div>
+            <img 
+              src={appLogo} 
+              alt="MedFlowx" 
+              className="w-10 h-10 rounded-xl shadow-glow group-hover:scale-105 transition-transform object-cover"
+            />
             <span className="text-xl font-display font-bold text-foreground">
               {logoPrefix}<span className="text-primary">{logoHighlight}</span>x
             </span>
