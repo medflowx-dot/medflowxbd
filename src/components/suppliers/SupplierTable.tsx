@@ -225,16 +225,14 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                     >
                       <FileText className="h-4 w-4" />
                     </Button>
-                    {supplier.total_due > 0 && (
-                      <SupplierPaymentDialog
-                        supplier={supplier}
-                        trigger={
-                          <Button size="icon" variant="ghost" title={t.suppliers.recordPayment}>
-                            <CreditCard className="h-4 w-4" />
-                          </Button>
-                        }
-                      />
-                    )}
+                    <SupplierPaymentDialog
+                      supplier={supplier}
+                      trigger={
+                        <Button size="icon" variant="ghost" title={supplier.total_due > 0 ? t.suppliers.payDue : t.suppliers.makePayment}>
+                          <CreditCard className="h-4 w-4" />
+                        </Button>
+                      }
+                    />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button size="icon" variant="ghost">

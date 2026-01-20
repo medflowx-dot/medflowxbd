@@ -1421,6 +1421,7 @@ export type Database = {
           notes: string | null
           payment_date: string
           payment_method: string
+          payment_type: string
           reference_number: string | null
           supplier_id: string
           user_id: string
@@ -1432,6 +1433,7 @@ export type Database = {
           notes?: string | null
           payment_date?: string
           payment_method?: string
+          payment_type?: string
           reference_number?: string | null
           supplier_id: string
           user_id: string
@@ -1443,6 +1445,7 @@ export type Database = {
           notes?: string | null
           payment_date?: string
           payment_method?: string
+          payment_type?: string
           reference_number?: string | null
           supplier_id?: string
           user_id?: string
