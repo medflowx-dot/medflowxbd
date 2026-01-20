@@ -28,7 +28,8 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import logoAuth from '@/assets/logo-auth.png';
+import { usePlatformBranding } from '@/hooks/usePlatformBranding';
+import logoAuthFallback from '@/assets/logo-auth.png';
 
 const navItems = [
   {
@@ -115,9 +116,11 @@ const systemItems = [
 ];
 
 // Sidebar content component to reuse in both desktop and mobile
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { logoAuth } = usePlatformBranding();
+  const platformLogo = logoAuth.startsWith('/src') ? logoAuthFallback : logoAuth;
 
   const handleSignOut = async () => {
     await signOut();
@@ -133,7 +136,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       {/* Logo/Brand */}
       <div className="p-4 md:p-6 border-b border-border">
         <div className="flex items-center gap-3">
-          <img src={logoAuth} alt="MedFlowx" className="h-10 w-10 rounded-lg" />
+          <img src={platformLogo} alt="MedFlowx" className="h-10 w-10 rounded-lg" />
           <div>
             <h1 className="font-bold text-base md:text-lg">Owner Panel</h1>
             <p className="text-xs text-muted-foreground">Master Control</p>
@@ -248,6 +251,8 @@ export default function OwnerLayout() {
   const { signOut } = useAuth();
   const { isOwnerAdmin, isLoading } = useIsOwnerAdmin();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { logoAuth } = usePlatformBranding();
+  const platformLogo = logoAuth.startsWith('/src') ? logoAuthFallback : logoAuth;
 
   useEffect(() => {
     if (!isLoading && !isOwnerAdmin) {
@@ -277,7 +282,7 @@ export default function OwnerLayout() {
       {/* Mobile Header */}
       <header className="md:hidden sticky top-0 z-50 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img src={logoAuth} alt="MedFlowx" className="h-8 w-8 rounded-lg" />
+          <img src={platformLogo} alt="MedFlowx" className="h-8 w-8 rounded-lg" />
           <div>
             <h1 className="font-bold text-sm">Owner Panel</h1>
           </div>
@@ -290,14 +295,14 @@ export default function OwnerLayout() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-72 p-0 flex flex-col">
-            <SidebarContent onNavigate={() => setMobileOpen(false)} />
+            <SidebarContentComponent onNavigate={() => setMobileOpen(false)} />
           </SheetContent>
         </Sheet>
       </header>
 
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 bg-card border-r border-border flex-col fixed inset-y-0 left-0 z-30">
-        <SidebarContent />
+        <SidebarContentComponent />
       </aside>
 
       {/* Main Content */}

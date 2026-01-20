@@ -7,9 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
-import logoAuth from '@/assets/logo-auth.png';
+import { usePlatformBranding } from '@/hooks/usePlatformBranding';
+import logoAuthFallback from '@/assets/logo-auth.png';
 
 export default function Login() {
+  const { logoAuth } = usePlatformBranding();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -40,7 +42,11 @@ export default function Login() {
       <Card className="w-full max-w-md shadow-elegant">
         <CardHeader className="text-center space-y-4">
           <Link to="/" className="inline-flex items-center justify-center">
-            <img src={logoAuth} alt="MedFlowx" className="h-16 w-auto" />
+            <img 
+              src={logoAuth.startsWith('/src') ? logoAuthFallback : logoAuth} 
+              alt="MedFlowx" 
+              className="h-16 w-auto" 
+            />
           </Link>
           <div>
             <CardTitle className="text-2xl font-display">Welcome back</CardTitle>

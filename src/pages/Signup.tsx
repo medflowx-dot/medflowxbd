@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
-import logoAuth from '@/assets/logo-auth.png';
+import { usePlatformBranding } from '@/hooks/usePlatformBranding';
+import logoAuthFallback from '@/assets/logo-auth.png';
 
 // Plan display configuration
 const planConfig: Record<string, { title: string; subtitle: string; buttonText: string }> = {
@@ -36,6 +37,8 @@ const planConfig: Record<string, { title: string; subtitle: string; buttonText: 
 export default function Signup() {
   const [searchParams] = useSearchParams();
   const plan = searchParams.get('plan') || 'trial';
+  const { logoAuth } = usePlatformBranding();
+  const platformLogo = logoAuth.startsWith('/src') ? logoAuthFallback : logoAuth;
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -102,7 +105,7 @@ export default function Signup() {
       <Card className="w-full max-w-md shadow-elegant">
         <CardHeader className="text-center space-y-4">
           <Link to="/" className="inline-flex items-center justify-center">
-            <img src={logoAuth} alt="MedFlowx" className="h-16 w-auto" />
+            <img src={platformLogo} alt="MedFlowx" className="h-16 w-auto" />
           </Link>
           <div>
             <CardTitle className="text-2xl font-display">{currentPlanConfig.title}</CardTitle>
