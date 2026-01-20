@@ -10,11 +10,24 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { format, parseISO } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-interface EditPurchaseDialogProps {
-  purchase: SupplierPurchase;
+interface PurchaseForEdit {
+  id: string;
+  supplier_id: string;
+  invoice_number: string | null;
+  purchase_date: string;
+  total_amount: number;
+  paid_amount: number;
+  due_amount: number;
+  notes: string | null;
+  supplier?: { name: string } | null;
 }
 
-export function EditPurchaseDialog({ purchase }: EditPurchaseDialogProps) {
+interface EditPurchaseDialogProps {
+  purchase: PurchaseForEdit;
+  trigger?: React.ReactNode;
+}
+
+export function EditPurchaseDialog({ purchase, trigger }: EditPurchaseDialogProps) {
   const [open, setOpen] = useState(false);
   const { updatePurchase } = useSuppliers();
   const { t } = useLanguage();
@@ -63,9 +76,11 @@ export function EditPurchaseDialog({ purchase }: EditPurchaseDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Pencil className="h-4 w-4" />
-        </Button>
+        {trigger || (
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Pencil className="h-4 w-4" />
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
