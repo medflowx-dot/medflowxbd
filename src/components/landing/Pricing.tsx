@@ -64,14 +64,14 @@ const Pricing = () => {
 
   const handlePlanClick = (plan: PricingPlan) => {
     if (plan.plan_name === 'trial') {
-      // For trial, redirect to signup
-      navigate('/signup');
+      // For trial, redirect to signup with plan info
+      navigate(`/signup?plan=trial`);
       return;
     }
 
     if (!user) {
-      // If not logged in, redirect to signup
-      navigate('/signup');
+      // If not logged in, redirect to signup with plan info
+      navigate(`/signup?plan=${plan.plan_name}`);
       return;
     }
 
