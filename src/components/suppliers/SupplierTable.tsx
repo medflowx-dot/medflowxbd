@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Pencil, Trash2, CreditCard, Phone, Mail, Building2, Plus, FileText, History, ShoppingCart, Eye } from 'lucide-react';
+import { Pencil, Trash2, Phone, Mail, Building2, Plus, FileText, History, ShoppingCart } from 'lucide-react';
 import { Supplier, useSuppliers } from '@/hooks/useSuppliers';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { AddSupplierDialog } from './AddSupplierDialog';
@@ -246,14 +246,6 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                       trigger={
                         <Button size="icon" variant="ghost" title={t.suppliers.purchaseHistory}>
                           <ShoppingCart className="h-4 w-4" />
-                        </Button>
-                      }
-                    />
-                    <SupplierPaymentDialog
-                      supplier={supplier}
-                      trigger={
-                        <Button size="icon" variant="ghost" title={supplier.total_due > 0 ? t.suppliers.payDue : t.suppliers.makePayment}>
-                          <CreditCard className="h-4 w-4" />
                         </Button>
                       }
                     />
