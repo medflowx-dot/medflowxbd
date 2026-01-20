@@ -14,6 +14,7 @@ import {
   Apple,
   Chrome
 } from 'lucide-react';
+import logoAuth from '@/assets/logo-auth.png';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -127,8 +128,8 @@ export default function Install() {
       <main className="container mx-auto px-4 py-8 max-w-lg">
         {/* Hero Section */}
         <div className="text-center mb-8">
-          <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mb-4 shadow-lg">
-            <Smartphone className="h-10 w-10 text-white" />
+          <div className="mx-auto w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-lg">
+            <img src={logoAuth} alt="MedFlowx" className="w-full h-full object-cover" />
           </div>
           <h2 className="text-2xl font-bold mb-2">MedFlowx অ্যাপ ইনস্টল করুন</h2>
           <p className="text-muted-foreground">
