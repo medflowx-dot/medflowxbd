@@ -13,7 +13,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Loader2, Search, Bell, Mail, MessageSquare, CheckCircle2, XCircle, 
-  RefreshCw, Filter, CalendarIcon, Clock, AlertTriangle, TrendingUp, Play, BarChart3
+  RefreshCw, Filter, CalendarIcon, Clock, AlertTriangle, TrendingUp, Play, BarChart3, Percent
 } from 'lucide-react';
 import { format, subDays, startOfDay, endOfDay, eachDayOfInterval, parseISO, startOfWeek, endOfWeek, eachWeekOfInterval } from 'date-fns';
 import { bn } from 'date-fns/locale';
@@ -153,14 +153,18 @@ export default function NotificationLogs() {
 
   // Calculate stats
   const stats = useMemo(() => {
-    if (!logs) return { total: 0, emails: 0, sms: 0, sent: 0, failed: 0 };
+    if (!logs) return { total: 0, emails: 0, sms: 0, sent: 0, failed: 0, successRate: 0 };
+    
+    const total = logs.length;
+    const sent = logs.filter(l => l.status === 'sent').length;
     
     return {
-      total: logs.length,
+      total,
       emails: logs.filter(l => l.channel === 'email').length,
       sms: logs.filter(l => l.channel === 'sms').length,
-      sent: logs.filter(l => l.status === 'sent').length,
+      sent,
       failed: logs.filter(l => l.status === 'failed').length,
+      successRate: total > 0 ? Math.round((sent / total) * 100) : 0,
     };
   }, [logs]);
 
@@ -179,14 +183,18 @@ export default function NotificationLogs() {
         return logDate >= dayStart && logDate <= dayEnd;
       });
       
+      const sent = dayLogs.filter(l => l.status === 'sent').length;
+      const total = dayLogs.length;
+      
       return {
         date: format(day, 'dd MMM'),
         fullDate: format(day, 'dd MMM yyyy'),
         email: dayLogs.filter(l => l.channel === 'email').length,
         sms: dayLogs.filter(l => l.channel === 'sms').length,
-        total: dayLogs.length,
-        sent: dayLogs.filter(l => l.status === 'sent').length,
+        total,
+        sent,
         failed: dayLogs.filter(l => l.status === 'failed').length,
+        successRate: total > 0 ? Math.round((sent / total) * 100) : 0,
       };
     });
   }, [logs, dateRange]);
@@ -205,13 +213,17 @@ export default function NotificationLogs() {
         return logDate >= weekStart && logDate <= weekEnd;
       });
       
+      const sent = weekLogs.filter(l => l.status === 'sent').length;
+      const total = weekLogs.length;
+      
       return {
         week: `${format(weekStart, 'dd MMM')} - ${format(weekEnd, 'dd MMM')}`,
         email: weekLogs.filter(l => l.channel === 'email').length,
         sms: weekLogs.filter(l => l.channel === 'sms').length,
-        total: weekLogs.length,
-        sent: weekLogs.filter(l => l.status === 'sent').length,
+        total,
+        sent,
         failed: weekLogs.filter(l => l.status === 'failed').length,
+        successRate: total > 0 ? Math.round((sent / total) * 100) : 0,
       };
     });
   }, [logs, dateRange]);
@@ -292,7 +304,7 @@ export default function NotificationLogs() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-6">
         <Card className="border-0 shadow-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Total Notifications</CardTitle>
@@ -301,6 +313,19 @@ export default function NotificationLogs() {
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
               <span className="text-2xl font-bold">{stats.total}</span>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-0 shadow-card border-l-4 border-l-success">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2">
+              <Percent className="h-5 w-5 text-success" />
+              <span className={`text-2xl font-bold ${stats.successRate >= 90 ? 'text-success' : stats.successRate >= 70 ? 'text-warning' : 'text-destructive'}`}>
+                {stats.successRate}%
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -364,6 +389,7 @@ export default function NotificationLogs() {
                 <TabsList className="h-8">
                   <TabsTrigger value="daily" className="text-xs px-3">Daily</TabsTrigger>
                   <TabsTrigger value="weekly" className="text-xs px-3">Weekly</TabsTrigger>
+                  <TabsTrigger value="success-rate" className="text-xs px-3">Success Rate</TabsTrigger>
                 </TabsList>
                 <TabsContent value="daily" className="mt-0">
                   <div className="h-[280px] mt-4">
@@ -432,6 +458,52 @@ export default function NotificationLogs() {
                           <Legend wrapperStyle={{ fontSize: '12px' }} />
                           <Line type="monotone" dataKey="email" name="Email" stroke="hsl(var(--info))" strokeWidth={2} dot={{ r: 4 }} />
                           <Line type="monotone" dataKey="sms" name="SMS" stroke="hsl(var(--chart-4))" strokeWidth={2} dot={{ r: 4 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-muted-foreground">
+                        No data available
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+                <TabsContent value="success-rate" className="mt-0">
+                  <div className="h-[280px] mt-4">
+                    {dailyChartData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={dailyChartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                          <XAxis 
+                            dataKey="date" 
+                            tick={{ fontSize: 11 }} 
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 11 }} 
+                            tickLine={false}
+                            axisLine={false}
+                            domain={[0, 100]}
+                            tickFormatter={(value) => `${value}%`}
+                          />
+                          <RechartsTooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--card))', 
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px'
+                            }}
+                            formatter={(value: number) => [`${value}%`, 'Success Rate']}
+                          />
+                          <Legend wrapperStyle={{ fontSize: '12px' }} />
+                          <Line 
+                            type="monotone" 
+                            dataKey="successRate" 
+                            name="Success Rate" 
+                            stroke="hsl(var(--success))" 
+                            strokeWidth={3} 
+                            dot={{ r: 5, fill: 'hsl(var(--success))' }}
+                            activeDot={{ r: 7 }}
+                          />
                         </LineChart>
                       </ResponsiveContainer>
                     ) : (
