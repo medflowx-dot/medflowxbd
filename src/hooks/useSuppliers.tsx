@@ -98,6 +98,7 @@ export function useSuppliers() {
           *,
           manufacturer:manufacturers(id, name, phone)
         `)
+        .eq('is_active', true)
         .order('name');
       
       if (error) throw error;
@@ -182,15 +183,17 @@ export function useSuppliers() {
 
   const deleteSupplierMutation = useMutation({
     mutationFn: async (id: string) => {
+      // Soft delete - mark as inactive instead of hard delete
       const { error } = await supabase
         .from('suppliers')
-        .delete()
+        .update({ is_active: false })
         .eq('id', id);
       
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier-dues-summary'] });
       toast.success('Supplier deleted successfully');
     },
     onError: (error) => {
