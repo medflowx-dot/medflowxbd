@@ -230,7 +230,7 @@ serve(async (req: Request): Promise<Response> => {
     console.log("Current time:", now.toISOString());
     console.log("Three days from now:", threeDaysFromNow.toISOString());
 
-    // Fetch subscriptions with user profiles
+    // Fetch subscriptions (without profile join since there's no direct relationship)
     // Get active subscriptions that expire within 3 days OR just expired
     const { data: subscriptions, error: subError } = await supabaseAdmin
       .from("subscriptions")
@@ -241,8 +241,7 @@ serve(async (req: Request): Promise<Response> => {
         status,
         current_period_end,
         trial_ends_at,
-        lifetime_service_due_date,
-        profiles!inner(pharmacy_name, full_name, phone)
+        lifetime_service_due_date
       `)
       .neq("plan_type", "lifetime")
       .in("status", ["active", "expired"]);
@@ -251,6 +250,22 @@ serve(async (req: Request): Promise<Response> => {
       console.error("Error fetching subscriptions:", subError);
       throw subError;
     }
+
+    // Fetch all profiles for the subscription users
+    const userIds = subscriptions?.map((s) => s.user_id) || [];
+    const { data: profiles, error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .select("user_id, pharmacy_name, full_name, phone")
+      .in("user_id", userIds);
+
+    if (profileError) {
+      console.error("Error fetching profiles:", profileError);
+    }
+
+    // Create a map for quick profile lookup
+    const profileMap = new Map(
+      (profiles || []).map((p: any) => [p.user_id, p])
+    );
 
     console.log(`Found ${subscriptions?.length || 0} non-lifetime subscriptions`);
 
@@ -288,8 +303,8 @@ serve(async (req: Request): Promise<Response> => {
       let templateKey: string | null = null;
       let smsMessage: string | null = null;
 
-      // Handle profiles - could be array or single object from join
-      const profile = Array.isArray(sub.profiles) ? sub.profiles[0] : sub.profiles;
+      // Get profile from map
+      const profile = profileMap.get(sub.user_id);
       const pharmacyName = profile?.pharmacy_name || profile?.full_name || "প্রিয় গ্রাহক";
       const userPhone = profile?.phone;
       const planTypeName = planTypeNames[sub.plan_type] || sub.plan_type;
