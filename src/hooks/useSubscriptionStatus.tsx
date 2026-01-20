@@ -57,27 +57,47 @@ export function useSubscriptionStatus() {
       const now = new Date();
       const isTrial = subscription.plan_type === 'trial';
       const isLifetime = subscription.plan_type === 'lifetime';
+      const isSuspended = subscription.status === 'suspended';
       
-      // Check expiry
+      // Determine expiry based on plan type
       let isExpired = false;
       let daysRemaining: number | null = null;
+      let relevantEndDate: string | null = null;
       
-      if (isTrial && subscription.trial_ends_at) {
-        const trialEnd = new Date(subscription.trial_ends_at);
-        isExpired = trialEnd < now;
-        daysRemaining = Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      } else if (!isLifetime && subscription.current_period_end) {
-        const periodEnd = new Date(subscription.current_period_end);
-        isExpired = periodEnd < now;
-        daysRemaining = Math.ceil((periodEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      } else if (isLifetime) {
-        // Lifetime plans don't expire (but may have service charge due)
+      if (isLifetime) {
+        // Lifetime plans never expire (service charge is separate)
         isExpired = false;
         daysRemaining = null;
+        relevantEndDate = subscription.lifetime_service_due_date;
+      } else if (isTrial) {
+        // Trial plans use trial_ends_at
+        if (subscription.trial_ends_at) {
+          const trialEnd = new Date(subscription.trial_ends_at);
+          isExpired = now > trialEnd;
+          const diffMs = trialEnd.getTime() - now.getTime();
+          daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+          relevantEndDate = subscription.trial_ends_at;
+        } else {
+          // No trial end date set - consider expired
+          isExpired = true;
+        }
+      } else {
+        // Monthly/Yearly plans use current_period_end
+        if (subscription.current_period_end) {
+          const periodEnd = new Date(subscription.current_period_end);
+          isExpired = now > periodEnd;
+          const diffMs = periodEnd.getTime() - now.getTime();
+          daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+          relevantEndDate = subscription.current_period_end;
+        } else {
+          // No period end - consider expired for safety
+          isExpired = true;
+        }
       }
 
-      const isSuspended = subscription.status === 'suspended';
-      const isActive = subscription.status === 'active' && !isExpired && !isSuspended;
+      // Primary check: If database status is 'active' and not suspended, trust it
+      // Only override if the date has truly passed
+      const isActive = subscription.status === 'active' && !isSuspended && !isExpired;
 
       return {
         isActive,
@@ -87,7 +107,7 @@ export function useSubscriptionStatus() {
         planType: subscription.plan_type,
         expiresAt: subscription.current_period_end,
         trialEndsAt: subscription.trial_ends_at,
-        daysRemaining: daysRemaining && daysRemaining > 0 ? daysRemaining : null,
+        daysRemaining: daysRemaining !== null && daysRemaining > 0 ? daysRemaining : null,
       };
     },
     enabled: !!user?.id,
