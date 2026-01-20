@@ -121,30 +121,31 @@ export default function DashboardHome() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-6">
+      {/* Header - Compact on mobile */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-display font-bold">{t.dashboard.title}</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold">{t.dashboard.title}</h1>
+        <p className="text-muted-foreground text-xs sm:text-sm mt-0.5 sm:mt-1">
           {t.dashboard.welcome}
         </p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 stagger-children">
+      {/* Quick Stats - Ultra compact on mobile */}
+      <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-2 lg:grid-cols-4 stagger-children">
         {quickStats.map((stat) => (
           <Card key={stat.label} className={cn("transition-all duration-300 hover:shadow-lg", stat.cardClass)}>
-            <CardHeader className="flex flex-row items-center gap-3 pb-2 p-3 sm:p-4">
-              <div className={cn("shrink-0", stat.iconClass)}>
+            <CardHeader className="flex flex-row items-center gap-2 sm:gap-3 pb-1 sm:pb-2 p-2 sm:p-3 md:p-4">
+              <div className={cn("shrink-0 p-1.5 sm:p-2 rounded-lg", stat.iconClass)}>
                 {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                  <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin text-white" />
                 ) : (
-                  <stat.icon className="h-4 w-4 text-white" />
+                  <stat.icon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                 )}
               </div>
-              <CardDescription className="text-xs sm:text-sm font-medium">{stat.label}</CardDescription>
+              <CardDescription className="text-[10px] sm:text-xs md:text-sm font-medium leading-tight">{stat.label}</CardDescription>
             </CardHeader>
-            <CardContent className="p-3 sm:p-4 pt-0">
-              <div className={cn("text-xl sm:text-2xl font-bold", stat.valueClass)}>
+            <CardContent className="p-2 sm:p-3 md:p-4 pt-0">
+              <div className={cn("text-base sm:text-xl md:text-2xl font-bold", stat.valueClass)}>
                 {isLoading ? '...' : stat.value}
               </div>
             </CardContent>
@@ -152,30 +153,30 @@ export default function DashboardHome() {
         ))}
       </div>
 
-      {/* Expiry Overview */}
+      {/* Expiry Overview - Compact */}
       <Card className="overflow-hidden">
-        <CardHeader className="pb-2 bg-gradient-to-r from-warning/10 to-warning/5">
+        <CardHeader className="pb-1 sm:pb-2 bg-gradient-to-r from-warning/10 to-warning/5 p-2 sm:p-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <div className="icon-container-warning p-2">
-                <AlertTriangle className="h-4 w-4 text-white" />
+            <CardTitle className="text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
+              <div className="icon-container-warning p-1.5 sm:p-2">
+                <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
               </div>
               {t.dashboard.expiryAlerts}
             </CardTitle>
             <Link to="/dashboard/expiry">
-              <Button variant="ghost" size="sm" className="gap-1">
+              <Button variant="ghost" size="sm" className="gap-0.5 sm:gap-1 text-xs h-7 sm:h-8 px-2 sm:px-3">
                 {t.dashboard.viewAll}
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </Link>
           </div>
         </CardHeader>
-        <CardContent className="pt-4">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+        <CardContent className="pt-2 sm:pt-4 p-2 sm:p-4">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
             {expiryStats.map((stat) => (
-              <div key={stat.label} className={stat.badgeClass}>
-                <div className="text-lg sm:text-2xl font-bold">{isLoading ? '...' : stat.value}</div>
-                <div className="text-xs font-medium">{stat.label}</div>
+              <div key={stat.label} className={cn(stat.badgeClass, "p-1.5 sm:p-2 md:p-3")}>
+                <div className="text-sm sm:text-lg md:text-2xl font-bold">{isLoading ? '...' : stat.value}</div>
+                <div className="text-[9px] sm:text-xs font-medium leading-tight">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -183,28 +184,28 @@ export default function DashboardHome() {
       </Card>
 
       {/* Sales Trend Chart & Due Alerts Row */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
         {/* Sales Trend Chart */}
         <Card className="overflow-hidden">
-          <CardHeader className="pb-2 bg-gradient-to-r from-success/10 to-success/5">
+          <CardHeader className="pb-1 sm:pb-2 bg-gradient-to-r from-success/10 to-success/5 p-2 sm:p-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <div className="icon-container-success p-2">
-                  <TrendingUp className="h-4 w-4 text-white" />
+              <CardTitle className="text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
+                <div className="icon-container-success p-1.5 sm:p-2">
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                 </div>
                 {t.dashboard.salesTrend}
               </CardTitle>
             </div>
-            <CardDescription>{t.dashboard.last7Days}</CardDescription>
+            <CardDescription className="text-xs sm:text-sm">{t.dashboard.last7Days}</CardDescription>
           </CardHeader>
-          <CardContent className="pt-4">
+          <CardContent className="pt-2 sm:pt-4 p-2 sm:p-4">
             {trendLoading ? (
-              <div className="h-[200px] flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <div className="h-[120px] sm:h-[200px] flex items-center justify-center">
+                <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-muted-foreground" />
               </div>
             ) : (
               <>
-                <div className="h-[160px] sm:h-[200px]">
+                <div className="h-[100px] sm:h-[160px] md:h-[200px]">
                   <ChartContainer config={chartConfig}>
                     <AreaChart data={salesTrend?.dailyData || []}>
                       <defs>
@@ -217,7 +218,7 @@ export default function DashboardHome() {
                         dataKey="dayShort" 
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 12 }}
+                        tick={{ fontSize: 10 }}
                       />
                       <YAxis hide />
                       <ChartTooltip 
@@ -235,28 +236,28 @@ export default function DashboardHome() {
                   </ChartContainer>
                 </div>
                 
-                {/* Week Comparison */}
-                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                {/* Week Comparison - Compact */}
+                <div className="flex items-center justify-between mt-2 sm:mt-4 pt-2 sm:pt-4 border-t">
                   <div>
-                    <p className="text-xs text-muted-foreground">{t.dashboard.thisWeek}</p>
-                    <p className="text-lg font-bold">৳{salesTrend?.thisWeekTotal?.toLocaleString() || 0}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">{t.dashboard.thisWeek}</p>
+                    <p className="text-sm sm:text-lg font-bold">৳{salesTrend?.thisWeekTotal?.toLocaleString() || 0}</p>
                   </div>
                   <div className={cn(
-                    "flex items-center gap-1 px-2 py-1 rounded-full text-sm font-medium",
+                    "flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium",
                     salesTrend?.isPositive 
                       ? "bg-success/10 text-success" 
                       : "bg-destructive/10 text-destructive"
                   )}>
                     {salesTrend?.isPositive ? (
-                      <ArrowUpRight className="h-4 w-4" />
+                      <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4" />
                     ) : (
-                      <ArrowDownRight className="h-4 w-4" />
+                      <ArrowDownRight className="h-3 w-3 sm:h-4 sm:w-4" />
                     )}
                     {salesTrend?.percentChange || 0}%
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-muted-foreground">{t.dashboard.lastWeek}</p>
-                    <p className="text-lg font-bold text-muted-foreground">৳{salesTrend?.lastWeekTotal?.toLocaleString() || 0}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">{t.dashboard.lastWeek}</p>
+                    <p className="text-sm sm:text-lg font-bold text-muted-foreground">৳{salesTrend?.lastWeekTotal?.toLocaleString() || 0}</p>
                   </div>
                 </div>
               </>
@@ -264,93 +265,89 @@ export default function DashboardHome() {
           </CardContent>
         </Card>
 
-        {/* Due Alerts */}
+        {/* Due Alerts - Compact */}
         <Card className="overflow-hidden">
-          <CardHeader className="pb-2 bg-gradient-to-r from-warning/10 to-warning/5">
+          <CardHeader className="pb-1 sm:pb-2 bg-gradient-to-r from-warning/10 to-warning/5 p-2 sm:p-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <div className="icon-container-warning p-2">
-                  <AlertTriangle className="h-4 w-4 text-white" />
+              <CardTitle className="text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
+                <div className="icon-container-warning p-1.5 sm:p-2">
+                  <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                 </div>
                 {t.dashboard.dueAlerts}
               </CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="pt-4">
+          <CardContent className="pt-2 sm:pt-4 p-2 sm:p-4">
             {dueLoading ? (
-              <div className="h-[200px] flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <div className="h-[150px] sm:h-[200px] flex items-center justify-center">
+                <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-muted-foreground" />
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4">
                 {/* Customer Dues */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm font-medium text-warning">
-                    <Users className="h-4 w-4" />
-                    {t.dashboard.customerDuesTitle}
+                <div className="space-y-1.5 sm:space-y-3">
+                  <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium text-warning">
+                    <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="truncate">{t.dashboard.customerDuesTitle}</span>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1 sm:space-y-2">
                     {dueAlerts?.topCustomers.length === 0 ? (
-                      <p className="text-xs text-muted-foreground py-4 text-center">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground py-2 sm:py-4 text-center">
                         {t.dashboard.noDues}
                       </p>
                     ) : (
-                      dueAlerts?.topCustomers.map((customer) => (
+                      dueAlerts?.topCustomers.slice(0, 2).map((customer) => (
                         <div 
                           key={customer.id} 
-                          className="flex items-center justify-between p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                          className="flex items-center justify-between p-1.5 sm:p-2 rounded-lg bg-muted/50"
                         >
-                          <span className="text-sm truncate max-w-[60%]">{customer.name}</span>
-                          <span className="text-sm font-semibold text-warning">
+                          <span className="text-[10px] sm:text-sm truncate max-w-[55%]">{customer.name}</span>
+                          <span className="text-[10px] sm:text-sm font-semibold text-warning">
                             ৳{customer.totalDue.toLocaleString()}
                           </span>
                         </div>
                       ))
                     )}
                   </div>
-                  <div className="pt-2 border-t">
-                    <Link to="/dashboard/customer-dues">
-                      <Button variant="ghost" size="sm" className="w-full gap-1 text-xs">
-                        {t.dashboard.total}: ৳{dueAlerts?.totalCustomerDue?.toLocaleString() || 0}
-                        <ChevronRight className="h-3 w-3" />
-                      </Button>
-                    </Link>
-                  </div>
+                  <Link to="/dashboard/customer-dues">
+                    <Button variant="ghost" size="sm" className="w-full gap-0.5 text-[10px] sm:text-xs h-6 sm:h-8 px-1 sm:px-2">
+                      <span className="truncate">{t.dashboard.total}: ৳{dueAlerts?.totalCustomerDue?.toLocaleString() || 0}</span>
+                      <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
+                    </Button>
+                  </Link>
                 </div>
 
                 {/* Supplier Dues */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm font-medium text-info">
-                    <Truck className="h-4 w-4" />
-                    {t.dashboard.supplierDuesTitle}
+                <div className="space-y-1.5 sm:space-y-3">
+                  <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium text-info">
+                    <Truck className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="truncate">{t.dashboard.supplierDuesTitle}</span>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1 sm:space-y-2">
                     {dueAlerts?.topSuppliers.length === 0 ? (
-                      <p className="text-xs text-muted-foreground py-4 text-center">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground py-2 sm:py-4 text-center">
                         {t.dashboard.noDues}
                       </p>
                     ) : (
-                      dueAlerts?.topSuppliers.map((supplier) => (
+                      dueAlerts?.topSuppliers.slice(0, 2).map((supplier) => (
                         <div 
                           key={supplier.id} 
-                          className="flex items-center justify-between p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                          className="flex items-center justify-between p-1.5 sm:p-2 rounded-lg bg-muted/50"
                         >
-                          <span className="text-sm truncate max-w-[60%]">{supplier.name}</span>
-                          <span className="text-sm font-semibold text-info">
+                          <span className="text-[10px] sm:text-sm truncate max-w-[55%]">{supplier.name}</span>
+                          <span className="text-[10px] sm:text-sm font-semibold text-info">
                             ৳{supplier.totalDue.toLocaleString()}
                           </span>
                         </div>
                       ))
                     )}
                   </div>
-                  <div className="pt-2 border-t">
-                    <Link to="/dashboard/suppliers">
-                      <Button variant="ghost" size="sm" className="w-full gap-1 text-xs">
-                        {t.dashboard.total}: ৳{dueAlerts?.totalSupplierDue?.toLocaleString() || 0}
-                        <ChevronRight className="h-3 w-3" />
-                      </Button>
-                    </Link>
-                  </div>
+                  <Link to="/dashboard/suppliers">
+                    <Button variant="ghost" size="sm" className="w-full gap-0.5 text-[10px] sm:text-xs h-6 sm:h-8 px-1 sm:px-2">
+                      <span className="truncate">{t.dashboard.total}: ৳{dueAlerts?.totalSupplierDue?.toLocaleString() || 0}</span>
+                      <ChevronRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             )}
@@ -358,38 +355,38 @@ export default function DashboardHome() {
         </Card>
       </div>
 
-      {/* Recent Transactions */}
+      {/* Recent Transactions - Compact */}
       <Card className="overflow-hidden">
-        <CardHeader className="pb-2 bg-gradient-to-r from-info/10 to-info/5">
+        <CardHeader className="pb-1 sm:pb-2 bg-gradient-to-r from-info/10 to-info/5 p-2 sm:p-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <div className="icon-container-info p-2">
-                <Clock className="h-4 w-4 text-white" />
+            <CardTitle className="text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
+              <div className="icon-container-info p-1.5 sm:p-2">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
               </div>
               {t.dashboard.recentTransactions}
             </CardTitle>
             <Link to="/dashboard/daily-cash">
-              <Button variant="ghost" size="sm" className="gap-1">
+              <Button variant="ghost" size="sm" className="gap-0.5 sm:gap-1 text-xs h-7 sm:h-8 px-2 sm:px-3">
                 {t.dashboard.viewAll}
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </Link>
           </div>
-          <CardDescription>{t.dashboard.todaysActivity}</CardDescription>
+          <CardDescription className="text-xs sm:text-sm">{t.dashboard.todaysActivity}</CardDescription>
         </CardHeader>
-        <CardContent className="pt-4">
+        <CardContent className="pt-2 sm:pt-4 p-2 sm:p-4">
           {transactionsLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <div className="flex items-center justify-center py-4 sm:py-8">
+              <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-muted-foreground" />
             </div>
           ) : transactions?.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Receipt className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>{t.dashboard.noTransactions}</p>
+            <div className="text-center py-4 sm:py-8 text-muted-foreground">
+              <Receipt className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-1 sm:mb-2 opacity-50" />
+              <p className="text-xs sm:text-sm">{t.dashboard.noTransactions}</p>
             </div>
           ) : (
-            <div className="space-y-2">
-              {transactions?.map((transaction) => {
+            <div className="space-y-1.5 sm:space-y-2">
+              {transactions?.slice(0, 4).map((transaction) => {
                 const Icon = getTransactionIcon(transaction.type);
                 const style = getTransactionStyle(transaction.type, transaction.isIncome);
                 
@@ -397,18 +394,18 @@ export default function DashboardHome() {
                   <div 
                     key={transaction.id}
                     className={cn(
-                      "flex items-center gap-3 p-3 rounded-lg transition-colors",
+                      "flex items-center gap-2 sm:gap-3 p-1.5 sm:p-3 rounded-lg transition-colors",
                       style.bg
                     )}
                   >
-                    <div className={cn("p-2 rounded-lg shrink-0", style.iconBg)}>
-                      <Icon className="h-4 w-4 text-white" />
+                    <div className={cn("p-1.5 sm:p-2 rounded-lg shrink-0", style.iconBg)}>
+                      <Icon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{transaction.description}</p>
-                      <p className="text-xs text-muted-foreground">{transaction.time}</p>
+                      <p className="text-xs sm:text-sm font-medium truncate">{transaction.description}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">{transaction.time}</p>
                     </div>
-                    <div className={cn("text-sm font-bold shrink-0", style.text)}>
+                    <div className={cn("text-xs sm:text-sm font-bold shrink-0", style.text)}>
                       {transaction.isIncome ? '+' : '-'}৳{transaction.amount.toLocaleString()}
                     </div>
                   </div>
@@ -420,19 +417,20 @@ export default function DashboardHome() {
       </Card>
 
       {/* Trial Banner */}
+      {/* Trial Banner - Compact */}
       {subscription?.isTrial && (
         <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-secondary/10 border-primary/20 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
-          <CardContent className="py-6 relative">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h3 className="font-display font-semibold text-lg">{t.dashboard.trialTitle}</h3>
-                <p className="text-muted-foreground text-sm">
+          <div className="absolute top-0 right-0 w-20 sm:w-32 h-20 sm:h-32 bg-gradient-to-br from-primary/20 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="py-3 sm:py-6 px-3 sm:px-6 relative">
+            <div className="flex items-center justify-between gap-2 sm:gap-4">
+              <div className="min-w-0">
+                <h3 className="font-display font-semibold text-sm sm:text-lg truncate">{t.dashboard.trialTitle}</h3>
+                <p className="text-muted-foreground text-[10px] sm:text-sm">
                   {trialDaysRemaining} {t.dashboard.trialDesc}
                 </p>
               </div>
-              <Link to="/billing">
-                <Button className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
+              <Link to="/billing" className="shrink-0">
+                <Button size="sm" className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4">
                   {t.dashboard.upgradeNow}
                 </Button>
               </Link>
