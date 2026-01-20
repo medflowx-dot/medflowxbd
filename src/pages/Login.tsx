@@ -5,8 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Pill, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTheme } from 'next-themes';
+import logoLight from '@/assets/logo-light.png';
+import logoDark from '@/assets/logo-dark.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,8 +19,10 @@ export default function Login() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { resolvedTheme } = useTheme();
 
   const from = location.state?.from?.pathname || '/dashboard';
+  const logo = resolvedTheme === 'dark' ? logoDark : logoLight;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,11 +43,8 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 px-4">
       <Card className="w-full max-w-md shadow-elegant">
         <CardHeader className="text-center space-y-4">
-          <Link to="/" className="inline-flex items-center justify-center gap-2">
-            <div className="p-2 rounded-xl bg-primary text-primary-foreground">
-              <Pill className="h-6 w-6" />
-            </div>
-            <span className="text-2xl font-display font-bold text-primary">MedFlowx</span>
+          <Link to="/" className="inline-flex items-center justify-center">
+            <img src={logo} alt="MedFlowx" className="h-10 w-auto" />
           </Link>
           <div>
             <CardTitle className="text-2xl font-display">Welcome back</CardTitle>
