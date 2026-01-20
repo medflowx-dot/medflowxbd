@@ -641,6 +641,8 @@ export const bn: TranslationKeys = {
     cashIn: 'ক্যাশ ইন',
     sales: 'বিক্রয়',
     dueCollected: 'বকেয়া আদায়',
+    dueSales: 'বাকিতে বিক্রি',
+    pendingCollection: 'আজকের বাকি',
     cashOut: 'ক্যাশ আউট',
     supplier: 'সরবরাহকারী',
     costs: 'খরচ',
