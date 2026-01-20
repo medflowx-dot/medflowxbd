@@ -524,6 +524,11 @@ export const bn: TranslationKeys = {
     language: 'ভাষা',
     selectLanguage: 'ভাষা নির্বাচন করুন',
     savePreferences: 'পছন্দ সংরক্ষণ করুন',
+    // Appearance
+    appearance: 'অ্যাপিয়ারেন্স',
+    manageAppearance: 'অ্যাপের লুক এবং ফিল কাস্টমাইজ করুন',
+    darkMode: 'ডার্ক মোড',
+    darkModeDesc: 'কম আলোতে ভালো দৃশ্যমানতার জন্য ডার্ক থিমে সুইচ করুন',
     // Notifications
     notifications: 'নোটিফিকেশন',
     manageNotifications: 'নোটিফিকেশন পছন্দ ব্যবস্থাপনা করুন',

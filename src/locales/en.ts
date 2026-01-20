@@ -522,6 +522,11 @@ export const en = {
     language: 'Language',
     selectLanguage: 'Select language',
     savePreferences: 'Save Preferences',
+    // Appearance
+    appearance: 'Appearance',
+    manageAppearance: 'Customize the look and feel of the app',
+    darkMode: 'Dark Mode',
+    darkModeDesc: 'Switch to dark theme for better visibility in low light',
     // Notifications
     notifications: 'Notifications',
     manageNotifications: 'Manage notification preferences',

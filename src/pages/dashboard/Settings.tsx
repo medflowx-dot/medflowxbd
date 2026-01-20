@@ -13,8 +13,9 @@ import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { StaffManagement } from '@/components/settings/StaffManagement';
 import { PharmacyLogoUpload } from '@/components/settings/PharmacyLogoUpload';
-import { Loader2, Save, User, Building2, Globe, CreditCard, Bell } from 'lucide-react';
+import { Loader2, Save, User, Building2, Globe, CreditCard, Bell, Moon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from 'next-themes';
 
 export default function Settings() {
   const { user } = useAuth();
@@ -25,6 +26,7 @@ export default function Settings() {
   const { isAdmin } = usePermissions();
   const { soundEnabled, setSoundEnabled } = useNotificationSettings();
   const { t } = useLanguage();
+  const { theme, setTheme } = useTheme();
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -287,6 +289,36 @@ export default function Settings() {
               <Save className="h-4 w-4 mr-2" />
               {t.settings.savePreferences}
             </Button>
+          </CardContent>
+        </Card>
+
+        {/* Appearance Settings */}
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-slate-50 to-transparent dark:from-slate-950/30">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-slate-600 to-slate-800 text-white">
+                <Moon className="h-4 w-4" />
+              </div>
+              <div>
+                <CardTitle>{t.settings.appearance}</CardTitle>
+                <CardDescription>{t.settings.manageAppearance}</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-950/20 dark:to-gray-950/20 border border-slate-200/50 dark:border-slate-800/30">
+              <div className="space-y-0.5">
+                <Label htmlFor="dark-mode-toggle" className="text-base font-medium">{t.settings.darkMode}</Label>
+                <p className="text-sm text-muted-foreground">
+                  {t.settings.darkModeDesc}
+                </p>
+              </div>
+              <Switch
+                id="dark-mode-toggle"
+                checked={theme === 'dark'}
+                onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+              />
+            </div>
           </CardContent>
         </Card>
 
