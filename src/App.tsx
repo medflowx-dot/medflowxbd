@@ -13,6 +13,7 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Install from "./pages/Install";
 import Billing from "./pages/Billing";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import Medicines from "./pages/dashboard/Medicines";
@@ -66,6 +67,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/install" element={<Install />} />
             <Route path="/billing" element={
               <ProtectedRoute>
                 <Billing />
