@@ -100,17 +100,26 @@ export default function SupplierList() {
           </CardContent>
         </Card>
         
-        <Card className="stat-card-expense transition-all duration-300 hover:shadow-lg">
+        <Card className={cn(
+          "transition-all duration-300 hover:shadow-lg",
+          totalDue >= 0 ? "stat-card-expense" : "stat-card-sales"
+        )}>
           <CardHeader className="flex flex-row items-center gap-3 pb-2 p-3 sm:p-4">
-            <div className="icon-container-danger shrink-0">
+            <div className={cn("shrink-0", totalDue >= 0 ? "icon-container-danger" : "icon-container-success")}>
               <Truck className="h-4 w-4 text-white" />
             </div>
             <CardDescription className="text-xs sm:text-sm font-medium">
-              {t.suppliers.totalDue}
+              {totalDue >= 0 ? t.suppliers.totalDue : t.suppliers.totalAdvance}
             </CardDescription>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0">
-            <CardTitle className="text-xl sm:text-2xl text-red-600 dark:text-red-400">৳{totalDue.toFixed(0)}</CardTitle>
+            <CardTitle className={cn(
+              "text-xl sm:text-2xl",
+              totalDue >= 0 ? "text-destructive" : "text-success"
+            )}>
+              ৳{Math.abs(totalDue).toFixed(0)}
+              {totalDue < 0 && <span className="text-xs ml-1 opacity-70">({t.suppliers.advance})</span>}
+            </CardTitle>
           </CardContent>
         </Card>
       </div>

@@ -457,6 +457,8 @@ export const en = {
     withDue: 'With Due',
     totalPaid: 'Total Paid',
     totalDue: 'Total Due',
+    totalAdvance: 'Total Advance',
+    advance: 'Advance',
     // Table section
     allSuppliers: 'All Suppliers',
     supplierDetails: 'Your medicine suppliers and their details',
