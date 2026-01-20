@@ -28,14 +28,14 @@ export default function Suppliers() {
                 to={tab.path}
                 end={tab.path === '/dashboard/suppliers'}
                 className={({ isActive }) => cn(
-                  "px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap flex items-center gap-1.5",
+                  "px-2.5 sm:px-4 py-2 text-[10px] sm:text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap flex items-center gap-1 sm:gap-1.5",
                   isActive 
                     ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20" 
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <Icon className="h-4 w-4" />
-                <span className="hidden sm:inline">{tab.label}</span>
+                <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span>{tab.label}</span>
               </NavLink>
             );
           })}
