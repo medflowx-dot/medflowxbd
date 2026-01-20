@@ -5,7 +5,6 @@ import {
   Wallet, 
   FileText,
   LayoutDashboard,
-  Pill,
   Shield,
   Building2,
   Layers,
@@ -14,6 +13,7 @@ import {
   Bell,
   Store
 } from 'lucide-react';
+import appLogo from '@/assets/app-logo.png';
 import { NavLink } from '@/components/NavLink';
 import { usePermissions, menuAccessByRole } from '@/hooks/usePermissions';
 import { useEnabledFeatures } from '@/hooks/useFeatureFlags';
@@ -296,7 +296,7 @@ export function AppSidebar() {
             </div>
           ) : (
             <div className="flex justify-center">
-              <Pill className="h-4 w-4 text-primary" />
+              <img src={appLogo} alt="MedFlowx" className="h-6 w-6 rounded object-cover" />
             </div>
           )}
         </div>
