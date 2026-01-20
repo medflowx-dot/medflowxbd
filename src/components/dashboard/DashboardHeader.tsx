@@ -8,6 +8,7 @@ import { useCustomerDuesSummary } from '@/hooks/useCustomerDues';
 import { useSupplierDuesSummary } from '@/hooks/useSuppliers';
 import { useNotificationSound } from '@/hooks/useNotificationSound';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -21,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { LogOut, User, Bell, Shield, UserCog, Users, AlertTriangle, Clock, Wallet, Truck } from 'lucide-react';
+import { LogOut, User, Bell, Shield, UserCog, Users, AlertTriangle, Clock, Wallet, Truck, Moon, Sun } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -36,6 +37,7 @@ export function DashboardHeader() {
   const { data: supplierDuesData } = useSupplierDuesSummary();
   const { checkAndPlaySound } = useNotificationSound();
   const { t } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -108,6 +110,18 @@ export function DashboardHeader() {
 
       {/* Language Switcher */}
       <LanguageSwitcher />
+
+      {/* Theme Toggle */}
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        className="relative"
+      >
+        <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+        <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+        <span className="sr-only">Toggle theme</span>
+      </Button>
 
       {/* Notification Bell with Dropdown */}
       <DropdownMenu>
