@@ -981,6 +981,10 @@ export const en = {
     needHelp: 'Need Help?',
     contactSupport: 'Contact our support team for assistance',
     signOutDifferent: 'Sign out and use a different account',
+    logoutSuccess: 'Successfully logged out',
+    logoutError: 'Failed to logout. Please try again.',
+    loading: 'Loading subscription details...',
+    loggingOut: 'Signing out...',
   },
 };
 
