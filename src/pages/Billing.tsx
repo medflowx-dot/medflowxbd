@@ -9,14 +9,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePricingPlansPublic } from '@/hooks/usePricingPlansPublic';
 import { useUserPaymentRequests } from '@/hooks/usePaymentRequests';
 import { PaymentRequestDialog } from '@/components/billing/PaymentRequestDialog';
-import { Loader2, CreditCard, AlertTriangle, Clock, Crown, Check, Phone, Mail, MessageCircle, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, CreditCard, AlertTriangle, Clock, Crown, Check, Phone, Mail, MessageCircle, CheckCircle, XCircle, RefreshCw, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Billing() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
   const { isActive, isTrial, isExpired, isSuspended, planType, daysRemaining, isLoading } = useSubscriptionStatus();
-  const { data: plans, isLoading: plansLoading } = usePricingPlansPublic();
+  const { data: plans, isLoading: plansLoading, error: plansError, refetch: refetchPlans } = usePricingPlansPublic();
   const { data: paymentRequests } = useUserPaymentRequests();
   
   const [selectedPlan, setSelectedPlan] = useState<{
@@ -42,8 +44,15 @@ export default function Billing() {
     setPaymentDialogOpen(true);
   };
 
+  const handleGoBack = () => {
+    navigate('/dashboard');
+  };
+
   // Check for pending payment request
   const pendingRequest = paymentRequests?.find(r => r.status === 'pending');
+
+  // Find current plan from plans list
+  const currentPlan = plans?.find(p => p.plan_name === planType);
 
   if (isLoading) {
     return (
@@ -53,20 +62,27 @@ export default function Billing() {
     );
   }
 
-  // If subscription is active, redirect to dashboard
-  if (isActive && !isExpired && !isSuspended) {
-    navigate('/dashboard');
-    return null;
-  }
+  // Check if this is a subscription management visit (active user coming to renew/manage)
+  const isManagementMode = isActive && !isExpired && !isSuspended;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
-      <div className="container max-w-4xl py-12 px-4">
-        {/* Header */}
+      <div className="container max-w-4xl py-8 px-4">
+        {/* Header with back button for active users */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Subscription Required</h1>
+          {isManagementMode && (
+            <Button variant="ghost" onClick={handleGoBack} className="mb-4">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              {t.billing.backToDashboard}
+            </Button>
+          )}
+          <h1 className="text-3xl font-bold mb-2">
+            {isManagementMode ? t.billing.subscriptionManagement : t.billing.subscriptionRequired}
+          </h1>
           <p className="text-muted-foreground">
-            Your subscription needs attention to continue using MedFlowX
+            {isManagementMode 
+              ? t.billing.manageYourSubscription
+              : t.billing.subscriptionNeedsAttention}
           </p>
         </div>
 
@@ -75,26 +91,25 @@ export default function Billing() {
           <Alert className="mb-6 border-info/30 bg-info/10">
             <Clock className="h-5 w-5 text-info" />
             <AlertTitle className="text-info">
-              পেমেন্ট ভেরিফিকেশন চলছে
+              {t.billing.paymentVerificationPending}
             </AlertTitle>
             <AlertDescription className="text-info/80">
-              আপনার পেমেন্ট রিকোয়েস্ট (TrxID: {pendingRequest.transaction_id}) ভেরিফিকেশনের জন্য অপেক্ষায় আছে। 
-              সাধারণত ২-৪ ঘন্টার মধ্যে সম্পন্ন হয়।
+              {t.billing.paymentVerificationDesc.replace('{trxId}', pendingRequest.transaction_id)}
             </AlertDescription>
           </Alert>
         )}
 
-        {/* Status Alert */}
+        {/* Status Alert - only show for expired/suspended */}
         {isExpired && !pendingRequest && (
           <Alert className="mb-6 border-warning/30 bg-warning/10">
             <AlertTriangle className="h-5 w-5 text-warning" />
             <AlertTitle className="text-warning">
-              {isTrial ? 'Free Trial Expired' : 'Subscription Expired'}
+              {isTrial ? t.billing.trialExpired : t.billing.subscriptionExpired}
             </AlertTitle>
             <AlertDescription className="text-warning/80">
               {isTrial 
-                ? 'Your 7-day free trial has ended. Please choose a plan to continue.'
-                : 'Your subscription has expired. Renew now to regain access to your pharmacy data.'}
+                ? t.billing.trialExpiredDesc
+                : t.billing.subscriptionExpiredDesc}
             </AlertDescription>
           </Alert>
         )}
@@ -102,42 +117,64 @@ export default function Billing() {
         {isSuspended && (
           <Alert className="mb-6 border-destructive/30 bg-destructive/10">
             <AlertTriangle className="h-5 w-5 text-destructive" />
-            <AlertTitle className="text-destructive">Account Suspended</AlertTitle>
+            <AlertTitle className="text-destructive">{t.billing.accountSuspended}</AlertTitle>
             <AlertDescription className="text-destructive/80">
-              Your account has been suspended. Please contact support to resolve this issue.
+              {t.billing.accountSuspendedDesc}
             </AlertDescription>
           </Alert>
         )}
 
-        {/* Current Plan Info */}
+        {/* Current Plan Info with Renew Option */}
         <Card className="mb-8 border-0 shadow-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CreditCard className="h-5 w-5" />
-              Current Status
+              {t.billing.currentStatus}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div>
-                <p className="text-sm text-muted-foreground">Plan</p>
-                <p className="font-medium capitalize">{planType || 'None'}</p>
+                <p className="text-sm text-muted-foreground">{t.billing.plan}</p>
+                <p className="font-medium capitalize">{planType || t.billing.none}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Status</p>
+                <p className="text-sm text-muted-foreground">{t.billing.status}</p>
                 <Badge variant={isExpired ? 'destructive' : isSuspended ? 'destructive' : 'default'}>
-                  {isSuspended ? 'Suspended' : isExpired ? 'Expired' : 'Active'}
+                  {isSuspended ? t.billing.suspended : isExpired ? t.billing.expired : t.billing.active}
                 </Badge>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Account</p>
+                <p className="text-sm text-muted-foreground">{t.billing.account}</p>
                 <p className="font-medium text-sm truncate">{user?.email}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Days Remaining</p>
-                <p className="font-medium">{daysRemaining ?? 0} days</p>
+                <p className="text-sm text-muted-foreground">{t.billing.daysRemaining}</p>
+                <p className="font-medium">{daysRemaining ?? 0} {t.billing.days}</p>
               </div>
             </div>
+
+            {/* Renew button for active subscriptions */}
+            {isManagementMode && planType && planType !== 'trial' && planType !== 'lifetime' && currentPlan && (
+              <div className="pt-4 border-t">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{t.billing.renewCurrentPlan}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t.billing.extendSubscription.replace('{plan}', currentPlan.display_name)}
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={() => handleChoosePlan(currentPlan)}
+                    disabled={!!pendingRequest}
+                    className="gap-2"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    {pendingRequest ? t.billing.verificationPending : t.billing.renewNow}
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -145,7 +182,7 @@ export default function Billing() {
         {paymentRequests && paymentRequests.length > 0 && (
           <Card className="mb-8 border-0 shadow-card">
             <CardHeader>
-              <CardTitle className="text-base">আপনার পেমেন্ট রিকোয়েস্ট</CardTitle>
+              <CardTitle className="text-base">{t.billing.yourPaymentRequests}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -165,8 +202,8 @@ export default function Billing() {
                         req.status === 'pending' ? 'outline' : 
                         req.status === 'verified' ? 'default' : 'destructive'
                       }>
-                        {req.status === 'pending' ? 'অপেক্ষায়' : 
-                         req.status === 'verified' ? 'অনুমোদিত' : 'প্রত্যাখ্যাত'}
+                        {req.status === 'pending' ? t.billing.waiting : 
+                         req.status === 'verified' ? t.billing.approved : t.billing.rejected}
                       </Badge>
                       <p className="text-xs text-muted-foreground mt-1">
                         {format(new Date(req.submitted_at), 'dd MMM yyyy')}
@@ -180,82 +217,109 @@ export default function Billing() {
         )}
 
         {/* Pricing Plans */}
-        <h2 className="text-xl font-bold mb-4">Choose a Plan</h2>
+        <h2 className="text-xl font-bold mb-4">{t.billing.choosePlan}</h2>
         <div className="grid gap-4 md:grid-cols-3 mb-8">
           {plansLoading ? (
             <div className="col-span-3 flex justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
+          ) : plansError ? (
+            <div className="col-span-3 text-center py-8">
+              <p className="text-muted-foreground mb-4">{t.billing.plansLoadError}</p>
+              <Button onClick={() => refetchPlans()} variant="outline">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                {t.billing.retry}
+              </Button>
+            </div>
+          ) : !plans || plans.filter(p => p.is_active && p.plan_name !== 'trial').length === 0 ? (
+            <div className="col-span-3 text-center py-8">
+              <p className="text-muted-foreground mb-4">{t.billing.noPlansAvailable}</p>
+              <Button onClick={() => refetchPlans()} variant="outline">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                {t.billing.refresh}
+              </Button>
+            </div>
           ) : (
-            plans?.filter(p => p.is_active && p.plan_name !== 'trial').map((plan) => (
-              <Card 
-                key={plan.id} 
-                className={`border-2 transition-all hover:shadow-lg ${
-                  plan.plan_name === 'yearly' ? 'border-primary shadow-md' : 'border-border'
-                }`}
-              >
-                {plan.plan_name === 'yearly' && (
-                  <div className="bg-primary text-primary-foreground text-center py-1 text-sm font-medium">
-                    Most Popular
-                  </div>
-                )}
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    {plan.plan_name === 'lifetime' && <Crown className="h-5 w-5 text-warning" />}
-                    {plan.display_name}
-                  </CardTitle>
-                  <CardDescription>
-                    {plan.plan_name === 'monthly' && 'Pay monthly, cancel anytime'}
-                    {plan.plan_name === 'yearly' && 'Save 17% with annual billing'}
-                    {plan.plan_name === 'lifetime' && 'One-time payment, lifetime access'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <span className="text-3xl font-bold">৳{plan.price.toLocaleString()}</span>
-                    {plan.plan_name !== 'lifetime' && (
-                      <span className="text-muted-foreground">
-                        /{plan.plan_name === 'monthly' ? 'month' : 'year'}
-                      </span>
-                    )}
-                  </div>
-                  
-                  <ul className="space-y-2">
-                    {plan.features && Object.entries(plan.features).map(([key, value]) => (
-                      value && (
-                        <li key={key} className="flex items-center gap-2 text-sm">
+            plans?.filter(p => p.is_active && p.plan_name !== 'trial').map((plan) => {
+              const isCurrentPlan = plan.plan_name === planType;
+              return (
+                <Card 
+                  key={plan.id} 
+                  className={`border-2 transition-all hover:shadow-lg ${
+                    isCurrentPlan ? 'border-success ring-2 ring-success/20' :
+                    plan.plan_name === 'yearly' ? 'border-primary shadow-md' : 'border-border'
+                  }`}
+                >
+                  {isCurrentPlan && (
+                    <div className="bg-success text-success-foreground text-center py-1 text-sm font-medium">
+                      {t.billing.currentPlan}
+                    </div>
+                  )}
+                  {!isCurrentPlan && plan.plan_name === 'yearly' && (
+                    <div className="bg-primary text-primary-foreground text-center py-1 text-sm font-medium">
+                      {t.billing.mostPopular}
+                    </div>
+                  )}
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      {plan.plan_name === 'lifetime' && <Crown className="h-5 w-5 text-warning" />}
+                      {plan.display_name}
+                    </CardTitle>
+                    <CardDescription>
+                      {plan.plan_name === 'monthly' && t.billing.payMonthly}
+                      {plan.plan_name === 'yearly' && t.billing.saveYearly}
+                      {plan.plan_name === 'lifetime' && t.billing.oneTimePayment}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <span className="text-3xl font-bold">৳{plan.price.toLocaleString()}</span>
+                      {plan.plan_name !== 'lifetime' && (
+                        <span className="text-muted-foreground">
+                          /{plan.plan_name === 'monthly' ? t.billing.month : t.billing.year}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <ul className="space-y-2">
+                      {plan.features && Object.entries(plan.features).map(([key, value]) => (
+                        value && (
+                          <li key={key} className="flex items-center gap-2 text-sm">
+                            <Check className="h-4 w-4 text-success" />
+                            <span className="capitalize">{key.replace(/_/g, ' ')}</span>
+                          </li>
+                        )
+                      ))}
+                      {plan.user_limit && (
+                        <li className="flex items-center gap-2 text-sm">
                           <Check className="h-4 w-4 text-success" />
-                          <span className="capitalize">{key.replace(/_/g, ' ')}</span>
+                          <span>{t.billing.upToStaff.replace('{count}', String(plan.user_limit))}</span>
                         </li>
-                      )
-                    ))}
-                    {plan.user_limit && (
-                      <li className="flex items-center gap-2 text-sm">
-                        <Check className="h-4 w-4 text-success" />
-                        <span>Up to {plan.user_limit} staff members</span>
-                      </li>
-                    )}
-                  </ul>
+                      )}
+                    </ul>
 
-                  <Button 
-                    className="w-full" 
-                    variant={plan.plan_name === 'yearly' ? 'default' : 'outline'}
-                    onClick={() => handleChoosePlan(plan)}
-                    disabled={!!pendingRequest}
-                  >
-                    {pendingRequest ? 'ভেরিফিকেশন চলছে...' : `Choose ${plan.display_name}`}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))
+                    <Button 
+                      className="w-full" 
+                      variant={isCurrentPlan ? 'outline' : plan.plan_name === 'yearly' ? 'default' : 'outline'}
+                      onClick={() => handleChoosePlan(plan)}
+                      disabled={!!pendingRequest}
+                    >
+                      {pendingRequest ? t.billing.verificationPending : 
+                       isCurrentPlan ? t.billing.renewPlan : 
+                       t.billing.choosePlanButton.replace('{plan}', plan.display_name)}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })
           )}
         </div>
 
         {/* Contact Support */}
         <Card className="border-0 shadow-card">
           <CardHeader>
-            <CardTitle>Need Help?</CardTitle>
-            <CardDescription>Contact our support team for assistance</CardDescription>
+            <CardTitle>{t.billing.needHelp}</CardTitle>
+            <CardDescription>{t.billing.contactSupport}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
@@ -278,7 +342,7 @@ export default function Billing() {
         {/* Logout Option */}
         <div className="text-center mt-8">
           <Button variant="ghost" onClick={handleLogout}>
-            Sign out and use a different account
+            {t.billing.signOutDifferent}
           </Button>
         </div>
       </div>
