@@ -30,6 +30,8 @@ export default function ClientManagement() {
   const [showBulkNotifyDialog, setShowBulkNotifyDialog] = useState(false);
   const [isSendingBulk, setIsSendingBulk] = useState(false);
   const [bulkChannel, setBulkChannel] = useState<'both' | 'email' | 'sms'>('both');
+  const [bulkPlanFilter, setBulkPlanFilter] = useState<'all' | 'trial' | 'monthly' | 'yearly' | 'lifetime'>('all');
+  const [bulkStatusFilter, setBulkStatusFilter] = useState<'all' | 'active' | 'trial' | 'expired' | 'suspended'>('all');
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0, success: 0, failed: 0 });
 
   const { data: clients, isLoading } = useClients();
@@ -94,20 +96,27 @@ export default function ClientManagement() {
     }
   };
 
+  // Filter clients for bulk notification
+  const bulkFilteredClients = clients?.filter(client => {
+    const planMatch = bulkPlanFilter === 'all' || client.subscription?.plan_type === bulkPlanFilter;
+    const statusMatch = bulkStatusFilter === 'all' || client.subscription?.status === bulkStatusFilter;
+    return planMatch && statusMatch;
+  }) || [];
+
   const handleBulkNotification = async () => {
-    if (!clients || clients.length === 0) {
-      toast.error('কোনো ক্লায়েন্ট নেই');
+    if (bulkFilteredClients.length === 0) {
+      toast.error('ফিল্টার অনুযায়ী কোনো ক্লায়েন্ট নেই');
       return;
     }
 
     setIsSendingBulk(true);
-    setBulkProgress({ current: 0, total: clients.length, success: 0, failed: 0 });
+    setBulkProgress({ current: 0, total: bulkFilteredClients.length, success: 0, failed: 0 });
 
     let success = 0;
     let failed = 0;
 
-    for (let i = 0; i < clients.length; i++) {
-      const client = clients[i];
+    for (let i = 0; i < bulkFilteredClients.length; i++) {
+      const client = bulkFilteredClients[i];
       setBulkProgress(prev => ({ ...prev, current: i + 1 }));
 
       try {
@@ -135,6 +144,9 @@ export default function ClientManagement() {
     toast.success(`বাল্ক নোটিফিকেশন সম্পন্ন: ${success} সফল, ${failed} ব্যর্থ`);
     setShowBulkNotifyDialog(false);
     setIsSendingBulk(false);
+    // Reset filters
+    setBulkPlanFilter('all');
+    setBulkStatusFilter('all');
   };
 
   const filteredClients = clients?.filter(client =>
@@ -697,16 +709,76 @@ export default function ClientManagement() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Filters */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>প্ল্যান ফিল্টার</Label>
+                <Select 
+                  value={bulkPlanFilter} 
+                  onValueChange={(v: 'all' | 'trial' | 'monthly' | 'yearly' | 'lifetime') => setBulkPlanFilter(v)}
+                  disabled={isSendingBulk}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">সব প্ল্যান</SelectItem>
+                    <SelectItem value="trial">Trial</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="yearly">Yearly</SelectItem>
+                    <SelectItem value="lifetime">Lifetime</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>স্ট্যাটাস ফিল্টার</Label>
+                <Select 
+                  value={bulkStatusFilter} 
+                  onValueChange={(v: 'all' | 'active' | 'trial' | 'expired' | 'suspended') => setBulkStatusFilter(v)}
+                  disabled={isSendingBulk}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">সব স্ট্যাটাস</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="trial">Trial</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Filtered count */}
             <div className="p-4 rounded-lg bg-muted/50">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">মোট ক্লায়েন্ট:</span>
-                <Badge variant="outline" className="text-lg">{clients?.length || 0}</Badge>
+                <span className="text-sm font-medium">ফিল্টার অনুযায়ী ক্লায়েন্ট:</span>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-lg font-bold">{bulkFilteredClients.length}</Badge>
+                  <span className="text-xs text-muted-foreground">/ {clients?.length || 0}</span>
+                </div>
               </div>
+              {(bulkPlanFilter !== 'all' || bulkStatusFilter !== 'all') && (
+                <div className="mt-2 flex items-center gap-2 flex-wrap">
+                  {bulkPlanFilter !== 'all' && (
+                    <Badge variant="secondary" className="text-xs">
+                      প্ল্যান: {bulkPlanFilter}
+                    </Badge>
+                  )}
+                  {bulkStatusFilter !== 'all' && (
+                    <Badge variant="secondary" className="text-xs">
+                      স্ট্যাটাস: {bulkStatusFilter}
+                    </Badge>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label>নোটিফিকেশন চ্যানেল</Label>
-              <Select value={bulkChannel} onValueChange={(v: 'both' | 'email' | 'sms') => setBulkChannel(v)}>
+              <Select value={bulkChannel} onValueChange={(v: 'both' | 'email' | 'sms') => setBulkChannel(v)} disabled={isSendingBulk}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -755,7 +827,7 @@ export default function ClientManagement() {
 
             <div className="p-4 rounded-lg bg-warning/10 border border-warning/30">
               <p className="text-sm text-warning-foreground">
-                ⚠️ এই অ্যাকশন সব ক্লায়েন্টকে নোটিফিকেশন পাঠাবে। এটি কিছুটা সময় নিতে পারে।
+                ⚠️ এই অ্যাকশন {bulkFilteredClients.length} জন ক্লায়েন্টকে নোটিফিকেশন পাঠাবে। এটি কিছুটা সময় নিতে পারে।
               </p>
             </div>
           </div>
@@ -763,13 +835,13 @@ export default function ClientManagement() {
             <Button variant="outline" onClick={() => setShowBulkNotifyDialog(false)} disabled={isSendingBulk}>
               বাতিল
             </Button>
-            <Button onClick={handleBulkNotification} disabled={isSendingBulk || !clients?.length}>
+            <Button onClick={handleBulkNotification} disabled={isSendingBulk || bulkFilteredClients.length === 0}>
               {isSendingBulk ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <Send className="h-4 w-4 mr-2" />
               )}
-              {isSendingBulk ? `পাঠানো হচ্ছে...` : 'সবাইকে পাঠান'}
+              {isSendingBulk ? `পাঠানো হচ্ছে...` : `${bulkFilteredClients.length} জনকে পাঠান`}
             </Button>
           </DialogFooter>
         </DialogContent>
