@@ -459,6 +459,8 @@ export const bn: TranslationKeys = {
     withDue: 'বকেয়াসহ',
     totalPaid: 'মোট পরিশোধিত',
     totalDue: 'মোট বকেয়া',
+    totalAdvance: 'মোট অ্যাডভান্স',
+    advance: 'অ্যাডভান্স',
     // Table section
     allSuppliers: 'সব সরবরাহকারী',
     supplierDetails: 'আপনার ঔষধ সরবরাহকারী এবং তাদের বিবরণ',
