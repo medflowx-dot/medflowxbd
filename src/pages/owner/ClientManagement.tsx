@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useClients, useUpdateClientSubscription, useExtendSubscription, useConvertToLifetime, useSuspendAccount, useActivateAccount, Client } from '@/hooks/useOwnerData';
-import { Loader2, Search, MoreHorizontal, UserCheck, UserX, Clock, Crown, ArrowUpCircle, ArrowDownCircle, Eye, Calendar, Users, Package, ShoppingCart, Trash2, Bell, Mail, MessageSquare } from 'lucide-react';
+import { Loader2, Search, MoreHorizontal, UserCheck, UserX, Clock, Crown, ArrowUpCircle, ArrowDownCircle, Eye, Calendar, Users, Package, ShoppingCart, Trash2, Bell, Mail, MessageSquare, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import { AddClientDialog } from '@/components/owner/AddClientDialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,6 +27,10 @@ export default function ClientManagement() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSendingNotification, setIsSendingNotification] = useState(false);
   const [notifyChannel, setNotifyChannel] = useState<'both' | 'email' | 'sms'>('both');
+  const [showBulkNotifyDialog, setShowBulkNotifyDialog] = useState(false);
+  const [isSendingBulk, setIsSendingBulk] = useState(false);
+  const [bulkChannel, setBulkChannel] = useState<'both' | 'email' | 'sms'>('both');
+  const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0, success: 0, failed: 0 });
 
   const { data: clients, isLoading } = useClients();
   const updateSubscription = useUpdateClientSubscription();
@@ -88,6 +92,49 @@ export default function ClientManagement() {
     } finally {
       setIsSendingNotification(false);
     }
+  };
+
+  const handleBulkNotification = async () => {
+    if (!clients || clients.length === 0) {
+      toast.error('কোনো ক্লায়েন্ট নেই');
+      return;
+    }
+
+    setIsSendingBulk(true);
+    setBulkProgress({ current: 0, total: clients.length, success: 0, failed: 0 });
+
+    let success = 0;
+    let failed = 0;
+
+    for (let i = 0; i < clients.length; i++) {
+      const client = clients[i];
+      setBulkProgress(prev => ({ ...prev, current: i + 1 }));
+
+      try {
+        const { data, error } = await supabase.functions.invoke('send-client-notification', {
+          body: { userId: client.user_id, channel: bulkChannel },
+        });
+
+        if (error || data?.error) {
+          failed++;
+        } else {
+          const results = data.results || {};
+          if (results.emailSent || results.smsSent) {
+            success++;
+          } else {
+            failed++;
+          }
+        }
+      } catch (err) {
+        failed++;
+      }
+
+      setBulkProgress(prev => ({ ...prev, success, failed }));
+    }
+
+    toast.success(`বাল্ক নোটিফিকেশন সম্পন্ন: ${success} সফল, ${failed} ব্যর্থ`);
+    setShowBulkNotifyDialog(false);
+    setIsSendingBulk(false);
   };
 
   const filteredClients = clients?.filter(client =>
@@ -237,6 +284,14 @@ export default function ClientManagement() {
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowBulkNotifyDialog(true)}
+                className="gap-2"
+              >
+                <Send className="h-4 w-4" />
+                Bulk Notify
+              </Button>
               <AddClientDialog />
             </div>
           </div>
@@ -624,6 +679,97 @@ export default function ClientManagement() {
               {isSendingNotification && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               <Bell className="h-4 w-4 mr-2" />
               পাঠান
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Notification Dialog */}
+      <Dialog open={showBulkNotifyDialog} onOpenChange={setShowBulkNotifyDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Send className="h-5 w-5 text-primary" />
+              বাল্ক নোটিফিকেশন
+            </DialogTitle>
+            <DialogDescription>
+              সব ক্লায়েন্টকে একসাথে সাবস্ক্রিপশন রিমাইন্ডার পাঠান
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="p-4 rounded-lg bg-muted/50">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">মোট ক্লায়েন্ট:</span>
+                <Badge variant="outline" className="text-lg">{clients?.length || 0}</Badge>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>নোটিফিকেশন চ্যানেল</Label>
+              <Select value={bulkChannel} onValueChange={(v: 'both' | 'email' | 'sms') => setBulkChannel(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="both">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      <MessageSquare className="h-4 w-4" />
+                      Email ও SMS উভয়ই
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="email">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      শুধু Email
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="sms">
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      শুধু SMS
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {isSendingBulk && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span>প্রগ্রেস:</span>
+                  <span>{bulkProgress.current} / {bulkProgress.total}</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div 
+                    className="bg-primary h-2 rounded-full transition-all"
+                    style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-success">সফল: {bulkProgress.success}</span>
+                  <span className="text-destructive">ব্যর্থ: {bulkProgress.failed}</span>
+                </div>
+              </div>
+            )}
+
+            <div className="p-4 rounded-lg bg-warning/10 border border-warning/30">
+              <p className="text-sm text-warning-foreground">
+                ⚠️ এই অ্যাকশন সব ক্লায়েন্টকে নোটিফিকেশন পাঠাবে। এটি কিছুটা সময় নিতে পারে।
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBulkNotifyDialog(false)} disabled={isSendingBulk}>
+              বাতিল
+            </Button>
+            <Button onClick={handleBulkNotification} disabled={isSendingBulk || !clients?.length}>
+              {isSendingBulk ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4 mr-2" />
+              )}
+              {isSendingBulk ? `পাঠানো হচ্ছে...` : 'সবাইকে পাঠান'}
             </Button>
           </DialogFooter>
         </DialogContent>
