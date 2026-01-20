@@ -570,6 +570,13 @@ export const bn: TranslationKeys = {
     deletePurchaseWarning: 'এটি সরবরাহকারীর বকেয়া ব্যালেন্স আপডেট করবে।',
     invoiceNumber: 'ইনভয়েস #',
     dueAmount: 'বকেয়া পরিমাণ',
+    // Purchase History
+    purchaseHistory: 'ক্রয়ের ইতিহাস',
+    purchaseHistoryDesc: 'এই সরবরাহকারীর সব ক্রয়',
+    noPurchasesYet: 'এখনো কোনো ক্রয় রেকর্ড হয়নি',
+    totalPurchaseAmount: 'মোট ক্রয়',
+    addPurchase: 'ক্রয় যোগ করুন',
+    purchasesLabel: 'টি ক্রয়',
   },
 
   // Settings Page

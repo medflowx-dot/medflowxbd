@@ -13,9 +13,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 interface EditSupplierPaymentDialogProps {
   payment: SupplierPayment;
+  trigger?: React.ReactNode;
 }
 
-export function EditSupplierPaymentDialog({ payment }: EditSupplierPaymentDialogProps) {
+export function EditSupplierPaymentDialog({ payment, trigger }: EditSupplierPaymentDialogProps) {
   const [open, setOpen] = useState(false);
   const { updatePayment } = useSuppliers();
   const { t } = useLanguage();
@@ -61,9 +62,11 @@ export function EditSupplierPaymentDialog({ payment }: EditSupplierPaymentDialog
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Pencil className="h-4 w-4" />
-        </Button>
+        {trigger || (
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Pencil className="h-4 w-4" />
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
