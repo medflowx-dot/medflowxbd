@@ -25,7 +25,7 @@ export default function Settings() {
   const { planType, daysRemaining, isTrial, isExpired } = useSubscriptionStatus();
   const { isAdmin } = usePermissions();
   const { soundEnabled, setSoundEnabled } = useNotificationSettings();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const { theme, setTheme } = useTheme();
 
   const [formData, setFormData] = useState({
@@ -49,10 +49,10 @@ export default function Settings() {
         address: profile.address || '',
         currency: profile.currency || 'BDT',
         date_format: profile.date_format || 'DD/MM/YYYY',
-        language: profile.language || 'en',
+        language: language, // Use language from context instead of profile
       });
     }
-  }, [profile]);
+  }, [profile, language]);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -78,10 +78,14 @@ export default function Settings() {
   };
 
   const handleSavePreferences = () => {
+    // Update language via context (which handles localStorage + profile sync)
+    if (formData.language === 'en' || formData.language === 'bn') {
+      setLanguage(formData.language);
+    }
+    // Update other preferences
     updateProfile.mutate({
       currency: formData.currency,
       date_format: formData.date_format,
-      language: formData.language,
     }, {
       onSuccess: () => setHasChanges(false),
     });
