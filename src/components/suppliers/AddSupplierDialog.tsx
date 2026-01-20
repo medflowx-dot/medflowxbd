@@ -127,9 +127,9 @@ export function AddSupplierDialog({ supplier, trigger, onSuccess }: AddSupplierD
               </SelectTrigger>
               <SelectContent>
                 {loadingManufacturers ? (
-                  <SelectItem value="" disabled>{t.messages.loading}</SelectItem>
+                  <div className="py-2 px-3 text-sm text-muted-foreground">{t.messages.loading}</div>
                 ) : manufacturers.length === 0 ? (
-                  <SelectItem value="" disabled>{t.suppliers.noManufacturersFound}</SelectItem>
+                  <div className="py-2 px-3 text-sm text-muted-foreground">{t.suppliers.noManufacturersFound}</div>
                 ) : (
                   manufacturers.map((mfg) => (
                     <SelectItem key={mfg.id} value={mfg.id}>
