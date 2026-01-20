@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.subscription-expiry-notifications]
 verify_jwt = false
+
+[functions.send-client-notification]
+verify_jwt = false
