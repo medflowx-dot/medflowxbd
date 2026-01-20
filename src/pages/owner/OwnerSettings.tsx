@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePlatformSettings, useUpdatePlatformSetting } from '@/hooks/useOwnerData';
-import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send, CreditCard, ExternalLink, Bell, MessageSquare } from 'lucide-react';
+import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send, CreditCard, ExternalLink, Bell, MessageSquare, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -23,6 +23,8 @@ export default function OwnerSettings() {
   const [testEmailAddress, setTestEmailAddress] = useState('');
   const [testingSms, setTestingSms] = useState(false);
   const [testPhoneNumber, setTestPhoneNumber] = useState('');
+  const [checkingBalance, setCheckingBalance] = useState(false);
+  const [smsBalance, setSmsBalance] = useState<{ balance: string; currency: string } | null>(null);
 
   useEffect(() => {
     if (settings) {
@@ -82,6 +84,39 @@ export default function OwnerSettings() {
       toast.error(error.message || 'Failed to send test email');
     } finally {
       setTestingEmail(false);
+    }
+  };
+
+  const handleCheckBalance = async () => {
+    const apiKey = String(localSettings.bulksmsbd_api_key || '').replace(/"/g, '');
+    
+    if (!apiKey) {
+      toast.error('API Key প্রয়োজন');
+      return;
+    }
+    
+    setCheckingBalance(true);
+    setSmsBalance(null);
+    try {
+      const response = await fetch(`https://bulksmsbd.net/api/getBalanceApi?api_key=${apiKey}`);
+      const data = await response.json();
+      
+      if (data.balance !== undefined) {
+        setSmsBalance({
+          balance: data.balance,
+          currency: data.currency || 'BDT'
+        });
+        toast.success('ব্যালেন্স লোড হয়েছে!');
+      } else if (data.error) {
+        throw new Error(data.error);
+      } else {
+        throw new Error('Invalid response from API');
+      }
+    } catch (error: any) {
+      console.error('Balance check error:', error);
+      toast.error(error.message || 'ব্যালেন্স চেক করতে সমস্যা হয়েছে');
+    } finally {
+      setCheckingBalance(false);
     }
   };
 
@@ -577,6 +612,35 @@ export default function OwnerSettings() {
               />
               <p className="text-xs text-muted-foreground">Your approved Sender ID (Masking or Non-Masking)</p>
             </div>
+          </div>
+
+          {/* Balance Check Section */}
+          <div className="border-t pt-4 mt-4">
+            <Label className="mb-2 block">SMS ব্যালেন্স চেক</Label>
+            <div className="flex items-center gap-3">
+              <Button 
+                onClick={handleCheckBalance} 
+                disabled={checkingBalance || !localSettings.bulksmsbd_api_key}
+                variant="outline"
+              >
+                {checkingBalance ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Wallet className="h-4 w-4 mr-2" />
+                )}
+                ব্যালেন্স দেখুন
+              </Button>
+              {smsBalance && (
+                <div className="px-4 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800">
+                  <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                    {smsBalance.balance} {smsBalance.currency}
+                  </span>
+                </div>
+              )}
+            </div>
+            {!localSettings.bulksmsbd_api_key && (
+              <p className="text-xs text-muted-foreground mt-2">API Key কনফিগার করুন</p>
+            )}
           </div>
 
           {/* Test SMS Section */}
