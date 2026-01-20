@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useClients, useUpdateClientSubscription, useExtendSubscription, useConvertToLifetime, useSuspendAccount, useActivateAccount, Client } from '@/hooks/useOwnerData';
-import { Loader2, Search, MoreHorizontal, UserCheck, UserX, Clock, Crown, ArrowUpCircle, ArrowDownCircle, Eye, Calendar, Users, Package, ShoppingCart, Trash2 } from 'lucide-react';
+import { Loader2, Search, MoreHorizontal, UserCheck, UserX, Clock, Crown, ArrowUpCircle, ArrowDownCircle, Eye, Calendar, Users, Package, ShoppingCart, Trash2, Bell, Mail, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { AddClientDialog } from '@/components/owner/AddClientDialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,11 +20,13 @@ import { useQueryClient } from '@tanstack/react-query';
 export default function ClientManagement() {
   const [search, setSearch] = useState('');
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [dialogType, setDialogType] = useState<'extend' | 'upgrade' | 'suspend' | 'view' | 'delete' | null>(null);
+  const [dialogType, setDialogType] = useState<'extend' | 'upgrade' | 'suspend' | 'view' | 'delete' | 'notify' | null>(null);
   const [extendDays, setExtendDays] = useState('30');
   const [newPlan, setNewPlan] = useState('monthly');
   const [suspendReason, setSuspendReason] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSendingNotification, setIsSendingNotification] = useState(false);
+  const [notifyChannel, setNotifyChannel] = useState<'both' | 'email' | 'sms'>('both');
 
   const { data: clients, isLoading } = useClients();
   const updateSubscription = useUpdateClientSubscription();
@@ -54,6 +56,37 @@ export default function ClientManagement() {
       toast.error(error.message || 'Failed to delete client');
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleSendNotification = async () => {
+    if (!selectedClient) return;
+    
+    setIsSendingNotification(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-client-notification', {
+        body: { userId: selectedClient.user_id, channel: notifyChannel },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const results = data.results || {};
+      if (results.emailSent && results.smsSent) {
+        toast.success('Email ও SMS উভয়ই পাঠানো হয়েছে');
+      } else if (results.emailSent) {
+        toast.success('Email পাঠানো হয়েছে');
+      } else if (results.smsSent) {
+        toast.success('SMS পাঠানো হয়েছে');
+      } else {
+        toast.warning('নোটিফিকেশন পাঠানো যায়নি - সেটিংস চেক করুন');
+      }
+      setDialogType(null);
+    } catch (error: any) {
+      console.error('Error sending notification:', error);
+      toast.error(error.message || 'নোটিফিকেশন পাঠাতে সমস্যা হয়েছে');
+    } finally {
+      setIsSendingNotification(false);
     }
   };
 
@@ -278,6 +311,10 @@ export default function ClientManagement() {
                           <DropdownMenuItem onClick={() => { setSelectedClient(client); setDialogType('upgrade'); }}>
                             <ArrowUpCircle className="h-4 w-4 mr-2" />
                             Change Plan
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => { setSelectedClient(client); setDialogType('notify'); }}>
+                            <Bell className="h-4 w-4 mr-2" />
+                            Send Notification
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           {client.subscription?.status === 'suspended' ? (
@@ -515,6 +552,78 @@ export default function ClientManagement() {
             <Button variant="destructive" onClick={handleDeleteClient} disabled={isDeleting}>
               {isDeleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Delete Permanently
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Send Notification Dialog */}
+      <Dialog open={dialogType === 'notify'} onOpenChange={() => setDialogType(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-primary" />
+              নোটিফিকেশন পাঠান
+            </DialogTitle>
+            <DialogDescription>
+              {selectedClient?.pharmacy_name || selectedClient?.full_name} কে সাবস্ক্রিপশন রিমাইন্ডার পাঠান
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>নোটিফিকেশন চ্যানেল</Label>
+              <Select value={notifyChannel} onValueChange={(v: 'both' | 'email' | 'sms') => setNotifyChannel(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="both">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      <MessageSquare className="h-4 w-4" />
+                      Email ও SMS উভয়ই
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="email">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      শুধু Email
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="sms">
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      শুধু SMS
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="p-4 rounded-lg bg-muted/50 space-y-2">
+              <p className="text-sm font-medium">ক্লায়েন্ট তথ্য:</p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Email:</span>
+                  <p className="font-medium truncate">{selectedClient?.user_id ? '✓ আছে' : '-'}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Phone:</span>
+                  <p className="font-medium">{selectedClient?.phone || 'নেই'}</p>
+                </div>
+              </div>
+            </div>
+
+            {!selectedClient?.phone && notifyChannel !== 'email' && (
+              <p className="text-sm text-destructive">⚠️ ফোন নম্বর নেই - SMS পাঠানো যাবে না</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogType(null)}>বাতিল</Button>
+            <Button onClick={handleSendNotification} disabled={isSendingNotification}>
+              {isSendingNotification && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              <Bell className="h-4 w-4 mr-2" />
+              পাঠান
             </Button>
           </DialogFooter>
         </DialogContent>
