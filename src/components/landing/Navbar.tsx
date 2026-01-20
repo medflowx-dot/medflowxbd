@@ -1,8 +1,11 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Pill } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useCMSContent, getCMSValue } from '@/hooks/useCMSContent';
+import { useTheme } from 'next-themes';
+import logoLight from '@/assets/logo-light.png';
+import logoDark from '@/assets/logo-dark.png';
 
 // Default navigation links
 const defaultNavLinks = [
@@ -16,15 +19,11 @@ const defaultNavLinks = [
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data: cmsContent } = useCMSContent('navbar');
+  const { resolvedTheme } = useTheme();
 
-  const logoText = getCMSValue(cmsContent, 'logoText', 'MedFlowx');
-  const logoHighlight = getCMSValue(cmsContent, 'logoHighlight', 'Flow');
   const loginText = getCMSValue(cmsContent, 'loginText', 'লগইন');
   const signupText = getCMSValue(cmsContent, 'signupText', 'ফ্রি ট্রায়াল শুরু করুন');
   const navLinks = getCMSValue(cmsContent, 'navLinks', defaultNavLinks);
-
-  // Split logo text for styling
-  const logoPrefix = logoText.replace(logoHighlight, '');
 
   const scrollToSection = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -45,18 +44,20 @@ const Navbar = () => {
     setIsOpen(false);
   }, []);
 
+  // Choose logo based on theme
+  const logo = resolvedTheme === 'dark' ? logoDark : logoLight;
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-hero-gradient flex items-center justify-center shadow-glow group-hover:scale-105 transition-transform">
-              <Pill className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-display font-bold text-foreground">
-              {logoPrefix}<span className="text-primary">{logoHighlight}</span>x
-            </span>
+          <a href="/" className="flex items-center group">
+            <img 
+              src={logo} 
+              alt="MedFlowx" 
+              className="h-8 md:h-10 w-auto group-hover:scale-105 transition-transform"
+            />
           </a>
 
           {/* Desktop Navigation */}
