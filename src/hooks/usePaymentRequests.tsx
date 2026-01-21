@@ -56,6 +56,7 @@ export function useUserPaymentRequests() {
 }
 
 // Hook for owner admin to view all payment requests
+// Only show requests with valid transaction_id (completed gateway checkout)
 export function useAllPaymentRequests(status?: string) {
   return useQuery({
     queryKey: ['all-payment-requests', status],
@@ -63,6 +64,7 @@ export function useAllPaymentRequests(status?: string) {
       let query = supabase
         .from('payment_requests')
         .select('*')
+        .neq('transaction_id', '') // Only show requests with transaction ID
         .order('submitted_at', { ascending: false });
 
       if (status && status !== 'all') {
