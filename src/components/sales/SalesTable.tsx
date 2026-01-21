@@ -106,7 +106,7 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
             {showEntryType && <TableHead className="w-8 hidden sm:table-cell"></TableHead>}
             <TableHead className="text-xs sm:text-sm">{t.sales.id}</TableHead>
             {showEntryType && <TableHead className="hidden md:table-cell text-xs sm:text-sm">{t.sales.type}</TableHead>}
-            <TableHead className="hidden sm:table-cell text-xs sm:text-sm">{t.sales.date}</TableHead>
+            <TableHead className="text-xs sm:text-sm">{t.sales.date}</TableHead>
             <TableHead className="text-right text-xs sm:text-sm">{t.sales.total}</TableHead>
             <TableHead className="text-right hidden md:table-cell text-xs sm:text-sm">{t.sales.paid}</TableHead>
             <TableHead className="text-right text-xs sm:text-sm">{t.sales.due}</TableHead>
@@ -162,8 +162,9 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                         )}
                       </TableCell>
                     )}
-                    <TableCell className="hidden sm:table-cell">
-                      {format(new Date(sale.sale_date), 'dd MMM yyyy')}
+                    <TableCell className="text-xs sm:text-sm">
+                      <span className="sm:hidden">{format(new Date(sale.sale_date), 'dd/MM')}</span>
+                      <span className="hidden sm:inline">{format(new Date(sale.sale_date), 'dd MMM yyyy')}</span>
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       ৳{Number(sale.total_amount).toFixed(0)}
