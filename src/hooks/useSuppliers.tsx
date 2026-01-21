@@ -183,7 +183,24 @@ export function useSuppliers() {
 
   const deleteSupplierMutation = useMutation({
     mutationFn: async (id: string) => {
-      // Hard delete - this will cascade delete all related payments and purchases
+      // Check if supplier has any related data
+      const [paymentsRes, purchasesRes] = await Promise.all([
+        supabase.from('supplier_payments').select('id', { count: 'exact', head: true }).eq('supplier_id', id),
+        supabase.from('supplier_purchases').select('id', { count: 'exact', head: true }).eq('supplier_id', id),
+      ]);
+
+      const paymentsCount = paymentsRes.count || 0;
+      const purchasesCount = purchasesRes.count || 0;
+
+      if (paymentsCount > 0 || purchasesCount > 0) {
+        const details: string[] = [];
+        if (purchasesCount > 0) details.push(`${purchasesCount}টি পারচেজ`);
+        if (paymentsCount > 0) details.push(`${paymentsCount}টি পেমেন্ট`);
+        
+        throw new Error(`এই সাপ্লায়ারের ${details.join(' এবং ')} রয়েছে। প্রথমে সব লেনদেন ডেটা মুছে ফেলুন।`);
+      }
+
+      // Safe to delete - no related data
       const { error } = await supabase
         .from('suppliers')
         .delete()
@@ -194,12 +211,10 @@ export function useSuppliers() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
       queryClient.invalidateQueries({ queryKey: ['supplier-dues-summary'] });
-      queryClient.invalidateQueries({ queryKey: ['supplier-payments'] });
-      queryClient.invalidateQueries({ queryKey: ['supplier-purchases'] });
-      toast.success('Supplier and all related history deleted successfully');
+      toast.success('সাপ্লায়ার সফলভাবে মুছে ফেলা হয়েছে');
     },
-    onError: (error) => {
-      toast.error('Failed to delete supplier: ' + error.message);
+    onError: (error: Error) => {
+      toast.error(error.message || 'সাপ্লায়ার মুছতে ব্যর্থ হয়েছে');
     },
   });
 

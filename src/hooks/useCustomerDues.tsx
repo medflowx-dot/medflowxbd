@@ -392,12 +392,40 @@ export function useUpdateCustomer() {
   });
 }
 
+// Check if customer has related data before deletion
+export async function checkCustomerHasData(customerId: string): Promise<{ hasData: boolean; paymentsCount: number; duesCount: number }> {
+  const [paymentsRes, duesRes] = await Promise.all([
+    supabase.from('customer_payments').select('id', { count: 'exact', head: true }).eq('customer_id', customerId),
+    supabase.from('customer_dues').select('id', { count: 'exact', head: true }).eq('customer_id', customerId),
+  ]);
+
+  const paymentsCount = paymentsRes.count || 0;
+  const duesCount = duesRes.count || 0;
+
+  return {
+    hasData: paymentsCount > 0 || duesCount > 0,
+    paymentsCount,
+    duesCount,
+  };
+}
+
 export function useDeleteCustomer() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (customerId: string) => {
-      // Hard delete - this will cascade delete all related payments and dues
+      // Check if customer has any related data
+      const { hasData, paymentsCount, duesCount } = await checkCustomerHasData(customerId);
+
+      if (hasData) {
+        const details: string[] = [];
+        if (duesCount > 0) details.push(`${duesCount}টি বকেয়া এন্ট্রি`);
+        if (paymentsCount > 0) details.push(`${paymentsCount}টি পেমেন্ট`);
+        
+        throw new Error(`এই কাস্টমারের ${details.join(' এবং ')} রয়েছে। প্রথমে সব লেনদেন ডেটা মুছে ফেলুন।`);
+      }
+
+      // Safe to delete - no related data
       const { error } = await supabase
         .from('customers')
         .delete()
@@ -408,17 +436,15 @@ export function useDeleteCustomer() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       queryClient.invalidateQueries({ queryKey: ['customer-dues-summary'] });
-      queryClient.invalidateQueries({ queryKey: ['customer-payments'] });
-      queryClient.invalidateQueries({ queryKey: ['customer-dues'] });
       toast({
-        title: 'Customer deleted',
-        description: 'Customer and all related history have been permanently deleted.',
+        title: 'কাস্টমার ডিলেট হয়েছে',
+        description: 'কাস্টমার সফলভাবে মুছে ফেলা হয়েছে।',
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
-        title: 'Error',
-        description: 'Failed to delete customer.',
+        title: 'ডিলেট করা যাচ্ছে না',
+        description: error.message || 'কাস্টমার মুছতে ব্যর্থ হয়েছে।',
         variant: 'destructive',
       });
       console.error('Delete customer error:', error);
