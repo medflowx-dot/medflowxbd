@@ -6,12 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Eye, EyeOff, Phone, Mail, Lock, Smartphone } from 'lucide-react';
+import { Loader2, Eye, EyeOff, Phone, Mail, Lock, Smartphone, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePlatformBranding } from '@/hooks/usePlatformBranding';
 import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import logoAuthFallback from '@/assets/logo-auth.png';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function Login() {
   const { logoAuth } = usePlatformBranding();
@@ -45,6 +46,11 @@ export default function Login() {
   const [phonePassword, setPhonePassword] = useState('');
   const [showPhonePassword, setShowPhonePassword] = useState(false);
   const [phoneLoading, setPhoneLoading] = useState(false);
+  
+  // Lock state
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockRemainingMinutes, setLockRemainingMinutes] = useState(0);
+  const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
   
   // PIN states (only for mobile app)
   const [showPinSetup, setShowPinSetup] = useState(false);
@@ -118,14 +124,40 @@ export default function Login() {
       return;
     }
 
+    if (isLocked) {
+      toast.error(`অ্যাকাউন্ট লক আছে। ${lockRemainingMinutes} মিনিট পর চেষ্টা করুন।`);
+      return;
+    }
+
     setPhoneLoading(true);
+    setAttemptsRemaining(null);
+    
     try {
       const { data, error } = await supabase.functions.invoke('phone-login', {
         body: { phone, password: phonePassword }
       });
 
       if (error) throw error;
+      
+      // Check for lock status
+      if (data.locked) {
+        setIsLocked(true);
+        setLockRemainingMinutes(data.remainingMinutes || 15);
+        toast.error(data.error);
+        setPhoneLoading(false);
+        return;
+      }
+      
+      // Check for attempts remaining
+      if (data.attemptsRemaining !== undefined) {
+        setAttemptsRemaining(data.attemptsRemaining);
+      }
+      
       if (data.error) throw new Error(data.error);
+
+      // Successful login - reset states
+      setIsLocked(false);
+      setAttemptsRemaining(null);
 
       // Set the session
       if (data.session) {
@@ -407,6 +439,26 @@ export default function Login() {
             {/* Phone Login */}
             <TabsContent value="phone">
               <form onSubmit={handlePhoneLogin} className="space-y-4">
+                {/* Lock Alert */}
+                {isLocked && (
+                  <Alert variant="destructive">
+                    <ShieldAlert className="h-4 w-4" />
+                    <AlertDescription>
+                      অনেক বার ভুল পাসওয়ার্ড দেওয়া হয়েছে। অ্যাকাউন্ট {lockRemainingMinutes} মিনিটের জন্য লক করা হয়েছে।
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
+                {/* Attempts Warning */}
+                {attemptsRemaining !== null && attemptsRemaining <= 3 && !isLocked && (
+                  <Alert className="border-warning bg-warning/10 text-warning-foreground">
+                    <ShieldAlert className="h-4 w-4" />
+                    <AlertDescription>
+                      সতর্কতা: আর {attemptsRemaining} বার ভুল চেষ্টায় অ্যাকাউন্ট লক হবে।
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
                 <div className="space-y-2">
                   <Label htmlFor="phone">মোবাইল নাম্বার</Label>
                   <div className="relative">
@@ -420,6 +472,7 @@ export default function Login() {
                       className="pl-10"
                       maxLength={11}
                       required
+                      disabled={isLocked}
                     />
                   </div>
                 </div>
@@ -433,6 +486,7 @@ export default function Login() {
                       value={phonePassword}
                       onChange={(e) => setPhonePassword(e.target.value)}
                       required
+                      disabled={isLocked}
                     />
                     <Button
                       type="button"
@@ -445,12 +499,14 @@ export default function Login() {
                     </Button>
                   </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={phoneLoading}>
+                <Button type="submit" className="w-full" disabled={phoneLoading || isLocked}>
                   {phoneLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       সাইন ইন হচ্ছে...
                     </>
+                  ) : isLocked ? (
+                    `${lockRemainingMinutes} মিনিট অপেক্ষা করুন`
                   ) : (
                     'সাইন ইন করুন'
                   )}
