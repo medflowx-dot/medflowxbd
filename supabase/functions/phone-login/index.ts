@@ -76,16 +76,38 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Find user by phone number in profiles
-    const { data: profile, error: profileError } = await supabaseAdmin
+    // Find user by phone number in profiles (try both formatted and original)
+    let profile = null;
+    let profileError = null;
+    
+    // First try with formatted phone (880 prefix)
+    const result1 = await supabaseAdmin
       .from("profiles")
       .select("user_id, full_name, pharmacy_name, phone_verified")
       .eq("phone", formattedPhone)
       .single();
+    
+    if (result1.data) {
+      profile = result1.data;
+    } else {
+      // Try with original phone number (local format)
+      const localPhone = phone.replace(/\s+/g, "").replace(/-/g, "");
+      const result2 = await supabaseAdmin
+        .from("profiles")
+        .select("user_id, full_name, pharmacy_name, phone_verified")
+        .eq("phone", localPhone)
+        .single();
+      
+      if (result2.data) {
+        profile = result2.data;
+      } else {
+        profileError = result2.error;
+      }
+    }
 
     if (profileError || !profile) {
       return new Response(
-        JSON.stringify({ error: "No account found with this phone number" }),
+        JSON.stringify({ error: "এই ফোন নম্বরে কোনো অ্যাকাউন্ট পাওয়া যায়নি" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
