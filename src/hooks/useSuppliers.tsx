@@ -352,6 +352,36 @@ export function useSuppliers() {
     },
   });
 
+  // Clear all supplier history mutation
+  const clearHistoryMutation = useMutation({
+    mutationFn: async (supplierId: string) => {
+      // Delete all payments first
+      const { error: paymentsError } = await supabase
+        .from('supplier_payments')
+        .delete()
+        .eq('supplier_id', supplierId);
+
+      if (paymentsError) throw paymentsError;
+
+      // Delete all purchases
+      const { error: purchasesError } = await supabase
+        .from('supplier_purchases')
+        .delete()
+        .eq('supplier_id', supplierId);
+
+      if (purchasesError) throw purchasesError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier-payments'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier-purchases'] });
+      toast.success('সাপ্লায়ারের সকল হিস্ট্রি মুছে ফেলা হয়েছে');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'হিস্ট্রি মুছতে ব্যর্থ হয়েছে');
+    },
+  });
+
   return {
     suppliers: suppliersQuery.data ?? [],
     payments: paymentsQuery.data ?? [],
@@ -366,5 +396,6 @@ export function useSuppliers() {
     addPayment: addPaymentMutation.mutateAsync,
     updatePayment: updatePaymentMutation.mutateAsync,
     deletePayment: deletePaymentMutation.mutateAsync,
+    clearHistory: clearHistoryMutation.mutateAsync,
   };
 }

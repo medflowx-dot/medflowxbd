@@ -8,7 +8,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { useCustomerWithPayments, useDeleteCustomerPayment, useDeleteCustomerDue, CustomerPayment, CustomerDue } from '@/hooks/useCustomerDues';
+import { useCustomerWithPayments, useDeleteCustomerPayment, useDeleteCustomerDue, useClearCustomerHistory, CustomerPayment, CustomerDue } from '@/hooks/useCustomerDues';
 import {
   Table,
   TableBody,
@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Wallet, Pencil, Trash2, ArrowDownCircle, ArrowUpCircle, Scissors, FileText } from 'lucide-react';
+import { Wallet, Pencil, Trash2, ArrowDownCircle, ArrowUpCircle, Scissors, FileText, Eraser } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { EditPaymentDialog } from './EditPaymentDialog';
 import { EditDueDialog } from './EditDueDialog';
@@ -70,6 +70,7 @@ export function CustomerPaymentHistory({
   const { data: customer, isLoading } = useCustomerWithPayments(customerId);
   const deletePayment = useDeleteCustomerPayment();
   const deleteDue = useDeleteCustomerDue();
+  const clearHistory = useClearCustomerHistory();
   const { t } = useLanguage();
   
   const [editPaymentOpen, setEditPaymentOpen] = useState(false);
@@ -78,6 +79,7 @@ export function CustomerPaymentHistory({
   const [selectedDue, setSelectedDue] = useState<CustomerDue | null>(null);
   const [splitDueOpen, setSplitDueOpen] = useState(false);
   const [dueToSplit, setDueToSplit] = useState<CustomerDue | null>(null);
+  const [clearHistoryOpen, setClearHistoryOpen] = useState(false);
 
   // Combine and sort dues and payments by date
   const transactions: TransactionItem[] = [];
@@ -169,17 +171,30 @@ export function CustomerPaymentHistory({
                 <Wallet className="h-5 w-5" />
                 {t.customerDues?.transactionHistory || 'Transaction History'} - {customerName}
               </DialogTitle>
-              {customer && transactions.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleExportStatement}
-                  className="gap-1.5"
-                >
-                  <FileText className="h-4 w-4" />
-                  {t.customerDues?.exportStatement || 'Statement'}
-                </Button>
-              )}
+              <div className="flex items-center gap-2">
+                {customer && transactions.length > 0 && (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleExportStatement}
+                      className="gap-1.5"
+                    >
+                      <FileText className="h-4 w-4" />
+                      {t.customerDues?.exportStatement || 'Statement'}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setClearHistoryOpen(true)}
+                      className="gap-1.5"
+                    >
+                      <Eraser className="h-4 w-4" />
+                      {t.customerDues?.clearHistory || 'Clear All'}
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </DialogHeader>
 
@@ -384,6 +399,32 @@ export function CustomerPaymentHistory({
           customerId={customerId}
         />
       )}
+
+      {/* Clear History Confirmation Dialog */}
+      <AlertDialog open={clearHistoryOpen} onOpenChange={setClearHistoryOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t.customerDues?.clearHistoryTitle || 'সব হিস্ট্রি মুছে ফেলবেন?'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t.customerDues?.clearHistoryDescription || 'এই কাস্টমারের সকল বকেয়া ও পেমেন্ট হিস্ট্রি স্থায়ীভাবে মুছে যাবে। এই পদক্ষেপ পূর্বাবস্থায় ফেরানো যাবে না।'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t.actions?.cancel || 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (customerId) {
+                  clearHistory.mutate(customerId);
+                  setClearHistoryOpen(false);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t.customerDues?.clearAll || 'সব মুছে ফেলুন'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

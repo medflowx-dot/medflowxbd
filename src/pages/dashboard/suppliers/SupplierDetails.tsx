@@ -23,7 +23,8 @@ import {
   Plus,
   FileText,
   MessageCircle,
-  Wallet
+  Wallet,
+  Eraser
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useSuppliers } from '@/hooks/useSuppliers';
@@ -42,12 +43,13 @@ import { cn } from '@/lib/utils';
 export default function SupplierDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { suppliers, payments, purchases, deletePayment, deletePurchase, isLoading } = useSuppliers();
+  const { suppliers, payments, purchases, deletePayment, deletePurchase, clearHistory, isLoading } = useSuppliers();
   const { t } = useLanguage();
   
   const [deletePaymentId, setDeletePaymentId] = useState<string | null>(null);
   const [deletePurchaseId, setDeletePurchaseId] = useState<string | null>(null);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [clearHistoryOpen, setClearHistoryOpen] = useState(false);
 
   const supplier = useMemo(() => suppliers.find(s => s.id === id), [suppliers, id]);
   const supplierPayments = useMemo(() => payments.filter(p => p.supplier_id === id), [payments, id]);
@@ -206,6 +208,16 @@ export default function SupplierDetails() {
             <FileText className="h-4 w-4 mr-2" />
             {t.suppliers.quickReport}
           </Button>
+          {(supplierPayments.length > 0 || supplierPurchases.length > 0) && (
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={() => setClearHistoryOpen(true)}
+            >
+              <Eraser className="h-4 w-4 mr-2" />
+              {t.suppliers.clearHistory || 'সব মুছুন'}
+            </Button>
+          )}
           <AddSupplierDialog
             supplier={supplier}
             trigger={
@@ -537,6 +549,30 @@ export default function SupplierDetails() {
         description={t.suppliers.selectDateRange}
         onGenerate={handleGenerateReport}
       />
+
+      {/* Clear History Confirmation */}
+      <AlertDialog open={clearHistoryOpen} onOpenChange={setClearHistoryOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t.suppliers.clearHistoryTitle}</AlertDialogTitle>
+            <AlertDialogDescription>{t.suppliers.clearHistoryDescription}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (id) {
+                  clearHistory(id);
+                  setClearHistoryOpen(false);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t.suppliers.clearHistory}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

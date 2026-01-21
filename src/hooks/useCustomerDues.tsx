@@ -536,6 +536,49 @@ export function useDeleteCustomerPayment() {
   });
 }
 
+// Clear all customer history (payments and dues)
+export function useClearCustomerHistory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (customerId: string) => {
+      // Delete all payments first
+      const { error: paymentsError } = await supabase
+        .from('customer_payments')
+        .delete()
+        .eq('customer_id', customerId);
+
+      if (paymentsError) throw paymentsError;
+
+      // Delete all dues
+      const { error: duesError } = await supabase
+        .from('customer_dues')
+        .delete()
+        .eq('customer_id', customerId);
+
+      if (duesError) throw duesError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-dues-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-payments'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-dues'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-with-payments'] });
+      toast({
+        title: 'সব হিস্ট্রি মুছে ফেলা হয়েছে',
+        description: 'কাস্টমারের সকল বকেয়া ও পেমেন্ট হিস্ট্রি স্থায়ীভাবে মুছে ফেলা হয়েছে।',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to clear history.',
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
 export function generateWhatsAppMessage(customer: { name: string; phone?: string | null; total_due: number }) {
   const message = `*Due Payment Reminder*
 
