@@ -116,13 +116,13 @@ export function CustomerPaymentHistory({
                         <TableHead>{t.reports?.date || 'Date'}</TableHead>
                         <TableHead>{t.reports?.method || 'Method'}</TableHead>
                         <TableHead className="text-right">{t.customerDues?.amount || 'Amount'}</TableHead>
-                        <TableHead className="text-right w-20">{t.medicines?.actions || 'Actions'}</TableHead>
+                        <TableHead className="text-right w-20 sticky right-0 bg-background">{t.medicines?.actions || 'Actions'}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {customer?.payments.map((payment) => (
                         <TableRow key={payment.id}>
-                          <TableCell>
+                          <TableCell className="whitespace-nowrap">
                             {format(new Date(payment.payment_date), 'MMM dd, yyyy')}
                           </TableCell>
                           <TableCell>
@@ -133,7 +133,7 @@ export function CustomerPaymentHistory({
                           <TableCell className="text-right font-medium text-success">
                             ৳{Math.round(Number(payment.amount))}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-right sticky right-0 bg-background">
                             <div className="flex items-center justify-end gap-1">
                               <Button
                                 variant="ghost"
