@@ -101,8 +101,8 @@ export default function Billing() {
     navigate('/dashboard');
   };
 
-  // Check for pending payment request
-  const pendingRequest = paymentRequests?.find(r => r.status === 'pending');
+  // Check for pending payment request (only with valid transaction_id)
+  const pendingRequest = paymentRequests?.find(r => r.status === 'pending' && r.transaction_id && r.transaction_id.trim() !== '');
 
   // Find current plan from plans list
   const currentPlan = plans?.find(p => p.plan_name === planType);
