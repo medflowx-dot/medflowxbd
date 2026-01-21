@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePlatformSettings, useUpdatePlatformSetting } from '@/hooks/useOwnerData';
-import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send, CreditCard, ExternalLink, Bell, MessageSquare, Wallet } from 'lucide-react';
+import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send, CreditCard, ExternalLink, Bell, MessageSquare, Wallet, ShieldAlert, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { PlatformBrandingUpload } from '@/components/owner/PlatformBrandingUpload';
@@ -556,6 +556,79 @@ export default function OwnerSettings() {
                 <p className="text-xs text-muted-foreground mt-1">
                   প্রতিদিন নির্ধারিত সময়ে সিস্টেম স্বয়ংক্রিয়ভাবে চেক করে কোন ক্লায়েন্টের সাবস্ক্রিপশন শেষ হতে যাচ্ছে এবং তাদের Email/SMS পাঠায়।
                   একই দিনে একই ক্লায়েন্টকে দ্বিতীয়বার নোটিফিকেশন পাঠানো হয় না।
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Security Alert Settings */}
+      <Card className="border-0 shadow-card border-red-200 dark:border-red-900">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="h-5 w-5 text-red-500" />
+            <CardTitle>সিকিউরিটি অ্যালার্ট সেটিংস</CardTitle>
+          </div>
+          <CardDescription>অ্যাকাউন্ট লক হলে অ্যাডমিনকে নোটিফিকেশন পাঠানোর সেটিংস</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Lockout Notifications Toggle */}
+          <div className="flex items-center justify-between p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-red-100 dark:bg-red-900">
+                <ShieldAlert className="h-4 w-4 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <Label className="text-red-800 dark:text-red-200">লকআউট নোটিফিকেশন</Label>
+                <p className="text-sm text-red-600 dark:text-red-400">অ্যাকাউন্ট লক হলে অ্যাডমিনকে Email/SMS এ জানান</p>
+              </div>
+            </div>
+            <Switch
+              checked={localSettings.lockout_notifications_enabled === true || localSettings.lockout_notifications_enabled === 'true'}
+              onCheckedChange={(checked) => handleChange('lockout_notifications_enabled', checked)}
+            />
+          </div>
+
+          {/* Admin Contact Details */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                অ্যাডমিন ইমেইল (সিকিউরিটি অ্যালার্ট)
+              </Label>
+              <Input
+                type="email"
+                value={String(localSettings.sms_alert_email || '').replace(/"/g, '')}
+                onChange={(e) => handleChange('sms_alert_email', `"${e.target.value}"`)}
+                placeholder="admin@example.com"
+              />
+              <p className="text-xs text-muted-foreground">এই ইমেইলে সিকিউরিটি অ্যালার্ট পাঠানো হবে</p>
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                অ্যাডমিন ফোন নম্বর (SMS অ্যালার্ট)
+              </Label>
+              <Input
+                type="tel"
+                value={String(localSettings.admin_phone || '').replace(/"/g, '')}
+                onChange={(e) => handleChange('admin_phone', `"${e.target.value}"`)}
+                placeholder="01XXXXXXXXX"
+              />
+              <p className="text-xs text-muted-foreground">এই নম্বরে সিকিউরিটি SMS অ্যালার্ট পাঠানো হবে</p>
+            </div>
+          </div>
+
+          {/* Info box */}
+          <div className="p-4 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800">
+            <div className="flex items-start gap-3">
+              <ShieldAlert className="h-5 w-5 text-red-500 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-red-800 dark:text-red-200">সিকিউরিটি অ্যালার্ট সিস্টেম</p>
+                <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                  কোনো ব্যবহারকারী ৫ বার ভুল পাসওয়ার্ড দিলে তার অ্যাকাউন্ট ১৫ মিনিটের জন্য লক হয়ে যায়।
+                  লকআউট নোটিফিকেশন চালু থাকলে, প্রতিবার অ্যাকাউন্ট লক হলে অ্যাডমিনকে ইমেইল এবং SMS এ জানানো হয়।
                 </p>
               </div>
             </div>
