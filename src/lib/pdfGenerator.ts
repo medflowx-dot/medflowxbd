@@ -258,6 +258,146 @@ export interface IndividualCustomerReportData {
   };
 }
 
+export interface CustomerStatementData {
+  customer: {
+    id: string;
+    name: string;
+    phone: string | null;
+    address: string | null;
+    total_due: number;
+  };
+  transactions: {
+    id: string;
+    type: 'due' | 'payment';
+    amount: number;
+    date: string;
+    notes: string | null;
+    payment_method?: string;
+  }[];
+}
+
+export function generateCustomerStatementPDF(data: CustomerStatementData) {
+  const doc = new jsPDF();
+  const startY = addHeader(doc, 'Customer Statement / Ledger');
+
+  // Customer Info
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Customer Details', 14, startY);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.text(`Name: ${data.customer.name}`, 14, startY + 8);
+  doc.text(`Phone: ${data.customer.phone || '-'}`, 14, startY + 14);
+  if (data.customer.address) {
+    doc.text(`Address: ${data.customer.address}`, 14, startY + 20);
+  }
+
+  // Summary Section
+  const totalDues = data.transactions
+    .filter(t => t.type === 'due')
+    .reduce((sum, t) => sum + t.amount, 0);
+  const totalPayments = data.transactions
+    .filter(t => t.type === 'payment')
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const summaryY = data.customer.address ? startY + 30 : startY + 24;
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Summary', 14, summaryY);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text(`Total Dues: ${CURRENCY}${totalDues.toLocaleString()}`, 14, summaryY + 6);
+  doc.text(`Total Payments: ${CURRENCY}${totalPayments.toLocaleString()}`, 80, summaryY + 6);
+  doc.text(`Current Balance: ${CURRENCY}${data.customer.total_due.toLocaleString()}`, 140, summaryY + 6);
+  doc.text(`Statement Date: ${format(new Date(), 'MMM dd, yyyy')}`, 14, summaryY + 12);
+
+  // Sort transactions by date ascending for running balance calculation
+  const sortedTransactions = [...data.transactions].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  // Calculate running balance
+  let runningBalance = 0;
+  const tableData = sortedTransactions.map((tx, index) => {
+    if (tx.type === 'due') {
+      runningBalance += tx.amount;
+    } else {
+      runningBalance -= tx.amount;
+    }
+    return [
+      (index + 1).toString(),
+      format(new Date(tx.date), 'MMM dd, yyyy'),
+      tx.type === 'due' ? 'Due Added' : `Payment (${tx.payment_method || 'Cash'})`,
+      tx.type === 'due' ? `${CURRENCY}${tx.amount.toLocaleString()}` : '-',
+      tx.type === 'payment' ? `${CURRENCY}${tx.amount.toLocaleString()}` : '-',
+      `${CURRENCY}${runningBalance.toLocaleString()}`,
+      tx.notes || '-',
+    ];
+  });
+
+  // Transaction Table with Running Balance
+  const tableStartY = summaryY + 20;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Transaction Ledger', 14, tableStartY);
+
+  if (tableData.length > 0) {
+    autoTable(doc, {
+      startY: tableStartY + 6,
+      head: [['#', 'Date', 'Description', 'Debit (+)', 'Credit (-)', 'Balance', 'Notes']],
+      body: tableData,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [59, 130, 246] },
+      columnStyles: {
+        0: { cellWidth: 10 },
+        1: { cellWidth: 24 },
+        2: { cellWidth: 32 },
+        3: { halign: 'right', cellWidth: 22 },
+        4: { halign: 'right', cellWidth: 22 },
+        5: { halign: 'right', fontStyle: 'bold', cellWidth: 24 },
+        6: { cellWidth: 'auto' },
+      },
+      didParseCell: (data) => {
+        // Color debit (due) in warning color
+        if (data.column.index === 3 && data.cell.text[0] !== '-') {
+          data.cell.styles.textColor = [217, 119, 6]; // warning/amber
+        }
+        // Color credit (payment) in success color
+        if (data.column.index === 4 && data.cell.text[0] !== '-') {
+          data.cell.styles.textColor = [34, 197, 94]; // success/green
+        }
+      },
+    });
+
+    // Final Balance Footer
+    const finalY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    const balanceText = `Closing Balance: ${CURRENCY}${data.customer.total_due.toLocaleString()}`;
+    doc.text(balanceText, 14, finalY + 10);
+    
+    if (data.customer.total_due > 0) {
+      doc.setTextColor(217, 119, 6);
+      doc.text('(Amount Due)', 14 + doc.getTextWidth(balanceText) + 4, finalY + 10);
+      doc.setTextColor(0, 0, 0);
+    } else if (data.customer.total_due < 0) {
+      doc.setTextColor(34, 197, 94);
+      doc.text('(Advance)', 14 + doc.getTextWidth(balanceText) + 4, finalY + 10);
+      doc.setTextColor(0, 0, 0);
+    }
+  } else {
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(9);
+    doc.text('No transactions found', 14, tableStartY + 6);
+  }
+
+  addFooter(doc);
+  doc.save(`customer-statement-${data.customer.name.replace(/\s+/g, '-')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+}
+
 export function generateIndividualCustomerPDF(
   data: IndividualCustomerReportData,
   dateRange: { start: Date; end: Date }
