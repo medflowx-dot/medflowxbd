@@ -71,3 +71,6 @@ verify_jwt = false
 
 [functions.email-login]
 verify_jwt = false
+
+[functions.cleanup-abandoned-payments]
+verify_jwt = false
