@@ -38,10 +38,20 @@ export function PaymentRequestDialog({ open, onOpenChange, plan }: PaymentReques
           console.error('Error fetching UddoktaPay settings:', error);
           setUddoktapayEnabled(false);
         } else {
-          // Handle various formats: boolean true, string "true", or JSONB true
+          // Handle various JSONB formats: boolean true, string "true", parsed JSON
           const value = data?.setting_value;
-          const isEnabled = value === true || value === 'true' || String(value) === 'true';
-          console.log('UddoktaPay enabled check:', { value, isEnabled });
+          let isEnabled = false;
+          
+          if (typeof value === 'boolean') {
+            isEnabled = value;
+          } else if (typeof value === 'string') {
+            isEnabled = value === 'true' || value === '"true"';
+          } else if (value !== null && value !== undefined) {
+            // JSONB might return as-is or need parsing
+            isEnabled = Boolean(value);
+          }
+          
+          console.log('UddoktaPay enabled check:', { value, valueType: typeof value, isEnabled });
           setUddoktapayEnabled(isEnabled);
         }
       } catch (error) {
