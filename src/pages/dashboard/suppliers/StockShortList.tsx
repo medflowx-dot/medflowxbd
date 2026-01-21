@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Trash2, CheckCircle, ClipboardList, Package, Search, X } from 'lucide-react';
+import { Plus, Minus, Trash2, CheckCircle, ClipboardList, Package, Search, X } from 'lucide-react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useStockShortList } from '@/hooks/useStockShortList';
@@ -539,21 +539,53 @@ export default function StockShortList() {
                         </PopoverContent>
                       </Popover>
                     </div>
-                    <Input
-                      type="number"
-                      min={1}
-                      value={newItem.quantity}
-                      onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })}
-                      className="w-16 h-9 text-center"
-                      placeholder="Qty"
-                    />
+                    
+                    {/* Quantity with +/- buttons */}
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9 shrink-0"
+                        onClick={() => {
+                          const current = parseInt(newItem.quantity) || 1;
+                          if (current > 1) {
+                            setNewItem({ ...newItem, quantity: String(current - 1) });
+                          }
+                        }}
+                        disabled={parseInt(newItem.quantity) <= 1}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={newItem.quantity}
+                        onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })}
+                        className="w-14 h-9 text-center px-1"
+                        placeholder="Qty"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9 shrink-0"
+                        onClick={() => {
+                          const current = parseInt(newItem.quantity) || 1;
+                          setNewItem({ ...newItem, quantity: String(current + 1) });
+                        }}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    
                     <Button 
                       size="sm"
-                      className="h-9 px-3"
+                      className="h-9 px-4"
                       onClick={handleAddToPending}
                       disabled={!newItem.medicine_id}
                     >
-                      <Plus className="h-4 w-4" />
+                      Add
                     </Button>
                   </div>
                 </div>
