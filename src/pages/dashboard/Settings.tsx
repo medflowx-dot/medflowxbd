@@ -13,6 +13,7 @@ import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { StaffManagement } from '@/components/settings/StaffManagement';
 import { PharmacyLogoUpload } from '@/components/settings/PharmacyLogoUpload';
+import { PinManagement } from '@/components/settings/PinManagement';
 import { Loader2, Save, User, Building2, Globe, CreditCard, Bell, Moon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
@@ -355,6 +356,9 @@ export default function Settings() {
             </div>
           </CardContent>
         </Card>
+
+        {/* PIN Management */}
+        <PinManagement />
 
         {/* Staff Management - Only visible to admins */}
         {isAdmin && <StaffManagement />}
