@@ -5,6 +5,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const MAX_ATTEMPTS = 5;
+const LOCK_DURATION_MINUTES = 15;
+
 // Format phone number to Bangladesh format (880XXXXXXXXXX)
 function formatPhoneNumber(phone: string): string {
   let formatted = phone.replace(/\s+/g, "").replace(/-/g, "");
@@ -44,6 +47,35 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // Check if account is locked
+    const { data: attemptData } = await supabaseAdmin
+      .from("login_attempts")
+      .select("*")
+      .eq("identifier", formattedPhone)
+      .single();
+
+    if (attemptData?.locked_until) {
+      const lockedUntil = new Date(attemptData.locked_until);
+      if (lockedUntil > new Date()) {
+        const remainingMinutes = Math.ceil((lockedUntil.getTime() - Date.now()) / 60000);
+        return new Response(
+          JSON.stringify({ 
+            error: `অ্যাকাউন্ট সাময়িকভাবে লক করা হয়েছে। ${remainingMinutes} মিনিট পর আবার চেষ্টা করুন।`,
+            locked: true,
+            lockedUntil: attemptData.locked_until,
+            remainingMinutes
+          }),
+          { status: 423, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      } else {
+        // Lock expired, reset attempts
+        await supabaseAdmin
+          .from("login_attempts")
+          .update({ attempts: 0, locked_until: null, updated_at: new Date().toISOString() })
+          .eq("identifier", formattedPhone);
+      }
+    }
+
     // Find user by phone number in profiles
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
@@ -82,10 +114,54 @@ Deno.serve(async (req) => {
     });
 
     if (signInError) {
+      // Record failed attempt
+      const currentAttempts = (attemptData?.attempts || 0) + 1;
+      const shouldLock = currentAttempts >= MAX_ATTEMPTS;
+      
+      const updateData: Record<string, unknown> = {
+        identifier: formattedPhone,
+        identifier_type: 'phone',
+        attempts: currentAttempts,
+        last_attempt_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      if (shouldLock) {
+        const lockUntil = new Date(Date.now() + LOCK_DURATION_MINUTES * 60 * 1000);
+        updateData.locked_until = lockUntil.toISOString();
+      }
+
+      await supabaseAdmin
+        .from("login_attempts")
+        .upsert(updateData, { onConflict: 'identifier' });
+
+      if (shouldLock) {
+        return new Response(
+          JSON.stringify({ 
+            error: `অনেক বার ভুল পাসওয়ার্ড দেওয়া হয়েছে। অ্যাকাউন্ট ${LOCK_DURATION_MINUTES} মিনিটের জন্য লক করা হয়েছে।`,
+            locked: true,
+            remainingMinutes: LOCK_DURATION_MINUTES
+          }),
+          { status: 423, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const attemptsRemaining = MAX_ATTEMPTS - currentAttempts;
       return new Response(
-        JSON.stringify({ error: "Invalid password" }),
+        JSON.stringify({ 
+          error: `ভুল পাসওয়ার্ড। আর ${attemptsRemaining} বার চেষ্টা করতে পারবেন।`,
+          attemptsRemaining
+        }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Successful login - reset attempts
+    if (attemptData) {
+      await supabaseAdmin
+        .from("login_attempts")
+        .update({ attempts: 0, locked_until: null, updated_at: new Date().toISOString() })
+        .eq("identifier", formattedPhone);
     }
 
     // Check if user has PIN set up

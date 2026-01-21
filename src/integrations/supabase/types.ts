@@ -512,6 +512,39 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          attempts: number
+          created_at: string
+          id: string
+          identifier: string
+          identifier_type: string
+          last_attempt_at: string
+          locked_until: string | null
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          identifier: string
+          identifier_type?: string
+          last_attempt_at?: string
+          locked_until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          identifier?: string
+          identifier_type?: string
+          last_attempt_at?: string
+          locked_until?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       manufacturers: {
         Row: {
           address: string | null
@@ -1715,6 +1748,7 @@ export type Database = {
     }
     Functions: {
       cleanup_expired_otps: { Args: never; Returns: undefined }
+      cleanup_old_login_attempts: { Args: never; Returns: undefined }
       generate_invoice_number: { Args: never; Returns: string }
       generate_order_number: { Args: never; Returns: string }
       get_pharmacy_owner_id: { Args: { _user_id: string }; Returns: string }
