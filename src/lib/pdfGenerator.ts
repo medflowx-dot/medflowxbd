@@ -552,11 +552,11 @@ export function generateOrderPDF(data: OrderPDFData, download: boolean = true): 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.text(`Total Amount:`, 18, paymentY + 10);
-    doc.text(`${CURRENCY}${data.total_amount?.toFixed(2) || '0.00'}`, 80, paymentY + 10, { align: 'right' });
+    doc.text(`${CURRENCY}${Math.round(data.total_amount || 0).toLocaleString()}`, 80, paymentY + 10, { align: 'right' });
     
     doc.text(`Paid Amount:`, 18, paymentY + 17);
     doc.setTextColor(34, 139, 34);
-    doc.text(`${CURRENCY}${data.paid_amount?.toFixed(2) || '0.00'}`, 80, paymentY + 17, { align: 'right' });
+    doc.text(`${CURRENCY}${Math.round(data.paid_amount || 0).toLocaleString()}`, 80, paymentY + 17, { align: 'right' });
     doc.setTextColor(0);
     
     doc.setFont('helvetica', 'bold');
@@ -564,7 +564,7 @@ export function generateOrderPDF(data: OrderPDFData, download: boolean = true): 
     if ((data.due_amount || 0) > 0) {
       doc.setTextColor(220, 53, 69);
     }
-    doc.text(`${CURRENCY}${data.due_amount?.toFixed(2) || '0.00'}`, 80, paymentY + 24, { align: 'right' });
+    doc.text(`${CURRENCY}${Math.round(data.due_amount || 0).toLocaleString()}`, 80, paymentY + 24, { align: 'right' });
     doc.setTextColor(0);
   }
 
