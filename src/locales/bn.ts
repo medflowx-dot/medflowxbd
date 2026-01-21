@@ -568,6 +568,10 @@ export const bn: TranslationKeys = {
     deletePurchase: 'ক্রয় মুছুন',
     deletePurchaseConfirm: 'আপনি কি এই ক্রয় মুছে ফেলতে চান?',
     deletePurchaseWarning: 'এটি সরবরাহকারীর বকেয়া ব্যালেন্স আপডেট করবে।',
+    // Clear History
+    clearHistory: 'সব মুছুন',
+    clearHistoryTitle: 'সব হিস্ট্রি মুছে ফেলবেন?',
+    clearHistoryDescription: 'এই সাপ্লায়ারের সকল পারচেজ ও পেমেন্ট হিস্ট্রি স্থায়ীভাবে মুছে যাবে। এই পদক্ষেপ পূর্বাবস্থায় ফেরানো যাবে না।',
     invoiceNumber: 'ইনভয়েস #',
     dueAmount: 'বকেয়া পরিমাণ',
     // Purchase History
@@ -750,6 +754,13 @@ export const bn: TranslationKeys = {
     // Statement Export
     exportStatement: 'স্টেটমেন্ট',
     statementExported: 'গ্রাহক স্টেটমেন্ট PDF এক্সপোর্ট হয়েছে',
+    // Clear History
+    clearHistory: 'সব মুছুন',
+    clearHistoryTitle: 'সব হিস্ট্রি মুছে ফেলবেন?',
+    clearHistoryDescription: 'এই কাস্টমারের সকল বকেয়া ও পেমেন্ট হিস্ট্রি স্থায়ীভাবে মুছে যাবে। এই পদক্ষেপ পূর্বাবস্থায় ফেরানো যাবে না।',
+    clearAll: 'সব মুছে ফেলুন',
+    historyCleared: 'সব হিস্ট্রি মুছে ফেলা হয়েছে',
+    historyClearedDesc: 'সকল বকেয়া ও পেমেন্ট স্থায়ীভাবে মুছে ফেলা হয়েছে।',
   },
 
   // Daily Cash Page
