@@ -164,7 +164,7 @@ export function CustomerPaymentHistory({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent variant="fullscreen" className="sm:max-w-lg">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle className="flex items-center gap-2">

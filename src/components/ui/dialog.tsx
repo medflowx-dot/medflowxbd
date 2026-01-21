@@ -27,20 +27,26 @@ const DialogOverlay = React.forwardRef<
 ));
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
+interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
+  variant?: 'default' | 'fullscreen';
+}
+
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+  DialogContentProps
+>(({ className, children, variant = 'default', ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] gap-4 border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-        // Mobile: full-screen style with better scroll
-        "top-0 bottom-0 rounded-none p-4 max-h-[100dvh] overflow-y-auto overscroll-contain",
-        // Desktop: centered modal
-        "sm:top-[50%] sm:bottom-auto sm:translate-y-[-50%] sm:max-h-[85vh] sm:rounded-lg sm:p-6",
+        "fixed z-50 grid w-full max-w-lg gap-4 border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        // Mobile: Bottom Sheet style (default) or Fullscreen
+        variant === 'fullscreen' 
+          ? "left-0 right-0 top-0 bottom-0 max-w-none rounded-none p-4 max-h-[100dvh] overflow-y-auto overscroll-contain data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom"
+          : "left-0 right-0 bottom-0 top-auto rounded-t-2xl p-4 pb-safe max-h-[85dvh] overflow-y-auto overscroll-contain data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom-10",
+        // Desktop: Always centered modal
+        "sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:right-auto sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-h-[85vh] sm:rounded-lg sm:p-6 sm:max-w-lg sm:data-[state=closed]:slide-out-to-bottom-0 sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95",
         className,
       )}
       style={{
@@ -48,6 +54,12 @@ const DialogContent = React.forwardRef<
       }}
       {...props}
     >
+      {/* Drag handle for mobile bottom sheet */}
+      {variant !== 'fullscreen' && (
+        <div className="absolute left-1/2 top-2 -translate-x-1/2 sm:hidden">
+          <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
+        </div>
+      )}
       {children}
       <DialogPrimitive.Close className="absolute right-4 top-4 z-10 rounded-full p-1.5 bg-muted/80 backdrop-blur-sm opacity-90 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none sm:bg-transparent sm:backdrop-blur-none">
         <X className="h-4 w-4" />
@@ -59,7 +71,7 @@ const DialogContent = React.forwardRef<
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)} {...props} />
+  <div className={cn("flex flex-col space-y-1.5 text-center sm:text-left pt-2 sm:pt-0", className)} {...props} />
 );
 DialogHeader.displayName = "DialogHeader";
 
