@@ -94,7 +94,12 @@ serve(async (req) => {
 
     console.log("Sending to UddoktaPay:", JSON.stringify(uddoktaPayload));
 
-    const uddoktaResponse = await fetch(`${baseUrl}/api/checkout-v2`, {
+    // Ensure baseUrl doesn't end with /api if we're adding /api/checkout-v2
+    const cleanBaseUrl = baseUrl.replace(/\/api\/?$/, '');
+    const apiEndpoint = `${cleanBaseUrl}/api/checkout-v2`;
+    console.log("UddoktaPay API endpoint:", apiEndpoint);
+
+    const uddoktaResponse = await fetch(apiEndpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
