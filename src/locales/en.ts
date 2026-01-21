@@ -608,6 +608,8 @@ export const en = {
     selectFormat: 'Select format',
     language: 'Language',
     selectLanguage: 'Select language',
+    english: 'English',
+    bengali: 'Bengali',
     savePreferences: 'Save Preferences',
     // Appearance
     appearance: 'Appearance',

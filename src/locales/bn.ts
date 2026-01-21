@@ -610,6 +610,8 @@ export const bn: TranslationKeys = {
     selectFormat: 'ফরম্যাট নির্বাচন করুন',
     language: 'ভাষা',
     selectLanguage: 'ভাষা নির্বাচন করুন',
+    english: 'ইংরেজি',
+    bengali: 'বাংলা',
     savePreferences: 'পছন্দ সংরক্ষণ করুন',
     // Appearance
     appearance: 'অ্যাপিয়ারেন্স',

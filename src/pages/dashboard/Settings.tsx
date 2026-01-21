@@ -278,8 +278,8 @@ export default function Settings() {
                     <SelectValue placeholder={t.settings.selectLanguage} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="bn">বাংলা (Bengali)</SelectItem>
+                    <SelectItem value="en">{t.settings.english}</SelectItem>
+                    <SelectItem value="bn">{t.settings.bengali}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
