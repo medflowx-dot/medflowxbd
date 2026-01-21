@@ -845,3 +845,51 @@
     height: 32px !important;
   }
 }
+
+/* Mobile Dialog Scroll Improvements */
+@media (max-width: 640px) {
+  /* Better touch scrolling for dialogs */
+  [role="dialog"] {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Ensure form fields have enough spacing for touch */
+  [role="dialog"] form {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+  
+  /* Better spacing for dialog form elements */
+  [role="dialog"] .space-y-4 > * {
+    margin-bottom: 1rem;
+  }
+  
+  /* Sticky dialog footer on mobile */
+  [role="dialog"] footer,
+  [role="dialog"] .dialog-footer {
+    position: sticky;
+    bottom: 0;
+    background: hsl(var(--background));
+    padding-top: 1rem;
+    padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+    margin-top: auto;
+    border-top: 1px solid hsl(var(--border));
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Ensure select dropdowns don't get cut off */
+  [role="dialog"] [data-radix-select-viewport] {
+    max-height: 40vh;
+  }
+  
+  /* Better input touch targets */
+  [role="dialog"] input,
+  [role="dialog"] select,
+  [role="dialog"] textarea,
+  [role="dialog"] button {
+    min-height: 44px;
+  }
+}
