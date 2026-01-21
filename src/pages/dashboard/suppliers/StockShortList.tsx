@@ -602,18 +602,51 @@ export default function StockShortList() {
                       {pendingItems.map((item) => (
                         <div 
                           key={item.medicine_id} 
-                          className="flex items-center justify-between px-3 py-2 text-sm"
+                          className="flex items-center justify-between px-3 py-2 text-sm gap-2"
                         >
                           <div className="flex-1 min-w-0">
                             <span className="font-medium truncate block">{item.medicine_name}</span>
                             <span className="text-xs text-muted-foreground">({item.medicine_unit})</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="secondary">{item.quantity}</Badge>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => {
+                                if (item.quantity > 1) {
+                                  const updated = pendingItems.map(p =>
+                                    p.medicine_id === item.medicine_id
+                                      ? { ...p, quantity: p.quantity - 1 }
+                                      : p
+                                  );
+                                  setPendingItems(updated);
+                                }
+                              }}
+                              disabled={item.quantity <= 1}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="w-8 text-center font-medium">{item.quantity}</span>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => {
+                                const updated = pendingItems.map(p =>
+                                  p.medicine_id === item.medicine_id
+                                    ? { ...p, quantity: p.quantity + 1 }
+                                    : p
+                                );
+                                setPendingItems(updated);
+                              }}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7"
+                              className="h-7 w-7 ml-1"
                               onClick={() => handleRemoveFromPending(item.medicine_id)}
                             >
                               <X className="h-3 w-3 text-destructive" />
