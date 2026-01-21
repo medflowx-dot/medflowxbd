@@ -202,7 +202,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "customer_dues_customer_id_fkey"
+            foreignKeyName: "customer_dues_customer_id_fkey_cascade"
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
@@ -246,7 +246,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "customer_payments_customer_id_fkey"
+            foreignKeyName: "customer_payments_customer_id_fkey_cascade"
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
@@ -1493,7 +1493,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "supplier_payments_supplier_id_fkey"
+            foreignKeyName: "supplier_payments_supplier_id_fkey_cascade"
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
@@ -1543,7 +1543,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "supplier_purchases_supplier_id_fkey"
+            foreignKeyName: "supplier_purchases_supplier_id_fkey_cascade"
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
