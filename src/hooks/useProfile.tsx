@@ -10,6 +10,7 @@ export interface Profile {
   pharmacy_name: string | null;
   pharmacy_logo: string | null;
   phone: string | null;
+  phone_verified: boolean | null;
   avatar_url: string | null;
   currency: string | null;
   date_format: string | null;
