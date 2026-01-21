@@ -127,13 +127,13 @@ export function SupplierPaymentHistoryDialog({ supplier, payments, trigger }: Su
                     <TableHead>{t.suppliers.paymentType}</TableHead>
                     <TableHead>{t.sales.method}</TableHead>
                     <TableHead className="text-right">{t.labels.amount}</TableHead>
-                    <TableHead className="w-[100px]">{t.suppliers.actions}</TableHead>
+                    <TableHead className="w-[80px] sticky right-0 bg-background">{t.suppliers.actions}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {supplierPayments.map((payment) => (
                     <TableRow key={payment.id}>
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         {format(parseISO(payment.payment_date), 'dd MMM yyyy')}
                       </TableCell>
                       <TableCell>{getPaymentTypeBadge(payment.payment_type)}</TableCell>
@@ -141,7 +141,7 @@ export function SupplierPaymentHistoryDialog({ supplier, payments, trigger }: Su
                       <TableCell className="text-right font-medium text-green-600">
                         ৳{Math.round(payment.amount)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="sticky right-0 bg-background">
                         <div className="flex items-center gap-1">
                           <EditSupplierPaymentDialog
                             payment={payment}
