@@ -23,6 +23,7 @@ import {
   Database,
   Menu,
   Smartphone,
+  Lock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -78,6 +79,11 @@ const masterDataItems = [
 ];
 
 const systemItems = [
+  {
+    title: 'Locked Accounts',
+    href: '/owner/locked-accounts',
+    icon: Lock,
+  },
   {
     title: 'Feature Flags',
     href: '/owner/feature-flags',

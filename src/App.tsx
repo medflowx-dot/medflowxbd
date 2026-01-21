@@ -60,6 +60,7 @@ const EmailTemplates = lazy(() => import("./pages/owner/EmailTemplates"));
 const GlobalManufacturers = lazy(() => import("./pages/owner/GlobalManufacturers"));
 const GlobalMedicines = lazy(() => import("./pages/owner/GlobalMedicines"));
 const NotificationLogs = lazy(() => import("./pages/owner/NotificationLogs"));
+const LockedAccounts = lazy(() => import("./pages/owner/LockedAccounts"));
 
 const queryClient = new QueryClient();
 
@@ -144,6 +145,7 @@ const App = () => (
                     <Route path="pricing" element={<PricingPlans />} />
                     <Route path="global-manufacturers" element={<GlobalManufacturers />} />
                     <Route path="global-medicines" element={<GlobalMedicines />} />
+                    <Route path="locked-accounts" element={<LockedAccounts />} />
                     <Route path="feature-flags" element={<FeatureFlags />} />
                     <Route path="system-review" element={<SystemReview />} />
                     <Route path="cms" element={<CMSManager />} />
