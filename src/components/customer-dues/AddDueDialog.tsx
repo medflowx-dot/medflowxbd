@@ -63,9 +63,14 @@ export function AddDueDialog({ open, onOpenChange, customer }: AddDueDialogProps
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Previous Due Info */}
           <div className="rounded-lg bg-muted p-3">
-            <p className="text-sm text-muted-foreground">{t.customerDues.currentDue}</p>
-            <p className="text-xl font-bold">৳{Number(customer.total_due).toFixed(2)}</p>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">{t.customerDues.currentDue}:</span>
+              <span className={`font-semibold ${Number(customer.total_due) > 0 ? 'text-destructive' : 'text-success'}`}>
+                ৳{Math.round(Math.max(0, Number(customer.total_due)))}
+              </span>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -93,14 +98,21 @@ export function AddDueDialog({ open, onOpenChange, customer }: AddDueDialogProps
             />
           </div>
 
-          {amount && (
-            <div className="rounded-lg bg-primary/10 p-3">
-              <p className="text-sm text-muted-foreground">{t.customerDues.newTotalDue}</p>
-              <p className="text-xl font-bold text-primary">
-                ৳{(Number(customer.total_due) + parseFloat(amount || '0')).toFixed(2)}
-              </p>
+          {/* Total Due Summary */}
+          <div className="p-3 bg-muted rounded-lg space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">এই বকেয়া (This Due):</span>
+              <span className="font-semibold text-destructive">
+                ৳{Math.round(parseFloat(amount) || 0)}
+              </span>
             </div>
-          )}
+            <div className="flex justify-between text-sm pt-2 border-t border-border">
+              <span className="text-muted-foreground font-medium">{t.customerDues.newTotalDue}:</span>
+              <span className="font-bold text-destructive">
+                ৳{Math.round(Number(customer.total_due) + (parseFloat(amount) || 0))}
+              </span>
+            </div>
+          </div>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
