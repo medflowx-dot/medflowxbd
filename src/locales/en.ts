@@ -730,6 +730,21 @@ export const en = {
     paymentEntry: 'Payment',
     transactionHistory: 'Transaction History',
     allTransactions: 'All Transactions',
+    // Split Due
+    splitDue: 'Split Due Entry',
+    splitDueDesc: 'Divide this due into multiple separate entries with custom dates',
+    splitDueBtn: 'Split Due',
+    originalAmount: 'Original Amount',
+    splitTotal: 'Split Total',
+    remaining: 'Remaining',
+    entry: 'Entry',
+    addAnotherEntry: 'Add Another Entry',
+    splitSuccess: 'Due Split Successfully',
+    splitSuccessDesc: 'The due has been split into multiple entries',
+    splitError: 'Split Error',
+    splitErrorDesc: 'Failed to split due. Please try again.',
+    atLeastTwoEntries: 'At least 2 entries with amounts are required',
+    totalMustMatch: 'Total of split entries must equal original amount',
   },
 
   // Daily Cash Page
