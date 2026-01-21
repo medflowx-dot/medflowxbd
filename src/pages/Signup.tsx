@@ -1,14 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Eye, EyeOff, CheckCircle2, Phone, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Loader2, Eye, EyeOff, CheckCircle2, Phone, ArrowLeft, ArrowRight, Timer, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePlatformBranding } from '@/hooks/usePlatformBranding';
 import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { useOtpTimer } from '@/hooks/useOtpTimer';
 import logoAuthFallback from '@/assets/logo-auth.png';
 
 // Plan display configuration
@@ -62,6 +63,17 @@ export default function Signup() {
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [creatingAccount, setCreatingAccount] = useState(false);
 
+  // OTP Timer
+  const { 
+    otpTimeRemaining, 
+    resendTimeRemaining, 
+    isOtpExpired, 
+    canResend, 
+    startTimers, 
+    resetTimers, 
+    formatTime 
+  } = useOtpTimer();
+
   const currentPlanConfig = useMemo(() => {
     return planConfig[plan] || planConfig.trial;
   }, [plan]);
@@ -91,6 +103,7 @@ export default function Signup() {
       if (data.error) throw new Error(data.error);
 
       toast.success('OTP পাঠানো হয়েছে!');
+      startTimers();
       setStep('otp');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'OTP পাঠাতে ব্যর্থ';
@@ -102,6 +115,11 @@ export default function Signup() {
 
   // Step 2: Verify OTP
   const handleVerifyOtp = async () => {
+    if (isOtpExpired) {
+      toast.error('OTP মেয়াদোত্তীর্ণ হয়েছে। নতুন OTP নিন।');
+      return;
+    }
+    
     if (otp.length !== 6) {
       toast.error('৬ ডিজিটের OTP দিন');
       return;
@@ -181,6 +199,7 @@ export default function Signup() {
 
       toast.success('নতুন OTP পাঠানো হয়েছে!');
       setOtp('');
+      resetTimers();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'OTP পাঠাতে ব্যর্থ';
       toast.error(message);
@@ -288,12 +307,36 @@ export default function Signup() {
                   <strong>{phone}</strong> নাম্বারে ৬ ডিজিটের OTP পাঠানো হয়েছে
                 </p>
               </div>
+
+              {/* OTP Timer Display */}
+              <div className={`flex items-center justify-center gap-2 p-3 rounded-lg ${
+                isOtpExpired 
+                  ? 'bg-destructive/10 text-destructive' 
+                  : otpTimeRemaining <= 60 
+                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                    : 'bg-primary/10 text-primary'
+              }`}>
+                {isOtpExpired ? (
+                  <>
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="text-sm font-medium">OTP মেয়াদোত্তীর্ণ। নতুন OTP নিন।</span>
+                  </>
+                ) : (
+                  <>
+                    <Timer className="h-4 w-4" />
+                    <span className="text-sm font-medium">
+                      OTP মেয়াদ: {formatTime(otpTimeRemaining)}
+                    </span>
+                  </>
+                )}
+              </div>
               
               <div className="flex justify-center">
                 <InputOTP 
                   maxLength={6} 
                   value={otp}
                   onChange={setOtp}
+                  disabled={isOtpExpired}
                 >
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
@@ -318,7 +361,7 @@ export default function Signup() {
                 <Button 
                   onClick={handleVerifyOtp} 
                   className="flex-1" 
-                  disabled={verifyingOtp || otp.length !== 6}
+                  disabled={verifyingOtp || otp.length !== 6 || isOtpExpired}
                 >
                   {verifyingOtp ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -329,14 +372,20 @@ export default function Signup() {
               </div>
 
               <div className="text-center">
-                <Button 
-                  variant="link" 
-                  onClick={handleResendOtp}
-                  disabled={sendingOtp}
-                  className="text-sm"
-                >
-                  {sendingOtp ? 'পাঠানো হচ্ছে...' : 'আবার OTP পাঠান'}
-                </Button>
+                {canResend ? (
+                  <Button 
+                    variant="link" 
+                    onClick={handleResendOtp}
+                    disabled={sendingOtp}
+                    className="text-sm"
+                  >
+                    {sendingOtp ? 'পাঠানো হচ্ছে...' : 'আবার OTP পাঠান'}
+                  </Button>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    {formatTime(resendTimeRemaining)} পর আবার পাঠাতে পারবেন
+                  </p>
+                )}
               </div>
             </div>
           )}
