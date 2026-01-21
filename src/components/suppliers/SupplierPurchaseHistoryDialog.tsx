@@ -62,11 +62,11 @@ export function SupplierPurchaseHistoryDialog({ supplier, purchases, trigger }: 
           <div className="grid grid-cols-3 gap-4 mb-4">
             <div className="bg-muted/50 rounded-lg p-3">
               <p className="text-sm text-muted-foreground">{t.suppliers.totalPurchaseAmount}</p>
-              <p className="text-xl font-bold">৳{totalPurchaseAmount.toFixed(2)}</p>
+              <p className="text-xl font-bold">৳{Math.round(totalPurchaseAmount)}</p>
             </div>
             <div className="bg-success/10 rounded-lg p-3">
               <p className="text-sm text-muted-foreground">{t.suppliers.totalPaid}</p>
-              <p className="text-xl font-bold text-success">৳{totalPaidAmount.toFixed(2)}</p>
+              <p className="text-xl font-bold text-success">৳{Math.round(totalPaidAmount)}</p>
             </div>
             <div className={cn(
               "rounded-lg p-3",
@@ -77,7 +77,7 @@ export function SupplierPurchaseHistoryDialog({ supplier, purchases, trigger }: 
                 "text-xl font-bold",
                 totalDueAmount > 0 ? "text-destructive" : "text-muted-foreground"
               )}>
-                ৳{totalDueAmount.toFixed(2)}
+                ৳{totalDueAmount > 0 ? Math.round(totalDueAmount) : '0'}
               </p>
             </div>
           </div>
@@ -125,16 +125,16 @@ export function SupplierPurchaseHistoryDialog({ supplier, purchases, trigger }: 
                         {purchase.invoice_number || '-'}
                       </TableCell>
                       <TableCell className="text-right font-medium">
-                        ৳{purchase.total_amount.toFixed(2)}
+                        ৳{Math.round(purchase.total_amount)}
                       </TableCell>
                       <TableCell className="text-right text-success">
-                        ৳{purchase.paid_amount.toFixed(2)}
+                        ৳{Math.round(purchase.paid_amount)}
                       </TableCell>
                       <TableCell className="text-right">
                         {purchase.due_amount > 0 ? (
-                          <Badge variant="destructive">৳{purchase.due_amount.toFixed(2)}</Badge>
+                          <Badge variant="destructive">৳{Math.round(purchase.due_amount)}</Badge>
                         ) : (
-                          <Badge variant="secondary">৳0.00</Badge>
+                          <Badge variant="secondary">৳0</Badge>
                         )}
                       </TableCell>
                       <TableCell>

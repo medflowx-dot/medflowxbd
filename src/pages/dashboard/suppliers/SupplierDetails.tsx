@@ -374,13 +374,13 @@ export default function SupplierDetails() {
                         <TableRow key={purchase.id}>
                           <TableCell>{format(parseISO(purchase.purchase_date), 'dd MMM yyyy')}</TableCell>
                           <TableCell>{purchase.invoice_number || '-'}</TableCell>
-                          <TableCell className="text-right font-medium">৳{purchase.total_amount.toFixed(2)}</TableCell>
-                          <TableCell className="text-right text-success">৳{purchase.paid_amount.toFixed(2)}</TableCell>
+                          <TableCell className="text-right font-medium">৳{Math.round(purchase.total_amount)}</TableCell>
+                          <TableCell className="text-right text-success">৳{Math.round(purchase.paid_amount)}</TableCell>
                           <TableCell className="text-right">
                             {purchase.due_amount > 0 ? (
-                              <Badge variant="destructive">৳{purchase.due_amount.toFixed(2)}</Badge>
+                              <Badge variant="destructive">৳{Math.round(purchase.due_amount)}</Badge>
                             ) : (
-                              <Badge variant="secondary">৳0.00</Badge>
+                              <Badge variant="secondary">৳0</Badge>
                             )}
                           </TableCell>
                           <TableCell>
@@ -454,7 +454,7 @@ export default function SupplierDetails() {
                           <TableCell>{format(parseISO(payment.payment_date), 'dd MMM yyyy')}</TableCell>
                           <TableCell>{getPaymentTypeBadge(payment.payment_type)}</TableCell>
                           <TableCell>{getPaymentMethodLabel(payment.payment_method)}</TableCell>
-                          <TableCell className="text-right font-medium text-success">৳{payment.amount.toFixed(2)}</TableCell>
+                          <TableCell className="text-right font-medium text-success">৳{Math.round(payment.amount)}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">
                               <EditSupplierPaymentDialog

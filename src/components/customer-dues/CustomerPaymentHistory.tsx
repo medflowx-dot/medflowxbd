@@ -98,7 +98,7 @@ export function CustomerPaymentHistory({
                     {t.customerDues?.currentDue || 'Current Due'}
                   </p>
                   <p className="text-xl font-bold text-destructive">
-                    ৳{Number(customer?.total_due || 0) > 0 ? Number(customer?.total_due).toFixed(2) : '0.00'}
+                    ৳{Number(customer?.total_due || 0) > 0 ? Math.round(Number(customer?.total_due)) : '0'}
                   </p>
                 </div>
               </div>
@@ -131,7 +131,7 @@ export function CustomerPaymentHistory({
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right font-medium text-success">
-                            ৳{Number(payment.amount).toFixed(2)}
+                            ৳{Math.round(Number(payment.amount))}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-1">

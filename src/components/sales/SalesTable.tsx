@@ -233,10 +233,10 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                                   <span>
                                     {item.medicine_name} 
                                     <span className="text-muted-foreground ml-1">
-                                      ({item.quantity} {getUnitLabel(item.sale_unit || 'piece')} @ ৳{Number(item.unit_price).toFixed(2)})
+                                      ({item.quantity} {getUnitLabel(item.sale_unit || 'piece')} @ ৳{Math.round(Number(item.unit_price))})
                                     </span>
                                   </span>
-                                  <span className="font-medium">৳{Number(item.total_price).toFixed(2)}</span>
+                                  <span className="font-medium">৳{Math.round(Number(item.total_price))}</span>
                                 </div>
                               ))}
                             </div>

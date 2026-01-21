@@ -188,7 +188,7 @@ export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-orange-800 dark:text-orange-200">{t.sales.unaccounted}:</span>
                   <span className="font-bold text-orange-800 dark:text-orange-200">
-                    ৳{(totalAmount - paidAmount).toFixed(2)}
+                    ৳{Math.round(totalAmount - paidAmount)}
                   </span>
                 </div>
               </div>
