@@ -30,6 +30,7 @@ export interface PaymentRequestWithUser extends PaymentRequest {
 }
 
 // Hook for users to view their own payment requests
+// Only show requests with valid transaction_id (completed checkout)
 export function useUserPaymentRequests() {
   const { user } = useAuth();
 
@@ -42,6 +43,7 @@ export function useUserPaymentRequests() {
         .from('payment_requests')
         .select('*')
         .eq('user_id', user.id)
+        .neq('transaction_id', '') // Only show requests with valid transaction ID
         .order('submitted_at', { ascending: false });
 
       if (error) {
