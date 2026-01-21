@@ -28,21 +28,32 @@ export function PaymentRequestDialog({ open, onOpenChange, plan }: PaymentReques
   useEffect(() => {
     const checkUddoktapay = async () => {
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('platform_settings')
           .select('setting_value')
           .eq('setting_key', 'uddoktapay_enabled')
           .single();
         
-        setUddoktapayEnabled(data?.setting_value === true || data?.setting_value === 'true');
+        if (error) {
+          console.error('Error fetching UddoktaPay settings:', error);
+          setUddoktapayEnabled(false);
+        } else {
+          // Handle various formats: boolean true, string "true", or JSONB true
+          const value = data?.setting_value;
+          const isEnabled = value === true || value === 'true' || String(value) === 'true';
+          console.log('UddoktaPay enabled check:', { value, isEnabled });
+          setUddoktapayEnabled(isEnabled);
+        }
       } catch (error) {
         console.error('Error checking UddoktaPay settings:', error);
+        setUddoktapayEnabled(false);
       } finally {
         setCheckingSettings(false);
       }
     };
 
     if (open) {
+      setCheckingSettings(true);
       checkUddoktapay();
     }
   }, [open]);
