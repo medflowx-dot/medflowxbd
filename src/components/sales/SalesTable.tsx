@@ -111,7 +111,7 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
             <TableHead className="text-right hidden md:table-cell text-xs sm:text-sm">{t.sales.paid}</TableHead>
             <TableHead className="text-right text-xs sm:text-sm">{t.sales.due}</TableHead>
             <TableHead className="hidden lg:table-cell text-xs sm:text-sm">{t.sales.method}</TableHead>
-            <TableHead className="text-right w-12"></TableHead>
+            <TableHead className="text-right w-12 sticky right-0 bg-background"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -162,7 +162,7 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                         )}
                       </TableCell>
                     )}
-                    <TableCell className="text-xs sm:text-sm">
+                    <TableCell className="text-xs sm:text-sm whitespace-nowrap">
                       <span className="sm:hidden">{format(new Date(sale.sale_date), 'dd/MM')}</span>
                       <span className="hidden sm:inline">{format(new Date(sale.sale_date), 'dd MMM yyyy')}</span>
                     </TableCell>
@@ -184,7 +184,7 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
                         {sale.payment_method}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right sticky right-0 bg-background">
                       <div className="flex items-center justify-end gap-1">
                         <EditSaleDialog
                           sale={sale}
