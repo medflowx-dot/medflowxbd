@@ -25,9 +25,22 @@ export interface CustomerPayment {
   created_at: string;
 }
 
-export interface CustomerWithPayments extends Customer {
-  payments: CustomerPayment[];
+export interface CustomerDue {
+  id: string;
+  customer_id: string;
+  amount: number;
+  due_date: string;
+  notes: string | null;
+  created_at: string;
 }
+
+export interface CustomerWithHistory extends Customer {
+  payments: CustomerPayment[];
+  dues: CustomerDue[];
+}
+
+// Backwards compatibility alias
+export type CustomerWithPayments = CustomerWithHistory;
 
 export function useCustomers() {
   const { user } = useAuth();
@@ -72,10 +85,20 @@ export function useCustomerWithPayments(customerId: string | null) {
 
       if (paymentsError) throw paymentsError;
 
+      // Fetch dues from the new customer_dues table
+      const { data: dues, error: duesError } = await supabase
+        .from('customer_dues')
+        .select('*')
+        .eq('customer_id', customerId)
+        .order('due_date', { ascending: false });
+
+      if (duesError) throw duesError;
+
       return {
         ...customer,
         payments: payments || [],
-      } as CustomerWithPayments;
+        dues: dues || [],
+      } as CustomerWithHistory;
     },
     enabled: !!user && !!customerId,
   });
@@ -166,28 +189,20 @@ export function useAddCustomerDue() {
       amount: number;
       notes?: string;
     }) => {
-      // Update customer's total due
-      const { data: customer, error: fetchError } = await supabase
-        .from('customers')
-        .select('total_due')
-        .eq('id', data.customer_id)
+      // Insert into customer_dues table - trigger will auto-update total_due
+      const { data: due, error } = await supabase
+        .from('customer_dues')
+        .insert({
+          user_id: user!.id,
+          customer_id: data.customer_id,
+          amount: data.amount,
+          notes: data.notes || null,
+        })
+        .select()
         .single();
 
-      if (fetchError) throw fetchError;
-
-      const newTotalDue = Number(customer.total_due) + data.amount;
-
-      const { error: updateError } = await supabase
-        .from('customers')
-        .update({ 
-          total_due: newTotalDue,
-          notes: data.notes ? `${customer.total_due > 0 ? 'Added due: ' : ''}${data.notes}` : undefined,
-        })
-        .eq('id', data.customer_id);
-
-      if (updateError) throw updateError;
-
-      return { customer_id: data.customer_id, newTotalDue };
+      if (error) throw error;
+      return due;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
@@ -205,6 +220,85 @@ export function useAddCustomerDue() {
         variant: 'destructive',
       });
       console.error('Add due error:', error);
+    },
+  });
+}
+
+export function useUpdateCustomerDue() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      amount,
+      notes,
+    }: {
+      id: string;
+      amount: number;
+      notes?: string | null;
+    }) => {
+      const { data, error } = await supabase
+        .from('customer_dues')
+        .update({
+          amount,
+          notes,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-dues-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-payments'] });
+      toast({
+        title: 'Due updated',
+        description: 'Due entry has been updated.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: 'Failed to update due.',
+        variant: 'destructive',
+      });
+      console.error('Update due error:', error);
+    },
+  });
+}
+
+export function useDeleteCustomerDue() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (dueId: string) => {
+      const { error } = await supabase
+        .from('customer_dues')
+        .delete()
+        .eq('id', dueId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-dues-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-payments'] });
+      toast({
+        title: 'Due deleted',
+        description: 'Due entry has been removed.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete due.',
+        variant: 'destructive',
+      });
+      console.error('Delete due error:', error);
     },
   });
 }

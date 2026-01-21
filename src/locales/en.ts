@@ -720,6 +720,16 @@ export const en = {
     deletePaymentConfirm: 'Are you sure you want to delete this payment? The customer\'s due will be recalculated.',
     amount: 'Amount',
     bank: 'Bank',
+    // Due Edit/Delete
+    editDue: 'Edit Due Entry',
+    editDueDesc: 'Update the due amount and notes',
+    updateDue: 'Update Due',
+    deleteDue: 'Delete Due Entry',
+    deleteDueConfirm: 'Are you sure you want to delete this due entry? The customer\'s balance will be recalculated.',
+    dueEntry: 'Due',
+    paymentEntry: 'Payment',
+    transactionHistory: 'Transaction History',
+    allTransactions: 'All Transactions',
   },
 
   // Daily Cash Page
