@@ -853,6 +853,42 @@ export type Database = {
           },
         ]
       }
+      phone_otp_verifications: {
+        Row: {
+          attempts: number
+          created_at: string
+          expires_at: string
+          id: string
+          is_verified: boolean
+          otp_code: string
+          phone: string
+          purpose: string
+          verified_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_verified?: boolean
+          otp_code: string
+          phone: string
+          purpose?: string
+          verified_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_verified?: boolean
+          otp_code?: string
+          phone?: string
+          purpose?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           created_at: string
@@ -944,6 +980,7 @@ export type Database = {
           pharmacy_logo: string | null
           pharmacy_name: string | null
           phone: string | null
+          phone_verified: boolean | null
           updated_at: string
           user_id: string
         }
@@ -959,6 +996,7 @@ export type Database = {
           pharmacy_logo?: string | null
           pharmacy_name?: string | null
           phone?: string | null
+          phone_verified?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -974,6 +1012,7 @@ export type Database = {
           pharmacy_logo?: string | null
           pharmacy_name?: string | null
           phone?: string | null
+          phone_verified?: boolean | null
           updated_at?: string
           user_id?: string
         }
@@ -1613,6 +1652,42 @@ export type Database = {
           },
         ]
       }
+      user_pins: {
+        Row: {
+          created_at: string
+          device_id: string | null
+          failed_attempts: number
+          id: string
+          is_active: boolean
+          locked_until: string | null
+          pin_hash: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_id?: string | null
+          failed_attempts?: number
+          id?: string
+          is_active?: boolean
+          locked_until?: string | null
+          pin_hash: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string | null
+          failed_attempts?: number
+          id?: string
+          is_active?: boolean
+          locked_until?: string | null
+          pin_hash?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1639,6 +1714,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_otps: { Args: never; Returns: undefined }
       generate_invoice_number: { Args: never; Returns: string }
       generate_order_number: { Args: never; Returns: string }
       get_pharmacy_owner_id: { Args: { _user_id: string }; Returns: string }
