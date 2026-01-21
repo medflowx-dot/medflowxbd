@@ -169,6 +169,47 @@ export type Database = {
           },
         ]
       }
+      customer_dues: {
+        Row: {
+          amount: number
+          created_at: string
+          customer_id: string
+          due_date: string
+          id: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          customer_id: string
+          due_date?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          customer_id?: string
+          due_date?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_dues_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_payments: {
         Row: {
           amount: number
