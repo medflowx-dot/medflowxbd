@@ -562,6 +562,12 @@ export default function StockShortList() {
                         min={1}
                         value={newItem.quantity}
                         onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && newItem.medicine_id) {
+                            e.preventDefault();
+                            handleAddToPending();
+                          }
+                        }}
                         className="w-14 h-9 text-center px-1"
                         placeholder="Qty"
                       />
