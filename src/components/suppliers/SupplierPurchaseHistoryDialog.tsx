@@ -108,21 +108,17 @@ export function SupplierPurchaseHistoryDialog({ supplier, purchases, trigger }: 
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t.labels.date}</TableHead>
-                    <TableHead>{t.suppliers.invoiceNumber}</TableHead>
                     <TableHead className="text-right">{t.labels.total}</TableHead>
                     <TableHead className="text-right">{t.sales.paid}</TableHead>
                     <TableHead className="text-right">{t.suppliers.dueAmount}</TableHead>
-                    <TableHead className="w-[100px]">{t.suppliers.actions}</TableHead>
+                    <TableHead className="w-[80px] sticky right-0 bg-background">{t.suppliers.actions}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {supplierPurchases.map((purchase) => (
                     <TableRow key={purchase.id}>
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         {format(parseISO(purchase.purchase_date), 'dd MMM yyyy')}
-                      </TableCell>
-                      <TableCell>
-                        {purchase.invoice_number || '-'}
                       </TableCell>
                       <TableCell className="text-right font-medium">
                         ৳{Math.round(purchase.total_amount)}
@@ -137,7 +133,7 @@ export function SupplierPurchaseHistoryDialog({ supplier, purchases, trigger }: 
                           <Badge variant="secondary">৳0</Badge>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="sticky right-0 bg-background">
                         <div className="flex items-center gap-1">
                           <EditPurchaseDialog
                             purchase={purchase}
