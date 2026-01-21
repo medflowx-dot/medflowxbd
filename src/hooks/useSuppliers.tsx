@@ -183,10 +183,10 @@ export function useSuppliers() {
 
   const deleteSupplierMutation = useMutation({
     mutationFn: async (id: string) => {
-      // Soft delete - mark as inactive instead of hard delete
+      // Hard delete - this will cascade delete all related payments and purchases
       const { error } = await supabase
         .from('suppliers')
-        .update({ is_active: false })
+        .delete()
         .eq('id', id);
       
       if (error) throw error;
@@ -194,7 +194,9 @@ export function useSuppliers() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
       queryClient.invalidateQueries({ queryKey: ['supplier-dues-summary'] });
-      toast.success('Supplier deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['supplier-payments'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier-purchases'] });
+      toast.success('Supplier and all related history deleted successfully');
     },
     onError: (error) => {
       toast.error('Failed to delete supplier: ' + error.message);

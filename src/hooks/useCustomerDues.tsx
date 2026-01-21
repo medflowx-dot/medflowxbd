@@ -397,9 +397,10 @@ export function useDeleteCustomer() {
 
   return useMutation({
     mutationFn: async (customerId: string) => {
+      // Hard delete - this will cascade delete all related payments and dues
       const { error } = await supabase
         .from('customers')
-        .update({ is_active: false })
+        .delete()
         .eq('id', customerId);
 
       if (error) throw error;
@@ -407,15 +408,17 @@ export function useDeleteCustomer() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       queryClient.invalidateQueries({ queryKey: ['customer-dues-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-payments'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-dues'] });
       toast({
-        title: 'Customer removed',
-        description: 'Customer has been removed.',
+        title: 'Customer deleted',
+        description: 'Customer and all related history have been permanently deleted.',
       });
     },
     onError: (error) => {
       toast({
         title: 'Error',
-        description: 'Failed to remove customer.',
+        description: 'Failed to delete customer.',
         variant: 'destructive',
       });
       console.error('Delete customer error:', error);
