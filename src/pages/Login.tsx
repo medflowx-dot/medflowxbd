@@ -510,7 +510,13 @@ export default function Login() {
             </TabsContent>
           </Tabs>
 
-          <div className="mt-6 text-center text-sm">
+          <div className="mt-4 text-center">
+            <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-primary">
+              পাসওয়ার্ড ভুলে গেছেন?
+            </Link>
+          </div>
+
+          <div className="mt-4 text-center text-sm">
             <span className="text-muted-foreground">অ্যাকাউন্ট নেই? </span>
             <Link to="/signup" className="text-primary hover:underline font-medium">
               ফ্রি ট্রায়াল শুরু করুন
