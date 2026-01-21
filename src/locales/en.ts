@@ -571,6 +571,7 @@ export const en = {
     clearHistory: 'Clear All',
     clearHistoryTitle: 'Clear All History?',
     clearHistoryDescription: 'All purchases and payments for this supplier will be permanently deleted. This action cannot be undone.',
+    willDeleteCount: 'Will be deleted:',
     invoiceNumber: 'Invoice #',
     dueAmount: 'Due Amount',
     // Purchase History
@@ -757,6 +758,7 @@ export const en = {
     clearHistory: 'Clear All',
     clearHistoryTitle: 'Clear All History?',
     clearHistoryDescription: 'All dues and payment history for this customer will be permanently deleted. This action cannot be undone.',
+    willDeleteCount: 'Will be deleted:',
     clearAll: 'Clear All',
     historyCleared: 'All history cleared',
     historyClearedDesc: 'All dues and payments have been permanently deleted.',
