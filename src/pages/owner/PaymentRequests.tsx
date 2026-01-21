@@ -18,16 +18,22 @@ import {
   CreditCard,
   Smartphone,
   AlertTriangle,
-  DollarSign
+  DollarSign,
+  Trash2
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function PaymentRequests() {
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('pending');
   const [selectedRequest, setSelectedRequest] = useState<PaymentRequestWithUser | null>(null);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [isCleaningUp, setIsCleaningUp] = useState(false);
 
   const { data: requests = [], isLoading } = useAllPaymentRequests(activeTab);
   const verifyPayment = useVerifyPaymentRequest();
@@ -69,6 +75,28 @@ export default function PaymentRequests() {
     setRejectionReason('');
   };
 
+  const handleManualCleanup = async () => {
+    setIsCleaningUp(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('cleanup-abandoned-payments');
+      
+      if (error) throw error;
+      
+      if (data?.success) {
+        toast.success(`${data.deleted_count || 0} টি abandoned requests মুছে ফেলা হয়েছে`);
+        // Refresh the payment requests list
+        queryClient.invalidateQueries({ queryKey: ['all-payment-requests'] });
+      } else {
+        throw new Error(data?.error || 'Cleanup failed');
+      }
+    } catch (error: any) {
+      console.error('Cleanup error:', error);
+      toast.error(error.message || 'Cleanup করতে সমস্যা হয়েছে');
+    } finally {
+      setIsCleaningUp(false);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -106,11 +134,26 @@ export default function PaymentRequests() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold">Payment Requests</h1>
-        <p className="text-muted-foreground">
-          ক্লায়েন্টদের পেমেন্ট রিকোয়েস্ট ভেরিফাই করুন
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Payment Requests</h1>
+          <p className="text-muted-foreground">
+            ক্লায়েন্টদের পেমেন্ট রিকোয়েস্ট ভেরিফাই করুন
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={handleManualCleanup}
+          disabled={isCleaningUp}
+          className="gap-2"
+        >
+          {isCleaningUp ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Trash2 className="h-4 w-4" />
+          )}
+          Cleanup Abandoned
+        </Button>
       </div>
 
       {/* Stats Cards */}
