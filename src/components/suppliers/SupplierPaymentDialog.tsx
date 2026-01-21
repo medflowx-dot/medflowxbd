@@ -101,13 +101,26 @@ export function SupplierPaymentDialog({ supplier, trigger }: SupplierPaymentDial
         </DialogHeader>
 
         {/* Current Due Info */}
-        <div className="p-3 bg-muted rounded-lg mb-4">
+        <div className="p-3 bg-muted rounded-lg mb-4 space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">{t.suppliers?.currentDue || 'Current Due'}:</span>
             <span className={`font-semibold ${supplier.total_due > 0 ? 'text-destructive' : 'text-green-600'}`}>
-              ৳{supplier.total_due.toFixed(2)}
+              ৳{Math.round(Math.max(0, supplier.total_due))}
             </span>
           </div>
+          {supplier.total_due > 0 && (
+            <div className="flex gap-2 pt-2 border-t border-border">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs h-8"
+                onClick={() => setFormData({ ...formData, amount: String(supplier.total_due), payment_type: 'due_payment' })}
+              >
+                পুরো বকেয়া পরিশোধ (৳{Math.round(supplier.total_due)})
+              </Button>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -170,7 +183,7 @@ export function SupplierPaymentDialog({ supplier, trigger }: SupplierPaymentDial
               />
               {isDuePayment && supplier.total_due > 0 && (
                 <p className="text-xs text-muted-foreground">
-                  {t.suppliers?.maxDue || 'Max'}: ৳{supplier.total_due.toFixed(2)}
+                  {t.suppliers?.maxDue || 'Max'}: ৳{Math.round(supplier.total_due)}
                 </p>
               )}
             </div>
@@ -215,13 +228,13 @@ export function SupplierPaymentDialog({ supplier, trigger }: SupplierPaymentDial
             </div>
           </div>
 
-          {/* Summary based on payment type */}
+        {/* Summary based on payment type */}
           {paymentAmount > 0 && isDuePayment && (
             <div className="p-3 bg-success/10 rounded-lg">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{t.suppliers?.remainingDueAfter || 'Remaining Due After Payment'}:</span>
                 <span className={`font-semibold ${remainingDue > 0 ? 'text-destructive' : 'text-success'}`}>
-                  ৳{remainingDue.toFixed(2)}
+                  ৳{Math.round(Math.max(0, remainingDue))}
                 </span>
               </div>
             </div>
@@ -232,7 +245,7 @@ export function SupplierPaymentDialog({ supplier, trigger }: SupplierPaymentDial
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{t.suppliers?.advanceAmount || 'Advance Amount'}:</span>
                 <span className="font-semibold text-info">
-                  ৳{paymentAmount.toFixed(2)}
+                  ৳{Math.round(paymentAmount)}
                 </span>
               </div>
             </div>
