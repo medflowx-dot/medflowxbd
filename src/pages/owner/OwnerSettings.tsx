@@ -299,6 +299,22 @@ export default function OwnerSettings() {
               <p className="text-xs text-muted-foreground">For lifetime plan maintenance</p>
             </div>
           </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Abandoned Payment Cleanup (minutes)</Label>
+              <Input
+                type="number"
+                min="10"
+                max="1440"
+                value={String(localSettings.abandoned_payment_cleanup_minutes || '60').replace(/"/g, '')}
+                onChange={(e) => handleChange('abandoned_payment_cleanup_minutes', e.target.value)}
+                placeholder="60"
+              />
+              <p className="text-xs text-muted-foreground">
+                Empty transaction ID সহ pending requests এই সময়ের পর auto-delete হবে
+              </p>
+            </div>
+          </div>
           <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
             <div>
               <Label>Auto-Renewal</Label>

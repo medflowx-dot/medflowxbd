@@ -20,18 +20,36 @@ serve(async (req) => {
 
     console.log("Starting cleanup of abandoned payment requests...");
 
+    // Get the configurable cleanup interval from platform_settings
+    let cleanupMinutes = 60; // Default: 60 minutes
+    
+    const { data: settingData, error: settingError } = await supabaseClient
+      .from("platform_settings")
+      .select("setting_value")
+      .eq("setting_key", "abandoned_payment_cleanup_minutes")
+      .single();
+    
+    if (!settingError && settingData?.setting_value) {
+      const parsedValue = parseInt(String(settingData.setting_value).replace(/"/g, ''), 10);
+      if (!isNaN(parsedValue) && parsedValue > 0) {
+        cleanupMinutes = parsedValue;
+      }
+    }
+    
+    console.log(`Using cleanup interval: ${cleanupMinutes} minutes`);
+
     // Delete payment requests that:
     // 1. Have empty transaction_id (never completed gateway checkout)
-    // 2. Are older than 1 hour
+    // 2. Are older than configured minutes
     // 3. Are still in 'pending' status
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const cutoffTime = new Date(Date.now() - cleanupMinutes * 60 * 1000).toISOString();
 
     const { data: deletedRequests, error } = await supabaseClient
       .from("payment_requests")
       .delete()
       .eq("transaction_id", "")
       .eq("status", "pending")
-      .lt("created_at", oneHourAgo)
+      .lt("created_at", cutoffTime)
       .select("id, user_id, plan_type, amount");
 
     if (error) {
@@ -40,7 +58,7 @@ serve(async (req) => {
     }
 
     const deletedCount = deletedRequests?.length || 0;
-    console.log(`Cleaned up ${deletedCount} abandoned payment requests`);
+    console.log(`Cleaned up ${deletedCount} abandoned payment requests (older than ${cleanupMinutes} minutes)`);
 
     if (deletedCount > 0) {
       console.log("Deleted requests:", JSON.stringify(deletedRequests));
@@ -51,6 +69,7 @@ serve(async (req) => {
         success: true,
         message: `Cleaned up ${deletedCount} abandoned payment requests`,
         deleted_count: deletedCount,
+        cleanup_interval_minutes: cleanupMinutes,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
