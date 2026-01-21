@@ -572,6 +572,7 @@ export const bn: TranslationKeys = {
     clearHistory: 'সব মুছুন',
     clearHistoryTitle: 'সব হিস্ট্রি মুছে ফেলবেন?',
     clearHistoryDescription: 'এই সাপ্লায়ারের সকল পারচেজ ও পেমেন্ট হিস্ট্রি স্থায়ীভাবে মুছে যাবে। এই পদক্ষেপ পূর্বাবস্থায় ফেরানো যাবে না।',
+    willDeleteCount: 'মুছে যাবে:',
     invoiceNumber: 'ইনভয়েস #',
     dueAmount: 'বকেয়া পরিমাণ',
     // Purchase History
@@ -758,6 +759,7 @@ export const bn: TranslationKeys = {
     clearHistory: 'সব মুছুন',
     clearHistoryTitle: 'সব হিস্ট্রি মুছে ফেলবেন?',
     clearHistoryDescription: 'এই কাস্টমারের সকল বকেয়া ও পেমেন্ট হিস্ট্রি স্থায়ীভাবে মুছে যাবে। এই পদক্ষেপ পূর্বাবস্থায় ফেরানো যাবে না।',
+    willDeleteCount: 'মুছে যাবে:',
     clearAll: 'সব মুছে ফেলুন',
     historyCleared: 'সব হিস্ট্রি মুছে ফেলা হয়েছে',
     historyClearedDesc: 'সকল বকেয়া ও পেমেন্ট স্থায়ীভাবে মুছে ফেলা হয়েছে।',

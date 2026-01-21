@@ -555,7 +555,12 @@ export default function SupplierDetails() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t.suppliers.clearHistoryTitle}</AlertDialogTitle>
-            <AlertDialogDescription>{t.suppliers.clearHistoryDescription}</AlertDialogDescription>
+            <AlertDialogDescription className="space-y-2">
+              <span className="block">{t.suppliers.clearHistoryDescription}</span>
+              <span className="block font-medium text-destructive">
+                {t.suppliers.willDeleteCount || 'মুছে যাবে:'} {supplierPurchases.length}টি পারচেজ ও {supplierPayments.length}টি পেমেন্ট
+              </span>
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>

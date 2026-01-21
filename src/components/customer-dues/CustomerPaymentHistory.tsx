@@ -405,8 +405,15 @@ export function CustomerPaymentHistory({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t.customerDues?.clearHistoryTitle || 'সব হিস্ট্রি মুছে ফেলবেন?'}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t.customerDues?.clearHistoryDescription || 'এই কাস্টমারের সকল বকেয়া ও পেমেন্ট হিস্ট্রি স্থায়ীভাবে মুছে যাবে। এই পদক্ষেপ পূর্বাবস্থায় ফেরানো যাবে না।'}
+            <AlertDialogDescription className="space-y-2">
+              <span className="block">
+                {t.customerDues?.clearHistoryDescription || 'এই কাস্টমারের সকল বকেয়া ও পেমেন্ট হিস্ট্রি স্থায়ীভাবে মুছে যাবে। এই পদক্ষেপ পূর্বাবস্থায় ফেরানো যাবে না।'}
+              </span>
+              {customer && (
+                <span className="block font-medium text-destructive">
+                  {t.customerDues?.willDeleteCount || 'মুছে যাবে:'} {customer.dues?.length || 0}টি বকেয়া এন্ট্রি ও {customer.payments?.length || 0}টি পেমেন্ট
+                </span>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
