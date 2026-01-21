@@ -84,7 +84,7 @@ export function SupplierPaymentHistoryDialog({ supplier, payments, trigger }: Su
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="bg-muted/50 rounded-lg p-3">
               <p className="text-sm text-muted-foreground">{t.suppliers.totalPaid}</p>
-              <p className="text-xl font-bold text-green-600">৳{totalPayments.toFixed(2)}</p>
+              <p className="text-xl font-bold text-green-600">৳{Math.round(totalPayments)}</p>
             </div>
             <div className="bg-destructive/10 rounded-lg p-3">
               <p className="text-sm text-muted-foreground">
@@ -94,7 +94,7 @@ export function SupplierPaymentHistoryDialog({ supplier, payments, trigger }: Su
                 "text-xl font-bold",
                 supplier.total_due > 0 ? "text-destructive" : "text-muted-foreground"
               )}>
-                ৳{supplier.total_due > 0 ? supplier.total_due.toFixed(2) : '0.00'}
+                ৳{supplier.total_due > 0 ? Math.round(supplier.total_due) : '0'}
               </p>
             </div>
           </div>
@@ -139,7 +139,7 @@ export function SupplierPaymentHistoryDialog({ supplier, payments, trigger }: Su
                       <TableCell>{getPaymentTypeBadge(payment.payment_type)}</TableCell>
                       <TableCell>{getPaymentMethodBadge(payment.payment_method)}</TableCell>
                       <TableCell className="text-right font-medium text-green-600">
-                        ৳{payment.amount.toFixed(2)}
+                        ৳{Math.round(payment.amount)}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">

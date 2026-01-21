@@ -79,7 +79,7 @@ export function EditSaleDialog({ sale, trigger }: EditSaleDialogProps) {
           <div className="p-3 bg-muted rounded-lg space-y-1">
             <div className="flex justify-between text-sm">
               <span>{t.sales?.subtotal || 'Subtotal'}:</span>
-              <span className="font-medium">৳{Number(sale.subtotal).toFixed(2)}</span>
+              <span className="font-medium">৳{Math.round(Number(sale.subtotal))}</span>
             </div>
           </div>
 
@@ -133,12 +133,12 @@ export function EditSaleDialog({ sale, trigger }: EditSaleDialogProps) {
           <div className="p-3 bg-muted rounded-lg space-y-2">
             <div className="flex justify-between text-sm">
               <span>{t.labels?.total || 'Total'}:</span>
-              <span className="font-medium">৳{totalAmount.toFixed(2)}</span>
+              <span className="font-medium">৳{Math.round(totalAmount)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span>{t.sales?.due || 'Due'}:</span>
               <span className={`font-bold ${dueAmount > 0 ? 'text-destructive' : 'text-success'}`}>
-                ৳{dueAmount.toFixed(2)}
+                ৳{Math.round(dueAmount)}
               </span>
             </div>
           </div>
