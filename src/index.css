@@ -893,3 +893,39 @@
     min-height: 44px;
   }
 }
+
+/* Mobile Dropdown/Select Enhancements */
+@media (max-width: 640px) {
+  /* Larger dropdown content on mobile */
+  [data-radix-select-content],
+  [data-radix-popper-content-wrapper] [role="listbox"] {
+    max-height: 60vh !important;
+    min-width: min(90vw, 320px) !important;
+  }
+  
+  /* Center dropdown on mobile */
+  [data-radix-select-content] {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  
+  /* Larger dropdown items for touch */
+  [role="option"] {
+    min-height: 48px !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+    font-size: 16px !important;
+  }
+  
+  /* Command/Combobox items */
+  [cmdk-item] {
+    min-height: 48px !important;
+    padding: 12px !important;
+    font-size: 16px !important;
+  }
+  
+  /* Popover content sizing */
+  [data-radix-popper-content-wrapper] {
+    max-width: calc(100vw - 32px) !important;
+  }
+}
