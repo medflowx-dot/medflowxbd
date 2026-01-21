@@ -645,6 +645,25 @@ export const bn: TranslationKeys = {
     managePlan: 'প্ল্যান ব্যবস্থাপনা করুন',
   },
 
+  // Phone Verification
+  phoneVerification: {
+    verify: 'ভেরিফাই',
+    verified: 'ভেরিফাইড',
+    verifyPhone: 'ফোন নম্বর ভেরিফাই করুন',
+    enterPhone: 'অনুগ্রহ করে একটি ফোন নম্বর দিন',
+    otpSent: 'আপনার ফোনে OTP পাঠানো হয়েছে',
+    otpSentTo: 'আমরা ৬ সংখ্যার OTP পাঠিয়েছি',
+    enterCompleteOtp: 'অনুগ্রহ করে সম্পূর্ণ ৬ সংখ্যার OTP দিন',
+    otpExpired: 'OTP এর মেয়াদ শেষ। অনুগ্রহ করে নতুন OTP অনুরোধ করুন।',
+    otpExpiredMessage: 'OTP মেয়াদোত্তীর্ণ। নতুন অনুরোধ করুন।',
+    otpValidFor: 'OTP মেয়াদ',
+    verifying: 'ভেরিফাই হচ্ছে...',
+    verifyOtp: 'OTP ভেরিফাই করুন',
+    resendOtp: 'আবার OTP পাঠান',
+    afterResend: 'পর আবার পাঠাতে পারবেন',
+    needsReverification: 'ফোন নম্বর পরিবর্তিত হয়েছে। পুনরায় ভেরিফিকেশন প্রয়োজন।',
+  },
+
   // Customer Dues Page
   customerDues: {
     title: 'গ্রাহক বকেয়া',

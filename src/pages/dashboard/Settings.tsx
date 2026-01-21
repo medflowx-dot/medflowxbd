@@ -14,6 +14,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { StaffManagement } from '@/components/settings/StaffManagement';
 import { PharmacyLogoUpload } from '@/components/settings/PharmacyLogoUpload';
 import { PinManagement } from '@/components/settings/PinManagement';
+import { PhoneVerification } from '@/components/settings/PhoneVerification';
 import { Loader2, Save, User, Building2, Globe, CreditCard, Bell, Moon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
@@ -159,15 +160,10 @@ export default function Settings() {
                 <Input id="email" type="email" value={user?.email || ''} disabled className="bg-muted" />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">{t.settings.phoneNumber}</Label>
-              <Input 
-                id="phone" 
-                placeholder="+880" 
-                value={formData.phone}
-                onChange={(e) => handleChange('phone', e.target.value)}
-              />
-            </div>
+            <PhoneVerification 
+              phone={formData.phone}
+              onPhoneChange={(value) => handleChange('phone', value)}
+            />
             <Button 
               onClick={handleSaveProfile} 
               disabled={updateProfile.isPending}

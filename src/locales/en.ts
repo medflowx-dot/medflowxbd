@@ -644,6 +644,25 @@ export const en = {
     managePlan: 'Manage Plan',
   },
 
+  // Phone Verification
+  phoneVerification: {
+    verify: 'Verify',
+    verified: 'Verified',
+    verifyPhone: 'Verify Phone Number',
+    enterPhone: 'Please enter a phone number',
+    otpSent: 'OTP sent to your phone',
+    otpSentTo: 'We sent a 6-digit OTP to',
+    enterCompleteOtp: 'Please enter the complete 6-digit OTP',
+    otpExpired: 'OTP has expired. Please request a new one.',
+    otpExpiredMessage: 'OTP expired. Request a new one.',
+    otpValidFor: 'OTP valid for',
+    verifying: 'Verifying...',
+    verifyOtp: 'Verify OTP',
+    resendOtp: 'Resend OTP',
+    afterResend: 'to resend',
+    needsReverification: 'Phone number changed. Re-verification required.',
+  },
+
   // Customer Dues Page
   customerDues: {
     title: 'Customer Dues',
