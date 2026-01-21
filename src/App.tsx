@@ -17,6 +17,7 @@ import { Loader2 } from "lucide-react";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
 
 // Lazy loaded pages - Dashboard
 const Install = lazy(() => import("./pages/Install"));
@@ -83,6 +84,7 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/install" element={<Install />} />
                   <Route path="/billing" element={
                     <ProtectedRoute>
