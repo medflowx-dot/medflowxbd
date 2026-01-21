@@ -212,13 +212,13 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <span className="text-success">৳{supplier.total_paid.toFixed(2)}</span>
+                  <span className="text-success">৳{Math.round(supplier.total_paid)}</span>
                 </TableCell>
                 <TableCell className="text-right">
                   {supplier.total_due > 0 ? (
-                    <Badge variant="destructive">৳{supplier.total_due.toFixed(2)}</Badge>
+                    <Badge variant="destructive">৳{Math.round(supplier.total_due)}</Badge>
                   ) : (
-                    <Badge variant="secondary">৳0.00</Badge>
+                    <Badge variant="secondary">৳0</Badge>
                   )}
                 </TableCell>
                 <TableCell>
