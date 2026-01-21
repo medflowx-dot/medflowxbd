@@ -50,3 +50,18 @@ verify_jwt = false
 
 [functions.check-sms-balance]
 verify_jwt = false
+
+[functions.send-otp]
+verify_jwt = false
+
+[functions.verify-otp]
+verify_jwt = false
+
+[functions.phone-signup]
+verify_jwt = false
+
+[functions.phone-login]
+verify_jwt = false
+
+[functions.pin-auth]
+verify_jwt = false
