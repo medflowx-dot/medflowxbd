@@ -118,7 +118,15 @@ export function DatePicker({
             <CalendarIcon className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align={align}>
+        <PopoverContent 
+          className="w-auto p-0" 
+          align="center"
+          sideOffset={8}
+          // Center on mobile using fixed positioning
+          style={{
+            maxWidth: 'calc(100vw - 32px)',
+          }}
+        >
           {/* Header showing selected date */}
           <div className="bg-primary p-4 text-primary-foreground rounded-t-md">
             <p className="text-sm opacity-80">
