@@ -1086,4 +1086,47 @@ export const bn: TranslationKeys = {
     paymentCancelledDesc: 'আপনার পেমেন্ট বাতিল হয়েছে। যেকোনো সময় আবার চেষ্টা করতে পারেন।',
     upgradePlan: 'আপগ্রেড',
   },
+
+  // Install Page
+  install: {
+    appInstalled: 'অ্যাপ ইনস্টল করা হয়েছে! 🎉',
+    appInstalledDesc: 'MedFlowx এখন আপনার ডিভাইসে ইনস্টল করা আছে। হোম স্ক্রিন থেকে অ্যাপটি চালু করুন।',
+    login: 'লগইন করুন',
+    goToHome: 'হোম পেজে যান',
+    installApp: 'অ্যাপ ইনস্টল করুন',
+    installMedFlowx: 'MedFlowx অ্যাপ ইনস্টল করুন',
+    installDesc: 'আপনার ফোনে অ্যাপ ইনস্টল করে দ্রুত এক্সেস পান',
+    deviceDetected: {
+      ios: 'iPhone/iPad সনাক্ত হয়েছে',
+      android: 'Android সনাক্ত হয়েছে',
+      desktop: 'Desktop ব্রাউজার',
+    },
+    installNow: 'এখনই ইনস্টল করুন',
+    oneClickInstall: 'এক ক্লিকে ইনস্টল হবে',
+    installOnIOS: 'iPhone/iPad এ ইনস্টল করুন',
+    installOnAndroid: 'Android এ ইনস্টল করুন',
+    followSteps: 'নিচের ধাপগুলো অনুসরণ করুন',
+    iosSteps: [
+      { text: 'Safari ব্রাউজারে এই পেজ খুলুন', subtext: 'Chrome বা অন্য ব্রাউজার কাজ করবে না' },
+      { text: 'নিচে Share বাটনে ট্যাপ করুন', subtext: 'স্ক্রিনের নিচের মাঝখানে থাকবে' },
+      { text: '"Add to Home Screen" সিলেক্ট করুন', subtext: 'স্ক্রল করে খুঁজুন' },
+      { text: '"Add" বাটনে ট্যাপ করুন', subtext: 'আপনার হোম স্ক্রিনে অ্যাপ যোগ হবে' },
+    ],
+    androidSteps: [
+      { text: 'Chrome ব্রাউজারে এই পেজ খুলুন', subtext: 'সবচেয়ে ভালো অভিজ্ঞতার জন্য' },
+      { text: 'উপরে ডানে তিন ডট মেনুতে ট্যাপ করুন', subtext: 'অথবা "Install app" ব্যানার দেখুন' },
+      { text: '"Install app" বা "Add to Home Screen" সিলেক্ট করুন', subtext: 'পপআপ আসবে' },
+      { text: '"Install" বাটনে ট্যাপ করুন', subtext: 'আপনার হোম স্ক্রিনে অ্যাপ যোগ হবে' },
+    ],
+    benefits: 'অ্যাপ ইনস্টল করলে যা পাবেন',
+    benefitsList: [
+      'দ্রুত লোড হবে - ওয়েবসাইটের চেয়ে ফাস্ট',
+      'অফলাইনে কাজ করবে - ইন্টারনেট ছাড়াও',
+      'ফুল স্ক্রিন অভিজ্ঞতা - নেটিভ অ্যাপের মতো',
+      'হোম স্ক্রিনে শর্টকাট - এক ট্যাপে অ্যাক্সেস',
+      'Push নোটিফিকেশন - গুরুত্বপূর্ণ আপডেট পান',
+    ],
+    continueInBrowser: 'এখন না, ব্রাউজারে চালিয়ে যাই',
+    installLater: 'আপনি যেকোনো সময় পরে ইনস্টল করতে পারবেন',
+  },
 };

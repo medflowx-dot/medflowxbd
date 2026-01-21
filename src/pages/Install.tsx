@@ -15,6 +15,7 @@ import {
   Chrome
 } from 'lucide-react';
 import { usePlatformBranding } from '@/hooks/usePlatformBranding';
+import { useLanguage } from '@/contexts/LanguageContext';
 import logoAuthFallback from '@/assets/logo-auth.png';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -25,6 +26,7 @@ interface BeforeInstallPromptEvent extends Event {
 export default function Install() {
   const navigate = useNavigate();
   const { logoAuth } = usePlatformBranding();
+  const { t } = useLanguage();
   const platformLogo = logoAuth.startsWith('/src') ? logoAuthFallback : logoAuth;
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -67,21 +69,11 @@ export default function Install() {
     setDeferredPrompt(null);
   };
 
-  const iosSteps = [
-    { icon: Share, text: 'Safari ব্রাউজারে এই পেজ খুলুন', subtext: 'Chrome বা অন্য ব্রাউজার কাজ করবে না' },
-    { icon: Share, text: 'নিচে Share বাটনে ট্যাপ করুন', subtext: 'স্ক্রিনের নিচের মাঝখানে থাকবে' },
-    { icon: Plus, text: '"Add to Home Screen" সিলেক্ট করুন', subtext: 'স্ক্রল করে খুঁজুন' },
-    { icon: CheckCircle2, text: '"Add" বাটনে ট্যাপ করুন', subtext: 'আপনার হোম স্ক্রিনে অ্যাপ যোগ হবে' },
-  ];
+  const iosStepIcons = [Share, Share, Plus, CheckCircle2];
+  const androidStepIcons = [Chrome, MoreVertical, Download, CheckCircle2];
 
-  const androidSteps = [
-    { icon: Chrome, text: 'Chrome ব্রাউজারে এই পেজ খুলুন', subtext: 'সবচেয়ে ভালো অভিজ্ঞতার জন্য' },
-    { icon: MoreVertical, text: 'উপরে ডানে তিন ডট মেনুতে ট্যাপ করুন', subtext: 'অথবা "Install app" ব্যানার দেখুন' },
-    { icon: Download, text: '"Install app" বা "Add to Home Screen" সিলেক্ট করুন', subtext: 'পপআপ আসবে' },
-    { icon: CheckCircle2, text: '"Install" বাটনে ট্যাপ করুন', subtext: 'আপনার হোম স্ক্রিনে অ্যাপ যোগ হবে' },
-  ];
-
-  const steps = isIOS ? iosSteps : androidSteps;
+  const steps = isIOS ? t.install.iosSteps : t.install.androidSteps;
+  const stepIcons = isIOS ? iosStepIcons : androidStepIcons;
 
   if (isInstalled) {
     return (
@@ -91,9 +83,9 @@ export default function Install() {
             <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mb-4">
               <CheckCircle2 className="h-8 w-8 text-white" />
             </div>
-            <CardTitle className="text-2xl">অ্যাপ ইনস্টল করা হয়েছে! 🎉</CardTitle>
+            <CardTitle className="text-2xl">{t.install.appInstalled}</CardTitle>
             <CardDescription>
-              MedFlowx এখন আপনার ডিভাইসে ইনস্টল করা আছে। হোম স্ক্রিন থেকে অ্যাপটি চালু করুন।
+              {t.install.appInstalledDesc}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -101,14 +93,14 @@ export default function Install() {
               onClick={() => navigate('/login')} 
               className="w-full bg-gradient-to-r from-primary to-primary/80"
             >
-              লগইন করুন
+              {t.install.login}
             </Button>
             <Button 
               variant="outline" 
               onClick={() => navigate('/')}
               className="w-full"
             >
-              হোম পেজে যান
+              {t.install.goToHome}
             </Button>
           </CardContent>
         </Card>
@@ -124,7 +116,7 @@ export default function Install() {
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="font-semibold">অ্যাপ ইনস্টল করুন</h1>
+          <h1 className="font-semibold">{t.install.installApp}</h1>
         </div>
       </header>
 
@@ -134,9 +126,9 @@ export default function Install() {
           <div className="mx-auto w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-lg">
             <img src={platformLogo} alt="MedFlowx" className="w-full h-full object-cover" />
           </div>
-          <h2 className="text-2xl font-bold mb-2">MedFlowx অ্যাপ ইনস্টল করুন</h2>
+          <h2 className="text-2xl font-bold mb-2">{t.install.installMedFlowx}</h2>
           <p className="text-muted-foreground">
-            আপনার ফোনে অ্যাপ ইনস্টল করে দ্রুত এক্সেস পান
+            {t.install.installDesc}
           </p>
         </div>
 
@@ -145,18 +137,18 @@ export default function Install() {
           {isIOS && (
             <Badge variant="secondary" className="gap-1">
               <Apple className="h-3 w-3" />
-              iPhone/iPad সনাক্ত হয়েছে
+              {t.install.deviceDetected.ios}
             </Badge>
           )}
           {isAndroid && (
             <Badge variant="secondary" className="gap-1">
               <Smartphone className="h-3 w-3" />
-              Android সনাক্ত হয়েছে
+              {t.install.deviceDetected.android}
             </Badge>
           )}
           {!isIOS && !isAndroid && (
             <Badge variant="outline">
-              Desktop ব্রাউজার
+              {t.install.deviceDetected.desktop}
             </Badge>
           )}
         </div>
@@ -170,10 +162,10 @@ export default function Install() {
                 className="w-full bg-gradient-to-r from-primary to-primary/80 h-12 text-lg gap-2"
               >
                 <Download className="h-5 w-5" />
-                এখনই ইনস্টল করুন
+                {t.install.installNow}
               </Button>
               <p className="text-center text-sm text-muted-foreground mt-2">
-                এক ক্লিকে ইনস্টল হবে
+                {t.install.oneClickInstall}
               </p>
             </CardContent>
           </Card>
@@ -184,47 +176,44 @@ export default function Install() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               {isIOS ? <Apple className="h-5 w-5" /> : <Chrome className="h-5 w-5" />}
-              {isIOS ? 'iPhone/iPad এ ইনস্টল করুন' : 'Android এ ইনস্টল করুন'}
+              {isIOS ? t.install.installOnIOS : t.install.installOnAndroid}
             </CardTitle>
             <CardDescription>
-              নিচের ধাপগুলো অনুসরণ করুন
+              {t.install.followSteps}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {steps.map((step, index) => (
-              <div 
-                key={index} 
-                className="flex items-start gap-4 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white font-semibold text-sm">
-                  {index + 1}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <step.icon className="h-4 w-4 text-primary" />
-                    <span className="font-medium">{step.text}</span>
+            {steps.map((step, index) => {
+              const IconComponent = stepIcons[index];
+              return (
+                <div 
+                  key={index} 
+                  className="flex items-start gap-4 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                >
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white font-semibold text-sm">
+                    {index + 1}
                   </div>
-                  <p className="text-sm text-muted-foreground">{step.subtext}</p>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <IconComponent className="h-4 w-4 text-primary" />
+                      <span className="font-medium">{step.text}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{step.subtext}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
 
         {/* Benefits Section */}
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-lg">অ্যাপ ইনস্টল করলে যা পাবেন</CardTitle>
+            <CardTitle className="text-lg">{t.install.benefits}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-3">
-              {[
-                'দ্রুত লোড হবে - ওয়েবসাইটের চেয়ে ফাস্ট',
-                'অফলাইনে কাজ করবে - ইন্টারনেট ছাড়াও',
-                'ফুল স্ক্রিন অভিজ্ঞতা - নেটিভ অ্যাপের মতো',
-                'হোম স্ক্রিনে শর্টকাট - এক ট্যাপে অ্যাক্সেস',
-                'Push নোটিফিকেশন - গুরুত্বপূর্ণ আপডেট পান',
-              ].map((benefit, index) => (
+              {t.install.benefitsList.map((benefit, index) => (
                 <li key={index} className="flex items-center gap-3 text-sm">
                   <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
                   <span>{benefit}</span>
@@ -241,10 +230,10 @@ export default function Install() {
             className="w-full"
             onClick={() => navigate('/login')}
           >
-            এখন না, ব্রাউজারে চালিয়ে যাই
+            {t.install.continueInBrowser}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
-            আপনি যেকোনো সময় পরে ইনস্টল করতে পারবেন
+            {t.install.installLater}
           </p>
         </div>
       </main>

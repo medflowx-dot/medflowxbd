@@ -1084,6 +1084,49 @@ export const en = {
     paymentCancelledDesc: 'Your payment was cancelled. You can try again anytime.',
     upgradePlan: 'Upgrade',
   },
+
+  // Install Page
+  install: {
+    appInstalled: 'App Installed! 🎉',
+    appInstalledDesc: 'MedFlowx is now installed on your device. Launch the app from your home screen.',
+    login: 'Login',
+    goToHome: 'Go to Home',
+    installApp: 'Install App',
+    installMedFlowx: 'Install MedFlowx App',
+    installDesc: 'Install the app on your phone for quick access',
+    deviceDetected: {
+      ios: 'iPhone/iPad Detected',
+      android: 'Android Detected',
+      desktop: 'Desktop Browser',
+    },
+    installNow: 'Install Now',
+    oneClickInstall: 'One-click install',
+    installOnIOS: 'Install on iPhone/iPad',
+    installOnAndroid: 'Install on Android',
+    followSteps: 'Follow the steps below',
+    iosSteps: [
+      { text: 'Open this page in Safari browser', subtext: 'Chrome or other browsers won\'t work' },
+      { text: 'Tap the Share button at the bottom', subtext: 'Located at the bottom center of the screen' },
+      { text: 'Select "Add to Home Screen"', subtext: 'Scroll to find it' },
+      { text: 'Tap the "Add" button', subtext: 'The app will be added to your home screen' },
+    ],
+    androidSteps: [
+      { text: 'Open this page in Chrome browser', subtext: 'For the best experience' },
+      { text: 'Tap the three-dot menu at the top right', subtext: 'Or look for "Install app" banner' },
+      { text: 'Select "Install app" or "Add to Home Screen"', subtext: 'A popup will appear' },
+      { text: 'Tap the "Install" button', subtext: 'The app will be added to your home screen' },
+    ],
+    benefits: 'Benefits of installing the app',
+    benefitsList: [
+      'Faster loading - Quicker than the website',
+      'Works offline - Even without internet',
+      'Full screen experience - Like a native app',
+      'Home screen shortcut - One-tap access',
+      'Push notifications - Get important updates',
+    ],
+    continueInBrowser: 'Not now, continue in browser',
+    installLater: 'You can install anytime later',
+  },
 };
 
 export type TranslationKeys = typeof en;
