@@ -18,10 +18,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Wallet, Pencil, Trash2, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
+import { Wallet, Pencil, Trash2, ArrowDownCircle, ArrowUpCircle, Scissors } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { EditPaymentDialog } from './EditPaymentDialog';
 import { EditDueDialog } from './EditDueDialog';
+import { SplitDueDialog } from './SplitDueDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +34,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface CustomerPaymentHistoryProps {
   open: boolean;
@@ -68,6 +75,8 @@ export function CustomerPaymentHistory({
   const [selectedPayment, setSelectedPayment] = useState<CustomerPayment | null>(null);
   const [editDueOpen, setEditDueOpen] = useState(false);
   const [selectedDue, setSelectedDue] = useState<CustomerDue | null>(null);
+  const [splitDueOpen, setSplitDueOpen] = useState(false);
+  const [dueToSplit, setDueToSplit] = useState<CustomerDue | null>(null);
 
   // Combine and sort dues and payments by date
   const transactions: TransactionItem[] = [];
@@ -120,6 +129,11 @@ export function CustomerPaymentHistory({
   const handleEditDue = (due: CustomerDue) => {
     setSelectedDue(due);
     setEditDueOpen(true);
+  };
+
+  const handleSplitDue = (due: CustomerDue) => {
+    setDueToSplit(due);
+    setSplitDueOpen(true);
   };
 
   return (
@@ -176,7 +190,7 @@ export function CustomerPaymentHistory({
                         <TableHead>{t.reports?.date || 'Date'}</TableHead>
                         <TableHead>{t.reports?.type || 'Type'}</TableHead>
                         <TableHead className="text-right">{t.customerDues?.amount || 'Amount'}</TableHead>
-                        <TableHead className="text-right w-20 sticky right-0 bg-background">{t.medicines?.actions || 'Actions'}</TableHead>
+                        <TableHead className="text-right w-24 sticky right-0 bg-background">{t.medicines?.actions || 'Actions'}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -212,58 +226,96 @@ export function CustomerPaymentHistory({
                             {tx.type === 'due' ? '+' : '-'}৳{Math.round(Number(tx.amount))}
                           </TableCell>
                           <TableCell className="text-right sticky right-0 bg-background">
-                            <div className="flex items-center justify-end gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 hover:bg-primary/10"
-                                onClick={() => tx.type === 'due' 
-                                  ? handleEditDue(tx.original as CustomerDue)
-                                  : handleEditPayment(tx.original as CustomerPayment)
-                                }
-                              >
-                                <Pencil className="h-3.5 w-3.5" />
-                              </Button>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                      {tx.type === 'due' 
-                                        ? (t.customerDues?.deleteDue || 'Delete Due Entry')
-                                        : (t.customerDues?.deletePayment || 'Delete Payment')
-                                      }
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      {tx.type === 'due'
-                                        ? (t.customerDues?.deleteDueConfirm || "Are you sure you want to delete this due entry? The customer's balance will be recalculated.")
-                                        : (t.customerDues?.deletePaymentConfirm || "Are you sure you want to delete this payment? The customer's due will be recalculated.")
-                                      }
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>{t.actions?.cancel || 'Cancel'}</AlertDialogCancel>
-                                    <AlertDialogAction
+                            <TooltipProvider delayDuration={100}>
+                              <div className="flex items-center justify-end gap-0.5">
+                                {/* Split button - only for dues */}
+                                {tx.type === 'due' && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7 hover:bg-info/10 text-info"
+                                        onClick={() => handleSplitDue(tx.original as CustomerDue)}
+                                      >
+                                        <Scissors className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top">
+                                      <p>{t.customerDues?.splitDue || 'Split Due'}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                                
+                                {/* Edit button */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-7 w-7 hover:bg-primary/10"
                                       onClick={() => tx.type === 'due' 
-                                        ? deleteDue.mutate(tx.id)
-                                        : deletePayment.mutate(tx.id)
+                                        ? handleEditDue(tx.original as CustomerDue)
+                                        : handleEditPayment(tx.original as CustomerPayment)
                                       }
-                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                     >
-                                      {t.actions?.delete || 'Delete'}
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
+                                      <Pencil className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top">
+                                    <p>{tx.type === 'due' ? (t.customerDues?.editDue || 'Edit') : (t.customerDues?.editPayment || 'Edit')}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                                
+                                {/* Delete button */}
+                                <AlertDialog>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <AlertDialogTrigger asChild>
+                                        <Button 
+                                          variant="ghost" 
+                                          size="icon" 
+                                          className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                        >
+                                          <Trash2 className="h-3.5 w-3.5" />
+                                        </Button>
+                                      </AlertDialogTrigger>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top">
+                                      <p>{t.actions?.delete || 'Delete'}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>
+                                        {tx.type === 'due' 
+                                          ? (t.customerDues?.deleteDue || 'Delete Due Entry')
+                                          : (t.customerDues?.deletePayment || 'Delete Payment')
+                                        }
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        {tx.type === 'due'
+                                          ? (t.customerDues?.deleteDueConfirm || "Are you sure you want to delete this due entry? The customer's balance will be recalculated.")
+                                          : (t.customerDues?.deletePaymentConfirm || "Are you sure you want to delete this payment? The customer's due will be recalculated.")
+                                        }
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>{t.actions?.cancel || 'Cancel'}</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => tx.type === 'due' 
+                                          ? deleteDue.mutate(tx.id)
+                                          : deletePayment.mutate(tx.id)
+                                        }
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      >
+                                        {t.actions?.delete || 'Delete'}
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            </TooltipProvider>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -287,6 +339,15 @@ export function CustomerPaymentHistory({
         onOpenChange={setEditDueOpen}
         due={selectedDue}
       />
+
+      {customerId && (
+        <SplitDueDialog
+          open={splitDueOpen}
+          onOpenChange={setSplitDueOpen}
+          due={dueToSplit}
+          customerId={customerId}
+        />
+      )}
     </>
   );
 }

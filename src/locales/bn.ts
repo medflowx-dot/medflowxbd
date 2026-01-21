@@ -732,6 +732,21 @@ export const bn: TranslationKeys = {
     paymentEntry: 'পেমেন্ট',
     transactionHistory: 'লেনদেন ইতিহাস',
     allTransactions: 'সব লেনদেন',
+    // Split Due
+    splitDue: 'বকেয়া এন্ট্রি ভাগ করুন',
+    splitDueDesc: 'এই বকেয়া একাধিক আলাদা এন্ট্রিতে ভাগ করুন কাস্টম তারিখসহ',
+    splitDueBtn: 'বকেয়া ভাগ করুন',
+    originalAmount: 'মূল পরিমাণ',
+    splitTotal: 'ভাগকৃত মোট',
+    remaining: 'বাকি',
+    entry: 'এন্ট্রি',
+    addAnotherEntry: 'আরেকটি এন্ট্রি যোগ করুন',
+    splitSuccess: 'বকেয়া সফলভাবে ভাগ হয়েছে',
+    splitSuccessDesc: 'বকেয়াটি একাধিক এন্ট্রিতে ভাগ হয়েছে',
+    splitError: 'ভাগ করতে ত্রুটি',
+    splitErrorDesc: 'বকেয়া ভাগ করতে ব্যর্থ। আবার চেষ্টা করুন।',
+    atLeastTwoEntries: 'কমপক্ষে ২টি এন্ট্রি পরিমাণসহ প্রয়োজন',
+    totalMustMatch: 'ভাগকৃত এন্ট্রির মোট মূল পরিমাণের সমান হতে হবে',
   },
 
   // Daily Cash Page
