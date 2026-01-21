@@ -362,18 +362,16 @@ export default function SupplierDetails() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>{t.labels.date}</TableHead>
-                        <TableHead>{t.suppliers.invoiceNumber}</TableHead>
                         <TableHead className="text-right">{t.labels.total}</TableHead>
                         <TableHead className="text-right">{t.sales.paid}</TableHead>
                         <TableHead className="text-right">{t.suppliers.dueAmount}</TableHead>
-                        <TableHead className="w-[80px]">{t.suppliers.actions}</TableHead>
+                        <TableHead className="w-[80px] sticky right-0 bg-background">{t.suppliers.actions}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {supplierPurchases.map((purchase) => (
                         <TableRow key={purchase.id}>
-                          <TableCell>{format(parseISO(purchase.purchase_date), 'dd MMM yyyy')}</TableCell>
-                          <TableCell>{purchase.invoice_number || '-'}</TableCell>
+                          <TableCell className="whitespace-nowrap">{format(parseISO(purchase.purchase_date), 'dd MMM yyyy')}</TableCell>
                           <TableCell className="text-right font-medium">৳{Math.round(purchase.total_amount)}</TableCell>
                           <TableCell className="text-right text-success">৳{Math.round(purchase.paid_amount)}</TableCell>
                           <TableCell className="text-right">
@@ -383,7 +381,7 @@ export default function SupplierDetails() {
                               <Badge variant="secondary">৳0</Badge>
                             )}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="sticky right-0 bg-background">
                             <div className="flex items-center gap-1">
                               <EditPurchaseDialog
                                 purchase={purchase}
@@ -445,17 +443,17 @@ export default function SupplierDetails() {
                         <TableHead>{t.suppliers.paymentType}</TableHead>
                         <TableHead>{t.sales.method}</TableHead>
                         <TableHead className="text-right">{t.labels.amount}</TableHead>
-                        <TableHead className="w-[80px]">{t.suppliers.actions}</TableHead>
+                        <TableHead className="w-[80px] sticky right-0 bg-background">{t.suppliers.actions}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {supplierPayments.map((payment) => (
                         <TableRow key={payment.id}>
-                          <TableCell>{format(parseISO(payment.payment_date), 'dd MMM yyyy')}</TableCell>
+                          <TableCell className="whitespace-nowrap">{format(parseISO(payment.payment_date), 'dd MMM yyyy')}</TableCell>
                           <TableCell>{getPaymentTypeBadge(payment.payment_type)}</TableCell>
                           <TableCell>{getPaymentMethodLabel(payment.payment_method)}</TableCell>
                           <TableCell className="text-right font-medium text-success">৳{Math.round(payment.amount)}</TableCell>
-                          <TableCell>
+                          <TableCell className="sticky right-0 bg-background">
                             <div className="flex items-center gap-1">
                               <EditSupplierPaymentDialog
                                 payment={payment}
