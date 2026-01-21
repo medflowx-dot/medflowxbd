@@ -82,18 +82,28 @@ export function RecordPaymentDialog({ open, onOpenChange, customer }: RecordPaym
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="rounded-lg bg-destructive/10 p-3">
-            <p className="text-sm text-muted-foreground">{t.customerDues.outstandingDue}</p>
-            <p className="text-xl font-bold text-destructive">৳{maxAmount.toFixed(2)}</p>
+          <div className="rounded-lg bg-muted p-3 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">{t.customerDues.outstandingDue}:</span>
+              <span className="font-semibold text-destructive">৳{Math.round(maxAmount)}</span>
+            </div>
+            {maxAmount > 0 && (
+              <div className="pt-2 border-t border-border">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full text-xs h-8"
+                  onClick={handlePayFull}
+                >
+                  পুরো বকেয়া পরিশোধ (৳{Math.round(maxAmount)})
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <Label htmlFor="amount">{t.customerDues.paymentAmount} *</Label>
-              <Button type="button" variant="link" size="sm" onClick={handlePayFull}>
-                {t.customerDues.payFullAmount}
-              </Button>
-            </div>
+            <Label htmlFor="amount">{t.customerDues.paymentAmount} *</Label>
             <Input
               id="amount"
               type="number"
@@ -135,11 +145,13 @@ export function RecordPaymentDialog({ open, onOpenChange, customer }: RecordPaym
           </div>
 
           {amount && parseFloat(amount) > 0 && (
-            <div className="rounded-lg bg-green-100 dark:bg-green-900/30 p-3">
-              <p className="text-sm text-muted-foreground">{t.customerDues.remainingDue}</p>
-              <p className="text-xl font-bold text-green-600">
-                ৳{Math.max(0, remainingAfterPayment).toFixed(2)}
-              </p>
+            <div className="rounded-lg bg-success/10 p-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">{t.customerDues.remainingDue}:</span>
+                <span className={`font-semibold ${remainingAfterPayment > 0 ? 'text-destructive' : 'text-success'}`}>
+                  ৳{Math.round(Math.max(0, remainingAfterPayment))}
+                </span>
+              </div>
             </div>
           )}
 
