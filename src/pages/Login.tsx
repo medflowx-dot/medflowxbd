@@ -47,10 +47,15 @@ export default function Login() {
   const [showPhonePassword, setShowPhonePassword] = useState(false);
   const [phoneLoading, setPhoneLoading] = useState(false);
   
-  // Lock state
-  const [isLocked, setIsLocked] = useState(false);
-  const [lockRemainingMinutes, setLockRemainingMinutes] = useState(0);
-  const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
+  // Phone Lock state
+  const [isPhoneLocked, setIsPhoneLocked] = useState(false);
+  const [phoneLockRemainingMinutes, setPhoneLockRemainingMinutes] = useState(0);
+  const [phoneAttemptsRemaining, setPhoneAttemptsRemaining] = useState<number | null>(null);
+  
+  // Email Lock state
+  const [isEmailLocked, setIsEmailLocked] = useState(false);
+  const [emailLockRemainingMinutes, setEmailLockRemainingMinutes] = useState(0);
+  const [emailAttemptsRemaining, setEmailAttemptsRemaining] = useState<number | null>(null);
   
   // PIN states (only for mobile app)
   const [showPinSetup, setShowPinSetup] = useState(false);
@@ -102,16 +107,53 @@ export default function Login() {
   // Email login handler
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isEmailLocked) {
+      toast.error(`অ্যাকাউন্ট লক আছে। ${emailLockRemainingMinutes} মিনিট পর চেষ্টা করুন।`);
+      return;
+    }
+    
     setEmailLoading(true);
+    setEmailAttemptsRemaining(null);
 
-    const { error } = await signIn(email, emailPassword);
+    try {
+      const { data, error } = await supabase.functions.invoke('email-login', {
+        body: { email, password: emailPassword }
+      });
 
-    if (error) {
-      toast.error(error.message);
+      if (error) throw error;
+      
+      // Check for lock status
+      if (data.locked) {
+        setIsEmailLocked(true);
+        setEmailLockRemainingMinutes(data.remainingMinutes || 15);
+        toast.error(data.error);
+        setEmailLoading(false);
+        return;
+      }
+      
+      // Check for attempts remaining
+      if (data.attemptsRemaining !== undefined) {
+        setEmailAttemptsRemaining(data.attemptsRemaining);
+      }
+      
+      if (data.error) throw new Error(data.error);
+
+      // Successful login - reset states
+      setIsEmailLocked(false);
+      setEmailAttemptsRemaining(null);
+
+      // Set the session
+      if (data.session) {
+        await supabase.auth.setSession(data.session);
+        toast.success('স্বাগতম!');
+        navigate(from, { replace: true });
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'লগইন ব্যর্থ';
+      toast.error(message);
+    } finally {
       setEmailLoading(false);
-    } else {
-      toast.success('স্বাগতম!');
-      navigate(from, { replace: true });
     }
   };
 
@@ -124,13 +166,13 @@ export default function Login() {
       return;
     }
 
-    if (isLocked) {
-      toast.error(`অ্যাকাউন্ট লক আছে। ${lockRemainingMinutes} মিনিট পর চেষ্টা করুন।`);
+    if (isPhoneLocked) {
+      toast.error(`অ্যাকাউন্ট লক আছে। ${phoneLockRemainingMinutes} মিনিট পর চেষ্টা করুন।`);
       return;
     }
 
     setPhoneLoading(true);
-    setAttemptsRemaining(null);
+    setPhoneAttemptsRemaining(null);
     
     try {
       const { data, error } = await supabase.functions.invoke('phone-login', {
@@ -141,8 +183,8 @@ export default function Login() {
       
       // Check for lock status
       if (data.locked) {
-        setIsLocked(true);
-        setLockRemainingMinutes(data.remainingMinutes || 15);
+        setIsPhoneLocked(true);
+        setPhoneLockRemainingMinutes(data.remainingMinutes || 15);
         toast.error(data.error);
         setPhoneLoading(false);
         return;
@@ -150,14 +192,14 @@ export default function Login() {
       
       // Check for attempts remaining
       if (data.attemptsRemaining !== undefined) {
-        setAttemptsRemaining(data.attemptsRemaining);
+        setPhoneAttemptsRemaining(data.attemptsRemaining);
       }
       
       if (data.error) throw new Error(data.error);
 
       // Successful login - reset states
-      setIsLocked(false);
-      setAttemptsRemaining(null);
+      setIsPhoneLocked(false);
+      setPhoneAttemptsRemaining(null);
 
       // Set the session
       if (data.session) {
@@ -440,21 +482,21 @@ export default function Login() {
             <TabsContent value="phone">
               <form onSubmit={handlePhoneLogin} className="space-y-4">
                 {/* Lock Alert */}
-                {isLocked && (
+                {isPhoneLocked && (
                   <Alert variant="destructive">
                     <ShieldAlert className="h-4 w-4" />
                     <AlertDescription>
-                      অনেক বার ভুল পাসওয়ার্ড দেওয়া হয়েছে। অ্যাকাউন্ট {lockRemainingMinutes} মিনিটের জন্য লক করা হয়েছে।
+                      অনেক বার ভুল পাসওয়ার্ড দেওয়া হয়েছে। অ্যাকাউন্ট {phoneLockRemainingMinutes} মিনিটের জন্য লক করা হয়েছে।
                     </AlertDescription>
                   </Alert>
                 )}
                 
                 {/* Attempts Warning */}
-                {attemptsRemaining !== null && attemptsRemaining <= 3 && !isLocked && (
+                {phoneAttemptsRemaining !== null && phoneAttemptsRemaining <= 3 && !isPhoneLocked && (
                   <Alert className="border-warning bg-warning/10 text-warning-foreground">
                     <ShieldAlert className="h-4 w-4" />
                     <AlertDescription>
-                      সতর্কতা: আর {attemptsRemaining} বার ভুল চেষ্টায় অ্যাকাউন্ট লক হবে।
+                      সতর্কতা: আর {phoneAttemptsRemaining} বার ভুল চেষ্টায় অ্যাকাউন্ট লক হবে।
                     </AlertDescription>
                   </Alert>
                 )}
@@ -472,7 +514,7 @@ export default function Login() {
                       className="pl-10"
                       maxLength={11}
                       required
-                      disabled={isLocked}
+                      disabled={isPhoneLocked}
                     />
                   </div>
                 </div>
@@ -486,7 +528,7 @@ export default function Login() {
                       value={phonePassword}
                       onChange={(e) => setPhonePassword(e.target.value)}
                       required
-                      disabled={isLocked}
+                      disabled={isPhoneLocked}
                     />
                     <Button
                       type="button"
@@ -499,14 +541,14 @@ export default function Login() {
                     </Button>
                   </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={phoneLoading || isLocked}>
+                <Button type="submit" className="w-full" disabled={phoneLoading || isPhoneLocked}>
                   {phoneLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       সাইন ইন হচ্ছে...
                     </>
-                  ) : isLocked ? (
-                    `${lockRemainingMinutes} মিনিট অপেক্ষা করুন`
+                  ) : isPhoneLocked ? (
+                    `${phoneLockRemainingMinutes} মিনিট অপেক্ষা করুন`
                   ) : (
                     'সাইন ইন করুন'
                   )}
@@ -517,6 +559,26 @@ export default function Login() {
             {/* Email Login */}
             <TabsContent value="email">
               <form onSubmit={handleEmailLogin} className="space-y-4">
+                {/* Lock Alert */}
+                {isEmailLocked && (
+                  <Alert variant="destructive">
+                    <ShieldAlert className="h-4 w-4" />
+                    <AlertDescription>
+                      অনেক বার ভুল পাসওয়ার্ড দেওয়া হয়েছে। অ্যাকাউন্ট {emailLockRemainingMinutes} মিনিটের জন্য লক করা হয়েছে।
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
+                {/* Attempts Warning */}
+                {emailAttemptsRemaining !== null && emailAttemptsRemaining <= 3 && !isEmailLocked && (
+                  <Alert className="border-warning bg-warning/10 text-warning-foreground">
+                    <ShieldAlert className="h-4 w-4" />
+                    <AlertDescription>
+                      সতর্কতা: আর {emailAttemptsRemaining} বার ভুল চেষ্টায় অ্যাকাউন্ট লক হবে।
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
                 <div className="space-y-2">
                   <Label htmlFor="email">ইমেইল</Label>
                   <Input
@@ -527,6 +589,7 @@ export default function Login() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     autoComplete="email"
+                    disabled={isEmailLocked}
                   />
                 </div>
                 <div className="space-y-2">
@@ -540,6 +603,7 @@ export default function Login() {
                       onChange={(e) => setEmailPassword(e.target.value)}
                       required
                       autoComplete="current-password"
+                      disabled={isEmailLocked}
                     />
                     <Button
                       type="button"
@@ -552,12 +616,14 @@ export default function Login() {
                     </Button>
                   </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={emailLoading}>
+                <Button type="submit" className="w-full" disabled={emailLoading || isEmailLocked}>
                   {emailLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       সাইন ইন হচ্ছে...
                     </>
+                  ) : isEmailLocked ? (
+                    `${emailLockRemainingMinutes} মিনিট অপেক্ষা করুন`
                   ) : (
                     'সাইন ইন করুন'
                   )}
