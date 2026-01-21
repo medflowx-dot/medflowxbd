@@ -148,21 +148,36 @@ export function AddPurchaseDialog({ suppliers, defaultSupplierId, trigger }: Add
               />
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-1">
                 <Label htmlFor="paid_amount">Paid Amount</Label>
-                {selectedSupplier && (parseFloat(formData.total_amount) || 0) > 0 && (
-                  <Button
-                    type="button"
-                    variant="link"
-                    size="sm"
-                    className="h-auto p-0 text-xs text-primary"
-                    onClick={() => {
-                      const fullDue = (parseFloat(formData.total_amount) || 0) + previousDue;
-                      setFormData({ ...formData, paid_amount: String(fullDue) });
-                    }}
-                  >
-                    পুরো বকেয়া পরিশোধ (৳{Math.round((parseFloat(formData.total_amount) || 0) + previousDue)})
-                  </Button>
+                {(parseFloat(formData.total_amount) || 0) > 0 && (
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-xs text-primary"
+                      onClick={() => {
+                        setFormData({ ...formData, paid_amount: formData.total_amount });
+                      }}
+                    >
+                      শুধু এই পার্চেজ (৳{Math.round(parseFloat(formData.total_amount) || 0)})
+                    </Button>
+                    {selectedSupplier && previousDue > 0 && (
+                      <Button
+                        type="button"
+                        variant="link"
+                        size="sm"
+                        className="h-auto p-0 text-xs text-primary"
+                        onClick={() => {
+                          const fullDue = (parseFloat(formData.total_amount) || 0) + previousDue;
+                          setFormData({ ...formData, paid_amount: String(fullDue) });
+                        }}
+                      >
+                        পুরো বকেয়া (৳{Math.round((parseFloat(formData.total_amount) || 0) + previousDue)})
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
               <Input
