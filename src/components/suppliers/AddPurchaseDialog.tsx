@@ -59,7 +59,10 @@ export function AddPurchaseDialog({ suppliers, defaultSupplierId, trigger }: Add
     }
   };
 
-  const dueAmount = (parseFloat(formData.total_amount) || 0) - (parseFloat(formData.paid_amount) || 0);
+  const selectedSupplier = suppliers.find(s => s.id === formData.supplier_id);
+  const previousDue = Math.max(0, selectedSupplier?.total_due || 0);
+  const currentPurchaseDue = Math.max(0, (parseFloat(formData.total_amount) || 0) - (parseFloat(formData.paid_amount) || 0));
+  const totalDueAfter = previousDue + currentPurchaseDue;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -97,8 +100,17 @@ export function AddPurchaseDialog({ suppliers, defaultSupplierId, trigger }: Add
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
+          </Select>
           </div>
+
+          {selectedSupplier && previousDue > 0 && (
+            <div className="p-3 bg-accent border border-border rounded-lg">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">পূর্বের বকেয়া (Previous Due):</span>
+                <span className="font-semibold text-destructive">৳{Math.round(previousDue)}</span>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -149,13 +161,21 @@ export function AddPurchaseDialog({ suppliers, defaultSupplierId, trigger }: Add
             </div>
           </div>
 
-          <div className="p-3 bg-muted rounded-lg">
+          <div className="p-3 bg-muted rounded-lg space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Due Amount:</span>
-              <span className={`font-semibold ${dueAmount > 0 ? 'text-destructive' : 'text-green-600'}`}>
-                ৳{dueAmount.toFixed(2)}
+              <span className="text-muted-foreground">এই পার্চেজের বকেয়া (This Purchase Due):</span>
+              <span className={`font-semibold ${currentPurchaseDue > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                ৳{Math.round(currentPurchaseDue)}
               </span>
             </div>
+            {selectedSupplier && (
+              <div className="flex justify-between text-sm pt-2 border-t border-border">
+                <span className="text-muted-foreground font-medium">মোট বকেয়া হবে (Total Due After):</span>
+                <span className={`font-bold ${totalDueAfter > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                  ৳{Math.round(totalDueAfter)}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
