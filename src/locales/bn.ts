@@ -747,6 +747,9 @@ export const bn: TranslationKeys = {
     splitErrorDesc: 'বকেয়া ভাগ করতে ব্যর্থ। আবার চেষ্টা করুন।',
     atLeastTwoEntries: 'কমপক্ষে ২টি এন্ট্রি পরিমাণসহ প্রয়োজন',
     totalMustMatch: 'ভাগকৃত এন্ট্রির মোট মূল পরিমাণের সমান হতে হবে',
+    // Statement Export
+    exportStatement: 'স্টেটমেন্ট',
+    statementExported: 'গ্রাহক স্টেটমেন্ট PDF এক্সপোর্ট হয়েছে',
   },
 
   // Daily Cash Page

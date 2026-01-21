@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Wallet, Pencil, Trash2, ArrowDownCircle, ArrowUpCircle, Scissors } from 'lucide-react';
+import { Wallet, Pencil, Trash2, ArrowDownCircle, ArrowUpCircle, Scissors, FileText } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { EditPaymentDialog } from './EditPaymentDialog';
 import { EditDueDialog } from './EditDueDialog';
@@ -40,6 +40,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { generateCustomerStatementPDF } from '@/lib/pdfGenerator';
 
 interface CustomerPaymentHistoryProps {
   open: boolean;
@@ -136,15 +137,50 @@ export function CustomerPaymentHistory({
     setSplitDueOpen(true);
   };
 
+  const handleExportStatement = () => {
+    if (!customer) return;
+    
+    generateCustomerStatementPDF({
+      customer: {
+        id: customer.id,
+        name: customer.name,
+        phone: customer.phone,
+        address: customer.address,
+        total_due: customer.total_due,
+      },
+      transactions: transactions.map(tx => ({
+        id: tx.id,
+        type: tx.type,
+        amount: tx.amount,
+        date: tx.date,
+        notes: tx.notes,
+        payment_method: tx.payment_method,
+      })),
+    });
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Wallet className="h-5 w-5" />
-              {t.customerDues?.transactionHistory || 'Transaction History'} - {customerName}
-            </DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="flex items-center gap-2">
+                <Wallet className="h-5 w-5" />
+                {t.customerDues?.transactionHistory || 'Transaction History'} - {customerName}
+              </DialogTitle>
+              {customer && transactions.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportStatement}
+                  className="gap-1.5"
+                >
+                  <FileText className="h-4 w-4" />
+                  {t.customerDues?.exportStatement || 'Statement'}
+                </Button>
+              )}
+            </div>
           </DialogHeader>
 
           {isLoading ? (

@@ -1,4 +1,5 @@
 export const en = {
+  // Note: customerDues.exportStatement added for PDF export
   // Language
   language: 'English',
   languageCode: 'en',
@@ -745,6 +746,9 @@ export const en = {
     splitErrorDesc: 'Failed to split due. Please try again.',
     atLeastTwoEntries: 'At least 2 entries with amounts are required',
     totalMustMatch: 'Total of split entries must equal original amount',
+    // Statement Export
+    exportStatement: 'Statement',
+    statementExported: 'Customer statement PDF exported',
   },
 
   // Daily Cash Page
