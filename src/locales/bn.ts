@@ -722,6 +722,16 @@ export const bn: TranslationKeys = {
     deletePaymentConfirm: 'আপনি কি নিশ্চিত এই পেমেন্ট মুছে ফেলতে চান? গ্রাহকের বকেয়া পুনরায় গণনা হবে।',
     amount: 'পরিমাণ',
     bank: 'ব্যাংক',
+    // Due Edit/Delete
+    editDue: 'বকেয়া এন্ট্রি সম্পাদনা',
+    editDueDesc: 'বকেয়া পরিমাণ এবং নোট আপডেট করুন',
+    updateDue: 'বকেয়া আপডেট করুন',
+    deleteDue: 'বকেয়া এন্ট্রি মুছুন',
+    deleteDueConfirm: 'আপনি কি নিশ্চিত এই বকেয়া এন্ট্রি মুছে ফেলতে চান? গ্রাহকের ব্যালেন্স পুনরায় গণনা হবে।',
+    dueEntry: 'বকেয়া',
+    paymentEntry: 'পেমেন্ট',
+    transactionHistory: 'লেনদেন ইতিহাস',
+    allTransactions: 'সব লেনদেন',
   },
 
   // Daily Cash Page
