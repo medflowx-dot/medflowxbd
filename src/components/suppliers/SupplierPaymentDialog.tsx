@@ -117,7 +117,7 @@ export function SupplierPaymentDialog({ supplier, trigger }: SupplierPaymentDial
                 className="flex-1 text-xs h-8"
                 onClick={() => setFormData({ ...formData, amount: String(supplier.total_due), payment_type: 'due_payment' })}
               >
-                পুরো বকেয়া পরিশোধ (৳{Math.round(supplier.total_due)})
+                {t.suppliers?.payFullDueWithValue?.replace('{amount}', String(Math.round(supplier.total_due))) || `${t.suppliers?.payFullDue || 'Pay Full Due'} (৳${Math.round(supplier.total_due)})`}
               </Button>
             </div>
           )}

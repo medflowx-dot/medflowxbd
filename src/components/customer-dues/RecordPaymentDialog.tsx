@@ -96,7 +96,7 @@ export function RecordPaymentDialog({ open, onOpenChange, customer }: RecordPaym
                   className="w-full text-xs h-8"
                   onClick={handlePayFull}
                 >
-                  পুরো বকেয়া পরিশোধ (৳{Math.round(maxAmount)})
+                  {t.customerDues.payFullAmountWithValue?.replace('{amount}', String(Math.round(maxAmount))) || `${t.customerDues.payFullAmount} (৳${Math.round(maxAmount)})`}
                 </Button>
               </div>
             )}

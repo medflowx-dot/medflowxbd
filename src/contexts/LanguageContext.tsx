@@ -33,7 +33,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         return stored;
       }
     }
-    return 'bn'; // Default to Bengali
+    return 'en'; // Default to English
   });
   
   const [isInitialized, setIsInitialized] = useState(false);
@@ -78,9 +78,9 @@ export function useLanguage() {
     // Return default values if provider is not available yet
     // This can happen during initial render before providers are mounted
     return {
-      language: 'bn' as const,
+      language: 'en' as const,
       setLanguage: () => {},
-      t: translations.bn,
+      t: translations.en,
       isLoading: true,
     };
   }

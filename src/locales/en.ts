@@ -246,6 +246,12 @@ export const en = {
     noDues: 'No outstanding dues',
     total: 'Total',
     supplierDuesTitle: 'Supplier Dues',
+    // Transaction descriptions
+    salePrefix: 'Sale',
+    dueCollection: 'Due Collection',
+    costPrefix: 'Cost',
+    supplierPayment: 'Supplier Payment',
+    more: 'More',
   },
 
   // Medicines Page
@@ -534,6 +540,8 @@ export const en = {
     advanceAmount: 'Advance Amount',
     othersNotesPlaceholder: 'Describe the reason for this payment...',
     paymentNotesPlaceholder: 'Payment notes',
+    payFullDue: 'Pay Full Due',
+    payFullDueWithValue: 'Pay Full Due (৳{amount})',
     // Payment History
     recentPayments: 'Recent Payments',
     paymentsToSuppliers: 'Payments made to suppliers',
@@ -730,7 +738,8 @@ export const en = {
     recordPaymentFrom: 'Record a payment from',
     outstandingDue: 'Outstanding Due',
     paymentAmount: 'Payment Amount (৳)',
-    payFullAmount: 'Pay Full Amount',
+    payFullAmount: 'Pay Full',
+    payFullAmountWithValue: 'Pay Full (৳{amount})',
     paymentMethod: 'Payment Method',
     cash: 'Cash',
     bkash: 'bKash',
@@ -738,6 +747,7 @@ export const en = {
     bankTransfer: 'Bank Transfer',
     other: 'Other',
     remainingDue: 'Remaining Due After Payment',
+    thisDue: 'This Due',
     recording: 'Recording...',
     // Report
     customerReport: 'Customer Report',

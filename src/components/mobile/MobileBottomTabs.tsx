@@ -49,11 +49,11 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
 
   const getLabel = (key: string) => {
     const labels: Record<string, string> = {
-      home: t.nav?.dashboard || 'হোম',
-      sales: t.nav?.sales || 'বিক্রয়',
-      medicines: t.nav?.medicines || 'ঔষধ',
-      dailyCash: t.nav?.dailyCash || 'ক্যাশ',
-      more: 'আরও',
+      home: t.nav?.dashboard || 'Home',
+      sales: t.nav?.sales || 'Sales',
+      medicines: t.nav?.medicines || 'Medicines',
+      dailyCash: t.nav?.dailyCash || 'Cash',
+      more: t.dashboard?.more || 'More',
     };
     return labels[key] || key;
   };
