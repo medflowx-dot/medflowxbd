@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { useOtpTimer } from '@/hooks/useOtpTimer';
 import logoAuthFallback from '@/assets/logo-auth.png';
+import { parseEdgeFunctionError } from '@/lib/edgeFunctionError';
 
 // Plan display configuration
 const planConfig: Record<string, { title: string; subtitle: string; buttonText: string }> = {
@@ -99,12 +100,16 @@ export default function Signup() {
         body: { phone, purpose: 'signup' }
       });
 
-      // Check data.error first (Edge Function returns error in body even with non-2xx)
-      if (data?.error) {
-        throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setSendingOtp(false);
+        return;
       }
       
-      // Network/SDK level error (no data returned)
+      // Network/SDK level error
       if (error && !data) {
         throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
@@ -138,12 +143,16 @@ export default function Signup() {
         body: { phone, otp, purpose: 'signup' }
       });
 
-      // Check data.error first (Edge Function returns error in body even with non-2xx)
-      if (data?.error) {
-        throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setVerifyingOtp(false);
+        return;
       }
       
-      // Network/SDK level error (no data returned)
+      // Network/SDK level error
       if (error && !data) {
         throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
@@ -215,12 +224,16 @@ export default function Signup() {
         body: { phone, purpose: 'signup' }
       });
 
-      // Check data.error first (Edge Function returns error in body even with non-2xx)
-      if (data?.error) {
-        throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setSendingOtp(false);
+        return;
       }
       
-      // Network/SDK level error (no data returned)
+      // Network/SDK level error
       if (error && !data) {
         throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
