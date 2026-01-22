@@ -6,7 +6,6 @@ import {
   Users,
   Truck,
   Wallet,
-  Loader2,
   ChevronRight,
   ArrowUpRight,
   ArrowDownRight,
@@ -30,6 +29,13 @@ import {
   ChartTooltipContent 
 } from '@/components/ui/chart';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import {
+  StatCardsSkeleton,
+  ExpiryStatsSkeleton,
+  ChartSkeleton,
+  DueAlertsSkeleton,
+  TransactionsListSkeleton
+} from '@/components/ui/skeletons';
 
 export default function DashboardHome() {
   const { data: stats, isLoading } = useDashboardStats();
@@ -131,27 +137,27 @@ export default function DashboardHome() {
       </div>
 
       {/* Quick Stats - Ultra compact on mobile */}
-      <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-2 lg:grid-cols-4 stagger-children">
-        {quickStats.map((stat) => (
-          <Card key={stat.label} className={cn("transition-all duration-300 hover:shadow-lg", stat.cardClass)}>
-            <CardHeader className="flex flex-row items-center gap-2 sm:gap-3 pb-1 sm:pb-2 p-2 sm:p-3 md:p-4">
-              <div className={cn("shrink-0 p-1.5 sm:p-2 rounded-lg", stat.iconClass)}>
-                {isLoading ? (
-                  <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin text-white" />
-                ) : (
+      {isLoading ? (
+        <StatCardsSkeleton count={4} />
+      ) : (
+        <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-2 lg:grid-cols-4 stagger-children">
+          {quickStats.map((stat) => (
+            <Card key={stat.label} className={cn("transition-all duration-300 hover:shadow-lg", stat.cardClass)}>
+              <CardHeader className="flex flex-row items-center gap-2 sm:gap-3 pb-1 sm:pb-2 p-2 sm:p-3 md:p-4">
+                <div className={cn("shrink-0 p-1.5 sm:p-2 rounded-lg", stat.iconClass)}>
                   <stat.icon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
-                )}
-              </div>
-              <CardDescription className="text-[10px] sm:text-xs md:text-sm font-medium leading-tight">{stat.label}</CardDescription>
-            </CardHeader>
-            <CardContent className="p-2 sm:p-3 md:p-4 pt-0">
-              <div className={cn("text-base sm:text-xl md:text-2xl font-bold", stat.valueClass)}>
-                {isLoading ? '...' : stat.value}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                </div>
+                <CardDescription className="text-[10px] sm:text-xs md:text-sm font-medium leading-tight">{stat.label}</CardDescription>
+              </CardHeader>
+              <CardContent className="p-2 sm:p-3 md:p-4 pt-0">
+                <div className={cn("text-base sm:text-xl md:text-2xl font-bold", stat.valueClass)}>
+                  {stat.value}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Expiry Overview - Compact */}
       <Card className="overflow-hidden">
@@ -172,14 +178,18 @@ export default function DashboardHome() {
           </div>
         </CardHeader>
         <CardContent className="pt-2 sm:pt-4 p-2 sm:p-4">
-          <div className="grid grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
-            {expiryStats.map((stat) => (
-              <div key={stat.label} className={cn(stat.badgeClass, "p-1.5 sm:p-2 md:p-3")}>
-                <div className="text-sm sm:text-lg md:text-2xl font-bold">{isLoading ? '...' : stat.value}</div>
-                <div className="text-[9px] sm:text-xs font-medium leading-tight">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+          {isLoading ? (
+            <ExpiryStatsSkeleton />
+          ) : (
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
+              {expiryStats.map((stat) => (
+                <div key={stat.label} className={cn(stat.badgeClass, "p-1.5 sm:p-2 md:p-3")}>
+                  <div className="text-sm sm:text-lg md:text-2xl font-bold">{stat.value}</div>
+                  <div className="text-[9px] sm:text-xs font-medium leading-tight">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -200,9 +210,7 @@ export default function DashboardHome() {
           </CardHeader>
           <CardContent className="pt-2 sm:pt-4 p-2 sm:p-4">
             {trendLoading ? (
-              <div className="h-[120px] sm:h-[200px] flex items-center justify-center">
-                <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-muted-foreground" />
-              </div>
+              <ChartSkeleton height="120px" />
             ) : (
               <>
                 <div className="h-[100px] sm:h-[160px] md:h-[200px]">
@@ -279,9 +287,7 @@ export default function DashboardHome() {
           </CardHeader>
           <CardContent className="pt-2 sm:pt-4 p-2 sm:p-4">
             {dueLoading ? (
-              <div className="h-[150px] sm:h-[200px] flex items-center justify-center">
-                <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-muted-foreground" />
-              </div>
+              <DueAlertsSkeleton />
             ) : (
               <div className="grid grid-cols-2 gap-2 sm:gap-4">
                 {/* Customer Dues */}
@@ -376,9 +382,7 @@ export default function DashboardHome() {
         </CardHeader>
         <CardContent className="pt-2 sm:pt-4 p-2 sm:p-4">
           {transactionsLoading ? (
-            <div className="flex items-center justify-center py-4 sm:py-8">
-              <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-muted-foreground" />
-            </div>
+            <TransactionsListSkeleton count={4} />
           ) : transactions?.length === 0 ? (
             <div className="text-center py-4 sm:py-8 text-muted-foreground">
               <Receipt className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-1 sm:mb-2 opacity-50" />
