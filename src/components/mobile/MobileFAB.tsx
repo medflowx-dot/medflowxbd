@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,107 +17,48 @@ interface MobileFABProps {
 export function MobileFAB({ actions }: MobileFABProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const sentinelRef = useRef<HTMLDivElement>(null);
   const lastScrollTop = useRef(0);
+  const scrollContainerRef = useRef<HTMLElement | null>(null);
 
-  // Use scroll event on the pull-to-refresh container
   useEffect(() => {
-    let scrollContainer: HTMLElement | null = null;
-    
-    const findScrollContainer = () => {
-      // Try to find the pull-to-refresh container
-      const container = document.querySelector('[data-pull-to-refresh="true"]') as HTMLElement;
-      return container;
-    };
-
     const handleScroll = () => {
-      if (!scrollContainer) return;
+      const container = scrollContainerRef.current;
+      if (!container) return;
       
-      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
-      const isAtBottom = scrollHeight - scrollTop - clientHeight < 80;
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const maxScroll = scrollHeight - clientHeight;
+      const isAtBottom = maxScroll > 0 && (maxScroll - scrollTop) < 50;
       
-      // Hide when at bottom, show when scrolling up or not at bottom
       if (isAtBottom) {
         setIsVisible(false);
-      } else if (scrollTop < lastScrollTop.current || scrollTop < 50) {
+      } else {
         setIsVisible(true);
       }
       
       lastScrollTop.current = scrollTop;
     };
 
-    // Delay to ensure DOM is ready
-    const timeoutId = setTimeout(() => {
-      scrollContainer = findScrollContainer();
+    // Find scroll container after a short delay
+    const initScrollListener = () => {
+      const container = document.querySelector('[data-pull-to-refresh="true"]') as HTMLElement;
       
-      if (scrollContainer) {
-        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+      if (container) {
+        scrollContainerRef.current = container;
+        container.addEventListener('scroll', handleScroll, { passive: true });
+        // Initial check
+        handleScroll();
       }
-    }, 100);
+    };
+
+    // Try immediately and also after a delay
+    initScrollListener();
+    const timeoutId = setTimeout(initScrollListener, 500);
 
     return () => {
       clearTimeout(timeoutId);
-      if (scrollContainer) {
-        scrollContainer.removeEventListener('scroll', handleScroll);
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.removeEventListener('scroll', handleScroll);
       }
-    };
-  }, []);
-
-  // Fallback: Use IntersectionObserver for bottom detection
-  useEffect(() => {
-    // Create a sentinel element at the bottom of the page
-    const createSentinel = () => {
-      const existingSentinel = document.getElementById('fab-bottom-sentinel');
-      if (existingSentinel) return existingSentinel;
-      
-      const sentinel = document.createElement('div');
-      sentinel.id = 'fab-bottom-sentinel';
-      sentinel.style.cssText = 'height: 1px; width: 100%; pointer-events: none;';
-      
-      // Find the outlet content and append sentinel
-      const outlet = document.querySelector('[data-pull-to-refresh="true"] > div');
-      if (outlet) {
-        outlet.appendChild(sentinel);
-      }
-      
-      return sentinel;
-    };
-
-    const timeoutId = setTimeout(() => {
-      const sentinel = createSentinel();
-      
-      if (sentinel) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              // When sentinel is visible (bottom of page reached), hide FAB
-              if (entry.isIntersecting) {
-                setIsVisible(false);
-              } else {
-                setIsVisible(true);
-              }
-            });
-          },
-          {
-            root: document.querySelector('[data-pull-to-refresh="true"]'),
-            rootMargin: '0px',
-            threshold: 0.1,
-          }
-        );
-
-        observer.observe(sentinel);
-
-        return () => {
-          observer.disconnect();
-          sentinel.remove();
-        };
-      }
-    }, 200);
-
-    return () => {
-      clearTimeout(timeoutId);
-      const sentinel = document.getElementById('fab-bottom-sentinel');
-      if (sentinel) sentinel.remove();
     };
   }, []);
 
