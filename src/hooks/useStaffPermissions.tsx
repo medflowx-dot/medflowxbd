@@ -88,7 +88,7 @@ export function useMyPermissions() {
   });
 }
 
-// Update or create staff permissions
+// Update or create staff permissions with activity logging
 export function useUpdateStaffPermissions() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -103,14 +103,69 @@ export function useUpdateStaffPermissions() {
     }) => {
       if (!user?.id) throw new Error('Not authenticated');
 
-      // Check if permissions exist
-      const { data: existing } = await supabase
+      // Get existing permissions for logging
+      const { data: existingPermissions } = await supabase
         .from('staff_permissions')
-        .select('id')
+        .select('*')
         .eq('staff_user_id', staffUserId)
         .maybeSingle();
 
-      if (existing) {
+      const oldPermissions = existingPermissions ? {
+        can_view_medicines: existingPermissions.can_view_medicines,
+        can_manage_medicines: existingPermissions.can_manage_medicines,
+        can_view_sales: existingPermissions.can_view_sales,
+        can_manage_sales: existingPermissions.can_manage_sales,
+        can_view_customer_dues: existingPermissions.can_view_customer_dues,
+        can_manage_customer_dues: existingPermissions.can_manage_customer_dues,
+        can_view_suppliers: existingPermissions.can_view_suppliers,
+        can_manage_suppliers: existingPermissions.can_manage_suppliers,
+        can_view_manufacturers: existingPermissions.can_view_manufacturers,
+        can_manage_manufacturers: existingPermissions.can_manage_manufacturers,
+        can_view_daily_cash: existingPermissions.can_view_daily_cash,
+        can_manage_daily_cash: existingPermissions.can_manage_daily_cash,
+        can_view_stock_short: existingPermissions.can_view_stock_short,
+        can_manage_stock_short: existingPermissions.can_manage_stock_short,
+        can_view_reports: existingPermissions.can_view_reports,
+        can_manage_reports: existingPermissions.can_manage_reports,
+      } : null;
+
+      // Generate change summary
+      const generateChangeSummary = (oldPerms: typeof oldPermissions, newPerms: typeof permissions): string => {
+        if (!oldPerms) return 'Initial permissions set';
+        
+        const changes: string[] = [];
+        const permissionLabels: Record<string, string> = {
+          can_view_medicines: 'View Medicines',
+          can_manage_medicines: 'Manage Medicines',
+          can_view_sales: 'View Sales',
+          can_manage_sales: 'Manage Sales',
+          can_view_customer_dues: 'View Customer Dues',
+          can_manage_customer_dues: 'Manage Customer Dues',
+          can_view_suppliers: 'View Suppliers',
+          can_manage_suppliers: 'Manage Suppliers',
+          can_view_manufacturers: 'View Manufacturers',
+          can_manage_manufacturers: 'Manage Manufacturers',
+          can_view_daily_cash: 'View Daily Cash',
+          can_manage_daily_cash: 'Manage Daily Cash',
+          can_view_stock_short: 'View Stock Short',
+          can_manage_stock_short: 'Manage Stock Short',
+          can_view_reports: 'View Reports',
+          can_manage_reports: 'Manage Reports',
+        };
+
+        Object.keys(newPerms).forEach(key => {
+          const oldValue = oldPerms[key as keyof typeof oldPerms];
+          const newValue = newPerms[key as keyof typeof newPerms];
+          if (oldValue !== newValue) {
+            const label = permissionLabels[key] || key;
+            changes.push(`${label}: ${oldValue ? '✓' : '✗'} → ${newValue ? '✓' : '✗'}`);
+          }
+        });
+
+        return changes.length > 0 ? changes.join(', ') : 'No changes';
+      };
+
+      if (existingPermissions) {
         // Update existing
         const { error } = await supabase
           .from('staff_permissions')
@@ -131,16 +186,48 @@ export function useUpdateStaffPermissions() {
 
         if (error) throw error;
       }
+
+      // Log the permission change
+      const changeSummary = generateChangeSummary(oldPermissions, permissions);
+      await supabase.from('staff_permission_logs').insert({
+        staff_user_id: staffUserId,
+        changed_by: user.id,
+        old_permissions: oldPermissions,
+        new_permissions: permissions,
+        change_summary: changeSummary,
+      });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['staff-permissions', variables.staffUserId] });
       queryClient.invalidateQueries({ queryKey: ['my-permissions'] });
+      queryClient.invalidateQueries({ queryKey: ['staff-permission-logs', variables.staffUserId] });
       toast.success('Permissions updated successfully');
     },
     onError: (error) => {
       console.error('Error updating permissions:', error);
       toast.error('Failed to update permissions');
     },
+  });
+}
+
+// Fetch permission change logs for a staff member
+export function useStaffPermissionLogs(staffUserId: string | undefined) {
+  return useQuery({
+    queryKey: ['staff-permission-logs', staffUserId],
+    queryFn: async () => {
+      if (!staffUserId) return [];
+      
+      const { data, error } = await supabase
+        .from('staff_permission_logs')
+        .select('*')
+        .eq('staff_user_id', staffUserId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!staffUserId,
   });
 }
 

@@ -3,10 +3,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Loader2, Package, ShoppingCart, Users, Truck, Factory, Wallet, ClipboardList, BarChart3, Zap } from 'lucide-react';
-import { useStaffPermissions, useUpdateStaffPermissions, defaultStaffPermissions, StaffPermissions } from '@/hooks/useStaffPermissions';
+import { Loader2, Package, ShoppingCart, Users, Truck, Factory, Wallet, ClipboardList, BarChart3, Zap, History } from 'lucide-react';
+import { useStaffPermissions, useUpdateStaffPermissions, useStaffPermissionLogs, defaultStaffPermissions, StaffPermissions } from '@/hooks/useStaffPermissions';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { format } from 'date-fns';
 
 interface StaffPermissionsDialogProps {
   open: boolean;
@@ -225,7 +227,9 @@ const permissionModules: PermissionModule[] = [
 export function StaffPermissionsDialog({ open, onOpenChange, staffUserId, staffName }: StaffPermissionsDialogProps) {
   const { language } = useLanguage();
   const { data: permissions, isLoading } = useStaffPermissions(staffUserId);
+  const { data: permissionLogs, isLoading: logsLoading } = useStaffPermissionLogs(staffUserId);
   const updatePermissions = useUpdateStaffPermissions();
+  const [activeTab, setActiveTab] = useState('permissions');
   
   const [localPermissions, setLocalPermissions] = useState<PermissionState>(defaultStaffPermissions);
 
@@ -294,103 +298,185 @@ export function StaffPermissionsDialog({ open, onOpenChange, staffUserId, staffN
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {language === 'bn' ? 'স্টাফ পারমিশন' : 'Staff Permissions'}: {staffName}
           </DialogTitle>
         </DialogHeader>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        ) : (
-          <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
-            {/* Template Selector */}
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
-              <Zap className="h-4 w-4 text-primary" />
-              <div className="flex-1">
-                <Label className="text-sm font-medium">
-                  {language === 'bn' ? 'দ্রুত টেমপ্লেট' : 'Quick Template'}
-                </Label>
-                <Select onValueChange={handleTemplateApply}>
-                  <SelectTrigger className="mt-1 h-8">
-                    <SelectValue placeholder={language === 'bn' ? 'টেমপ্লেট নির্বাচন করুন...' : 'Select a template...'} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {permissionTemplates.map(template => (
-                      <SelectItem key={template.id} value={template.id}>
-                        {language === 'bn' ? template.labelBn : template.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="permissions" className="gap-2">
+              <Zap className="h-4 w-4" />
+              {language === 'bn' ? 'পারমিশন' : 'Permissions'}
+            </TabsTrigger>
+            <TabsTrigger value="history" className="gap-2">
+              <History className="h-4 w-4" />
+              {language === 'bn' ? 'ইতিহাস' : 'History'}
+            </TabsTrigger>
+          </TabsList>
 
-            {/* Permission Modules */}
-            {permissionModules.map((module) => (
-              <div key={module.key} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                <div className="mt-0.5 text-muted-foreground">
-                  {module.icon}
-                </div>
-                <div className="flex-1 space-y-2">
-                  <div className="font-medium text-sm">
-                    {language === 'bn' ? module.labelBn : module.label}
-                  </div>
-                  <div className="flex flex-wrap gap-4">
-                    {module.viewKey && (
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          id={`${module.key}-view`}
-                          checked={localPermissions[module.viewKey] as boolean}
-                          onCheckedChange={(checked) => 
-                            handlePermissionChange(module.viewKey!, !!checked)
-                          }
-                        />
-                        <Label htmlFor={`${module.key}-view`} className="text-sm text-muted-foreground cursor-pointer">
-                          {language === 'bn' ? 'দেখতে পারবে' : 'View'}
-                        </Label>
-                      </div>
-                    )}
-                    {module.manageKey && (
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          id={`${module.key}-manage`}
-                          checked={localPermissions[module.manageKey] as boolean}
-                          onCheckedChange={(checked) => 
-                            handlePermissionChange(module.manageKey!, !!checked)
-                          }
-                          disabled={module.viewKey ? !localPermissions[module.viewKey] : false}
-                        />
-                        <Label 
-                          htmlFor={`${module.key}-manage`} 
-                          className={`text-sm cursor-pointer ${
-                            module.viewKey && !localPermissions[module.viewKey] 
-                              ? 'text-muted-foreground/50' 
-                              : 'text-muted-foreground'
-                          }`}
-                        >
-                          {language === 'bn' ? 'পরিচালনা করতে পারবে' : 'Manage'}
-                        </Label>
-                      </div>
-                    )}
-                  </div>
-                </div>
+          <TabsContent value="permissions" className="mt-4">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
-            ))}
-          </div>
-        )}
+            ) : (
+              <div className="space-y-4 max-h-[50vh] overflow-y-auto">
+                {/* Template Selector */}
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                  <Zap className="h-4 w-4 text-primary" />
+                  <div className="flex-1">
+                    <Label className="text-sm font-medium">
+                      {language === 'bn' ? 'দ্রুত টেমপ্লেট' : 'Quick Template'}
+                    </Label>
+                    <Select onValueChange={handleTemplateApply}>
+                      <SelectTrigger className="mt-1 h-8">
+                        <SelectValue placeholder={language === 'bn' ? 'টেমপ্লেট নির্বাচন করুন...' : 'Select a template...'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {permissionTemplates.map(template => (
+                          <SelectItem key={template.id} value={template.id}>
+                            {language === 'bn' ? template.labelBn : template.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Permission Modules */}
+                {permissionModules.map((module) => (
+                  <div key={module.key} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                    <div className="mt-0.5 text-muted-foreground">
+                      {module.icon}
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="font-medium text-sm">
+                        {language === 'bn' ? module.labelBn : module.label}
+                      </div>
+                      <div className="flex flex-wrap gap-4">
+                        {module.viewKey && (
+                          <div className="flex items-center gap-2">
+                            <Checkbox
+                              id={`${module.key}-view`}
+                              checked={localPermissions[module.viewKey] as boolean}
+                              onCheckedChange={(checked) => 
+                                handlePermissionChange(module.viewKey!, !!checked)
+                              }
+                            />
+                            <Label htmlFor={`${module.key}-view`} className="text-sm text-muted-foreground cursor-pointer">
+                              {language === 'bn' ? 'দেখতে পারবে' : 'View'}
+                            </Label>
+                          </div>
+                        )}
+                        {module.manageKey && (
+                          <div className="flex items-center gap-2">
+                            <Checkbox
+                              id={`${module.key}-manage`}
+                              checked={localPermissions[module.manageKey] as boolean}
+                              onCheckedChange={(checked) => 
+                                handlePermissionChange(module.manageKey!, !!checked)
+                              }
+                              disabled={module.viewKey ? !localPermissions[module.viewKey] : false}
+                            />
+                            <Label 
+                              htmlFor={`${module.key}-manage`} 
+                              className={`text-sm cursor-pointer ${
+                                module.viewKey && !localPermissions[module.viewKey] 
+                                  ? 'text-muted-foreground/50' 
+                                  : 'text-muted-foreground'
+                              }`}
+                            >
+                              {language === 'bn' ? 'পরিচালনা করতে পারবে' : 'Manage'}
+                            </Label>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="history" className="mt-4">
+            {logsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : permissionLogs && permissionLogs.length > 0 ? (
+              <div className="space-y-3 max-h-[50vh] overflow-y-auto">
+                {permissionLogs.map((log) => (
+                  <div key={log.id} className="p-3 rounded-lg bg-muted/50 border border-border/50">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(log.created_at), 'dd MMM yyyy, hh:mm a')}
+                      </span>
+                    </div>
+                    <p className="text-sm">
+                      {log.change_summary || (language === 'bn' ? 'পারমিশন আপডেট করা হয়েছে' : 'Permissions updated')}
+                    </p>
+                    {log.old_permissions && (
+                      <details className="mt-2">
+                        <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                          {language === 'bn' ? 'বিস্তারিত দেখুন' : 'View details'}
+                        </summary>
+                        <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                          <div className="p-2 rounded bg-destructive/10">
+                            <span className="font-medium text-destructive">{language === 'bn' ? 'আগে' : 'Before'}</span>
+                            <div className="mt-1 space-y-0.5">
+                              {Object.entries(log.old_permissions as Record<string, boolean>).map(([key, value]) => (
+                                <div key={key} className="flex items-center gap-1">
+                                  <span className={value ? 'text-green-600' : 'text-muted-foreground'}>
+                                    {value ? '✓' : '✗'}
+                                  </span>
+                                  <span className="truncate">{key.replace(/can_(view|manage)_/, '')}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="p-2 rounded bg-primary/10">
+                            <span className="font-medium text-primary">{language === 'bn' ? 'পরে' : 'After'}</span>
+                            <div className="mt-1 space-y-0.5">
+                              {Object.entries(log.new_permissions as Record<string, boolean>).map(([key, value]) => (
+                                <div key={key} className="flex items-center gap-1">
+                                  <span className={value ? 'text-green-600' : 'text-muted-foreground'}>
+                                    {value ? '✓' : '✗'}
+                                  </span>
+                                  <span className="truncate">{key.replace(/can_(view|manage)_/, '')}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </details>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <History className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">
+                  {language === 'bn' ? 'কোনো ইতিহাস নেই' : 'No history yet'}
+                </p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {language === 'bn' ? 'বাতিল' : 'Cancel'}
           </Button>
-          <Button onClick={handleSave} disabled={updatePermissions.isPending}>
-            {updatePermissions.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {language === 'bn' ? 'সংরক্ষণ করুন' : 'Save Changes'}
-          </Button>
+          {activeTab === 'permissions' && (
+            <Button onClick={handleSave} disabled={updatePermissions.isPending}>
+              {updatePermissions.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {language === 'bn' ? 'সংরক্ষণ করুন' : 'Save Changes'}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
