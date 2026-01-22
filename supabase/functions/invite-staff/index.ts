@@ -288,8 +288,8 @@ Deno.serve(async (req) => {
       .eq('user_id', caller.id)
       .single();
 
-    // Generate a random password for the new user
-    const tempPassword = crypto.randomUUID().slice(0, 12) + 'Aa1!';
+    // Fixed temporary password for all staff - they must change on first login
+    const tempPassword = '123456';
 
     // Prepare user email - for phone invites, create a placeholder email
     let userEmail: string;
