@@ -74,3 +74,6 @@ verify_jwt = false
 
 [functions.cleanup-abandoned-payments]
 verify_jwt = false
+
+[functions.import-medicine-reference]
+verify_jwt = false
