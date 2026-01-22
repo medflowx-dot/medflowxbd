@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useStockShortList } from '@/hooks/useStockShortList';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { useMedicines } from '@/hooks/useMedicines';
+import { usePermissions } from '@/hooks/usePermissions';
 import { format } from 'date-fns';
 
 interface AutoDetectedInfo {
@@ -45,7 +46,8 @@ export default function StockShortList() {
   } = useStockShortList();
   const { manufacturers } = useManufacturers();
   const { medicines } = useMedicines();
-  
+  const { hasPermission } = usePermissions();
+  const canManage = hasPermission('manage_stock_short');
   // Quick add state
   const [medicineSearch, setMedicineSearch] = useState('');
   const [medicinePopoverOpen, setMedicinePopoverOpen] = useState(false);
@@ -161,162 +163,164 @@ export default function StockShortList() {
         </div>
       </div>
 
-      {/* Quick Add Card */}
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-md bg-primary/10">
-              <Zap className="h-4 w-4 text-primary" />
+      {/* Quick Add Card - Only show if can manage */}
+      {canManage && (
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-md bg-primary/10">
+                <Zap className="h-4 w-4 text-primary" />
+              </div>
+              <CardTitle className="text-lg">Quick Add</CardTitle>
             </div>
-            <CardTitle className="text-lg">Quick Add</CardTitle>
-          </div>
-          <CardDescription>
-            Medicine সিলেক্ট করলেই Manufacturer ও Supplier স্বয়ংক্রিয় সনাক্ত হবে
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Quick Add Form */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* Medicine Combobox */}
-            <div className="flex-1">
-              <Popover open={medicinePopoverOpen} onOpenChange={setMedicinePopoverOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={medicinePopoverOpen}
-                    className="w-full justify-between font-normal bg-background"
-                  >
-                    {autoDetectedInfo.medicine 
-                      ? `${autoDetectedInfo.medicine.name} (${autoDetectedInfo.medicine.unit})`
-                      : "Medicine সার্চ করুন..."
+            <CardDescription>
+              Medicine সিলেক্ট করলেই Manufacturer ও Supplier স্বয়ংক্রিয় সনাক্ত হবে
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Quick Add Form */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Medicine Combobox */}
+              <div className="flex-1">
+                <Popover open={medicinePopoverOpen} onOpenChange={setMedicinePopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={medicinePopoverOpen}
+                      className="w-full justify-between font-normal bg-background"
+                    >
+                      {autoDetectedInfo.medicine 
+                        ? `${autoDetectedInfo.medicine.name} (${autoDetectedInfo.medicine.unit})`
+                        : "Medicine সার্চ করুন..."
+                      }
+                      <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[320px] p-0" align="start">
+                    <Command>
+                      <CommandInput 
+                        placeholder="Medicine সার্চ করুন..." 
+                        value={medicineSearch}
+                        onValueChange={setMedicineSearch}
+                      />
+                      <CommandList>
+                        <CommandEmpty>কোনো Medicine পাওয়া যায়নি</CommandEmpty>
+                        <CommandGroup>
+                          {filteredMedicines.map((med) => {
+                            const mfg = manufacturers.find(m => m.id === med.manufacturer_id);
+                            return (
+                              <CommandItem
+                                key={med.id}
+                                value={med.name}
+                                onSelect={() => handleMedicineSelect(med.id)}
+                                className="flex flex-col items-start py-2"
+                              >
+                                <span className="font-medium">{med.name}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {mfg?.name || 'No manufacturer'} • {med.unit || 'pcs'}
+                                </span>
+                              </CommandItem>
+                            );
+                          })}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              
+              {/* Quantity Controls */}
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10 shrink-0"
+                  onClick={() => {
+                    const current = parseInt(quantity) || 1;
+                    if (current > 1) setQuantity(String(current - 1));
+                  }}
+                  disabled={parseInt(quantity) <= 1}
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <Input
+                  type="number"
+                  min={1}
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && autoDetectedInfo.manufacturer) {
+                      e.preventDefault();
+                      handleQuickAdd();
                     }
-                    <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[320px] p-0" align="start">
-                  <Command>
-                    <CommandInput 
-                      placeholder="Medicine সার্চ করুন..." 
-                      value={medicineSearch}
-                      onValueChange={setMedicineSearch}
-                    />
-                    <CommandList>
-                      <CommandEmpty>কোনো Medicine পাওয়া যায়নি</CommandEmpty>
-                      <CommandGroup>
-                        {filteredMedicines.map((med) => {
-                          const mfg = manufacturers.find(m => m.id === med.manufacturer_id);
-                          return (
-                            <CommandItem
-                              key={med.id}
-                              value={med.name}
-                              onSelect={() => handleMedicineSelect(med.id)}
-                              className="flex flex-col items-start py-2"
-                            >
-                              <span className="font-medium">{med.name}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {mfg?.name || 'No manufacturer'} • {med.unit || 'pcs'}
-                              </span>
-                            </CommandItem>
-                          );
-                        })}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
-            
-            {/* Quantity Controls */}
-            <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-10 w-10 shrink-0"
-                onClick={() => {
-                  const current = parseInt(quantity) || 1;
-                  if (current > 1) setQuantity(String(current - 1));
-                }}
-                disabled={parseInt(quantity) <= 1}
+                  }}
+                  className="w-16 h-10 text-center"
+                  placeholder="Qty"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10 shrink-0"
+                  onClick={() => {
+                    const current = parseInt(quantity) || 1;
+                    setQuantity(String(current + 1));
+                  }}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              {/* Add Button */}
+              <Button 
+                onClick={handleQuickAdd}
+                disabled={!autoDetectedInfo.manufacturer || isQuickAdding}
+                className="sm:w-auto"
               >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <Input
-                type="number"
-                min={1}
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && autoDetectedInfo.manufacturer) {
-                    e.preventDefault();
-                    handleQuickAdd();
-                  }
-                }}
-                className="w-16 h-10 text-center"
-                placeholder="Qty"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-10 w-10 shrink-0"
-                onClick={() => {
-                  const current = parseInt(quantity) || 1;
-                  setQuantity(String(current + 1));
-                }}
-              >
-                <Plus className="h-4 w-4" />
+                {isQuickAdding ? (
+                  <span className="animate-pulse">Adding...</span>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add
+                  </>
+                )}
               </Button>
             </div>
-            
-            {/* Add Button */}
-            <Button 
-              onClick={handleQuickAdd}
-              disabled={!autoDetectedInfo.manufacturer || isQuickAdding}
-              className="sm:w-auto"
-            >
-              {isQuickAdding ? (
-                <span className="animate-pulse">Adding...</span>
-              ) : (
-                <>
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add
-                </>
-              )}
-            </Button>
-          </div>
 
-          {/* Auto-Detection Display */}
-          {selectedMedicineId && (
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              {autoDetectedInfo.manufacturer ? (
-                <>
-                  <Badge variant="secondary" className="gap-1">
-                    <Package className="h-3 w-3" />
-                    {autoDetectedInfo.manufacturer.name}
-                  </Badge>
-                  {autoDetectedInfo.supplier ? (
+            {/* Auto-Detection Display */}
+            {selectedMedicineId && (
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                {autoDetectedInfo.manufacturer ? (
+                  <>
                     <Badge variant="secondary" className="gap-1">
-                      ✓ Supplier: {autoDetectedInfo.supplier.name}
+                      <Package className="h-3 w-3" />
+                      {autoDetectedInfo.manufacturer.name}
                     </Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-warning border-warning/30 bg-warning/10 gap-1">
-                      <AlertTriangle className="h-3 w-3" />
-                      No supplier linked
-                    </Badge>
-                  )}
-                </>
-              ) : (
-                <Badge variant="destructive" className="gap-1">
-                  <AlertTriangle className="h-3 w-3" />
-                  No manufacturer - Cannot add
-                </Badge>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                    {autoDetectedInfo.supplier ? (
+                      <Badge variant="secondary" className="gap-1">
+                        ✓ Supplier: {autoDetectedInfo.supplier.name}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-warning border-warning/30 bg-warning/10 gap-1">
+                        <AlertTriangle className="h-3 w-3" />
+                        No supplier linked
+                      </Badge>
+                    )}
+                  </>
+                ) : (
+                  <Badge variant="destructive" className="gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    No manufacturer - Cannot add
+                  </Badge>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Today's List */}
       {todayNote && todayNote.items && todayNote.items.length > 0 ? (
@@ -333,53 +337,57 @@ export default function StockShortList() {
                 </CardDescription>
               </div>
               <div className="flex gap-2">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="default" size="sm">
-                      <CheckCircle className="h-4 w-4 mr-1" />
-                      Create Orders
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Create Supplier Orders?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will create pending orders for each manufacturer's supplier. 
-                        Items will be grouped by manufacturer.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => completeNote(todayNote.id)}>
-                        Create Orders
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Today's List?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete this note and all its items.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction 
-                        onClick={() => deleteNote(todayNote.id)}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                {canManage && (
+                  <>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="default" size="sm">
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          Create Orders
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Create Supplier Orders?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will create pending orders for each manufacturer's supplier. 
+                            Items will be grouped by manufacturer.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => completeNote(todayNote.id)}>
+                            Create Orders
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Today's List?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently delete this note and all its items.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => deleteNote(todayNote.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </>
+                )}
               </div>
             </div>
           </CardHeader>
@@ -408,13 +416,15 @@ export default function StockShortList() {
                       </TableCell>
                       <TableCell className="text-center">{item.quantity}</TableCell>
                       <TableCell className="sticky right-0 bg-background">
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => deleteItem(item.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        {canManage && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => deleteItem(item.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -454,56 +464,60 @@ export default function StockShortList() {
                     <Badge variant="secondary">{note.items?.length || 0} items</Badge>
                   </div>
                   <div className="flex gap-2">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          disabled={!note.items || note.items.length === 0}
-                        >
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Complete
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Create Supplier Orders?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will create pending orders for each manufacturer's supplier.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => completeNote(note.id)}>
-                            Create Orders
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Note?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will permanently delete this note and all its items.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={() => deleteNote(note.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    {canManage && (
+                      <>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              disabled={!note.items || note.items.length === 0}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Complete
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Create Supplier Orders?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will create pending orders for each manufacturer's supplier.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => completeNote(note.id)}>
+                                Create Orders
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Note?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete this note and all its items.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => deleteNote(note.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </>
+                    )}
                   </div>
                 </div>
               </CardHeader>
@@ -526,35 +540,37 @@ export default function StockShortList() {
                     </CardTitle>
                     <Badge variant="secondary">Completed</Badge>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-muted-foreground">
-                      {note.items?.length || 0} items
-                    </span>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Note?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will permanently delete this completed note and all its items.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={() => deleteNote(note.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-muted-foreground">
+                        {note.items?.length || 0} items
+                      </span>
+                      {canManage && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Note?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete this completed note and all its items.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => deleteNote(note.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )}
+                    </div>
                 </div>
               </CardHeader>
             </Card>

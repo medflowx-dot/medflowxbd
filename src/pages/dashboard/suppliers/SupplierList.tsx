@@ -7,13 +7,15 @@ import { AddSupplierDialog } from '@/components/suppliers/AddSupplierDialog';
 import { SupplierTable } from '@/components/suppliers/SupplierTable';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
 
 export default function SupplierList() {
   const { suppliers, isLoading } = useSuppliers();
   const [searchQuery, setSearchQuery] = useState('');
   const { t } = useLanguage();
-
+  const { hasPermission } = usePermissions();
+  const canManage = hasPermission('manage_suppliers');
   const totalSuppliers = suppliers.length;
   const totalPaid = suppliers.reduce((sum, s) => sum + s.total_paid, 0);
   const totalDue = suppliers.reduce((sum, s) => sum + s.total_due, 0);
@@ -53,7 +55,7 @@ export default function SupplierList() {
             {t.suppliers.subtitle}
           </p>
         </div>
-        <AddSupplierDialog />
+        {canManage && <AddSupplierDialog />}
       </div>
 
       {/* Summary Cards */}
@@ -154,12 +156,14 @@ export default function SupplierList() {
               <p className="text-muted-foreground text-sm max-w-sm mt-1">
                 {t.suppliers.addSuppliersDesc}
               </p>
-              <div className="mt-4">
-                <AddSupplierDialog />
-              </div>
+              {canManage && (
+                <div className="mt-4">
+                  <AddSupplierDialog />
+                </div>
+              )}
             </div>
           ) : (
-            <SupplierTable suppliers={suppliers} searchQuery={searchQuery} />
+            <SupplierTable suppliers={suppliers} searchQuery={searchQuery} canManage={canManage} />
           )}
         </CardContent>
       </Card>

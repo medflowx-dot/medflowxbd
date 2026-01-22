@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useSuppliers } from '@/hooks/useSuppliers';
+import { usePermissions } from '@/hooks/usePermissions';
 import { AddSupplierDialog } from '@/components/suppliers/AddSupplierDialog';
 import { SupplierPaymentDialog } from '@/components/suppliers/SupplierPaymentDialog';
 import { AddPurchaseDialog } from '@/components/suppliers/AddPurchaseDialog';
@@ -45,6 +46,8 @@ export default function SupplierDetails() {
   const navigate = useNavigate();
   const { suppliers, payments, purchases, deletePayment, deletePurchase, clearHistory, isLoading } = useSuppliers();
   const { t } = useLanguage();
+  const { hasPermission } = usePermissions();
+  const canManage = hasPermission('manage_suppliers');
   
   const [deletePaymentId, setDeletePaymentId] = useState<string | null>(null);
   const [deletePurchaseId, setDeletePurchaseId] = useState<string | null>(null);
@@ -208,7 +211,7 @@ export default function SupplierDetails() {
             <FileText className="h-4 w-4 mr-2" />
             {t.suppliers.quickReport}
           </Button>
-          {(supplierPayments.length > 0 || supplierPurchases.length > 0) && (
+          {canManage && (supplierPayments.length > 0 || supplierPurchases.length > 0) && (
             <Button 
               variant="destructive" 
               size="sm" 
@@ -218,15 +221,17 @@ export default function SupplierDetails() {
               {t.suppliers.clearHistory || 'সব মুছুন'}
             </Button>
           )}
-          <AddSupplierDialog
-            supplier={supplier}
-            trigger={
-              <Button variant="outline" size="sm">
-                <Pencil className="h-4 w-4 mr-2" />
-                {t.actions.edit}
-              </Button>
-            }
-          />
+          {canManage && (
+            <AddSupplierDialog
+              supplier={supplier}
+              trigger={
+                <Button variant="outline" size="sm">
+                  <Pencil className="h-4 w-4 mr-2" />
+                  {t.actions.edit}
+                </Button>
+              }
+            />
+          )}
         </div>
       </div>
 
@@ -351,16 +356,18 @@ export default function SupplierDetails() {
                 <CardTitle>{t.suppliers.purchaseHistory}</CardTitle>
                 <CardDescription>{t.suppliers.purchaseHistoryDesc}</CardDescription>
               </div>
-              <AddPurchaseDialog
-                suppliers={suppliers}
-                defaultSupplierId={supplier.id}
-                trigger={
-                  <Button size="sm" className="gap-1">
-                    <Plus className="h-4 w-4" />
-                    {t.suppliers.addPurchase}
-                  </Button>
-                }
-              />
+              {canManage && (
+                <AddPurchaseDialog
+                  suppliers={suppliers}
+                  defaultSupplierId={supplier.id}
+                  trigger={
+                    <Button size="sm" className="gap-1">
+                      <Plus className="h-4 w-4" />
+                      {t.suppliers.addPurchase}
+                    </Button>
+                  }
+                />
+              )}
             </CardHeader>
             <CardContent className="p-0 sm:p-6 sm:pt-0">
               <ScrollArea className="h-[400px]">
@@ -394,23 +401,25 @@ export default function SupplierDetails() {
                             )}
                           </TableCell>
                           <TableCell className="sticky right-0 bg-background">
-                            <div className="flex items-center gap-1">
-                              <EditPurchaseDialog
-                                purchase={purchase}
-                                trigger={
-                                  <Button size="icon" variant="ghost">
-                                    <Pencil className="h-4 w-4" />
-                                  </Button>
-                                }
-                              />
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                onClick={() => setDeletePurchaseId(purchase.id)}
-                              >
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </div>
+                            {canManage && (
+                              <div className="flex items-center gap-1">
+                                <EditPurchaseDialog
+                                  purchase={purchase}
+                                  trigger={
+                                    <Button size="icon" variant="ghost">
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                  }
+                                />
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => setDeletePurchaseId(purchase.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </div>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -430,15 +439,17 @@ export default function SupplierDetails() {
                 <CardTitle>{t.suppliers.paymentHistory}</CardTitle>
                 <CardDescription>{t.suppliers.allPaymentsToSuppliers}</CardDescription>
               </div>
-              <SupplierPaymentDialog
-                supplier={supplier}
-                trigger={
-                  <Button size="sm" className="gap-1">
-                    <Plus className="h-4 w-4" />
-                    {t.suppliers.recordPayment}
-                  </Button>
-                }
-              />
+              {canManage && (
+                <SupplierPaymentDialog
+                  supplier={supplier}
+                  trigger={
+                    <Button size="sm" className="gap-1">
+                      <Plus className="h-4 w-4" />
+                      {t.suppliers.recordPayment}
+                    </Button>
+                  }
+                />
+              )}
             </CardHeader>
             <CardContent className="p-0 sm:p-6 sm:pt-0">
               <ScrollArea className="h-[400px]">
@@ -466,23 +477,25 @@ export default function SupplierDetails() {
                           <TableCell>{getPaymentMethodLabel(payment.payment_method)}</TableCell>
                           <TableCell className="text-right font-medium text-success">৳{Math.round(payment.amount)}</TableCell>
                           <TableCell className="sticky right-0 bg-background">
-                            <div className="flex items-center gap-1">
-                              <EditSupplierPaymentDialog
-                                payment={payment}
-                                trigger={
-                                  <Button size="icon" variant="ghost">
-                                    <Pencil className="h-4 w-4" />
-                                  </Button>
-                                }
-                              />
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                onClick={() => setDeletePaymentId(payment.id)}
-                              >
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </div>
+                            {canManage && (
+                              <div className="flex items-center gap-1">
+                                <EditSupplierPaymentDialog
+                                  payment={payment}
+                                  trigger={
+                                    <Button size="icon" variant="ghost">
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                  }
+                                />
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => setDeletePaymentId(payment.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </div>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}

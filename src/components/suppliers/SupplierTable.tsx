@@ -22,9 +22,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 interface SupplierTableProps {
   suppliers: Supplier[];
   searchQuery: string;
+  canManage?: boolean;
 }
 
-export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
+export function SupplierTable({ suppliers, searchQuery, canManage = true }: SupplierTableProps) {
   const navigate = useNavigate();
   const { deleteSupplier, updateSupplier, payments, purchases } = useSuppliers();
   const { manufacturers } = useManufacturers();
@@ -252,19 +253,21 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                     <AddSupplierDialog
                       supplier={supplier}
                       trigger={
-                        <Button size="icon" variant="ghost" title={t.actions.edit}>
+                        <Button size="icon" variant="ghost" title={t.actions.edit} disabled={!canManage}>
                           <Pencil className="h-4 w-4" />
                         </Button>
                       }
                     />
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
-                      title={t.actions.delete}
-                      onClick={() => setDeleteId(supplier.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    {canManage && (
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        title={t.actions.delete}
+                        onClick={() => setDeleteId(supplier.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
