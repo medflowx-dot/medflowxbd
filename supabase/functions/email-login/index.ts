@@ -279,10 +279,10 @@ Deno.serve(async (req) => {
         .eq("identifier", normalizedEmail);
     }
 
-    // Get user profile
+    // Get user profile with must_change_password flag
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("full_name, pharmacy_name")
+      .select("full_name, pharmacy_name, must_change_password")
       .eq("user_id", signInData.user.id)
       .single();
 
@@ -295,7 +295,8 @@ Deno.serve(async (req) => {
           email: signInData.user.email,
           fullName: profile?.full_name,
           pharmacyName: profile?.pharmacy_name,
-        }
+        },
+        mustChangePassword: profile?.must_change_password || false
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

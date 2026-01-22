@@ -14,6 +14,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import logoAuthFallback from '@/assets/logo-auth.png';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { parseEdgeFunctionError, getErrorMessage } from '@/lib/edgeFunctionError';
+import { ChangePasswordScreen } from '@/components/auth/ChangePasswordScreen';
 
 export default function Login() {
   const { logoAuth } = usePlatformBranding();
@@ -68,6 +69,10 @@ export default function Login() {
   const [showPinLogin, setShowPinLogin] = useState(false);
   const [loginPin, setLoginPin] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
+
+  // Password change flow state
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [tempSession, setTempSession] = useState<{ access_token: string; refresh_token: string } | null>(null);
 
   // Check for saved user and PIN on mount (mobile app only)
   useEffect(() => {
@@ -154,6 +159,17 @@ export default function Login() {
       setIsEmailLocked(false);
       setEmailAttemptsRemaining(null);
 
+      // Check if password change is required
+      if (data?.mustChangePassword && data?.session) {
+        setTempSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+        setShowPasswordChange(true);
+        setEmailLoading(false);
+        return;
+      }
+
       // Set the session
       if (data?.session) {
         await supabase.auth.setSession(data.session);
@@ -221,6 +237,17 @@ export default function Login() {
       // Successful login - reset states
       setIsPhoneLocked(false);
       setPhoneAttemptsRemaining(null);
+
+      // Check if password change is required
+      if (data?.mustChangePassword && data?.session) {
+        setTempSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+        setShowPasswordChange(true);
+        setPhoneLoading(false);
+        return;
+      }
 
       // Set the session
       if (data?.session) {
@@ -373,6 +400,29 @@ export default function Login() {
     localStorage.removeItem('medflowx_user_id');
     localStorage.removeItem('medflowx_session');
   };
+
+  // Password Change Screen (for staff with temp password)
+  if (showPasswordChange && tempSession) {
+    return (
+      <ChangePasswordScreen
+        tempSession={tempSession}
+        onSuccess={() => {
+          setShowPasswordChange(false);
+          setTempSession(null);
+          toast.success('পাসওয়ার্ড পরিবর্তন হয়েছে!');
+          navigate(from, { replace: true });
+        }}
+        onLogout={() => {
+          setShowPasswordChange(false);
+          setTempSession(null);
+          setEmail('');
+          setEmailPassword('');
+          setPhone('');
+          setPhonePassword('');
+        }}
+      />
+    );
+  }
 
   // PIN Setup Screen
   if (showPinSetup && isMobileApp) {
