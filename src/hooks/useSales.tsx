@@ -105,6 +105,7 @@ export function useSales(dateFilter?: Date) {
       return data as Sale[];
     },
     enabled: !!user?.id,
+    staleTime: 1000 * 60 * 2, // 2 minutes
   });
 
   // Fetch today's sale items with purchase prices for profit calculation

@@ -102,6 +102,7 @@ export function useMedicines() {
       return medicinesWithBatches;
     },
     enabled: !!user?.id,
+    staleTime: 1000 * 60 * 5, // 5 minutes - medicines data doesn't change frequently
   });
 
   const createMedicine = useMutation({

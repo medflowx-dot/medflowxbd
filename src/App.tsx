@@ -62,7 +62,16 @@ const GlobalMedicines = lazy(() => import("./pages/owner/GlobalMedicines"));
 const NotificationLogs = lazy(() => import("./pages/owner/NotificationLogs"));
 const LockedAccounts = lazy(() => import("./pages/owner/LockedAccounts"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 2, // 2 minutes - data stays fresh
+      gcTime: 1000 * 60 * 10,   // 10 minutes - garbage collect old cache
+      retry: 1,
+      refetchOnWindowFocus: false, // Don't refetch on window focus
+    },
+  },
+});
 
 // Loading fallback component
 const PageLoader = () => (

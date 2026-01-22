@@ -100,6 +100,7 @@ export function useSalesTrend() {
       };
     },
     enabled: !!user?.id,
-    refetchInterval: 60000, // Refetch every minute
+    staleTime: 1000 * 60 * 5, // 5 minutes - trend data doesn't need frequent updates
+    refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes (was 1 min)
   });
 }
