@@ -158,7 +158,7 @@ export default function FeatureFlags() {
                     {flag.is_enabled ? 'Enabled' : 'Disabled'}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    Updated {format(new Date(flag.updated_at), 'MMM d, yyyy')}
+                    Updated {format(new Date(flag.updated_at), 'dd MMM yyyy')}
                   </span>
                 </div>
               </CardContent>

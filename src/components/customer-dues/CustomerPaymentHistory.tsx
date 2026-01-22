@@ -254,7 +254,7 @@ export function CustomerPaymentHistory({
                               ) : (
                                 <ArrowUpCircle className="h-4 w-4 text-success" />
                               )}
-                              <span>{format(new Date(tx.date), 'MMM dd, yyyy')}</span>
+                              <span>{format(new Date(tx.date), 'dd MMM yyyy')}</span>
                             </div>
                             {tx.notes && (
                               <p className="text-xs text-muted-foreground mt-0.5 ml-6 max-w-[120px] truncate" title={tx.notes}>

@@ -93,7 +93,7 @@ export function AddCostDialog({ date }: AddCostDialogProps) {
           <DialogHeader>
             <DialogTitle>{t.dailyCash.addDailyCost}</DialogTitle>
             <DialogDescription>
-              {t.dailyCash.recordExpense} {format(date, 'MMMM d, yyyy')}
+              {t.dailyCash.recordExpense} {format(date, 'dd MMMM yyyy')}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

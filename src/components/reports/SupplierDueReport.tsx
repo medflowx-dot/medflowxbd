@@ -100,7 +100,7 @@ export function SupplierDueReportView() {
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {supplier.last_purchase_date 
-                        ? format(new Date(supplier.last_purchase_date), 'MMM dd, yyyy')
+                        ? format(new Date(supplier.last_purchase_date), 'dd MMM yyyy')
                         : '-'}
                     </TableCell>
                   </TableRow>

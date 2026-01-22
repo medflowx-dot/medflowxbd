@@ -129,7 +129,7 @@ export function AdminUserManagement() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {format(new Date(user.created_at), 'MMM dd, yyyy')}
+                      {format(new Date(user.created_at), 'dd MMM yyyy')}
                     </TableCell>
                     <TableCell>
                       <Select

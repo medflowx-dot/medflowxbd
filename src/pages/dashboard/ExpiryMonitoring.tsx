@@ -46,7 +46,7 @@ export default function ExpiryMonitoring() {
       case '90days': return t.expiryMonitoring.expiringWithin90Days;
       case 'custom': 
         return customRange 
-          ? `${format(customRange.from, 'MMM dd, yyyy')} - ${format(customRange.to, 'MMM dd, yyyy')}`
+          ? `${format(customRange.from, 'dd MMM yyyy')} - ${format(customRange.to, 'dd MMM yyyy')}`
           : t.expiryMonitoring.customRange;
       default: return t.expiryMonitoring.allBatchesAtRisk;
     }
@@ -262,7 +262,7 @@ export default function ExpiryMonitoring() {
                           <TableCell>
                             <span className="flex items-center gap-2">
                               <Clock className="h-4 w-4 text-muted-foreground" />
-                              {format(new Date(batch.expiry_date), 'MMM dd, yyyy')}
+                              {format(new Date(batch.expiry_date), 'dd MMM yyyy')}
                             </span>
                           </TableCell>
                           <TableCell className="text-center">

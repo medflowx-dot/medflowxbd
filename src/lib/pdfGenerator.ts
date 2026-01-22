@@ -50,7 +50,7 @@ function addHeader(doc: jsPDF, title: string, dateRange?: { start: Date; end: Da
     doc.setFontSize(10);
     doc.setTextColor(100);
     doc.text(
-      `Period: ${format(dateRange.start, 'MMM dd, yyyy')} - ${format(dateRange.end, 'MMM dd, yyyy')}`,
+      `Period: ${format(dateRange.start, 'dd MMM yyyy')} - ${format(dateRange.end, 'dd MMM yyyy')}`,
       14,
       38
     );
@@ -131,7 +131,7 @@ export function generateDailySummaryPDF(
     startY: summaryY + 12,
     head: [['Date', 'Sales', 'Paid', 'Due', 'Due Collected', 'Supplier Pay', 'Costs', 'Net Flow']],
     body: data.map(row => [
-      format(new Date(row.date), 'MMM dd, yyyy'),
+      format(new Date(row.date), 'dd MMM yyyy'),
       `${CURRENCY}${row.totalSales.toLocaleString()}`,
       `${CURRENCY}${row.totalPaid.toLocaleString()}`,
       `${CURRENCY}${row.totalDue.toLocaleString()}`,
@@ -185,7 +185,7 @@ export function generateSalesReportPDF(
     body: data.map(row => [
       row.invoice_number,
       row.entry_type === 'quick' ? 'Quick' : 'Detailed',
-      format(new Date(row.sale_date), 'MMM dd, yyyy'),
+      format(new Date(row.sale_date), 'dd MMM yyyy'),
       `${CURRENCY}${row.total_amount.toLocaleString()}`,
       `${CURRENCY}${row.paid_amount.toLocaleString()}`,
       row.due_amount > 0 ? `${CURRENCY}${row.due_amount.toLocaleString()}` : '-',
@@ -227,7 +227,7 @@ export function generateSupplierDuePDF(data: SupplierDueItem[]) {
       row.phone || '-',
       `${CURRENCY}${row.total_due.toLocaleString()}`,
       `${CURRENCY}${row.total_paid.toLocaleString()}`,
-      row.last_purchase_date ? format(new Date(row.last_purchase_date), 'MMM dd, yyyy') : '-',
+      row.last_purchase_date ? format(new Date(row.last_purchase_date), 'dd MMM yyyy') : '-',
     ]),
     styles: { fontSize: 9 },
     headStyles: { fillColor: [245, 158, 11] },
@@ -312,7 +312,7 @@ export function generateCustomerStatementPDF(data: CustomerStatementData) {
   doc.text(`Total Dues: ${CURRENCY}${totalDues.toLocaleString()}`, 14, summaryY + 6);
   doc.text(`Total Payments: ${CURRENCY}${totalPayments.toLocaleString()}`, 80, summaryY + 6);
   doc.text(`Current Balance: ${CURRENCY}${data.customer.total_due.toLocaleString()}`, 140, summaryY + 6);
-  doc.text(`Statement Date: ${format(new Date(), 'MMM dd, yyyy')}`, 14, summaryY + 12);
+  doc.text(`Statement Date: ${format(new Date(), 'dd MMM yyyy')}`, 14, summaryY + 12);
 
   // Sort transactions by date ascending for running balance calculation
   const sortedTransactions = [...data.transactions].sort(
@@ -329,7 +329,7 @@ export function generateCustomerStatementPDF(data: CustomerStatementData) {
     }
     return [
       (index + 1).toString(),
-      format(new Date(tx.date), 'MMM dd, yyyy'),
+      format(new Date(tx.date), 'dd MMM yyyy'),
       tx.type === 'due' ? 'Due Added' : `Payment (${tx.payment_method || 'Cash'})`,
       tx.type === 'due' ? `${CURRENCY}${tx.amount.toLocaleString()}` : '-',
       tx.type === 'payment' ? `${CURRENCY}${tx.amount.toLocaleString()}` : '-',
@@ -438,7 +438,7 @@ export function generateIndividualCustomerPDF(
       head: [['#', 'Date', 'Amount', 'Method', 'Notes']],
       body: data.payments.map((payment, index) => [
         (index + 1).toString(),
-        format(new Date(payment.payment_date), 'MMM dd, yyyy'),
+        format(new Date(payment.payment_date), 'dd MMM yyyy'),
         `${CURRENCY}${payment.amount.toLocaleString()}`,
         payment.payment_method || 'Cash',
         payment.notes || '-',
@@ -516,7 +516,7 @@ export function generateDailyClosingCashPDF(
   // Date
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  doc.text(`Date: ${format(date, 'EEEE, MMMM dd, yyyy')}`, 14, startY);
+  doc.text(`Date: ${format(date, 'EEEE, dd MMMM yyyy')}`, 14, startY);
 
   // Summary Section
   doc.setFontSize(10);
@@ -773,7 +773,7 @@ export function generateExpiryReportPDF(
           row.batch_number,
           row.category || '-',
           row.manufacturer || '-',
-          format(new Date(row.expiry_date), 'MMM dd, yyyy'),
+          format(new Date(row.expiry_date), 'dd MMM yyyy'),
           row.daysUntilExpiry < 0 ? `${Math.abs(row.daysUntilExpiry)} ago` : `${row.daysUntilExpiry}`,
           statusLabel,
         ];
@@ -929,7 +929,7 @@ export function generateIndividualSupplierPDF(
       startY: tableY + 4,
       head: [['Date', 'Invoice', 'Total', 'Paid', 'Due']],
       body: data.purchases.map(p => [
-        format(new Date(p.purchase_date), 'MMM dd, yyyy'),
+        format(new Date(p.purchase_date), 'dd MMM yyyy'),
         p.invoice_number || '-',
         `${CURRENCY}${Number(p.total_amount).toLocaleString()}`,
         `${CURRENCY}${Number(p.paid_amount).toLocaleString()}`,
@@ -956,7 +956,7 @@ export function generateIndividualSupplierPDF(
       startY: tableY + 4,
       head: [['Date', 'Amount', 'Method', 'Reference']],
       body: data.payments.map(p => [
-        format(new Date(p.payment_date), 'MMM dd, yyyy'),
+        format(new Date(p.payment_date), 'dd MMM yyyy'),
         `${CURRENCY}${Number(p.amount).toLocaleString()}`,
         p.payment_method,
         p.reference_number || '-',

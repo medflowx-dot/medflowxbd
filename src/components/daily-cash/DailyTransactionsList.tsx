@@ -72,7 +72,7 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
         <Card>
           <CardHeader>
             <CardTitle>{t.dailyCash.salesTab}</CardTitle>
-            <CardDescription>{t.dailyCash.noSalesForDate.replace('No sales for this date', `All sales transactions for ${format(date, 'MMMM d, yyyy')}`)}</CardDescription>
+            <CardDescription>{t.dailyCash.noSalesForDate.replace('No sales for this date', `All sales transactions for ${format(date, 'dd MMMM yyyy')}`)}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border overflow-x-auto">
@@ -124,7 +124,7 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
         <Card>
           <CardHeader>
             <CardTitle>{t.dailyCash.dueCollectedTitle}</CardTitle>
-            <CardDescription>{t.dailyCash.dueCollectedDesc} {format(date, 'MMMM d, yyyy')}</CardDescription>
+            <CardDescription>{t.dailyCash.dueCollectedDesc} {format(date, 'dd MMMM yyyy')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border overflow-x-auto">
@@ -172,7 +172,7 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
         <Card>
           <CardHeader>
             <CardTitle>{t.dailyCash.supplierPayments}</CardTitle>
-            <CardDescription>{t.dailyCash.supplierPaymentsDesc} {format(date, 'MMMM d, yyyy')}</CardDescription>
+            <CardDescription>{t.dailyCash.supplierPaymentsDesc} {format(date, 'dd MMMM yyyy')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border overflow-x-auto">
@@ -220,7 +220,7 @@ export function DailyTransactionsList({ date }: DailyTransactionsListProps) {
         <Card>
           <CardHeader>
             <CardTitle>{t.dailyCash.dailyCosts}</CardTitle>
-            <CardDescription>{t.dailyCash.dailyCostsDesc} {format(date, 'MMMM d, yyyy')}</CardDescription>
+            <CardDescription>{t.dailyCash.dailyCostsDesc} {format(date, 'dd MMMM yyyy')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border overflow-x-auto">

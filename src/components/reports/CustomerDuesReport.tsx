@@ -214,7 +214,7 @@ function CustomerRow({ customer, isExpanded, onToggle, onWhatsApp, t }: Customer
                 <div className="grid gap-2">
                   {customerWithPayments.payments.slice(0, 5).map((payment) => (
                     <div key={payment.id} className="flex items-center justify-between text-sm bg-background p-2 rounded">
-                      <span>{format(new Date(payment.payment_date), 'MMM dd, yyyy')}</span>
+                      <span>{format(new Date(payment.payment_date), 'dd MMM yyyy')}</span>
                       <span className="text-muted-foreground">{payment.payment_method}</span>
                       <Badge variant="secondary">৳{payment.amount.toLocaleString()}</Badge>
                     </div>
