@@ -77,14 +77,40 @@ export default function AdminLogin() {
 
       // Set the session first
       if (data?.session) {
-        await supabase.auth.setSession(data.session);
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+        
+        if (sessionError) {
+          console.error('Session set error:', sessionError);
+          throw new Error('সেশন সেট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+        }
+        
+        // Wait for session to be fully established
+        const { data: sessionData } = await supabase.auth.getSession();
+        
+        if (!sessionData?.session) {
+          throw new Error('সেশন ভেরিফাই করতে সমস্যা হয়েছে।');
+        }
         
         // Now check if this user is an owner_admin
-        const { data: roleData } = await supabase
+        const { data: roleData, error: roleError } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', data.user.id)
           .single();
+        
+        console.log('Role check:', { roleData, roleError, userId: data.user.id });
+        
+        if (roleError) {
+          console.error('Role fetch error:', roleError);
+          // Sign out and show error
+          await supabase.auth.signOut();
+          toast.error('ভূমিকা যাচাই করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+          setLoading(false);
+          return;
+        }
         
         if (roleData?.role !== 'owner_admin') {
           // Not an admin - sign out and show error
