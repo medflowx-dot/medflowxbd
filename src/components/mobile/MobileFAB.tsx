@@ -105,8 +105,8 @@ export function MobileFAB({ actions }: MobileFABProps) {
 
       {/* Vertical Actions Menu - slides up from FAB */}
       {isExpanded && (
-        <div className="fixed bottom-40 right-4 z-[60] md:hidden">
-          <div className="flex flex-col gap-3">
+        <div className="fixed bottom-24 right-4 z-[60] md:hidden">
+          <div className="flex flex-col gap-2">
             {actions.map((action, index) => {
               const Icon = action.icon;
               return (
@@ -114,23 +114,23 @@ export function MobileFAB({ actions }: MobileFABProps) {
                   key={action.id}
                   onClick={() => handleActionClick(action)}
                   className={cn(
-                    "flex items-center gap-3 pr-4 pl-2 py-2 rounded-full",
-                    "bg-card border border-border shadow-xl",
+                    "flex items-center gap-2 px-3 py-1.5 rounded-full",
+                    "bg-card/95 border border-border/60 shadow-lg",
                     "active:scale-95 touch-manipulation",
-                    "transition-all duration-150",
+                    "transition-all duration-100",
                     "fab-menu-item"
                   )}
                   style={{
-                    animationDelay: `${(actions.length - 1 - index) * 60}ms`
+                    animationDelay: `${(actions.length - 1 - index) * 40}ms`
                   }}
                 >
                   <div className={cn(
-                    "h-10 w-10 rounded-full flex items-center justify-center shadow-md",
-                    action.color || "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground"
+                    "h-7 w-7 rounded-full flex items-center justify-center",
+                    action.color || "bg-primary text-primary-foreground"
                   )}>
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-3.5 w-3.5" />
                   </div>
-                  <span className="text-sm font-medium text-foreground whitespace-nowrap pr-2">
+                  <span className="text-xs font-medium text-foreground whitespace-nowrap">
                     {action.label}
                   </span>
                 </button>
