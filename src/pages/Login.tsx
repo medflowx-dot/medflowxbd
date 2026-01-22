@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Eye, EyeOff, Phone, Mail, Lock, Smartphone, ShieldAlert } from 'lucide-react';
+import { Loader2, Eye, EyeOff, Phone, Mail, Lock, Smartphone, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePlatformBranding } from '@/hooks/usePlatformBranding';
 import { supabase } from '@/integrations/supabase/client';
@@ -74,6 +74,7 @@ export default function Login() {
   const [pinAttemptsRemaining, setPinAttemptsRemaining] = useState<number | null>(null);
   const [isPinLocked, setIsPinLocked] = useState(false);
   const [pinLockRemainingMinutes, setPinLockRemainingMinutes] = useState(0);
+  const [pinSuccess, setPinSuccess] = useState(false);
 
   // Password change flow state
   const [showPasswordChange, setShowPasswordChange] = useState(false);
@@ -471,9 +472,15 @@ export default function Login() {
         throw new Error(t.login.connectionError || 'সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
 
-      // Session is already set by setSession above, just navigate
-      toast.success(t.login.welcome || 'স্বাগতম!');
-      navigate(from, { replace: true });
+      // Show success animation before navigating
+      setPinSuccess(true);
+      setPinLoading(false);
+      
+      // Wait for animation, then navigate
+      setTimeout(() => {
+        toast.success(t.login.welcome || 'স্বাগতম!');
+        navigate(from, { replace: true });
+      }, 800);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : (t.login.pinVerifyFailed || 'পিন যাচাই ব্যর্থ');
       toast.error(message);
@@ -619,10 +626,20 @@ export default function Login() {
               </InputOTP>
 
               {/* Loading Spinner */}
-              {pinLoading && (
+              {pinLoading && !pinSuccess && (
                 <div className="flex items-center gap-2 text-primary">
                   <Loader2 className="h-5 w-5 animate-spin" />
                   <span className="text-sm">যাচাই করা হচ্ছে...</span>
+                </div>
+              )}
+
+              {/* Success Animation */}
+              {pinSuccess && (
+                <div className="flex flex-col items-center gap-2 animate-scale-in">
+                  <div className="rounded-full bg-primary/20 p-3">
+                    <CheckCircle2 className="h-8 w-8 text-primary animate-[pulse_0.5s_ease-in-out]" />
+                  </div>
+                  <span className="text-sm font-medium text-primary">সফল!</span>
                 </div>
               )}
             </div>
