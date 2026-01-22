@@ -37,7 +37,16 @@ export default function OwnerSettings() {
     }
   }, [settings]);
 
+  // Helper to get clean value (remove quotes if present)
+  const getCleanValue = (value: any): any => {
+    if (typeof value === 'string') {
+      return value.replace(/^"|"$/g, '');
+    }
+    return value;
+  };
+
   const handleChange = (key: string, value: any) => {
+    // Store values without extra quotes - just the raw value
     setLocalSettings(prev => ({ ...prev, [key]: value }));
     setHasChanges(true);
   };
@@ -203,16 +212,16 @@ export default function OwnerSettings() {
             <div className="space-y-2">
               <Label>Platform Name</Label>
               <Input
-                value={localSettings.platform_name?.replace(/"/g, '') || ''}
-                onChange={(e) => handleChange('platform_name', `"${e.target.value}"`)}
+                value={getCleanValue(localSettings.platform_name) || ''}
+                onChange={(e) => handleChange('platform_name', e.target.value)}
                 placeholder="MedFlowX"
               />
             </div>
             <div className="space-y-2">
               <Label>Default Currency</Label>
               <Select 
-                value={localSettings.default_currency?.replace(/"/g, '') || 'BDT'}
-                onValueChange={(value) => handleChange('default_currency', `"${value}"`)}
+                value={getCleanValue(localSettings.default_currency) || 'BDT'}
+                onValueChange={(value) => handleChange('default_currency', value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -239,8 +248,8 @@ export default function OwnerSettings() {
             <div className="space-y-2">
               <Label>Date Format</Label>
               <Select 
-                value={localSettings.date_format?.replace(/"/g, '') || 'DD/MM/YYYY'}
-                onValueChange={(value) => handleChange('date_format', `"${value}"`)}
+                value={getCleanValue(localSettings.date_format) || 'DD/MM/YYYY'}
+                onValueChange={(value) => handleChange('date_format', value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -255,8 +264,8 @@ export default function OwnerSettings() {
             <div className="space-y-2">
               <Label>Time Format</Label>
               <Select 
-                value={localSettings.time_format?.replace(/"/g, '') || '12h'}
-                onValueChange={(value) => handleChange('time_format', `"${value}"`)}
+                value={getCleanValue(localSettings.time_format) || '12h'}
+                onValueChange={(value) => handleChange('time_format', value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -367,15 +376,15 @@ export default function OwnerSettings() {
             <div className="space-y-2">
               <Label>SMTP Host</Label>
               <Input
-                value={localSettings.smtp_host?.replace(/"/g, '') || ''}
-                onChange={(e) => handleChange('smtp_host', `"${e.target.value}"`)}
+                value={getCleanValue(localSettings.smtp_host) || ''}
+                onChange={(e) => handleChange('smtp_host', e.target.value)}
                 placeholder="smtp.gmail.com or mail.yourdomain.com"
               />
             </div>
             <div className="space-y-2">
               <Label>SMTP Port</Label>
               <Select 
-                value={String(localSettings.smtp_port || 587)}
+                value={String(getCleanValue(localSettings.smtp_port) || 587)}
                 onValueChange={(value) => handleChange('smtp_port', parseInt(value))}
               >
                 <SelectTrigger>
@@ -393,8 +402,8 @@ export default function OwnerSettings() {
             <div className="space-y-2">
               <Label>SMTP Username / Email</Label>
               <Input
-                value={localSettings.smtp_user?.replace(/"/g, '') || ''}
-                onChange={(e) => handleChange('smtp_user', `"${e.target.value}"`)}
+                value={getCleanValue(localSettings.smtp_user) || ''}
+                onChange={(e) => handleChange('smtp_user', e.target.value)}
                 placeholder="your-email@gmail.com"
               />
             </div>
@@ -403,8 +412,8 @@ export default function OwnerSettings() {
               <div className="relative">
                 <Input
                   type={showSmtpPassword ? 'text' : 'password'}
-                  value={localSettings.smtp_password?.replace(/"/g, '') || ''}
-                  onChange={(e) => handleChange('smtp_password', `"${e.target.value}"`)}
+                  value={getCleanValue(localSettings.smtp_password) || ''}
+                  onChange={(e) => handleChange('smtp_password', e.target.value)}
                   placeholder="••••••••••••"
                   className="pr-10"
                 />
@@ -425,16 +434,16 @@ export default function OwnerSettings() {
             <div className="space-y-2">
               <Label>From Email</Label>
               <Input
-                value={localSettings.smtp_from_email?.replace(/"/g, '') || ''}
-                onChange={(e) => handleChange('smtp_from_email', `"${e.target.value}"`)}
+                value={getCleanValue(localSettings.smtp_from_email) || ''}
+                onChange={(e) => handleChange('smtp_from_email', e.target.value)}
                 placeholder="noreply@yourdomain.com"
               />
             </div>
             <div className="space-y-2">
               <Label>From Name</Label>
               <Input
-                value={localSettings.smtp_from_name?.replace(/"/g, '') || 'MedFlowX'}
-                onChange={(e) => handleChange('smtp_from_name', `"${e.target.value}"`)}
+                value={getCleanValue(localSettings.smtp_from_name) || 'MedFlowX'}
+                onChange={(e) => handleChange('smtp_from_name', e.target.value)}
                 placeholder="MedFlowX"
               />
             </div>
@@ -463,7 +472,7 @@ export default function OwnerSettings() {
               />
               <Button 
                 onClick={handleTestEmail} 
-                disabled={testingEmail || !localSettings.smtp_host?.replace(/"/g, '')}
+                disabled={testingEmail || !getCleanValue(localSettings.smtp_host)}
                 variant="outline"
               >
                 {testingEmail ? (
@@ -474,7 +483,7 @@ export default function OwnerSettings() {
                 Send Test
               </Button>
             </div>
-            {!localSettings.smtp_host?.replace(/"/g, '') && (
+            {!getCleanValue(localSettings.smtp_host) && (
               <p className="text-xs text-muted-foreground mt-2">Configure SMTP settings and save before testing</p>
             )}
           </div>
@@ -548,8 +557,8 @@ export default function OwnerSettings() {
             <div className="space-y-2">
               <Label>দৈনিক নোটিফিকেশন সময়</Label>
               <Select 
-                value={String(localSettings.notification_time_utc || '03:00')}
-                onValueChange={(value) => handleChange('notification_time_utc', `"${value}"`)}
+                value={getCleanValue(localSettings.notification_time_utc) || '03:00'}
+                onValueChange={(value) => handleChange('notification_time_utc', value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -615,8 +624,8 @@ export default function OwnerSettings() {
               </Label>
               <Input
                 type="email"
-                value={String(localSettings.sms_alert_email || '').replace(/"/g, '')}
-                onChange={(e) => handleChange('sms_alert_email', `"${e.target.value}"`)}
+                value={getCleanValue(localSettings.security_alert_email) || ''}
+                onChange={(e) => handleChange('security_alert_email', e.target.value)}
                 placeholder="admin@example.com"
               />
               <p className="text-xs text-muted-foreground">এই ইমেইলে সিকিউরিটি অ্যালার্ট পাঠানো হবে</p>
@@ -628,8 +637,8 @@ export default function OwnerSettings() {
               </Label>
               <Input
                 type="tel"
-                value={String(localSettings.admin_phone || '').replace(/"/g, '')}
-                onChange={(e) => handleChange('admin_phone', `"${e.target.value}"`)}
+                value={getCleanValue(localSettings.admin_phone) || ''}
+                onChange={(e) => handleChange('admin_phone', e.target.value)}
                 placeholder="01XXXXXXXXX"
               />
               <p className="text-xs text-muted-foreground">এই নম্বরে সিকিউরিটি SMS অ্যালার্ট পাঠানো হবে</p>
@@ -752,7 +761,7 @@ export default function OwnerSettings() {
                 <Label className="text-sm">Low Balance Alert Threshold (BDT)</Label>
                 <Input
                   type="number"
-                  value={String(localSettings.sms_low_balance_threshold || '100').replace(/"/g, '')}
+                  value={getCleanValue(localSettings.sms_low_balance_threshold) || '100'}
                   onChange={(e) => handleChange('sms_low_balance_threshold', e.target.value)}
                   placeholder="100"
                   className="mt-1"
@@ -762,7 +771,7 @@ export default function OwnerSettings() {
                 <Label className="text-sm">Alert Email</Label>
                 <Input
                   type="email"
-                  value={String(localSettings.sms_alert_email || '').replace(/"/g, '')}
+                  value={getCleanValue(localSettings.sms_alert_email) || ''}
                   onChange={(e) => handleChange('sms_alert_email', e.target.value)}
                   placeholder="admin@example.com"
                   className="mt-1"
