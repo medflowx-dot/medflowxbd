@@ -788,6 +788,44 @@
   animation: badge-bounce 2s ease-in-out infinite;
 }
 
+/* FAB Bounce-In Animation */
+@keyframes fab-bounce-in {
+  0% {
+    opacity: 0;
+    transform: translateY(100px) scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.05);
+  }
+  70% {
+    transform: translateY(5px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fab-bounce-out {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100px) scale(0.3);
+  }
+}
+
+.fab-bounce-in {
+  animation: fab-bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.fab-bounce-out {
+  animation: fab-bounce-out 0.3s ease-in forwards;
+}
+
 /* Card Entry Animation */
 @keyframes card-enter {
   from {
