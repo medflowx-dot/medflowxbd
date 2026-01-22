@@ -1184,8 +1184,11 @@ export type Database = {
         Row: {
           can_manage_customer_dues: boolean | null
           can_manage_daily_cash: boolean | null
+          can_manage_manufacturers: boolean | null
           can_manage_medicines: boolean | null
+          can_manage_reports: boolean | null
           can_manage_sales: boolean | null
+          can_manage_stock_short: boolean | null
           can_manage_suppliers: boolean | null
           can_view_customer_dues: boolean | null
           can_view_daily_cash: boolean | null
@@ -1204,8 +1207,11 @@ export type Database = {
         Insert: {
           can_manage_customer_dues?: boolean | null
           can_manage_daily_cash?: boolean | null
+          can_manage_manufacturers?: boolean | null
           can_manage_medicines?: boolean | null
+          can_manage_reports?: boolean | null
           can_manage_sales?: boolean | null
+          can_manage_stock_short?: boolean | null
           can_manage_suppliers?: boolean | null
           can_view_customer_dues?: boolean | null
           can_view_daily_cash?: boolean | null
@@ -1224,8 +1230,11 @@ export type Database = {
         Update: {
           can_manage_customer_dues?: boolean | null
           can_manage_daily_cash?: boolean | null
+          can_manage_manufacturers?: boolean | null
           can_manage_medicines?: boolean | null
+          can_manage_reports?: boolean | null
           can_manage_sales?: boolean | null
+          can_manage_stock_short?: boolean | null
           can_manage_suppliers?: boolean | null
           can_view_customer_dues?: boolean | null
           can_view_daily_cash?: boolean | null

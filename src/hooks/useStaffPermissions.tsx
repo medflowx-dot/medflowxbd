@@ -16,10 +16,13 @@ export interface StaffPermissions {
   can_view_suppliers: boolean;
   can_manage_suppliers: boolean;
   can_view_manufacturers: boolean;
+  can_manage_manufacturers: boolean;
   can_view_daily_cash: boolean;
   can_manage_daily_cash: boolean;
   can_view_stock_short: boolean;
+  can_manage_stock_short: boolean;
   can_view_reports: boolean;
+  can_manage_reports: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -34,10 +37,13 @@ export const defaultStaffPermissions: Omit<StaffPermissions, 'id' | 'staff_user_
   can_view_suppliers: false,
   can_manage_suppliers: false,
   can_view_manufacturers: false,
+  can_manage_manufacturers: false,
   can_view_daily_cash: true,
   can_manage_daily_cash: true,
   can_view_stock_short: false,
+  can_manage_stock_short: false,
   can_view_reports: false,
+  can_manage_reports: false,
 };
 
 // Fetch permissions for a specific staff member

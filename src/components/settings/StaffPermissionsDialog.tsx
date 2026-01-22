@@ -64,7 +64,7 @@ const permissionModules: PermissionModule[] = [
     labelBn: 'প্রস্তুতকারক',
     icon: <Factory className="h-4 w-4" />,
     viewKey: 'can_view_manufacturers',
-    manageKey: null,
+    manageKey: 'can_manage_manufacturers',
   },
   {
     key: 'daily_cash',
@@ -80,7 +80,7 @@ const permissionModules: PermissionModule[] = [
     labelBn: 'স্টক শর্ট লিস্ট',
     icon: <ClipboardList className="h-4 w-4" />,
     viewKey: 'can_view_stock_short',
-    manageKey: null,
+    manageKey: 'can_manage_stock_short',
   },
   {
     key: 'reports',
@@ -88,7 +88,7 @@ const permissionModules: PermissionModule[] = [
     labelBn: 'রিপোর্ট',
     icon: <BarChart3 className="h-4 w-4" />,
     viewKey: 'can_view_reports',
-    manageKey: null,
+    manageKey: 'can_manage_reports',
   },
 ];
 
@@ -113,10 +113,13 @@ export function StaffPermissionsDialog({ open, onOpenChange, staffUserId, staffN
         can_view_suppliers: permissions.can_view_suppliers,
         can_manage_suppliers: permissions.can_manage_suppliers,
         can_view_manufacturers: permissions.can_view_manufacturers,
+        can_manage_manufacturers: permissions.can_manage_manufacturers ?? false,
         can_view_daily_cash: permissions.can_view_daily_cash,
         can_manage_daily_cash: permissions.can_manage_daily_cash,
         can_view_stock_short: permissions.can_view_stock_short,
+        can_manage_stock_short: permissions.can_manage_stock_short ?? false,
         can_view_reports: permissions.can_view_reports,
+        can_manage_reports: permissions.can_manage_reports ?? false,
       });
     } else {
       setLocalPermissions(defaultStaffPermissions);
