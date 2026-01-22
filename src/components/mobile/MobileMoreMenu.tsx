@@ -10,7 +10,6 @@ import {
   Layers,
   Clock,
   Bell,
-  Pill,
 } from 'lucide-react';
 import {
   Drawer,
@@ -34,7 +33,6 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'medicines', labelKey: 'medicines', icon: Pill, path: '/dashboard/medicines', iconClass: 'icon-container-primary' },
   { id: 'manufacturers', labelKey: 'manufacturers', icon: Factory, path: '/dashboard/manufacturers', iconClass: 'icon-container-info' },
   { id: 'suppliers', labelKey: 'suppliers', icon: Truck, path: '/dashboard/suppliers', badge: 'supplierDues', iconClass: 'icon-container-info' },
   { id: 'batches', labelKey: 'batches', icon: Layers, path: '/dashboard/batches', iconClass: 'icon-container-primary' },
@@ -59,7 +57,6 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
 
   const getLabel = (key: string) => {
     const labels: Record<string, string> = {
-      medicines: t.nav?.medicines || 'ঔষধ',
       manufacturers: t.nav?.manufacturers || 'প্রস্তুতকারক',
       suppliers: t.nav?.suppliers || 'সরবরাহকারী',
       batches: t.nav?.batches || 'ব্যাচ',
@@ -72,6 +69,8 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
     };
     return labels[key] || key;
   };
+
+  const menuTitle = t.nav?.more || 'More';
 
   const getBadgeCount = (badge?: 'customerDues' | 'supplierDues' | 'expiryAlerts') => {
     if (badge === 'customerDues') return badges?.customerDues || 0;
@@ -95,7 +94,7 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
       <DrawerContent className="max-h-[85vh]">
         <DrawerHeader className="border-b border-border pb-4 bg-gradient-to-r from-primary/5 to-transparent">
           <DrawerTitle className="text-lg font-semibold">
-            আরও মেনু
+            {menuTitle}
           </DrawerTitle>
         </DrawerHeader>
 
