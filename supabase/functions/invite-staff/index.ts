@@ -329,6 +329,9 @@ Deno.serve(async (req) => {
     }
 
     // Update the profile with pharmacy name and phone (profile is auto-created by trigger)
+    // Wait a moment for the trigger to create the profile
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     const profileUpdate: Record<string, any> = { 
       full_name: full_name.trim(),
       pharmacy_name: callerProfile?.pharmacy_name,
@@ -340,16 +343,37 @@ Deno.serve(async (req) => {
       profileUpdate.phone_verified = true; // Consider phone verified since admin invited them
     }
 
-    await supabaseAdmin
+    const { error: profileUpdateError } = await supabaseAdmin
       .from('profiles')
       .update(profileUpdate)
       .eq('user_id', newUser.user.id);
 
+    if (profileUpdateError) {
+      console.error('Failed to update profile:', profileUpdateError);
+      // Try upsert as fallback
+      const { error: upsertError } = await supabaseAdmin
+        .from('profiles')
+        .upsert({
+          user_id: newUser.user.id,
+          ...profileUpdate,
+        }, { onConflict: 'user_id' });
+      
+      if (upsertError) {
+        console.error('Failed to upsert profile:', upsertError);
+      }
+    }
+
+    console.log('Profile updated for user:', newUser.user.id, 'pharmacy_name:', callerProfile?.pharmacy_name);
+
     // Update role to client_staff (trigger creates with client_admin by default)
-    await supabaseAdmin
+    const { error: roleUpdateError } = await supabaseAdmin
       .from('user_roles')
       .update({ role: 'client_staff' })
       .eq('user_id', newUser.user.id);
+
+    if (roleUpdateError) {
+      console.error('Failed to update role:', roleUpdateError);
+    }
 
     // Send credentials based on invite method
     let credentialsSent = false;
