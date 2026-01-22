@@ -391,7 +391,7 @@ export default function StockShortList() {
                     <TableHead>Medicine</TableHead>
                     <TableHead className="hidden sm:table-cell">Manufacturer</TableHead>
                     <TableHead className="text-center">Qty</TableHead>
-                    <TableHead className="w-12"></TableHead>
+                    <TableHead className="w-12 sticky right-0 bg-background"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -407,7 +407,7 @@ export default function StockShortList() {
                         {item.manufacturer?.name || 'Unknown'}
                       </TableCell>
                       <TableCell className="text-center">{item.quantity}</TableCell>
-                      <TableCell>
+                      <TableCell className="sticky right-0 bg-background">
                         <Button 
                           variant="ghost" 
                           size="icon"

@@ -142,7 +142,7 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
             <TableHead className="hidden xl:table-cell">{t.medicines.batches}</TableHead>
             <TableHead>{t.medicines.expiry}</TableHead>
             {canManageMedicines && (
-              <TableHead className="text-right">{t.medicines.actions}</TableHead>
+              <TableHead className="text-right sticky right-0 bg-background">{t.medicines.actions}</TableHead>
             )}
           </TableRow>
         </TableHeader>
@@ -279,7 +279,7 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
                   )}
                 </TableCell>
                 {canManageMedicines && (
-                  <TableCell className="text-right">
+                  <TableCell className="text-right sticky right-0 bg-background">
                     <div className="flex items-center justify-end gap-1">
                       <AddMedicineDialog
                         medicine={medicine}
