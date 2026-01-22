@@ -103,6 +103,9 @@ export function StaffManagement() {
             setPhone('');
             setFullName('');
           },
+          onError: () => {
+            // Keep dialog open to show error, don't close
+          },
         }
       );
     }
