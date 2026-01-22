@@ -332,13 +332,14 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Successful login - reset attempts
-    if (attemptData) {
-      await supabaseAdmin
-        .from("login_attempts")
-        .update({ attempts: 0, locked_until: null, updated_at: new Date().toISOString() })
-        .eq("identifier", formattedPhone);
-    }
+    // Successful login - delete attempt record (clean slate)
+    await supabaseAdmin
+      .from("login_attempts")
+      .delete()
+      .eq("identifier", formattedPhone);
+
+    // Sign out all other sessions (single session enforcement)
+    await supabaseAdmin.auth.admin.signOut(signInData.user.id, 'others');
 
     // Check if user has PIN set up
     const { data: pinData } = await supabaseAdmin
