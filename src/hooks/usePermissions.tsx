@@ -94,6 +94,7 @@ export const menuAccessByRole: Record<string, string[]> = {
     '/dashboard/reports',
     '/dashboard/settings',
     '/dashboard/admin',
+    '/dashboard/medicine-info',
   ],
   client_admin: [
     '/dashboard',
@@ -109,6 +110,7 @@ export const menuAccessByRole: Record<string, string[]> = {
     '/dashboard/stock-short',
     '/dashboard/reports',
     '/dashboard/settings',
+    '/dashboard/medicine-info',
   ],
   client_staff: [
     '/dashboard',
