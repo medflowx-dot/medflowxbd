@@ -234,7 +234,9 @@ serve(async (req: Request): Promise<Response> => {
         "notification_days_before",
         "bulksmsbd_enabled",
         "bulksmsbd_api_key",
-        "bulksmsbd_sender_id"
+        "bulksmsbd_sender_id",
+        "sms_template_subscription_expiry",
+        "sms_template_subscription_expired"
       ]);
 
     const notificationSettings: Record<string, any> = {};
@@ -357,16 +359,32 @@ serve(async (req: Request): Promise<Response> => {
         day: "numeric",
       });
 
+      // Get custom SMS templates
+      const expiryTemplate = notificationSettings.sms_template_subscription_expiry;
+      const expiredTemplate = notificationSettings.sms_template_subscription_expired;
+
+      // Helper to replace placeholders in SMS template
+      const replacePlaceholders = (template: string): string => {
+        return template
+          .replace(/\{\{pharmacy_name\}\}/g, pharmacyName)
+          .replace(/\{\{plan_type\}\}/g, planTypeName)
+          .replace(/\{\{days_remaining\}\}/g, daysUntilExpiry.toString())
+          .replace(/\{\{expiry_date\}\}/g, expiryDateStr)
+          .replace(/\{\{billing_url\}\}/g, billingUrl);
+      };
+
       if (daysUntilExpiry <= 0 && daysUntilExpiry >= -1) {
         // Just expired (within last 24 hours)
         notificationType = "subscription_expired";
         templateKey = "subscription_expired";
-        smsMessage = `${pharmacyName}, আপনার MedFlowX ${planTypeName} সাবস্ক্রিপশনের মেয়াদ শেষ হয়ে গেছে। এখনই রিনিউ করুন: ${billingUrl}`;
+        const defaultMsg = `${pharmacyName}, আপনার MedFlowX ${planTypeName} সাবস্ক্রিপশনের মেয়াদ শেষ হয়ে গেছে। এখনই রিনিউ করুন: ${billingUrl}`;
+        smsMessage = expiredTemplate ? replacePlaceholders(expiredTemplate) : defaultMsg;
       } else if (daysUntilExpiry > 0 && daysUntilExpiry <= daysBefore) {
         // Expiring within configured days
         notificationType = "subscription_expiry_reminder";
         templateKey = "subscription_expiry_reminder";
-        smsMessage = `${pharmacyName}, আপনার MedFlowX ${planTypeName} সাবস্ক্রিপশন ${daysUntilExpiry} দিনের মধ্যে শেষ হবে। এখনই রিনিউ করুন: ${billingUrl}`;
+        const defaultMsg = `${pharmacyName}, আপনার MedFlowX ${planTypeName} সাবস্ক্রিপশন ${daysUntilExpiry} দিনের মধ্যে শেষ হবে। এখনই রিনিউ করুন: ${billingUrl}`;
+        smsMessage = expiryTemplate ? replacePlaceholders(expiryTemplate) : defaultMsg;
       }
 
       if (!notificationType || !templateKey) {

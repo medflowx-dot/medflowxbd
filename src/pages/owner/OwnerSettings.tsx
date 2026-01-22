@@ -233,7 +233,7 @@ export default function OwnerSettings() {
     notifications: ['notification_email_enabled', 'notification_sms_enabled', 'notification_days_before', 'notification_time_utc'],
     securityAlerts: ['lockout_notifications_enabled', 'security_alert_email', 'admin_phone'],
     bulksms: ['bulksmsbd_enabled', 'bulksmsbd_api_key', 'bulksmsbd_sender_id', 'sms_low_balance_threshold', 'sms_alert_email'],
-    smsTemplates: ['sms_template_staff_invite'],
+    smsTemplates: ['sms_template_staff_invite', 'sms_template_password_reset', 'sms_template_subscription_expiry', 'sms_template_subscription_expired'],
     uddoktapay: ['uddoktapay_enabled', 'uddoktapay_api_key', 'uddoktapay_base_url'],
   };
 
@@ -1055,9 +1055,9 @@ export default function OwnerSettings() {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Staff Invite Template */}
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />
+          <div className="space-y-2 p-4 rounded-lg border bg-card">
+            <Label className="flex items-center gap-2 font-semibold">
+              <Phone className="h-4 w-4 text-primary" />
               Staff Invite SMS Template
             </Label>
             <textarea
@@ -1075,6 +1075,75 @@ export default function OwnerSettings() {
                 <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{pharmacy_name}}'}</code>
                 <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{login_url}}'}</code>
                 <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{platform_name}}'}</code>
+              </div>
+            </div>
+          </div>
+
+          {/* Password Reset Template */}
+          <div className="space-y-2 p-4 rounded-lg border bg-card">
+            <Label className="flex items-center gap-2 font-semibold">
+              <ShieldAlert className="h-4 w-4 text-amber-500" />
+              Password Reset Confirmation SMS Template
+            </Label>
+            <textarea
+              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={getCleanValue(localSettings.sms_template_password_reset) || '{{pharmacy_name}}, আপনার MedFlowX পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে। যদি আপনি এটি না করে থাকেন, অবিলম্বে সাপোর্টে যোগাযোগ করুন।'}
+              onChange={(e) => handleChange('sms_template_password_reset', e.target.value)}
+              placeholder="Enter SMS template for password reset confirmation..."
+            />
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p className="font-medium">Available Placeholders:</p>
+              <div className="flex flex-wrap gap-2">
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{pharmacy_name}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{phone}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{platform_name}}'}</code>
+              </div>
+            </div>
+          </div>
+
+          {/* Subscription Expiry Reminder Template */}
+          <div className="space-y-2 p-4 rounded-lg border bg-card">
+            <Label className="flex items-center gap-2 font-semibold">
+              <Bell className="h-4 w-4 text-blue-500" />
+              Subscription Expiry Reminder SMS Template
+            </Label>
+            <textarea
+              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={getCleanValue(localSettings.sms_template_subscription_expiry) || '{{pharmacy_name}}, আপনার MedFlowX {{plan_type}} সাবস্ক্রিপশন {{days_remaining}} দিনের মধ্যে ({{expiry_date}}) শেষ হবে। রিনিউ করুন: {{billing_url}}'}
+              onChange={(e) => handleChange('sms_template_subscription_expiry', e.target.value)}
+              placeholder="Enter SMS template for subscription expiry reminder..."
+            />
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p className="font-medium">Available Placeholders:</p>
+              <div className="flex flex-wrap gap-2">
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{pharmacy_name}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{plan_type}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{days_remaining}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{expiry_date}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{billing_url}}'}</code>
+              </div>
+            </div>
+          </div>
+
+          {/* Subscription Expired Template */}
+          <div className="space-y-2 p-4 rounded-lg border bg-card">
+            <Label className="flex items-center gap-2 font-semibold">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              Subscription Expired SMS Template
+            </Label>
+            <textarea
+              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={getCleanValue(localSettings.sms_template_subscription_expired) || '{{pharmacy_name}}, আপনার MedFlowX {{plan_type}} সাবস্ক্রিপশনের মেয়াদ শেষ হয়ে গেছে। সেবা চালু রাখতে এখনই রিনিউ করুন: {{billing_url}}'}
+              onChange={(e) => handleChange('sms_template_subscription_expired', e.target.value)}
+              placeholder="Enter SMS template for subscription expired notification..."
+            />
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p className="font-medium">Available Placeholders:</p>
+              <div className="flex flex-wrap gap-2">
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{pharmacy_name}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{plan_type}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{expiry_date}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{billing_url}}'}</code>
               </div>
             </div>
           </div>
