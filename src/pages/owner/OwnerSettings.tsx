@@ -233,6 +233,7 @@ export default function OwnerSettings() {
     notifications: ['notification_email_enabled', 'notification_sms_enabled', 'notification_days_before', 'notification_time_utc'],
     securityAlerts: ['lockout_notifications_enabled', 'security_alert_email', 'admin_phone'],
     bulksms: ['bulksmsbd_enabled', 'bulksmsbd_api_key', 'bulksmsbd_sender_id', 'sms_low_balance_threshold', 'sms_alert_email'],
+    smsTemplates: ['sms_template_staff_invite'],
     uddoktapay: ['uddoktapay_enabled', 'uddoktapay_api_key', 'uddoktapay_base_url'],
   };
 
@@ -1020,6 +1021,74 @@ export default function OwnerSettings() {
                 >
                   Visit BulkSMSBD <ExternalLink className="h-3 w-3" />
                 </a>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* SMS Templates */}
+      <Card className="border-0 shadow-card">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-primary" />
+            <div>
+              <CardTitle>SMS Templates</CardTitle>
+              <CardDescription>Customize SMS messages for various system actions</CardDescription>
+            </div>
+          </div>
+          {isSectionSaved('SMS Templates') ? (
+            <div className="flex items-center gap-2 text-emerald-600 animate-fade-in">
+              <CheckCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">Saved!</span>
+            </div>
+          ) : (
+            <Button 
+              size="sm"
+              onClick={() => handleSaveSection('SMS Templates', sectionKeys.smsTemplates)}
+              disabled={savingSection === 'SMS Templates' || !hasSectionChanges(sectionKeys.smsTemplates)}
+            >
+              {savingSection === 'SMS Templates' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Save
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Staff Invite Template */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Phone className="h-4 w-4" />
+              Staff Invite SMS Template
+            </Label>
+            <textarea
+              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={getCleanValue(localSettings.sms_template_staff_invite) || 'MedFlowX স্টাফ অ্যাক্সেস:\nLogin: {{login_url}}\nPhone: {{phone}}\nPass: {{password}}\nপ্রথম লগইনে পাসওয়ার্ড পরিবর্তন করুন।'}
+              onChange={(e) => handleChange('sms_template_staff_invite', e.target.value)}
+              placeholder="Enter SMS template for staff invitation..."
+            />
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p className="font-medium">Available Placeholders:</p>
+              <div className="flex flex-wrap gap-2">
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{staff_name}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{phone}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{password}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{pharmacy_name}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{login_url}}'}</code>
+                <code className="px-1.5 py-0.5 bg-muted rounded text-xs">{'{{platform_name}}'}</code>
+              </div>
+            </div>
+          </div>
+
+          {/* Info box */}
+          <div className="p-4 rounded-lg bg-accent/50 border border-border">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">SMS Character Limit</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  বাংলা (Unicode) SMS এ প্রতি পার্টে ৭০ অক্ষর। একাধিক পার্ট হলে বেশি SMS ক্রেডিট খরচ হবে।
+                  সংক্ষিপ্ত ও কার্যকর মেসেজ লিখুন।
+                </p>
               </div>
             </div>
           </div>

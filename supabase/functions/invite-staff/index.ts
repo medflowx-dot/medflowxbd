@@ -26,6 +26,7 @@ interface SmtpConfig {
 interface SmsConfig {
   api_key: string;
   sender_id: string;
+  template: string | null;
 }
 
 // Format phone number to Bangladesh format (880XXXXXXXXXX)
@@ -84,7 +85,7 @@ async function getSmsConfig(supabaseAdmin: any): Promise<SmsConfig | null> {
   const { data: settings } = await supabaseAdmin
     .from('platform_settings')
     .select('setting_key, setting_value')
-    .in('setting_key', ['bulksmsbd_api_key', 'bulksmsbd_sender_id', 'bulksmsbd_enabled']);
+    .in('setting_key', ['bulksmsbd_api_key', 'bulksmsbd_sender_id', 'bulksmsbd_enabled', 'sms_template_staff_invite']);
 
   if (!settings || settings.length === 0) return null;
 
@@ -104,6 +105,7 @@ async function getSmsConfig(supabaseAdmin: any): Promise<SmsConfig | null> {
   return {
     api_key: config.bulksmsbd_api_key,
     sender_id: config.bulksmsbd_sender_id || 'MedFlowX',
+    template: config.sms_template_staff_invite || null,
   };
 }
 
@@ -382,11 +384,26 @@ Deno.serve(async (req) => {
       const smsConfig = await getSmsConfig(supabaseAdmin);
       
       if (smsConfig && formattedPhone) {
-        const smsMessage = `MedFlowX স্টাফ অ্যাক্সেস:
+        // Use custom template if available, otherwise use default
+        let smsMessage: string;
+        
+        if (smsConfig.template) {
+          // Replace placeholders in custom template
+          smsMessage = smsConfig.template
+            .replace(/\{\{staff_name\}\}/g, full_name.trim())
+            .replace(/\{\{phone\}\}/g, formattedPhone)
+            .replace(/\{\{password\}\}/g, tempPassword)
+            .replace(/\{\{pharmacy_name\}\}/g, callerProfile?.pharmacy_name || '')
+            .replace(/\{\{login_url\}\}/g, loginUrl)
+            .replace(/\{\{platform_name\}\}/g, 'MedFlowX');
+        } else {
+          // Default template
+          smsMessage = `MedFlowX স্টাফ অ্যাক্সেস:
 Login: ${loginUrl}
 Phone: ${formattedPhone}
 Pass: ${tempPassword}
 প্রথম লগইনে পাসওয়ার্ড পরিবর্তন করুন।`;
+        }
 
         credentialsSent = await sendInviteSms(smsConfig, formattedPhone, smsMessage);
       } else {
