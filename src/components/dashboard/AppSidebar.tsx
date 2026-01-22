@@ -11,7 +11,8 @@ import {
   Users,
   AlertTriangle,
   Bell,
-  Store
+  Store,
+  BookOpen
 } from 'lucide-react';
 import appLogo from '@/assets/app-logo.png';
 import { NavLink } from '@/components/NavLink';
@@ -127,6 +128,12 @@ export function AppSidebar() {
       items: [
         { titleKey: 'expiryMonitor', url: '/dashboard/expiry', icon: AlertTriangle },
         { titleKey: 'alerts', url: '/dashboard/alerts', icon: Bell },
+      ]
+    },
+    {
+      labelKey: 'reference',
+      items: [
+        { titleKey: 'medicineInfo', url: '/dashboard/medicine-info', icon: BookOpen },
       ]
     },
     {

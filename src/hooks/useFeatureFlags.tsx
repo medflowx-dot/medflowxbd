@@ -27,6 +27,7 @@ const featureToRouteMap: Record<string, string[]> = {
   stock_short: ['/dashboard/stock-short'],
   reports: ['/dashboard/reports'],
   settings: ['/dashboard/settings'],
+  medicine_reference: ['/dashboard/medicine-info'],
 };
 
 export function useFeatureFlags() {

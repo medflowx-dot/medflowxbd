@@ -42,6 +42,7 @@ const AdminDashboard = lazy(() => import("./pages/dashboard/AdminDashboard"));
 const CustomerDues = lazy(() => import("./pages/dashboard/CustomerDues"));
 const ExpiryMonitoring = lazy(() => import("./pages/dashboard/ExpiryMonitoring"));
 const Alerts = lazy(() => import("./pages/dashboard/Alerts"));
+const MedicineReference = lazy(() => import("./pages/dashboard/MedicineReference"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Lazy loaded pages - Owner Panel
@@ -137,6 +138,7 @@ const App = () => (
                     <Route path="admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
                     {/* Staff-accessible routes */}
                     <Route path="daily-cash" element={<DailyCash />} />
+                    <Route path="medicine-info" element={<MedicineReference />} />
                   </Route>
 
                   {/* Owner Panel - No subscription check (owner bypasses) */}
