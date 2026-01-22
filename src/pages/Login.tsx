@@ -121,23 +121,29 @@ export default function Login() {
         body: { email, password: emailPassword }
       });
 
-      if (error) throw error;
-      
-      // Check for lock status
-      if (data.locked) {
-        setIsEmailLocked(true);
-        setEmailLockRemainingMinutes(data.remainingMinutes || 15);
-        toast.error(data.error);
-        setEmailLoading(false);
-        return;
+      // Check data.error first (Edge Function returns error in body even with non-2xx)
+      if (data?.error) {
+        // Check for lock status
+        if (data.locked) {
+          setIsEmailLocked(true);
+          setEmailLockRemainingMinutes(data.remainingMinutes || 15);
+          toast.error(data.error);
+          setEmailLoading(false);
+          return;
+        }
+        
+        // Check for attempts remaining
+        if (data.attemptsRemaining !== undefined) {
+          setEmailAttemptsRemaining(data.attemptsRemaining);
+        }
+        
+        throw new Error(data.error);
       }
       
-      // Check for attempts remaining
-      if (data.attemptsRemaining !== undefined) {
-        setEmailAttemptsRemaining(data.attemptsRemaining);
+      // Network/SDK level error (no data returned)
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
-      
-      if (data.error) throw new Error(data.error);
 
       // Successful login - reset states
       setIsEmailLocked(false);
@@ -179,23 +185,29 @@ export default function Login() {
         body: { phone, password: phonePassword }
       });
 
-      if (error) throw error;
-      
-      // Check for lock status
-      if (data.locked) {
-        setIsPhoneLocked(true);
-        setPhoneLockRemainingMinutes(data.remainingMinutes || 15);
-        toast.error(data.error);
-        setPhoneLoading(false);
-        return;
+      // Check data.error first (Edge Function returns error in body even with non-2xx)
+      if (data?.error) {
+        // Check for lock status
+        if (data.locked) {
+          setIsPhoneLocked(true);
+          setPhoneLockRemainingMinutes(data.remainingMinutes || 15);
+          toast.error(data.error);
+          setPhoneLoading(false);
+          return;
+        }
+        
+        // Check for attempts remaining
+        if (data.attemptsRemaining !== undefined) {
+          setPhoneAttemptsRemaining(data.attemptsRemaining);
+        }
+        
+        throw new Error(data.error);
       }
       
-      // Check for attempts remaining
-      if (data.attemptsRemaining !== undefined) {
-        setPhoneAttemptsRemaining(data.attemptsRemaining);
+      // Network/SDK level error (no data returned)
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
-      
-      if (data.error) throw new Error(data.error);
 
       // Successful login - reset states
       setIsPhoneLocked(false);
