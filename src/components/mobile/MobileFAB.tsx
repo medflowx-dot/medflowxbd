@@ -18,48 +18,54 @@ export function MobileFAB({ actions }: MobileFABProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
-  const scrollContainerRef = useRef<HTMLElement | null>(null);
+  const ticking = useRef(false);
 
   useEffect(() => {
-    // Find the main scroll container
-    const findScrollContainer = () => {
-      const pullToRefreshContainer = document.querySelector('[data-pull-to-refresh]');
-      if (pullToRefreshContainer) {
-        return pullToRefreshContainer as HTMLElement;
-      }
-      return null;
-    };
-
-    scrollContainerRef.current = findScrollContainer();
-    const scrollContainer = scrollContainerRef.current;
-
-    if (!scrollContainer) return;
-
     const handleScroll = () => {
-      const currentScrollY = scrollContainer.scrollTop;
-      const scrollHeight = scrollContainer.scrollHeight;
-      const clientHeight = scrollContainer.clientHeight;
+      if (ticking.current) return;
       
-      // Check if near bottom (within 50px of bottom)
-      const isNearBottom = scrollHeight - currentScrollY - clientHeight < 50;
+      ticking.current = true;
       
-      if (isNearBottom) {
-        setIsVisible(false);
-      } else if (currentScrollY < lastScrollY.current) {
-        // Scrolling up
-        setIsVisible(true);
-      } else if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        // Scrolling down and not at top
-        setIsVisible(true);
-      }
-      
-      lastScrollY.current = currentScrollY;
+      requestAnimationFrame(() => {
+        // Find the scroll container
+        const scrollContainer = document.querySelector('[data-pull-to-refresh]') as HTMLElement;
+        
+        if (scrollContainer) {
+          const currentScrollY = scrollContainer.scrollTop;
+          const scrollHeight = scrollContainer.scrollHeight;
+          const clientHeight = scrollContainer.clientHeight;
+          
+          // Check if near bottom (within 100px of bottom)
+          const isNearBottom = scrollHeight - currentScrollY - clientHeight < 100;
+          
+          if (isNearBottom && currentScrollY > 50) {
+            setIsVisible(false);
+          } else {
+            setIsVisible(true);
+          }
+          
+          lastScrollY.current = currentScrollY;
+        }
+        
+        ticking.current = false;
+      });
     };
 
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    // Attach to the scroll container
+    const scrollContainer = document.querySelector('[data-pull-to-refresh]');
+    
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    }
+
+    // Also listen to window scroll as fallback
+    window.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {
-      scrollContainer.removeEventListener('scroll', handleScroll);
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      }
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -118,8 +124,8 @@ export function MobileFAB({ actions }: MobileFABProps) {
       <div 
         className={cn(
           "fixed bottom-20 right-4 z-50 md:hidden",
-          "transition-all duration-200 ease-out",
-          isVisible ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0 pointer-events-none"
+          "transition-all duration-300 ease-out",
+          isVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
         )}
       >
         <button
