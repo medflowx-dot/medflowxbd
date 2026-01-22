@@ -94,15 +94,15 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[85vh]">
-        <DrawerHeader className="border-b border-border pb-4 bg-gradient-to-r from-primary/5 to-transparent">
-          <DrawerTitle className="text-lg font-semibold">
+      <DrawerContent className="max-h-[70vh]">
+        <DrawerHeader className="border-b border-border py-3">
+          <DrawerTitle className="text-base font-semibold">
             {menuTitle}
           </DrawerTitle>
         </DrawerHeader>
 
-        <ScrollArea className="flex-1 px-4 py-2">
-          <div className="grid grid-cols-3 gap-3 py-4">
+        <ScrollArea className="flex-1 px-3 py-2">
+          <div className="grid grid-cols-4 gap-2 py-3">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const badgeCount = getBadgeCount(item.badge);
@@ -112,30 +112,28 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
                   key={item.id}
                   onClick={() => handleMenuClick(item.path)}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-2 p-4 rounded-xl",
-                    "bg-gradient-to-br from-muted/50 to-muted/20 hover:from-muted hover:to-muted/50 transition-all duration-100",
-                    "active:scale-95 touch-manipulation",
-                    "border border-border/50 hover:border-primary/30"
+                    "flex flex-col items-center justify-center gap-1.5 p-2 rounded-lg",
+                    "bg-muted/30 hover:bg-muted/60 transition-all duration-100",
+                    "active:scale-95 touch-manipulation"
                   )}
                 >
                   <div className="relative">
-                    <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center", item.iconClass)}>
+                    <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center", item.iconClass)}>
                       <Icon className={cn(
-                        "h-6 w-6",
+                        "h-4 w-4",
                         item.iconClass === 'bg-muted' ? "text-muted-foreground" : "text-white"
                       )} />
                     </div>
                     {badgeCount > 0 && (
                       <span className={cn(
-                        "absolute -top-1 -right-1 h-5 w-5 rounded-full text-[10px] font-bold flex items-center justify-center",
-                        "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md",
-                        "badge-animated"
+                        "absolute -top-1 -right-1 h-4 w-4 rounded-full text-[8px] font-bold flex items-center justify-center",
+                        "bg-destructive text-destructive-foreground"
                       )}>
-                        {badgeCount > 99 ? '99+' : badgeCount}
+                        {badgeCount > 9 ? '9+' : badgeCount}
                       </span>
                     )}
                   </div>
-                  <span className="text-xs font-medium text-foreground text-center line-clamp-2">
+                  <span className="text-[10px] font-medium text-foreground text-center leading-tight line-clamp-1">
                     {getLabel(item.labelKey)}
                   </span>
                 </button>
@@ -144,19 +142,18 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
           </div>
 
           {/* Sign Out Button */}
-          <div className="border-t border-border pt-4 pb-6">
+          <div className="border-t border-border pt-3 pb-4">
             <button
               onClick={handleSignOut}
               className={cn(
-                "w-full flex items-center justify-center gap-3 p-4 rounded-xl",
-                "bg-gradient-to-r from-red-500/10 to-red-600/10 text-red-600 dark:text-red-400",
-                "hover:from-red-500/20 hover:to-red-600/20 transition-all duration-100",
-                "active:scale-95 touch-manipulation",
-                "border border-red-200 dark:border-red-900"
+                "w-full flex items-center justify-center gap-2 py-2.5 rounded-lg",
+                "bg-destructive/10 text-destructive",
+                "hover:bg-destructive/20 transition-all duration-100",
+                "active:scale-95 touch-manipulation"
               )}
             >
-              <LogOut className="h-5 w-5" />
-              <span className="font-medium">সাইন আউট</span>
+              <LogOut className="h-4 w-4" />
+              <span className="text-sm font-medium">সাইন আউট</span>
             </button>
           </div>
         </ScrollArea>
