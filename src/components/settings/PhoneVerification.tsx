@@ -18,6 +18,7 @@ import { useOtpTimer } from '@/hooks/useOtpTimer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { Phone, CheckCircle2, AlertCircle, Loader2, Shield, Clock } from 'lucide-react';
+import { parseEdgeFunctionError } from '@/lib/edgeFunctionError';
 
 interface PhoneVerificationProps {
   phone: string;
@@ -84,8 +85,19 @@ export function PhoneVerification({ phone, onPhoneChange }: PhoneVerificationPro
         body: { phone: formattedPhone, purpose: 'verification' },
       });
 
-      if (funcError) throw funcError;
-      if (data?.error) throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(funcError, data);
+      
+      if (errorData?.error) {
+        setError(errorData.error);
+        toast.error(errorData.error);
+        setIsSendingOtp(false);
+        return;
+      }
+      
+      if (funcError && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না।');
+      }
 
       toast.success(t.phoneVerification?.otpSent || 'OTP sent to your phone');
       setShowVerifyDialog(true);
@@ -120,8 +132,18 @@ export function PhoneVerification({ phone, onPhoneChange }: PhoneVerificationPro
         body: { phone: formattedPhone, otp, purpose: 'verification' },
       });
 
-      if (funcError) throw funcError;
-      if (data?.error) throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(funcError, data);
+      
+      if (errorData?.error) {
+        setError(errorData.error);
+        setIsVerifying(false);
+        return;
+      }
+      
+      if (funcError && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না।');
+      }
 
       // Update profile with verified phone
       await updateProfile.mutateAsync({
