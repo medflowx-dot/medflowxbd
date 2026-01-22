@@ -21,7 +21,13 @@ export function usePharmacyStaff() {
   return useQuery({
     queryKey: ['pharmacy-staff', profile?.pharmacy_name],
     queryFn: async () => {
-      if (!profile?.pharmacy_name) return [];
+      if (!profile?.pharmacy_name) {
+        console.log('usePharmacyStaff: No pharmacy_name found');
+        return [];
+      }
+
+      console.log('usePharmacyStaff: Fetching staff for pharmacy:', profile.pharmacy_name);
+      console.log('usePharmacyStaff: Current user ID:', user?.id);
 
       // Get all profiles with the same pharmacy name
       const { data: profiles, error: profilesError } = await supabase
@@ -29,22 +35,39 @@ export function usePharmacyStaff() {
         .select('*')
         .eq('pharmacy_name', profile.pharmacy_name);
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('usePharmacyStaff: Error fetching profiles:', profilesError);
+        throw profilesError;
+      }
+
+      console.log('usePharmacyStaff: Found profiles:', profiles);
+
+      if (!profiles || profiles.length === 0) {
+        console.log('usePharmacyStaff: No profiles found for this pharmacy');
+        return [];
+      }
 
       // Get roles for these users
       const userIds = profiles.map(p => p.user_id);
+      console.log('usePharmacyStaff: Fetching roles for user IDs:', userIds);
+      
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('*')
         .in('user_id', userIds);
 
-      if (rolesError) throw rolesError;
+      if (rolesError) {
+        console.error('usePharmacyStaff: Error fetching roles:', rolesError);
+        throw rolesError;
+      }
+
+      console.log('usePharmacyStaff: Found roles:', roles);
 
       // Combine and filter to only show staff (not the admin themselves)
       const staffMembers: StaffMember[] = profiles
         .filter(p => p.user_id !== user?.id) // Exclude current user
         .map(p => {
-          const userRole = roles.find(r => r.user_id === p.user_id);
+          const userRole = roles?.find(r => r.user_id === p.user_id);
           return {
             id: p.id,
             user_id: p.user_id,
@@ -56,6 +79,8 @@ export function usePharmacyStaff() {
           };
         })
         .filter(s => s.role === 'client_staff'); // Only show staff, not other admins
+
+      console.log('usePharmacyStaff: Final staff members:', staffMembers);
 
       return staffMembers;
     },
