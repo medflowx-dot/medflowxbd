@@ -25,7 +25,9 @@ export type Permission =
   | 'manage_settings'
   | 'view_admin'
   | 'view_customer_dues'
-  | 'manage_customer_dues';
+  | 'manage_customer_dues'
+  | 'view_prescriptions'
+  | 'manage_prescriptions';
 
 // Define permissions for each role (admin roles only - staff uses database permissions)
 const rolePermissions: Record<string, Permission[]> = {
@@ -50,6 +52,8 @@ const rolePermissions: Record<string, Permission[]> = {
     'create_staff',
     'view_customer_dues',
     'manage_customer_dues',
+    'view_prescriptions',
+    'manage_prescriptions',
   ],
   client_admin: [
     'view_dashboard',
@@ -71,6 +75,8 @@ const rolePermissions: Record<string, Permission[]> = {
     'create_staff',
     'view_customer_dues',
     'manage_customer_dues',
+    'view_prescriptions',
+    'manage_prescriptions',
   ],
   client_staff: [
     'view_dashboard',
@@ -164,6 +170,8 @@ export function usePermissions() {
     if (staffDbPermissions.can_manage_sales) permissions.push('manage_sales');
     if (staffDbPermissions.can_view_customer_dues) permissions.push('view_customer_dues');
     if (staffDbPermissions.can_manage_customer_dues) permissions.push('manage_customer_dues');
+    if (staffDbPermissions.can_view_prescriptions) permissions.push('view_prescriptions');
+    if (staffDbPermissions.can_manage_prescriptions) permissions.push('manage_prescriptions');
     if (staffDbPermissions.can_view_suppliers) permissions.push('view_suppliers');
     if (staffDbPermissions.can_manage_suppliers) permissions.push('manage_suppliers');
     if (staffDbPermissions.can_view_manufacturers) permissions.push('view_manufacturers');

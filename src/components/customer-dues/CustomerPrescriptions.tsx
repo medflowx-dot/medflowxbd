@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePermissions } from '@/hooks/usePermissions';
 import {
   useCustomerPrescriptions,
   useDeletePrescription,
@@ -45,6 +46,9 @@ interface CustomerPrescriptionsProps {
 
 export function CustomerPrescriptions({ customerId, customerName }: CustomerPrescriptionsProps) {
   const { t } = useLanguage();
+  const { hasPermission } = usePermissions();
+  const canManage = hasPermission('manage_prescriptions');
+  
   const { data: prescriptions, isLoading } = useCustomerPrescriptions(customerId);
   const deletePrescription = useDeletePrescription();
   const deleteMedicine = useDeletePrescriptionMedicine();
@@ -125,10 +129,12 @@ export function CustomerPrescriptions({ customerId, customerName }: CustomerPres
             </Badge>
           )}
         </div>
-        <Button size="sm" onClick={() => setAddPrescriptionOpen(true)} className="gap-1.5">
-          <Plus className="h-4 w-4" />
-          {t.customerDues?.newPrescription || 'নতুন প্রেসক্রিপশন'}
-        </Button>
+        {canManage && (
+          <Button size="sm" onClick={() => setAddPrescriptionOpen(true)} className="gap-1.5">
+            <Plus className="h-4 w-4" />
+            {t.customerDues?.newPrescription || 'নতুন প্রেসক্রিপশন'}
+          </Button>
+        )}
       </div>
 
       {/* Prescriptions List */}
@@ -158,6 +164,7 @@ export function CustomerPrescriptions({ customerId, customerName }: CustomerPres
                   toggleMedicineStatus.mutate({ id: medicineId, customer_id: customerId, is_active: isActive })
                 }
                 t={t}
+                canManage={canManage}
               />
             ))}
 
@@ -179,6 +186,7 @@ export function CustomerPrescriptions({ customerId, customerName }: CustomerPres
                 }
                 t={t}
                 isInactive
+                canManage={canManage}
               />
             ))}
           </div>
@@ -218,6 +226,7 @@ interface PrescriptionCardProps {
   onToggleMedicineStatus: (medicineId: string, isActive: boolean) => void;
   t: any;
   isInactive?: boolean;
+  canManage?: boolean;
 }
 
 function PrescriptionCard({
@@ -231,6 +240,7 @@ function PrescriptionCard({
   onDeleteMedicine,
   t,
   isInactive,
+  canManage,
 }: PrescriptionCardProps) {
   const medicineCount = prescription.medicines?.length || 0;
   const activeMedicineCount = prescription.medicines?.filter(m => m.is_active).length || 0;
@@ -275,75 +285,79 @@ function PrescriptionCard({
             </button>
           </CollapsibleTrigger>
 
-          <TooltipProvider delayDuration={100}>
-            <div className="flex items-center gap-0.5 shrink-0">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 hover:bg-primary/10"
-                    onClick={(e) => { e.stopPropagation(); onEdit(); }}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t.actions?.edit || 'সম্পাদনা'}</TooltipContent>
-              </Tooltip>
-
-              <AlertDialog>
+          {canManage && (
+            <TooltipProvider delayDuration={100}>
+              <div className="flex items-center gap-0.5 shrink-0">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </AlertDialogTrigger>
-                  </TooltipTrigger>
-                  <TooltipContent>{t.actions?.delete || 'মুছুন'}</TooltipContent>
-                </Tooltip>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      {t.customerDues?.deletePrescription || 'প্রেসক্রিপশন মুছবেন?'}
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t.customerDues?.deletePrescriptionConfirm || 'এই প্রেসক্রিপশন এবং এর সব ঔষধ মুছে যাবে।'}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{t.actions?.cancel || 'বাতিল'}</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={onDelete}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 hover:bg-primary/10"
+                      onClick={(e) => { e.stopPropagation(); onEdit(); }}
                     >
-                      {t.actions?.delete || 'মুছুন'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </TooltipProvider>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t.actions?.edit || 'সম্পাদনা'}</TooltipContent>
+                </Tooltip>
+
+                <AlertDialog>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </AlertDialogTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>{t.actions?.delete || 'মুছুন'}</TooltipContent>
+                  </Tooltip>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        {t.customerDues?.deletePrescription || 'প্রেসক্রিপশন মুছবেন?'}
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t.customerDues?.deletePrescriptionConfirm || 'এই প্রেসক্রিপশন এবং এর সব ঔষধ মুছে যাবে।'}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t.actions?.cancel || 'বাতিল'}</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={onDelete}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {t.actions?.delete || 'মুছুন'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </TooltipProvider>
+          )}
         </div>
 
         {/* Medicines List */}
         <CollapsibleContent>
           <div className="p-3 pt-2 space-y-2 border-t">
             {/* Add Medicine Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full gap-1.5 border-dashed"
-              onClick={onAddMedicine}
-            >
-              <Plus className="h-4 w-4" />
-              {t.customerDues?.addMedicine || 'ঔষধ যোগ করুন'}
-            </Button>
+            {canManage && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full gap-1.5 border-dashed"
+                onClick={onAddMedicine}
+              >
+                <Plus className="h-4 w-4" />
+                {t.customerDues?.addMedicine || 'ঔষধ যোগ করুন'}
+              </Button>
+            )}
 
             {/* Medicines */}
             {prescription.medicines?.length === 0 ? (
@@ -359,6 +373,7 @@ function PrescriptionCard({
                     onEdit={() => onEditMedicine(medicine)}
                     onDelete={() => onDeleteMedicine(medicine.id)}
                     t={t}
+                    canManage={canManage}
                   />
                 ))}
               </div>
@@ -375,9 +390,10 @@ interface MedicineRowProps {
   onEdit: () => void;
   onDelete: () => void;
   t: any;
+  canManage?: boolean;
 }
 
-function MedicineRow({ medicine, onEdit, onDelete, t }: MedicineRowProps) {
+function MedicineRow({ medicine, onEdit, onDelete, t, canManage }: MedicineRowProps) {
   return (
     <div className={`flex items-center justify-between p-2 rounded-md bg-background border ${!medicine.is_active ? 'opacity-50' : ''}`}>
       <div className="min-w-0 flex-1">
@@ -398,59 +414,61 @@ function MedicineRow({ medicine, onEdit, onDelete, t }: MedicineRowProps) {
         </div>
       </div>
 
-      <TooltipProvider delayDuration={100}>
-        <div className="flex items-center gap-0.5 shrink-0">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 hover:bg-primary/10"
-                onClick={onEdit}
-              >
-                <Pencil className="h-3 w-3" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{t.actions?.edit || 'সম্পাদনা'}</TooltipContent>
-          </Tooltip>
-
-          <AlertDialog>
+      {canManage && (
+        <TooltipProvider delayDuration={100}>
+          <div className="flex items-center gap-0.5 shrink-0">
             <Tooltip>
               <TooltipTrigger asChild>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </AlertDialogTrigger>
-              </TooltipTrigger>
-              <TooltipContent>{t.actions?.delete || 'মুছুন'}</TooltipContent>
-            </Tooltip>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  {t.customerDues?.deleteMedicine || 'ঔষধ মুছবেন?'}
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  {t.customerDues?.deleteMedicineConfirm || 'এই ঔষধটি প্রেসক্রিপশন থেকে মুছে যাবে।'}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{t.actions?.cancel || 'বাতিল'}</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={onDelete}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 hover:bg-primary/10"
+                  onClick={onEdit}
                 >
-                  {t.actions?.delete || 'মুছুন'}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </TooltipProvider>
+                  <Pencil className="h-3 w-3" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t.actions?.edit || 'সম্পাদনা'}</TooltipContent>
+            </Tooltip>
+
+            <AlertDialog>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </AlertDialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent>{t.actions?.delete || 'মুছুন'}</TooltipContent>
+              </Tooltip>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {t.customerDues?.deleteMedicine || 'ঔষধ মুছবেন?'}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t.customerDues?.deleteMedicineConfirm || 'এই ঔষধটি প্রেসক্রিপশন থেকে মুছে যাবে।'}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t.actions?.cancel || 'বাতিল'}</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={onDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {t.actions?.delete || 'মুছুন'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </TooltipProvider>
+      )}
     </div>
   );
 }
