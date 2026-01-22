@@ -71,6 +71,9 @@ export default function Login() {
   const [showPinLogin, setShowPinLogin] = useState(false);
   const [loginPin, setLoginPin] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
+  const [pinAttemptsRemaining, setPinAttemptsRemaining] = useState<number | null>(null);
+  const [isPinLocked, setIsPinLocked] = useState(false);
+  const [pinLockRemainingMinutes, setPinLockRemainingMinutes] = useState(0);
 
   // Password change flow state
   const [showPasswordChange, setShowPasswordChange] = useState(false);
@@ -440,6 +443,23 @@ export default function Login() {
       const errorData = await parseEdgeFunctionError(error, data);
       
       if (errorData?.error) {
+        // Check for lock status
+        if (errorData.locked) {
+          setIsPinLocked(true);
+          const lockedUntil = errorData.lockedUntil as string;
+          const remainingMinutes = Math.ceil((new Date(lockedUntil).getTime() - Date.now()) / 60000);
+          setPinLockRemainingMinutes(remainingMinutes > 0 ? remainingMinutes : 15);
+          toast.error(`পিন লক আছে। ${remainingMinutes} মিনিট পর চেষ্টা করুন।`);
+          setLoginPin('');
+          setPinLoading(false);
+          return;
+        }
+        
+        // Check for attempts remaining
+        if (errorData.attemptsRemaining !== undefined) {
+          setPinAttemptsRemaining(errorData.attemptsRemaining);
+        }
+        
         toast.error(errorData.error);
         setLoginPin('');
         setPinLoading(false);
@@ -597,6 +617,26 @@ export default function Login() {
                 </InputOTPGroup>
               </InputOTP>
             </div>
+
+            {/* PIN Lock Warning */}
+            {isPinLocked && (
+              <Alert variant="destructive">
+                <ShieldAlert className="h-4 w-4" />
+                <AlertDescription>
+                  পিন লক আছে। {pinLockRemainingMinutes} মিনিট পর চেষ্টা করুন।
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* PIN Attempts Warning */}
+            {!isPinLocked && pinAttemptsRemaining !== null && pinAttemptsRemaining <= 3 && (
+              <Alert variant={pinAttemptsRemaining <= 1 ? "destructive" : "default"} className="border-warning/50 bg-warning/10">
+                <ShieldAlert className="h-4 w-4 text-warning" />
+                <AlertDescription className="text-warning-foreground">
+                  সতর্কতা: আর মাত্র {pinAttemptsRemaining} বার চেষ্টা বাকি। এরপর পিন লক হয়ে যাবে।
+                </AlertDescription>
+              </Alert>
+            )}
 
             {pinLoading && (
               <div className="flex justify-center">
