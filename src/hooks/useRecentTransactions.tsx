@@ -128,6 +128,7 @@ export function useRecentTransactions(limit: number = 5) {
         .slice(0, limit);
     },
     enabled: !!user?.id,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    refetchInterval: 1000 * 60 * 2, // Refetch every 2 minutes (was 30 seconds)
   });
 }

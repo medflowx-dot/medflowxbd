@@ -105,6 +105,7 @@ export function useSuppliers() {
       return data as Supplier[];
     },
     enabled: !!user,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const paymentsQuery = useQuery({
@@ -119,6 +120,7 @@ export function useSuppliers() {
       return data as SupplierPayment[];
     },
     enabled: !!user,
+    staleTime: 1000 * 60 * 3, // 3 minutes
   });
 
   const purchasesQuery = useQuery({
@@ -133,6 +135,7 @@ export function useSuppliers() {
       return data as SupplierPurchase[];
     },
     enabled: !!user,
+    staleTime: 1000 * 60 * 3, // 3 minutes
   });
 
   const addSupplierMutation = useMutation({

@@ -120,6 +120,7 @@ export function useDashboardStats() {
       };
     },
     enabled: !!user,
-    refetchInterval: 60000, // Refresh every minute
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    refetchInterval: 1000 * 60 * 2, // Refresh every 2 minutes (was 1 min)
   });
 }

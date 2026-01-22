@@ -88,6 +88,7 @@ export function useDueAlerts(limit: number = 3) {
       };
     },
     enabled: !!user?.id,
-    refetchInterval: 60000,
+    staleTime: 1000 * 60 * 3, // 3 minutes
+    refetchInterval: 1000 * 60 * 3, // Refetch every 3 minutes (was 1 min)
   });
 }
