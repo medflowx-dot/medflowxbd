@@ -143,8 +143,10 @@ export function MobileFAB({ actions }: MobileFABProps) {
       <div 
         className={cn(
           "fixed bottom-28 right-4 z-50 md:hidden",
-          "transition-all duration-300 ease-out",
-          isVisible ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0 pointer-events-none"
+          "transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+          isVisible 
+            ? "translate-y-0 opacity-100 scale-100" 
+            : "translate-y-32 opacity-0 scale-75 pointer-events-none"
         )}
       >
         <button
