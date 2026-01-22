@@ -1010,6 +1010,7 @@ export type Database = {
           full_name: string | null
           id: string
           language: string | null
+          must_change_password: boolean | null
           pharmacy_logo: string | null
           pharmacy_name: string | null
           phone: string | null
@@ -1026,6 +1027,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           language?: string | null
+          must_change_password?: boolean | null
           pharmacy_logo?: string | null
           pharmacy_name?: string | null
           phone?: string | null
@@ -1042,6 +1044,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           language?: string | null
+          must_change_password?: boolean | null
           pharmacy_logo?: string | null
           pharmacy_name?: string | null
           phone?: string | null
