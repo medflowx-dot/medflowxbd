@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +16,52 @@ interface MobileFABProps {
 
 export function MobileFAB({ actions }: MobileFABProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const scrollContainerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    // Find the main scroll container
+    const findScrollContainer = () => {
+      const pullToRefreshContainer = document.querySelector('[data-pull-to-refresh]');
+      if (pullToRefreshContainer) {
+        return pullToRefreshContainer as HTMLElement;
+      }
+      return null;
+    };
+
+    scrollContainerRef.current = findScrollContainer();
+    const scrollContainer = scrollContainerRef.current;
+
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      const currentScrollY = scrollContainer.scrollTop;
+      const scrollHeight = scrollContainer.scrollHeight;
+      const clientHeight = scrollContainer.clientHeight;
+      
+      // Check if near bottom (within 50px of bottom)
+      const isNearBottom = scrollHeight - currentScrollY - clientHeight < 50;
+      
+      if (isNearBottom) {
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY.current) {
+        // Scrolling up
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        // Scrolling down and not at top
+        setIsVisible(true);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      scrollContainer.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   const handleActionClick = (action: FABAction) => {
     setIsExpanded(false);
@@ -32,43 +78,50 @@ export function MobileFAB({ actions }: MobileFABProps) {
         />
       )}
 
-      {/* Grid Menu Panel */}
+      {/* Vertical Actions Menu - slides up from FAB */}
       {isExpanded && (
-        <div className="fixed bottom-36 right-4 left-4 z-50 md:hidden animate-in slide-in-from-bottom-4 fade-in duration-150">
-          <div className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl p-4">
-            <div className="grid grid-cols-2 gap-3">
-              {actions.map((action) => {
-                const Icon = action.icon;
-                return (
-                  <button
-                    key={action.id}
-                    onClick={() => handleActionClick(action)}
-                    className={cn(
-                      "flex flex-col items-center gap-2 p-4 rounded-xl",
-                      "bg-background/50 border border-border/30",
-                      "active:scale-95 touch-manipulation",
-                      "hover:bg-background/80 transition-colors duration-100"
-                    )}
-                  >
-                    <div className={cn(
-                      "h-12 w-12 rounded-full flex items-center justify-center shadow-md",
-                      action.color || "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground"
-                    )}>
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    <span className="text-xs font-medium text-foreground text-center leading-tight">
-                      {action.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+        <div className="fixed bottom-36 right-4 z-50 md:hidden animate-in slide-in-from-bottom-4 fade-in duration-150">
+          <div className="flex flex-col gap-3">
+            {actions.map((action, index) => {
+              const Icon = action.icon;
+              return (
+                <button
+                  key={action.id}
+                  onClick={() => handleActionClick(action)}
+                  className={cn(
+                    "flex items-center gap-3 pr-4 pl-2 py-2 rounded-full",
+                    "bg-card/95 backdrop-blur-xl border border-border/50 shadow-lg",
+                    "active:scale-95 touch-manipulation",
+                    "hover:bg-card transition-colors duration-100"
+                  )}
+                  style={{
+                    animationDelay: `${index * 50}ms`
+                  }}
+                >
+                  <div className={cn(
+                    "h-10 w-10 rounded-full flex items-center justify-center shadow-md",
+                    action.color || "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground"
+                  )}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <span className="text-sm font-medium text-foreground whitespace-nowrap">
+                    {action.label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
       {/* Main FAB Button */}
-      <div className="fixed bottom-20 right-4 z-50 md:hidden">
+      <div 
+        className={cn(
+          "fixed bottom-20 right-4 z-50 md:hidden",
+          "transition-all duration-200 ease-out",
+          isVisible ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0 pointer-events-none"
+        )}
+      >
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(

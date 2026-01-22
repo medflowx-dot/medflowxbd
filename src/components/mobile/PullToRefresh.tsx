@@ -79,6 +79,7 @@ export function PullToRefresh({
   return (
     <div
       ref={containerRef}
+      data-pull-to-refresh="true"
       className={cn("relative overflow-y-auto", className)}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
