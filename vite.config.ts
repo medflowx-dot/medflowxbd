@@ -13,6 +13,29 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+  build: {
+    // Optimize chunk splitting for faster loading
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs', '@radix-ui/react-select'],
+          'vendor-query': ['@tanstack/react-query'],
+          'vendor-charts': ['recharts'],
+        },
+      },
+    },
+    // Enable minification
+    minify: 'esbuild',
+    // Target modern browsers
+    target: 'es2020',
+    // Reduce chunk size warnings
+    chunkSizeWarningLimit: 1000,
+  },
+  // Enable dependency optimization
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', '@tanstack/react-query'],
+  },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
