@@ -18,11 +18,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Wallet, Pencil, Trash2, ArrowDownCircle, ArrowUpCircle, Scissors, FileText, Eraser } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Wallet, Pencil, Trash2, ArrowDownCircle, ArrowUpCircle, Scissors, FileText, Eraser, Pill } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { EditPaymentDialog } from './EditPaymentDialog';
 import { EditDueDialog } from './EditDueDialog';
 import { SplitDueDialog } from './SplitDueDialog';
+import { CustomerPrescriptions } from './CustomerPrescriptions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +49,7 @@ interface CustomerPaymentHistoryProps {
   onOpenChange: (open: boolean) => void;
   customerId: string | null;
   customerName: string | null;
+  initialTab?: 'transactions' | 'prescriptions';
 }
 
 type TransactionType = 'due' | 'payment';
@@ -65,7 +68,8 @@ export function CustomerPaymentHistory({
   open, 
   onOpenChange, 
   customerId, 
-  customerName 
+  customerName,
+  initialTab = 'transactions',
 }: CustomerPaymentHistoryProps) {
   const { data: customer, isLoading } = useCustomerWithPayments(customerId);
   const deletePayment = useDeleteCustomerPayment();
@@ -73,6 +77,7 @@ export function CustomerPaymentHistory({
   const clearHistory = useClearCustomerHistory();
   const { t } = useLanguage();
   
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [editPaymentOpen, setEditPaymentOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<CustomerPayment | null>(null);
   const [editDueOpen, setEditDueOpen] = useState(false);
@@ -169,10 +174,10 @@ export function CustomerPaymentHistory({
             <div className="flex items-center justify-between">
               <DialogTitle className="flex items-center gap-2">
                 <Wallet className="h-5 w-5" />
-                {t.customerDues?.transactionHistory || 'Transaction History'} - {customerName}
+                {customerName}
               </DialogTitle>
               <div className="flex items-center gap-2">
-                {customer && transactions.length > 0 && (
+                {customer && transactions.length > 0 && activeTab === 'transactions' && (
                   <>
                     <Button
                       variant="outline"
@@ -198,184 +203,208 @@ export function CustomerPaymentHistory({
             </div>
           </DialogHeader>
 
-          {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">
-              {t.customerDues?.loading || 'Loading...'}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {/* Summary */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="rounded-lg bg-muted p-3">
-                  <p className="text-xs text-muted-foreground">
-                    {t.customerDues?.allTransactions || 'Total Transactions'}
-                  </p>
-                  <p className="text-lg font-bold">{transactions.length}</p>
-                </div>
-                <div className="rounded-lg bg-warning/10 p-3">
-                  <p className="text-xs text-muted-foreground">
-                    {t.customerDues?.dueEntry || 'Dues'}
-                  </p>
-                  <p className="text-lg font-bold text-warning">{customer?.dues?.length || 0}</p>
-                </div>
-                <div className="rounded-lg bg-destructive/10 p-3">
-                  <p className="text-xs text-muted-foreground">
-                    {t.customerDues?.currentDue || 'Current Due'}
-                  </p>
-                  <p className="text-lg font-bold text-destructive">
-                    ৳{Number(customer?.total_due || 0) > 0 ? Math.round(Number(customer?.total_due)) : '0'}
-                  </p>
-                </div>
-              </div>
+          {/* Tabs for Transactions and Prescriptions */}
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'transactions' | 'prescriptions')} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="transactions" className="gap-1.5">
+                <Wallet className="h-4 w-4" />
+                {t.customerDues?.transactionHistory || 'Transactions'}
+              </TabsTrigger>
+              <TabsTrigger value="prescriptions" className="gap-1.5">
+                <Pill className="h-4 w-4" />
+                {t.customerDues?.prescriptionMedicines || 'Prescription'}
+              </TabsTrigger>
+            </TabsList>
 
-              {/* Transaction List */}
-              <ScrollArea className="h-[350px]">
-                {transactions.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    {t.reports?.noPaymentsInPeriod || 'No transaction history found.'}
+            {/* Transactions Tab */}
+            <TabsContent value="transactions" className="mt-4">
+              {isLoading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  {t.customerDues?.loading || 'Loading...'}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Summary */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="rounded-lg bg-muted p-3">
+                      <p className="text-xs text-muted-foreground">
+                        {t.customerDues?.allTransactions || 'Total Transactions'}
+                      </p>
+                      <p className="text-lg font-bold">{transactions.length}</p>
+                    </div>
+                    <div className="rounded-lg bg-warning/10 p-3">
+                      <p className="text-xs text-muted-foreground">
+                        {t.customerDues?.dueEntry || 'Dues'}
+                      </p>
+                      <p className="text-lg font-bold text-warning">{customer?.dues?.length || 0}</p>
+                    </div>
+                    <div className="rounded-lg bg-destructive/10 p-3">
+                      <p className="text-xs text-muted-foreground">
+                        {t.customerDues?.currentDue || 'Current Due'}
+                      </p>
+                      <p className="text-lg font-bold text-destructive">
+                        ৳{Number(customer?.total_due || 0) > 0 ? Math.round(Number(customer?.total_due)) : '0'}
+                      </p>
+                    </div>
                   </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>{t.reports?.date || 'Date'}</TableHead>
-                        <TableHead>{t.reports?.type || 'Type'}</TableHead>
-                        <TableHead className="text-right">{t.customerDues?.amount || 'Amount'}</TableHead>
-                        <TableHead className="text-right w-24 sticky right-0 bg-background">{t.medicines?.actions || 'Actions'}</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {transactions.map((tx) => (
-                        <TableRow key={`${tx.type}-${tx.id}`}>
-                          <TableCell className="whitespace-nowrap">
-                            <div className="flex items-center gap-2">
-                              {tx.type === 'due' ? (
-                                <ArrowDownCircle className="h-4 w-4 text-warning" />
-                              ) : (
-                                <ArrowUpCircle className="h-4 w-4 text-success" />
-                              )}
-                              <span>{format(new Date(tx.date), 'dd MMM yyyy')}</span>
-                            </div>
-                            {tx.notes && (
-                              <p className="text-xs text-muted-foreground mt-0.5 ml-6 max-w-[120px] truncate" title={tx.notes}>
-                                {tx.notes}
-                              </p>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {tx.type === 'due' ? (
-                              <Badge className="bg-warning/20 text-warning border-0">
-                                {t.customerDues?.dueEntry || 'Due'}
-                              </Badge>
-                            ) : (
-                              <Badge className={getPaymentMethodBadge(tx.payment_method || 'cash')}>
-                                {tx.payment_method || 'cash'}
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className={`text-right font-medium ${tx.type === 'due' ? 'text-warning' : 'text-success'}`}>
-                            {tx.type === 'due' ? '+' : '-'}৳{Math.round(Number(tx.amount))}
-                          </TableCell>
-                          <TableCell className="text-right sticky right-0 bg-background">
-                            <TooltipProvider delayDuration={100}>
-                              <div className="flex items-center justify-end gap-0.5">
-                                {/* Split button - only for dues */}
-                                {tx.type === 'due' && (
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-7 w-7 hover:bg-info/10 text-info"
-                                        onClick={() => handleSplitDue(tx.original as CustomerDue)}
-                                      >
-                                        <Scissors className="h-3.5 w-3.5" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top">
-                                      <p>{t.customerDues?.splitDue || 'Split Due'}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
+
+                  {/* Transaction List */}
+                  <ScrollArea className="h-[350px]">
+                    {transactions.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        {t.reports?.noPaymentsInPeriod || 'No transaction history found.'}
+                      </div>
+                    ) : (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>{t.reports?.date || 'Date'}</TableHead>
+                            <TableHead>{t.reports?.type || 'Type'}</TableHead>
+                            <TableHead className="text-right">{t.customerDues?.amount || 'Amount'}</TableHead>
+                            <TableHead className="text-right w-24 sticky right-0 bg-background">{t.medicines?.actions || 'Actions'}</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {transactions.map((tx) => (
+                            <TableRow key={`${tx.type}-${tx.id}`}>
+                              <TableCell className="whitespace-nowrap">
+                                <div className="flex items-center gap-2">
+                                  {tx.type === 'due' ? (
+                                    <ArrowDownCircle className="h-4 w-4 text-warning" />
+                                  ) : (
+                                    <ArrowUpCircle className="h-4 w-4 text-success" />
+                                  )}
+                                  <span>{format(new Date(tx.date), 'dd MMM yyyy')}</span>
+                                </div>
+                                {tx.notes && (
+                                  <p className="text-xs text-muted-foreground mt-0.5 ml-6 max-w-[120px] truncate" title={tx.notes}>
+                                    {tx.notes}
+                                  </p>
                                 )}
-                                
-                                {/* Edit button */}
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-7 w-7 hover:bg-primary/10"
-                                      onClick={() => tx.type === 'due' 
-                                        ? handleEditDue(tx.original as CustomerDue)
-                                        : handleEditPayment(tx.original as CustomerPayment)
-                                      }
-                                    >
-                                      <Pencil className="h-3.5 w-3.5" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top">
-                                    <p>{tx.type === 'due' ? (t.customerDues?.editDue || 'Edit') : (t.customerDues?.editPayment || 'Edit')}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                                
-                                {/* Delete button */}
-                                <AlertDialog>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <AlertDialogTrigger asChild>
-                                        <Button 
-                                          variant="ghost" 
-                                          size="icon" 
-                                          className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              </TableCell>
+                              <TableCell>
+                                {tx.type === 'due' ? (
+                                  <Badge className="bg-warning/20 text-warning border-0">
+                                    {t.customerDues?.dueEntry || 'Due'}
+                                  </Badge>
+                                ) : (
+                                  <Badge className={getPaymentMethodBadge(tx.payment_method || 'cash')}>
+                                    {tx.payment_method || 'cash'}
+                                  </Badge>
+                                )}
+                              </TableCell>
+                              <TableCell className={`text-right font-medium ${tx.type === 'due' ? 'text-warning' : 'text-success'}`}>
+                                {tx.type === 'due' ? '+' : '-'}৳{Math.round(Number(tx.amount))}
+                              </TableCell>
+                              <TableCell className="text-right sticky right-0 bg-background">
+                                <TooltipProvider delayDuration={100}>
+                                  <div className="flex items-center justify-end gap-0.5">
+                                    {/* Split button - only for dues */}
+                                    {tx.type === 'due' && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-7 w-7 hover:bg-info/10 text-info"
+                                            onClick={() => handleSplitDue(tx.original as CustomerDue)}
+                                          >
+                                            <Scissors className="h-3.5 w-3.5" />
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top">
+                                          <p>{t.customerDues?.splitDue || 'Split Due'}</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                    
+                                    {/* Edit button */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="h-7 w-7 hover:bg-primary/10"
+                                          onClick={() => tx.type === 'due' 
+                                            ? handleEditDue(tx.original as CustomerDue)
+                                            : handleEditPayment(tx.original as CustomerPayment)
+                                          }
                                         >
-                                          <Trash2 className="h-3.5 w-3.5" />
+                                          <Pencil className="h-3.5 w-3.5" />
                                         </Button>
-                                      </AlertDialogTrigger>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top">
-                                      <p>{t.actions?.delete || 'Delete'}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>
-                                        {tx.type === 'due' 
-                                          ? (t.customerDues?.deleteDue || 'Delete Due Entry')
-                                          : (t.customerDues?.deletePayment || 'Delete Payment')
-                                        }
-                                      </AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        {tx.type === 'due'
-                                          ? (t.customerDues?.deleteDueConfirm || "Are you sure you want to delete this due entry? The customer's balance will be recalculated.")
-                                          : (t.customerDues?.deletePaymentConfirm || "Are you sure you want to delete this payment? The customer's due will be recalculated.")
-                                        }
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>{t.actions?.cancel || 'Cancel'}</AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={() => tx.type === 'due' 
-                                          ? deleteDue.mutate(tx.id)
-                                          : deletePayment.mutate(tx.id)
-                                        }
-                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                      >
-                                        {t.actions?.delete || 'Delete'}
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              </div>
-                            </TooltipProvider>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </ScrollArea>
-            </div>
-          )}
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top">
+                                        <p>{tx.type === 'due' ? (t.customerDues?.editDue || 'Edit') : (t.customerDues?.editPayment || 'Edit')}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                    
+                                    {/* Delete button */}
+                                    <AlertDialog>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <AlertDialogTrigger asChild>
+                                            <Button 
+                                              variant="ghost" 
+                                              size="icon" 
+                                              className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                            >
+                                              <Trash2 className="h-3.5 w-3.5" />
+                                            </Button>
+                                          </AlertDialogTrigger>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top">
+                                          <p>{t.actions?.delete || 'Delete'}</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>
+                                            {tx.type === 'due' 
+                                              ? (t.customerDues?.deleteDue || 'Delete Due Entry')
+                                              : (t.customerDues?.deletePayment || 'Delete Payment')
+                                            }
+                                          </AlertDialogTitle>
+                                          <AlertDialogDescription>
+                                            {tx.type === 'due'
+                                              ? (t.customerDues?.deleteDueConfirm || "Are you sure you want to delete this due entry? The customer's balance will be recalculated.")
+                                              : (t.customerDues?.deletePaymentConfirm || "Are you sure you want to delete this payment? The customer's due will be recalculated.")
+                                            }
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>{t.actions?.cancel || 'Cancel'}</AlertDialogCancel>
+                                          <AlertDialogAction
+                                            onClick={() => tx.type === 'due' 
+                                              ? deleteDue.mutate(tx.id)
+                                              : deletePayment.mutate(tx.id)
+                                            }
+                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                          >
+                                            {t.actions?.delete || 'Delete'}
+                                          </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                  </div>
+                                </TooltipProvider>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    )}
+                  </ScrollArea>
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Prescriptions Tab */}
+            <TabsContent value="prescriptions" className="mt-4">
+              {customerId && customerName && (
+                <CustomerPrescriptions customerId={customerId} customerName={customerName} />
+              )}
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 

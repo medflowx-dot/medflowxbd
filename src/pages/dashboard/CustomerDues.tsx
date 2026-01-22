@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Users, Wallet, Plus, Search, Phone, MessageCircle, Trash2, FileText, Loader2, Pencil } from 'lucide-react';
+import { Users, Wallet, Plus, Search, Phone, MessageCircle, Trash2, FileText, Loader2, Pencil, Pill } from 'lucide-react';
 import { useCustomers, useCustomerDuesSummary, useDeleteCustomer, shareViaWhatsApp, Customer } from '@/hooks/useCustomerDues';
+import { useCustomersWithPrescriptions } from '@/hooks/useCustomerPrescriptions';
 import { supabase } from '@/integrations/supabase/client';
 import { generateIndividualCustomerPDF } from '@/lib/pdfGenerator';
 import { toast } from '@/hooks/use-toast';
@@ -46,9 +47,11 @@ export default function CustomerDues() {
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportCustomer, setReportCustomer] = useState<Customer | null>(null);
+  const [historyInitialTab, setHistoryInitialTab] = useState<'transactions' | 'prescriptions'>('transactions');
 
   const { data: customers, isLoading } = useCustomers();
   const { data: summary } = useCustomerDuesSummary();
+  const { data: customersWithPrescriptions } = useCustomersWithPrescriptions();
   const deleteCustomer = useDeleteCustomer();
   const { t } = useLanguage();
 
@@ -110,9 +113,14 @@ export default function CustomerDues() {
     setRecordPaymentOpen(true);
   };
 
-  const handleViewHistory = (customer: any) => {
+  const handleViewHistory = (customer: any, tab: 'transactions' | 'prescriptions' = 'transactions') => {
     setSelectedCustomer(customer);
+    setHistoryInitialTab(tab);
     setPaymentHistoryOpen(true);
+  };
+
+  const handleViewPrescription = (customer: any) => {
+    handleViewHistory(customer, 'prescriptions');
   };
 
   const handleWhatsApp = (customer: any) => {
@@ -306,6 +314,15 @@ export default function CustomerDues() {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => handleViewPrescription(customer)}
+                            title={t.customerDues?.viewPrescription || 'View Prescription'}
+                            className={`h-8 w-8 p-0 hover:bg-primary/10 ${customersWithPrescriptions?.includes(customer.id) ? 'text-primary' : 'text-muted-foreground'}`}
+                          >
+                            <Pill className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleViewHistory(customer)}
                             title={t.customerDues.viewHistory}
                             className="h-8 w-8 p-0 hover:bg-info/10 text-info"
@@ -366,6 +383,7 @@ export default function CustomerDues() {
         onOpenChange={setPaymentHistoryOpen}
         customerId={selectedCustomer?.id}
         customerName={selectedCustomer?.name}
+        initialTab={historyInitialTab}
       />
 
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
