@@ -15,13 +15,16 @@ import { StaffManagement } from '@/components/settings/StaffManagement';
 import { PharmacyLogoUpload } from '@/components/settings/PharmacyLogoUpload';
 import { PinManagement } from '@/components/settings/PinManagement';
 import { PhoneVerification } from '@/components/settings/PhoneVerification';
-import { Loader2, Save, User, Building2, Globe, CreditCard, Bell, Moon } from 'lucide-react';
+import { Loader2, Save, User, Building2, Globe, CreditCard, Bell, Moon, HardDrive, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export default function Settings() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: profile, isLoading: profileLoading } = useProfile();
   const updateProfile = useUpdateProfile();
   const { planType, daysRemaining, isTrial, isExpired } = useSubscriptionStatus();
@@ -29,6 +32,8 @@ export default function Settings() {
   const { soundEnabled, setSoundEnabled } = useNotificationSettings();
   const { t, language, setLanguage } = useLanguage();
   const { theme, setTheme } = useTheme();
+  
+  const [isClearing, setIsClearing] = useState(false);
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -91,6 +96,41 @@ export default function Settings() {
     }, {
       onSuccess: () => setHasChanges(false),
     });
+  };
+
+  const handleClearCache = async () => {
+    setIsClearing(true);
+    try {
+      // Clear React Query cache
+      queryClient.clear();
+      
+      // Clear Service Worker caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(
+          cacheNames.map(name => caches.delete(name))
+        );
+      }
+      
+      // Clear localStorage except auth token
+      const supabaseAuthKey = Object.keys(localStorage).find(key => 
+        key.startsWith('sb-') && key.endsWith('-auth-token')
+      );
+      const authToken = supabaseAuthKey ? localStorage.getItem(supabaseAuthKey) : null;
+      
+      localStorage.clear();
+      
+      if (supabaseAuthKey && authToken) {
+        localStorage.setItem(supabaseAuthKey, authToken);
+      }
+      
+      toast.success(t.settings.cacheCleared);
+    } catch (error) {
+      console.error('Failed to clear cache:', error);
+      toast.error(t.settings.cacheClearFailed);
+    } finally {
+      setIsClearing(false);
+    }
   };
 
   if (profileLoading) {
@@ -319,6 +359,49 @@ export default function Settings() {
                 checked={theme === 'dark'}
                 onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
               />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Storage Settings */}
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-rose-50 to-transparent dark:from-rose-950/30">
+            <div className="flex items-center gap-3">
+              <div className="icon-container-danger">
+                <HardDrive className="h-4 w-4" />
+              </div>
+              <div>
+                <CardTitle>{t.settings.storage}</CardTitle>
+                <CardDescription>{t.settings.manageStorage}</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-rose-50 to-red-50 dark:from-rose-950/20 dark:to-red-950/20 border border-rose-200/50 dark:border-rose-800/30">
+              <div className="space-y-0.5">
+                <Label className="text-base font-medium">{t.settings.clearCache}</Label>
+                <p className="text-sm text-muted-foreground">
+                  {t.settings.clearCacheDesc}
+                </p>
+              </div>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={handleClearCache}
+                disabled={isClearing}
+              >
+                {isClearing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {t.settings.clearing}
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {t.settings.clearCache}
+                  </>
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>
