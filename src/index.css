@@ -666,6 +666,24 @@
     0 2px 6px hsla(174, 72%, 32%, 0.2);
 }
 
+/* Branded Logo Loader */
+.logo-loader {
+  animation: logo-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes logo-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: drop-shadow(0 0 8px hsla(174, 72%, 45%, 0.4));
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.85;
+    filter: drop-shadow(0 0 20px hsla(174, 72%, 45%, 0.6));
+  }
+}
+
 /* Quick Access Module Card */
 .quick-access-card {
   @apply relative overflow-hidden transition-all duration-300;
