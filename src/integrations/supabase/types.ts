@@ -261,6 +261,56 @@ export type Database = {
           },
         ]
       }
+      customer_prescriptions: {
+        Row: {
+          created_at: string
+          customer_id: string
+          dosage: string | null
+          frequency: string | null
+          id: string
+          is_active: boolean | null
+          medicine_name: string
+          notes: string | null
+          start_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          dosage?: string | null
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          medicine_name: string
+          notes?: string | null
+          start_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          dosage?: string | null
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          medicine_name?: string
+          notes?: string | null
+          start_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_prescriptions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           address: string | null
