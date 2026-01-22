@@ -817,6 +817,7 @@ export const bn: TranslationKeys = {
     deletePrescription: 'প্রেসক্রিপশন মুছবেন?',
     deletePrescriptionConfirm: 'এই ঔষধটি প্রেসক্রিপশন থেকে মুছে ফেলা হবে।',
     viewPrescription: 'প্রেসক্রিপশন দেখুন',
+    prescriptionFilter: 'প্রেসক্রিপশন',
     hasPrescription: 'প্রেসক্রিপশন ঔষধ আছে',
   },
 
