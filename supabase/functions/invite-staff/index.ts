@@ -98,7 +98,8 @@ async function getSmsConfig(supabaseAdmin: any): Promise<SmsConfig | null> {
     config[s.setting_key] = value;
   });
 
-  if (config.bulksmsbd_enabled !== 'true' || !config.bulksmsbd_api_key) {
+  const isEnabled = config.bulksmsbd_enabled === true || config.bulksmsbd_enabled === 'true';
+  if (!isEnabled || !config.bulksmsbd_api_key) {
     return null;
   }
 
