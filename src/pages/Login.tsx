@@ -272,8 +272,15 @@ export default function Login() {
         } : undefined
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Check data.error first (Edge Function returns error in body even with non-2xx)
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+      
+      // Network/SDK level error (no data returned)
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
+      }
 
       toast.success('পিন সেটআপ সফল!');
       setShowPinSetup(false);
@@ -313,8 +320,15 @@ export default function Login() {
         }
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Check data.error first (Edge Function returns error in body even with non-2xx)
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+      
+      // Network/SDK level error (no data returned)
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
+      }
 
       // Set session and navigate
       await supabase.auth.setSession(session);
