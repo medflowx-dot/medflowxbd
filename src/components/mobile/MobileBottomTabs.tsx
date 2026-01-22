@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, ShoppingCart, Layers, Wallet, Menu } from 'lucide-react';
+import { Home, ShoppingCart, Pill, Wallet, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSidebarBadges } from '@/hooks/useSidebarBadges';
@@ -16,7 +16,7 @@ interface TabItem {
 const tabs: TabItem[] = [
   { id: 'home', labelKey: 'home', icon: Home, path: '/dashboard' },
   { id: 'sales', labelKey: 'sales', icon: ShoppingCart, path: '/dashboard/sales' },
-  { id: 'batches', labelKey: 'batches', icon: Layers, path: '/dashboard/batches' },
+  { id: 'medicines', labelKey: 'medicines', icon: Pill, path: '/dashboard/medicines' },
   { id: 'dailyCash', labelKey: 'dailyCash', icon: Wallet, path: '/dashboard/daily-cash' },
   { id: 'more', labelKey: 'more', icon: Menu, action: 'more', badge: 'alerts' },
 ];
@@ -51,7 +51,7 @@ export function MobileBottomTabs({ onMoreClick }: MobileBottomTabsProps) {
     const labels: Record<string, string> = {
       home: t.nav?.dashboard || 'হোম',
       sales: t.nav?.sales || 'বিক্রয়',
-      batches: t.nav?.batches || 'ব্যাচ',
+      medicines: t.nav?.medicines || 'ঔষধ',
       dailyCash: t.nav?.dailyCash || 'ক্যাশ',
       more: 'আরও',
     };
