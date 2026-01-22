@@ -73,7 +73,8 @@ export default function Login() {
   const [userId, setUserId] = useState<string | null>(null);
   const [pinAttemptsRemaining, setPinAttemptsRemaining] = useState<number | null>(null);
   const [isPinLocked, setIsPinLocked] = useState(false);
-  const [pinLockRemainingMinutes, setPinLockRemainingMinutes] = useState(0);
+  const [pinLockEndTime, setPinLockEndTime] = useState<Date | null>(null);
+  const [pinLockCountdown, setPinLockCountdown] = useState({ minutes: 0, seconds: 0 });
   const [pinSuccess, setPinSuccess] = useState(false);
   const [pinShake, setPinShake] = useState(false);
   const [pinSetupSuccess, setPinSetupSuccess] = useState(false);
@@ -130,6 +131,37 @@ export default function Login() {
     
     initializePinLogin();
   }, [isMobileApp]);
+
+  // PIN lock countdown timer
+  useEffect(() => {
+    if (!isPinLocked || !pinLockEndTime) return;
+
+    const updateCountdown = () => {
+      const now = Date.now();
+      const endTime = pinLockEndTime.getTime();
+      const remaining = Math.max(0, endTime - now);
+
+      if (remaining <= 0) {
+        setIsPinLocked(false);
+        setPinLockEndTime(null);
+        setPinLockCountdown({ minutes: 0, seconds: 0 });
+        setPinAttemptsRemaining(null);
+        return;
+      }
+
+      const minutes = Math.floor(remaining / 60000);
+      const seconds = Math.floor((remaining % 60000) / 1000);
+      setPinLockCountdown({ minutes, seconds });
+    };
+
+    // Update immediately
+    updateCountdown();
+
+    // Then update every second
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [isPinLocked, pinLockEndTime]);
 
   const checkUserHasPin = async (uid: string) => {
     try {
@@ -463,9 +495,8 @@ export default function Login() {
         if (errorData.locked) {
           setIsPinLocked(true);
           const lockedUntil = errorData.lockedUntil as string;
-          const remainingMinutes = Math.ceil((new Date(lockedUntil).getTime() - Date.now()) / 60000);
-          setPinLockRemainingMinutes(remainingMinutes > 0 ? remainingMinutes : 15);
-          toast.error(`পিন লক আছে। ${remainingMinutes} মিনিট পর চেষ্টা করুন।`);
+          setPinLockEndTime(new Date(lockedUntil));
+          toast.error('পিন লক হয়েছে। অনুগ্রহ করে অপেক্ষা করুন।');
           setLoginPin('');
           setPinLoading(false);
           return;
@@ -691,12 +722,15 @@ export default function Login() {
               )}
             </div>
 
-            {/* PIN Lock Warning */}
+            {/* PIN Lock Warning with Countdown */}
             {isPinLocked && (
               <Alert variant="destructive">
                 <ShieldAlert className="h-4 w-4" />
-                <AlertDescription>
-                  পিন লক আছে। {pinLockRemainingMinutes} মিনিট পর চেষ্টা করুন।
+                <AlertDescription className="flex items-center justify-between">
+                  <span>পিন লক আছে।</span>
+                  <span className="font-mono font-bold text-lg">
+                    {String(pinLockCountdown.minutes).padStart(2, '0')}:{String(pinLockCountdown.seconds).padStart(2, '0')}
+                  </span>
                 </AlertDescription>
               </Alert>
             )}
