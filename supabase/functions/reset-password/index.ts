@@ -22,6 +22,83 @@ function formatPhoneNumber(phone: string): string {
   return formatted;
 }
 
+// Send password reset confirmation SMS
+async function sendPasswordResetConfirmationSMS(
+  supabaseAdmin: any,
+  phone: string,
+  userId: string
+): Promise<void> {
+  try {
+    // Fetch SMS config and template from platform_settings
+    const { data: settings } = await supabaseAdmin
+      .from("platform_settings")
+      .select("setting_key, setting_value")
+      .in("setting_key", [
+        "bulksmsbd_enabled",
+        "bulksmsbd_api_key",
+        "bulksmsbd_sender_id",
+        "sms_template_password_reset",
+        "platform_name",
+      ]);
+
+    const config: Record<string, any> = {};
+    (settings || []).forEach((s: any) => {
+      let value = s.setting_value;
+      if (typeof value === "string") {
+        value = value.replace(/^"|"$/g, "");
+      }
+      config[s.setting_key] = value;
+    });
+
+    const smsEnabled = config.bulksmsbd_enabled === true || config.bulksmsbd_enabled === "true";
+    const apiKey = config.bulksmsbd_api_key;
+    const senderId = config.bulksmsbd_sender_id;
+    const platformName = config.platform_name || "MedFlowX";
+
+    if (!smsEnabled || !apiKey || !senderId) {
+      console.log("SMS not enabled or not configured, skipping password reset confirmation SMS");
+      return;
+    }
+
+    // Get user profile for pharmacy name
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("pharmacy_name, full_name")
+      .eq("user_id", userId)
+      .single();
+
+    const pharmacyName = profile?.pharmacy_name || profile?.full_name || "প্রিয় গ্রাহক";
+
+    // Get template or use default
+    let smsMessage = config.sms_template_password_reset ||
+      "{{pharmacy_name}}, আপনার MedFlowX পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে। যদি আপনি এটি না করে থাকেন, অবিলম্বে সাপোর্টে যোগাযোগ করুন।";
+
+    // Replace placeholders
+    smsMessage = smsMessage
+      .replace(/\{\{pharmacy_name\}\}/g, pharmacyName)
+      .replace(/\{\{phone\}\}/g, phone)
+      .replace(/\{\{platform_name\}\}/g, platformName);
+
+    // Send SMS
+    const response = await fetch("https://bulksmsbd.net/api/smsapi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        api_key: apiKey,
+        senderid: senderId,
+        number: phone,
+        message: smsMessage,
+        type: "unicode",
+      }),
+    });
+
+    const result = await response.json();
+    console.log("Password reset confirmation SMS response:", result);
+  } catch (error) {
+    console.error("Error sending password reset confirmation SMS:", error);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -116,6 +193,11 @@ Deno.serve(async (req) => {
       .from("user_pins")
       .update({ is_active: false })
       .eq("user_id", profile.user_id);
+
+    // Send confirmation SMS (background task - don't block response)
+    sendPasswordResetConfirmationSMS(supabaseAdmin, formattedPhone, profile.user_id).catch((err) => {
+      console.error("Error sending password reset confirmation SMS:", err);
+    });
 
     return new Response(
       JSON.stringify({ 
