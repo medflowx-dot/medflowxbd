@@ -2,10 +2,11 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useUpdatePlatformSetting } from '@/hooks/useOwnerData';
 import { toast } from 'sonner';
-import { Upload, X, Loader2, ImageIcon, Globe } from 'lucide-react';
+import { Upload, X, Loader2, ImageIcon, Globe, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface AssetUploadProps {
@@ -170,14 +171,20 @@ export function PlatformBrandingUpload({ settings }: PlatformBrandingUploadProps
 
   return (
     <Card className="border-0 shadow-card">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
           <Globe className="h-5 w-5 text-primary" />
-          <CardTitle>Platform Branding Assets</CardTitle>
+          <div>
+            <CardTitle>Platform Branding Assets</CardTitle>
+            <CardDescription>
+              Upload logos and favicon that will be used across the entire platform
+            </CardDescription>
+          </div>
         </div>
-        <CardDescription>
-          Upload logos and favicon that will be used across the entire platform
-        </CardDescription>
+        <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800">
+          <CheckCircle className="h-3 w-3 mr-1" />
+          Auto Save
+        </Badge>
       </CardHeader>
       <CardContent className="space-y-4">
         <AssetUpload
