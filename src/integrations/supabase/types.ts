@@ -1180,6 +1180,36 @@ export type Database = {
           },
         ]
       }
+      staff_permission_logs: {
+        Row: {
+          change_summary: string | null
+          changed_by: string
+          created_at: string
+          id: string
+          new_permissions: Json
+          old_permissions: Json | null
+          staff_user_id: string
+        }
+        Insert: {
+          change_summary?: string | null
+          changed_by: string
+          created_at?: string
+          id?: string
+          new_permissions: Json
+          old_permissions?: Json | null
+          staff_user_id: string
+        }
+        Update: {
+          change_summary?: string | null
+          changed_by?: string
+          created_at?: string
+          id?: string
+          new_permissions?: Json
+          old_permissions?: Json | null
+          staff_user_id?: string
+        }
+        Relationships: []
+      }
       staff_permissions: {
         Row: {
           can_manage_customer_dues: boolean | null
