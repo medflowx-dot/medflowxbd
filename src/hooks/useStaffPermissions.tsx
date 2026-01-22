@@ -13,6 +13,8 @@ export interface StaffPermissions {
   can_manage_sales: boolean;
   can_view_customer_dues: boolean;
   can_manage_customer_dues: boolean;
+  can_view_prescriptions: boolean;
+  can_manage_prescriptions: boolean;
   can_view_suppliers: boolean;
   can_manage_suppliers: boolean;
   can_view_manufacturers: boolean;
@@ -34,6 +36,8 @@ export const defaultStaffPermissions: Omit<StaffPermissions, 'id' | 'staff_user_
   can_manage_sales: true,
   can_view_customer_dues: true,
   can_manage_customer_dues: false,
+  can_view_prescriptions: true,
+  can_manage_prescriptions: false,
   can_view_suppliers: false,
   can_manage_suppliers: false,
   can_view_manufacturers: false,
@@ -117,6 +121,8 @@ export function useUpdateStaffPermissions() {
         can_manage_sales: existingPermissions.can_manage_sales,
         can_view_customer_dues: existingPermissions.can_view_customer_dues,
         can_manage_customer_dues: existingPermissions.can_manage_customer_dues,
+        can_view_prescriptions: existingPermissions.can_view_prescriptions,
+        can_manage_prescriptions: existingPermissions.can_manage_prescriptions,
         can_view_suppliers: existingPermissions.can_view_suppliers,
         can_manage_suppliers: existingPermissions.can_manage_suppliers,
         can_view_manufacturers: existingPermissions.can_view_manufacturers,
@@ -141,6 +147,8 @@ export function useUpdateStaffPermissions() {
           can_manage_sales: 'Manage Sales',
           can_view_customer_dues: 'View Customer Dues',
           can_manage_customer_dues: 'Manage Customer Dues',
+          can_view_prescriptions: 'View Prescriptions',
+          can_manage_prescriptions: 'Manage Prescriptions',
           can_view_suppliers: 'View Suppliers',
           can_manage_suppliers: 'Manage Suppliers',
           can_view_manufacturers: 'View Manufacturers',

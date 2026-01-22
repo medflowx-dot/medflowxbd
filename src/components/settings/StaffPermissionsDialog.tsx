@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Loader2, Package, ShoppingCart, Users, Truck, Factory, Wallet, ClipboardList, BarChart3, Zap, History } from 'lucide-react';
+import { Loader2, Package, ShoppingCart, Users, Truck, Factory, Wallet, ClipboardList, BarChart3, Zap, History, FileText } from 'lucide-react';
 import { useStaffPermissions, useUpdateStaffPermissions, useStaffPermissionLogs, defaultStaffPermissions, StaffPermissions } from '@/hooks/useStaffPermissions';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -50,6 +50,8 @@ const permissionTemplates: PermissionTemplate[] = [
       can_manage_sales: true,
       can_view_customer_dues: true,
       can_manage_customer_dues: true,
+      can_view_prescriptions: true,
+      can_manage_prescriptions: true,
       can_view_suppliers: true,
       can_manage_suppliers: true,
       can_view_manufacturers: true,
@@ -73,6 +75,8 @@ const permissionTemplates: PermissionTemplate[] = [
       can_manage_sales: true,
       can_view_customer_dues: true,
       can_manage_customer_dues: true,
+      can_view_prescriptions: true,
+      can_manage_prescriptions: false,
       can_view_suppliers: false,
       can_manage_suppliers: false,
       can_view_manufacturers: false,
@@ -96,6 +100,8 @@ const permissionTemplates: PermissionTemplate[] = [
       can_manage_sales: true,
       can_view_customer_dues: true,
       can_manage_customer_dues: true,
+      can_view_prescriptions: true,
+      can_manage_prescriptions: false,
       can_view_suppliers: false,
       can_manage_suppliers: false,
       can_view_manufacturers: false,
@@ -119,6 +125,8 @@ const permissionTemplates: PermissionTemplate[] = [
       can_manage_sales: false,
       can_view_customer_dues: false,
       can_manage_customer_dues: false,
+      can_view_prescriptions: false,
+      can_manage_prescriptions: false,
       can_view_suppliers: true,
       can_manage_suppliers: true,
       can_view_manufacturers: true,
@@ -142,6 +150,8 @@ const permissionTemplates: PermissionTemplate[] = [
       can_manage_sales: false,
       can_view_customer_dues: true,
       can_manage_customer_dues: false,
+      can_view_prescriptions: true,
+      can_manage_prescriptions: false,
       can_view_suppliers: true,
       can_manage_suppliers: false,
       can_view_manufacturers: true,
@@ -180,6 +190,14 @@ const permissionModules: PermissionModule[] = [
     icon: <Users className="h-4 w-4" />,
     viewKey: 'can_view_customer_dues',
     manageKey: 'can_manage_customer_dues',
+  },
+  {
+    key: 'prescriptions',
+    label: 'Prescriptions',
+    labelBn: 'প্রেসক্রিপশন',
+    icon: <FileText className="h-4 w-4" />,
+    viewKey: 'can_view_prescriptions',
+    manageKey: 'can_manage_prescriptions',
   },
   {
     key: 'suppliers',
@@ -242,6 +260,8 @@ export function StaffPermissionsDialog({ open, onOpenChange, staffUserId, staffN
         can_manage_sales: permissions.can_manage_sales,
         can_view_customer_dues: permissions.can_view_customer_dues,
         can_manage_customer_dues: permissions.can_manage_customer_dues,
+        can_view_prescriptions: permissions.can_view_prescriptions ?? true,
+        can_manage_prescriptions: permissions.can_manage_prescriptions ?? false,
         can_view_suppliers: permissions.can_view_suppliers,
         can_manage_suppliers: permissions.can_manage_suppliers,
         can_view_manufacturers: permissions.can_view_manufacturers,

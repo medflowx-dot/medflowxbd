@@ -1388,6 +1388,7 @@ export type Database = {
           can_manage_daily_cash: boolean | null
           can_manage_manufacturers: boolean | null
           can_manage_medicines: boolean | null
+          can_manage_prescriptions: boolean
           can_manage_reports: boolean | null
           can_manage_sales: boolean | null
           can_manage_stock_short: boolean | null
@@ -1396,6 +1397,7 @@ export type Database = {
           can_view_daily_cash: boolean | null
           can_view_manufacturers: boolean | null
           can_view_medicines: boolean | null
+          can_view_prescriptions: boolean
           can_view_reports: boolean | null
           can_view_sales: boolean | null
           can_view_stock_short: boolean | null
@@ -1411,6 +1413,7 @@ export type Database = {
           can_manage_daily_cash?: boolean | null
           can_manage_manufacturers?: boolean | null
           can_manage_medicines?: boolean | null
+          can_manage_prescriptions?: boolean
           can_manage_reports?: boolean | null
           can_manage_sales?: boolean | null
           can_manage_stock_short?: boolean | null
@@ -1419,6 +1422,7 @@ export type Database = {
           can_view_daily_cash?: boolean | null
           can_view_manufacturers?: boolean | null
           can_view_medicines?: boolean | null
+          can_view_prescriptions?: boolean
           can_view_reports?: boolean | null
           can_view_sales?: boolean | null
           can_view_stock_short?: boolean | null
@@ -1434,6 +1438,7 @@ export type Database = {
           can_manage_daily_cash?: boolean | null
           can_manage_manufacturers?: boolean | null
           can_manage_medicines?: boolean | null
+          can_manage_prescriptions?: boolean
           can_manage_reports?: boolean | null
           can_manage_sales?: boolean | null
           can_manage_stock_short?: boolean | null
@@ -1442,6 +1447,7 @@ export type Database = {
           can_view_daily_cash?: boolean | null
           can_view_manufacturers?: boolean | null
           can_view_medicines?: boolean | null
+          can_view_prescriptions?: boolean
           can_view_reports?: boolean | null
           can_view_sales?: boolean | null
           can_view_stock_short?: boolean | null
