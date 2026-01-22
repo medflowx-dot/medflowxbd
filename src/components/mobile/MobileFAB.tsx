@@ -116,7 +116,7 @@ export function MobileFAB({ actions }: MobileFABProps) {
       {/* Main FAB Button */}
       <div 
         className={cn(
-          "fixed bottom-20 right-4 z-50 md:hidden",
+          "fixed bottom-28 right-4 z-50 md:hidden",
           "transition-all duration-300 ease-out",
           isVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
         )}
