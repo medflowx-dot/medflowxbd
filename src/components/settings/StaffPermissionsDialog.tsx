@@ -3,9 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Loader2, Package, ShoppingCart, Users, Truck, Factory, Wallet, ClipboardList, BarChart3 } from 'lucide-react';
+import { Loader2, Package, ShoppingCart, Users, Truck, Factory, Wallet, ClipboardList, BarChart3, Zap } from 'lucide-react';
 import { useStaffPermissions, useUpdateStaffPermissions, defaultStaffPermissions, StaffPermissions } from '@/hooks/useStaffPermissions';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface StaffPermissionsDialogProps {
   open: boolean;
@@ -24,6 +25,134 @@ interface PermissionModule {
   viewKey: PermissionKey | null;
   manageKey: PermissionKey | null;
 }
+
+type PermissionState = Omit<StaffPermissions, 'id' | 'staff_user_id' | 'pharmacy_owner_id' | 'created_at' | 'updated_at'>;
+
+// Permission Templates
+interface PermissionTemplate {
+  id: string;
+  label: string;
+  labelBn: string;
+  permissions: PermissionState;
+}
+
+const permissionTemplates: PermissionTemplate[] = [
+  {
+    id: 'full_access',
+    label: 'Full Access',
+    labelBn: 'সম্পূর্ণ অ্যাক্সেস',
+    permissions: {
+      can_view_medicines: true,
+      can_manage_medicines: true,
+      can_view_sales: true,
+      can_manage_sales: true,
+      can_view_customer_dues: true,
+      can_manage_customer_dues: true,
+      can_view_suppliers: true,
+      can_manage_suppliers: true,
+      can_view_manufacturers: true,
+      can_manage_manufacturers: true,
+      can_view_daily_cash: true,
+      can_manage_daily_cash: true,
+      can_view_stock_short: true,
+      can_manage_stock_short: true,
+      can_view_reports: true,
+      can_manage_reports: true,
+    },
+  },
+  {
+    id: 'sales_only',
+    label: 'Sales Only',
+    labelBn: 'শুধু বিক্রয়',
+    permissions: {
+      can_view_medicines: true,
+      can_manage_medicines: false,
+      can_view_sales: true,
+      can_manage_sales: true,
+      can_view_customer_dues: true,
+      can_manage_customer_dues: true,
+      can_view_suppliers: false,
+      can_manage_suppliers: false,
+      can_view_manufacturers: false,
+      can_manage_manufacturers: false,
+      can_view_daily_cash: false,
+      can_manage_daily_cash: false,
+      can_view_stock_short: false,
+      can_manage_stock_short: false,
+      can_view_reports: false,
+      can_manage_reports: false,
+    },
+  },
+  {
+    id: 'cashier',
+    label: 'Cashier',
+    labelBn: 'ক্যাশিয়ার',
+    permissions: {
+      can_view_medicines: true,
+      can_manage_medicines: false,
+      can_view_sales: true,
+      can_manage_sales: true,
+      can_view_customer_dues: true,
+      can_manage_customer_dues: true,
+      can_view_suppliers: false,
+      can_manage_suppliers: false,
+      can_view_manufacturers: false,
+      can_manage_manufacturers: false,
+      can_view_daily_cash: true,
+      can_manage_daily_cash: true,
+      can_view_stock_short: false,
+      can_manage_stock_short: false,
+      can_view_reports: false,
+      can_manage_reports: false,
+    },
+  },
+  {
+    id: 'inventory_manager',
+    label: 'Inventory Manager',
+    labelBn: 'ইনভেন্টরি ম্যানেজার',
+    permissions: {
+      can_view_medicines: true,
+      can_manage_medicines: true,
+      can_view_sales: true,
+      can_manage_sales: false,
+      can_view_customer_dues: false,
+      can_manage_customer_dues: false,
+      can_view_suppliers: true,
+      can_manage_suppliers: true,
+      can_view_manufacturers: true,
+      can_manage_manufacturers: true,
+      can_view_daily_cash: false,
+      can_manage_daily_cash: false,
+      can_view_stock_short: true,
+      can_manage_stock_short: true,
+      can_view_reports: true,
+      can_manage_reports: false,
+    },
+  },
+  {
+    id: 'view_only',
+    label: 'View Only',
+    labelBn: 'শুধু দেখা',
+    permissions: {
+      can_view_medicines: true,
+      can_manage_medicines: false,
+      can_view_sales: true,
+      can_manage_sales: false,
+      can_view_customer_dues: true,
+      can_manage_customer_dues: false,
+      can_view_suppliers: true,
+      can_manage_suppliers: false,
+      can_view_manufacturers: true,
+      can_manage_manufacturers: false,
+      can_view_daily_cash: true,
+      can_manage_daily_cash: false,
+      can_view_stock_short: true,
+      can_manage_stock_short: false,
+      can_view_reports: true,
+      can_manage_reports: false,
+    },
+  },
+];
 
 const permissionModules: PermissionModule[] = [
   {
@@ -92,7 +221,6 @@ const permissionModules: PermissionModule[] = [
   },
 ];
 
-type PermissionState = Omit<StaffPermissions, 'id' | 'staff_user_id' | 'pharmacy_owner_id' | 'created_at' | 'updated_at'>;
 
 export function StaffPermissionsDialog({ open, onOpenChange, staffUserId, staffName }: StaffPermissionsDialogProps) {
   const { language } = useLanguage();
@@ -150,6 +278,13 @@ export function StaffPermissionsDialog({ open, onOpenChange, staffUserId, staffN
     });
   };
 
+  const handleTemplateApply = (templateId: string) => {
+    const template = permissionTemplates.find(t => t.id === templateId);
+    if (template) {
+      setLocalPermissions(template.permissions);
+    }
+  };
+
   const handleSave = () => {
     updatePermissions.mutate(
       { staffUserId, permissions: localPermissions },
@@ -172,6 +307,29 @@ export function StaffPermissionsDialog({ open, onOpenChange, staffUserId, staffN
           </div>
         ) : (
           <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
+            {/* Template Selector */}
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+              <Zap className="h-4 w-4 text-primary" />
+              <div className="flex-1">
+                <Label className="text-sm font-medium">
+                  {language === 'bn' ? 'দ্রুত টেমপ্লেট' : 'Quick Template'}
+                </Label>
+                <Select onValueChange={handleTemplateApply}>
+                  <SelectTrigger className="mt-1 h-8">
+                    <SelectValue placeholder={language === 'bn' ? 'টেমপ্লেট নির্বাচন করুন...' : 'Select a template...'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {permissionTemplates.map(template => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {language === 'bn' ? template.labelBn : template.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Permission Modules */}
             {permissionModules.map((module) => (
               <div key={module.key} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
                 <div className="mt-0.5 text-muted-foreground">
