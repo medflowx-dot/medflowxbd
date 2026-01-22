@@ -99,6 +99,21 @@ export function useStockShortList() {
     enabled: !!user,
   });
 
+  // Fetch suppliers with manufacturer mapping for auto-detection
+  const suppliersQuery = useQuery({
+    queryKey: ['suppliers-for-stock-short', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('suppliers')
+        .select('id, name, manufacturer_id')
+        .eq('is_active', true);
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
   // Fetch supplier orders - RLS handles user_id filtering via get_pharmacy_owner_id
   const ordersQuery = useQuery({
     queryKey: ['supplier-orders', user?.id],
@@ -168,7 +183,86 @@ export function useStockShortList() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['stock-short-notes'] });
-      toast.success('Item added to note');
+    },
+    onError: (error) => {
+      toast.error('Failed to add item: ' + error.message);
+    },
+  });
+
+  // Quick add item - auto-creates note if needed, auto-detects manufacturer
+  const quickAddItemMutation = useMutation({
+    mutationFn: async (data: {
+      medicine_id: string;
+      manufacturer_id: string;
+      quantity: number;
+    }) => {
+      if (!user) throw new Error('User not authenticated');
+      
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Check for today's active note
+      let noteId: string;
+      const existingNote = notesQuery.data?.find(
+        n => n.note_date === today && n.status === 'active'
+      );
+      
+      if (existingNote) {
+        noteId = existingNote.id;
+      } else {
+        // Create new note for today
+        const { data: newNote, error: noteError } = await supabase
+          .from('stock_short_notes')
+          .insert({
+            user_id: user.id,
+            note_date: today,
+            remarks: null,
+          })
+          .select()
+          .single();
+        
+        if (noteError) throw noteError;
+        noteId = newNote.id;
+      }
+      
+      // Check if same medicine already exists in this note
+      const existingItem = existingNote?.items?.find(
+        item => item.medicine_id === data.medicine_id
+      );
+      
+      if (existingItem) {
+        // Update quantity instead of creating duplicate
+        const { error: updateError } = await supabase
+          .from('stock_short_items')
+          .update({ quantity: existingItem.quantity + data.quantity })
+          .eq('id', existingItem.id);
+        
+        if (updateError) throw updateError;
+        return { merged: true, quantity: existingItem.quantity + data.quantity };
+      }
+      
+      // Add item to note
+      const { data: item, error: itemError } = await supabase
+        .from('stock_short_items')
+        .insert({
+          note_id: noteId,
+          manufacturer_id: data.manufacturer_id,
+          medicine_id: data.medicine_id,
+          quantity: data.quantity,
+          is_tax_applicable: false,
+        })
+        .select()
+        .single();
+      
+      if (itemError) throw itemError;
+      return { merged: false, item };
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['stock-short-notes'] });
+      if (result.merged) {
+        toast.success(`Quantity updated to ${result.quantity}`);
+      } else {
+        toast.success('Item added to today\'s list');
+      }
     },
     onError: (error) => {
       toast.error('Failed to add item: ' + error.message);
@@ -482,12 +576,15 @@ export function useStockShortList() {
   return {
     notes: notesQuery.data || [],
     orders: ordersQuery.data || [],
+    suppliers: suppliersQuery.data || [],
     pendingOrders,
     orderedOrders,
     receivedOrders,
     isLoading: notesQuery.isLoading || ordersQuery.isLoading,
     createNote: createNoteMutation.mutateAsync,
     addItem: addItemMutation.mutateAsync,
+    quickAddItem: quickAddItemMutation.mutateAsync,
+    isQuickAdding: quickAddItemMutation.isPending,
     deleteItem: deleteItemMutation.mutateAsync,
     completeNote: completeNoteMutation.mutateAsync,
     deleteNote: deleteNoteMutation.mutateAsync,
