@@ -1,6 +1,8 @@
+import { useQuery } from '@tanstack/react-query';
 import { useUserRole } from '@/hooks/useAdminData';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
-import { useMyPermissions } from '@/hooks/useStaffPermissions';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 export type Permission = 
   | 'create_staff'
@@ -120,12 +122,30 @@ export const menuAccessByRole: Record<string, string[]> = {
 };
 
 export function usePermissions() {
+  const { user } = useAuth();
   const { data: role, isLoading: roleLoading } = useUserRole();
   const { isTrial, isLoading: subscriptionLoading, isOwnerAdmin: isOwnerAdminFromSubscription } = useSubscriptionStatus();
-  const { data: staffDbPermissions, isLoading: staffPermissionsLoading } = useMyPermissions();
   
   const currentRole = role || 'client_staff';
   const isStaff = currentRole === 'client_staff';
+  
+  // Fetch staff permissions from database (only for staff users)
+  const { data: staffDbPermissions, isLoading: staffPermissionsLoading } = useQuery({
+    queryKey: ['my-staff-permissions', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('staff_permissions')
+        .select('*')
+        .eq('staff_user_id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id && isStaff,
+  });
   
   // Build permissions based on role
   let permissions: Permission[] = [];
