@@ -234,7 +234,7 @@ Deno.serve(async (req) => {
     // First try with formatted phone (880 prefix)
     const result1 = await supabaseAdmin
       .from("profiles")
-      .select("user_id, full_name, pharmacy_name, phone_verified")
+      .select("user_id, full_name, pharmacy_name, phone_verified, must_change_password")
       .eq("phone", formattedPhone)
       .single();
     
@@ -245,7 +245,7 @@ Deno.serve(async (req) => {
       const localPhone = phone.replace(/\s+/g, "").replace(/-/g, "");
       const result2 = await supabaseAdmin
         .from("profiles")
-        .select("user_id, full_name, pharmacy_name, phone_verified")
+        .select("user_id, full_name, pharmacy_name, phone_verified, must_change_password")
         .eq("phone", localPhone)
         .single();
       
@@ -358,7 +358,8 @@ Deno.serve(async (req) => {
           pharmacyName: profile.pharmacy_name,
           phone: formattedPhone,
         },
-        hasPinSetup: !!pinData
+        hasPinSetup: !!pinData,
+        mustChangePassword: profile.must_change_password || false
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

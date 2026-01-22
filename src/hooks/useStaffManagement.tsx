@@ -93,7 +93,12 @@ export function useInviteStaff() {
   const { data: profile } = useProfile();
 
   return useMutation({
-    mutationFn: async ({ email, fullName }: { email: string; fullName: string }) => {
+    mutationFn: async ({ invite_method, email, phone, fullName }: { 
+      invite_method: 'email' | 'phone';
+      email?: string; 
+      phone?: string;
+      fullName: string;
+    }) => {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData?.session?.access_token;
 
@@ -110,7 +115,9 @@ export function useInviteStaff() {
             'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({
-            email,
+            invite_method,
+            email: invite_method === 'email' ? email : undefined,
+            phone: invite_method === 'phone' ? phone : undefined,
             full_name: fullName,
           }),
         }
@@ -126,20 +133,21 @@ export function useInviteStaff() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['pharmacy-staff', profile?.pharmacy_name] });
-      if (data.email_sent) {
-        toast.success('Staff member invited successfully!', {
-          description: 'Login credentials have been sent via email.',
+      if (data.credentials_sent) {
+        const method = data.invite_method === 'email' ? 'ইমেইল' : 'SMS';
+        toast.success('স্টাফ সফলভাবে ইনভাইট হয়েছে!', {
+          description: `লগইন ক্রেডেনশিয়াল ${method} এ পাঠানো হয়েছে।`,
           duration: 5000,
         });
       } else {
-        toast.success('Staff member created successfully!', {
-          description: `Please share this temporary password: ${data.temp_password}`,
+        toast.success('স্টাফ তৈরি হয়েছে!', {
+          description: `টেম্পরারি পাসওয়ার্ড: ${data.temp_password}`,
           duration: 15000,
         });
       }
     },
     onError: (error) => {
-      toast.error('Failed to invite staff: ' + error.message);
+      toast.error('স্টাফ ইনভাইট ব্যর্থ: ' + error.message);
     },
   });
 }

@@ -7,25 +7,33 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePermissions } from '@/hooks/usePermissions';
 import { usePharmacyStaff, useInviteStaff, useRemoveStaff, useResetStaffPassword, StaffMember } from '@/hooks/useStaffManagement';
 import { StaffPermissionsDialog } from '@/components/settings/StaffPermissionsDialog';
-import { Users, UserPlus, Trash2, Loader2, Lock, Crown, KeyRound, Settings2 } from 'lucide-react';
+import { Users, UserPlus, Trash2, Loader2, Lock, Crown, KeyRound, Settings2, Mail, Phone } from 'lucide-react';
 import { format } from 'date-fns';
 import { z } from 'zod';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const inviteSchema = z.object({
+const emailSchema = z.object({
   email: z.string().trim().email({ message: 'Please enter a valid email address' }).max(255),
+  fullName: z.string().trim().min(2, { message: 'Name must be at least 2 characters' }).max(100),
+});
+
+const phoneSchema = z.object({
+  phone: z.string().min(11, { message: 'Enter valid phone number' }).max(15),
   fullName: z.string().trim().min(2, { message: 'Name must be at least 2 characters' }).max(100),
 });
 
 export function StaffManagement() {
   const { language } = useLanguage();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [inviteMethod, setInviteMethod] = useState<'email' | 'phone'>('phone');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [fullName, setFullName] = useState('');
-  const [formErrors, setFormErrors] = useState<{ email?: string; fullName?: string }>({});
+  const [formErrors, setFormErrors] = useState<{ email?: string; phone?: string; fullName?: string }>({});
   const [permissionsDialogStaff, setPermissionsDialogStaff] = useState<StaffMember | null>(null);
 
   const { canCreateStaff, isTrial, isAdmin } = usePermissions();
@@ -36,30 +44,68 @@ export function StaffManagement() {
 
   const canManageStaff = canCreateStaff();
 
+  // Format phone for display
+  const formatPhoneDisplay = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    return digits.slice(0, 11);
+  };
+
   const handleInvite = () => {
     setFormErrors({});
 
-    const result = inviteSchema.safeParse({ email, fullName });
-    if (!result.success) {
-      const errors: { email?: string; fullName?: string } = {};
-      result.error.errors.forEach(err => {
-        if (err.path[0] === 'email') errors.email = err.message;
-        if (err.path[0] === 'fullName') errors.fullName = err.message;
-      });
-      setFormErrors(errors);
-      return;
-    }
-
-    inviteStaff.mutate(
-      { email: result.data.email, fullName: result.data.fullName },
-      {
-        onSuccess: () => {
-          setIsDialogOpen(false);
-          setEmail('');
-          setFullName('');
-        },
+    if (inviteMethod === 'email') {
+      const result = emailSchema.safeParse({ email, fullName });
+      if (!result.success) {
+        const errors: { email?: string; fullName?: string } = {};
+        result.error.errors.forEach(err => {
+          if (err.path[0] === 'email') errors.email = err.message;
+          if (err.path[0] === 'fullName') errors.fullName = err.message;
+        });
+        setFormErrors(errors);
+        return;
       }
-    );
+
+      inviteStaff.mutate(
+        { 
+          invite_method: 'email',
+          email: result.data.email, 
+          fullName: result.data.fullName 
+        },
+        {
+          onSuccess: () => {
+            setIsDialogOpen(false);
+            setEmail('');
+            setFullName('');
+          },
+        }
+      );
+    } else {
+      const result = phoneSchema.safeParse({ phone, fullName });
+      if (!result.success) {
+        const errors: { phone?: string; fullName?: string } = {};
+        result.error.errors.forEach(err => {
+          if (err.path[0] === 'phone') errors.phone = err.message;
+          if (err.path[0] === 'fullName') errors.fullName = err.message;
+        });
+        setFormErrors(errors);
+        return;
+      }
+
+      inviteStaff.mutate(
+        { 
+          invite_method: 'phone',
+          phone: result.data.phone, 
+          fullName: result.data.fullName 
+        },
+        {
+          onSuccess: () => {
+            setIsDialogOpen(false);
+            setPhone('');
+            setFullName('');
+          },
+        }
+      );
+    }
   };
 
   const handleRemove = (staffMember: StaffMember) => {
@@ -68,6 +114,13 @@ export function StaffManagement() {
 
   const handleResetPassword = (staffMember: StaffMember) => {
     resetPassword.mutate(staffMember.user_id);
+  };
+
+  const resetForm = () => {
+    setEmail('');
+    setPhone('');
+    setFullName('');
+    setFormErrors({});
   };
 
   // Only admins can see this section
@@ -84,31 +137,53 @@ export function StaffManagement() {
               <Users className="h-4 w-4" />
             </div>
             <div>
-              <CardTitle>Staff Management</CardTitle>
-              <CardDescription>Invite and manage your pharmacy staff</CardDescription>
+              <CardTitle>{language === 'bn' ? 'স্টাফ ম্যানেজমেন্ট' : 'Staff Management'}</CardTitle>
+              <CardDescription>{language === 'bn' ? 'আপনার ফার্মেসি স্টাফ ইনভাইট ও ম্যানেজ করুন' : 'Invite and manage your pharmacy staff'}</CardDescription>
             </div>
           </div>
           {canManageStaff ? (
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
                   <UserPlus className="h-4 w-4 mr-2" />
-                  Invite Staff
+                  {language === 'bn' ? 'স্টাফ ইনভাইট' : 'Invite Staff'}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-sm">
+              <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Invite Staff Member</DialogTitle>
+                  <DialogTitle>{language === 'bn' ? 'স্টাফ মেম্বার ইনভাইট করুন' : 'Invite Staff Member'}</DialogTitle>
                   <DialogDescription>
-                    Add a new staff member to your pharmacy. They will receive login credentials.
+                    {language === 'bn' 
+                      ? 'আপনার ফার্মেসিতে নতুন স্টাফ যোগ করুন। তারা লগইন ক্রেডেনশিয়াল পাবে।'
+                      : 'Add a new staff member to your pharmacy. They will receive login credentials.'
+                    }
                   </DialogDescription>
                 </DialogHeader>
+                
                 <div className="space-y-4 py-4">
+                  {/* Invite Method Tabs */}
                   <div className="space-y-2">
-                    <Label htmlFor="staffName">Full Name</Label>
+                    <Label>{language === 'bn' ? 'ইনভাইট পদ্ধতি' : 'Invite Method'}</Label>
+                    <Tabs value={inviteMethod} onValueChange={(v) => setInviteMethod(v as 'email' | 'phone')}>
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="phone" className="flex items-center gap-2">
+                          <Phone className="h-4 w-4" />
+                          {language === 'bn' ? 'ফোন' : 'Phone'}
+                        </TabsTrigger>
+                        <TabsTrigger value="email" className="flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
+                          {language === 'bn' ? 'ইমেইল' : 'Email'}
+                        </TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                  </div>
+
+                  {/* Full Name */}
+                  <div className="space-y-2">
+                    <Label htmlFor="staffName">{language === 'bn' ? 'পুরো নাম' : 'Full Name'}</Label>
                     <Input
                       id="staffName"
-                      placeholder="Enter staff member's name"
+                      placeholder={language === 'bn' ? 'স্টাফের নাম লিখুন' : "Enter staff member's name"}
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                     />
@@ -116,31 +191,60 @@ export function StaffManagement() {
                       <p className="text-sm text-destructive">{formErrors.fullName}</p>
                     )}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="staffEmail">Email Address</Label>
-                    <Input
-                      id="staffEmail"
-                      type="email"
-                      placeholder="staff@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                    {formErrors.email && (
-                      <p className="text-sm text-destructive">{formErrors.email}</p>
-                    )}
-                  </div>
+
+                  {/* Email or Phone based on method */}
+                  {inviteMethod === 'email' ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="staffEmail">{language === 'bn' ? 'ইমেইল ঠিকানা' : 'Email Address'}</Label>
+                      <Input
+                        id="staffEmail"
+                        type="email"
+                        placeholder="staff@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                      {formErrors.email && (
+                        <p className="text-sm text-destructive">{formErrors.email}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label htmlFor="staffPhone">{language === 'bn' ? 'ফোন নম্বর' : 'Phone Number'}</Label>
+                      <Input
+                        id="staffPhone"
+                        type="tel"
+                        placeholder="01XXXXXXXXX"
+                        value={phone}
+                        onChange={(e) => setPhone(formatPhoneDisplay(e.target.value))}
+                      />
+                      {formErrors.phone && (
+                        <p className="text-sm text-destructive">{formErrors.phone}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Info Box */}
                   <div className="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200/50 dark:border-blue-800/30 text-sm text-muted-foreground">
-                    <p className="font-medium text-foreground">Staff members have limited access:</p>
+                    <p className="font-medium text-foreground">
+                      {language === 'bn' ? 'স্টাফ সদস্যদের সীমিত অ্যাক্সেস থাকে:' : 'Staff members have limited access:'}
+                    </p>
                     <ul className="list-disc list-inside mt-1 space-y-1">
-                      <li>View medicines (read-only)</li>
-                      <li>Create and manage sales</li>
-                      <li>Manage daily cash</li>
+                      <li>{language === 'bn' ? 'ঔষধ দেখা (শুধুমাত্র পড়া)' : 'View medicines (read-only)'}</li>
+                      <li>{language === 'bn' ? 'বিক্রি তৈরি ও ম্যানেজ' : 'Create and manage sales'}</li>
+                      <li>{language === 'bn' ? 'দৈনিক ক্যাশ ম্যানেজ' : 'Manage daily cash'}</li>
                     </ul>
+                    <p className="mt-2 text-xs text-primary font-medium">
+                      {language === 'bn' 
+                        ? '⚠️ প্রথম লগইনে নতুন পাসওয়ার্ড সেট করতে হবে'
+                        : '⚠️ They will need to set a new password on first login'
+                      }
+                    </p>
                   </div>
                 </div>
+
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    Cancel
+                    {language === 'bn' ? 'বাতিল' : 'Cancel'}
                   </Button>
                   <Button 
                     onClick={handleInvite} 
@@ -148,7 +252,7 @@ export function StaffManagement() {
                     className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
                   >
                     {inviteStaff.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                    Send Invitation
+                    {language === 'bn' ? 'ইনভিটেশন পাঠান' : 'Send Invitation'}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -157,9 +261,9 @@ export function StaffManagement() {
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted text-sm text-muted-foreground">
               <Lock className="h-4 w-4" />
               {isTrial ? (
-                <span>Upgrade to invite staff</span>
+                <span>{language === 'bn' ? 'আপগ্রেড করুন' : 'Upgrade to invite staff'}</span>
               ) : (
-                <span>Staff management unavailable</span>
+                <span>{language === 'bn' ? 'অনুপলব্ধ' : 'Staff management unavailable'}</span>
               )}
             </div>
           )}
@@ -175,11 +279,11 @@ export function StaffManagement() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead>Name</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Added</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{language === 'bn' ? 'নাম' : 'Name'}</TableHead>
+                  <TableHead>{language === 'bn' ? 'ফোন' : 'Phone'}</TableHead>
+                  <TableHead>{language === 'bn' ? 'রোল' : 'Role'}</TableHead>
+                  <TableHead>{language === 'bn' ? 'যোগ হয়েছে' : 'Added'}</TableHead>
+                  <TableHead className="text-right">{language === 'bn' ? 'অ্যাকশন' : 'Actions'}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -191,7 +295,7 @@ export function StaffManagement() {
                     <TableCell>{member.phone || '-'}</TableCell>
                     <TableCell>
                       <Badge className="bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 dark:from-indigo-900/50 dark:to-purple-900/50 dark:text-indigo-300 border-0">
-                        Staff
+                        {language === 'bn' ? 'স্টাফ' : 'Staff'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
@@ -288,15 +392,20 @@ export function StaffManagement() {
             <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 flex items-center justify-center mb-4">
               <Users className="h-8 w-8 text-indigo-500" />
             </div>
-            <p className="text-lg font-medium mb-1">No staff members yet</p>
+            <p className="text-lg font-medium mb-1">{language === 'bn' ? 'কোনো স্টাফ সদস্য নেই' : 'No staff members yet'}</p>
             {canManageStaff ? (
               <p className="text-sm text-muted-foreground">
-                Click "Invite Staff" to add your first team member
+                {language === 'bn' 
+                  ? '"স্টাফ ইনভাইট" ক্লিক করে আপনার প্রথম টিম মেম্বার যোগ করুন'
+                  : 'Click "Invite Staff" to add your first team member'
+                }
               </p>
             ) : isTrial ? (
               <div className="inline-flex items-center gap-2 px-4 py-2 mt-3 rounded-lg bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 text-amber-700 dark:text-amber-300">
                 <Crown className="h-4 w-4" />
-                <span className="text-sm font-medium">Upgrade your plan to add staff members</span>
+                <span className="text-sm font-medium">
+                  {language === 'bn' ? 'স্টাফ যোগ করতে প্ল্যান আপগ্রেড করুন' : 'Upgrade your plan to add staff members'}
+                </span>
               </div>
             ) : null}
           </div>

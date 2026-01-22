@@ -7,9 +7,10 @@ const corsHeaders = {
 };
 
 interface InviteStaffRequest {
-  email: string;
   full_name: string;
-  admin_user_id: string;
+  invite_method: 'email' | 'phone';
+  email?: string;
+  phone?: string;
 }
 
 interface SmtpConfig {
@@ -20,6 +21,28 @@ interface SmtpConfig {
   smtp_from_email: string;
   smtp_from_name: string;
   smtp_secure: boolean;
+}
+
+interface SmsConfig {
+  api_key: string;
+  sender_id: string;
+}
+
+// Format phone number to Bangladesh format (880XXXXXXXXXX)
+function formatPhoneNumber(phone: string): string {
+  let formatted = phone.replace(/\s+/g, "").replace(/-/g, "");
+  
+  if (formatted.startsWith("+")) {
+    formatted = formatted.substring(1);
+  }
+  
+  if (formatted.startsWith("0")) {
+    formatted = "880" + formatted.substring(1);
+  } else if (!formatted.startsWith("880")) {
+    formatted = "880" + formatted;
+  }
+  
+  return formatted;
 }
 
 async function getSmtpConfig(supabaseAdmin: any): Promise<SmtpConfig | null> {
@@ -54,6 +77,33 @@ async function getSmtpConfig(supabaseAdmin: any): Promise<SmtpConfig | null> {
     smtp_from_email: config.smtp_from_email || config.smtp_user,
     smtp_from_name: config.smtp_from_name || 'MedFlowX',
     smtp_secure: config.smtp_secure === true || config.smtp_secure === 'true',
+  };
+}
+
+async function getSmsConfig(supabaseAdmin: any): Promise<SmsConfig | null> {
+  const { data: settings } = await supabaseAdmin
+    .from('platform_settings')
+    .select('setting_key, setting_value')
+    .in('setting_key', ['bulksmsbd_api_key', 'bulksmsbd_sender_id', 'bulksmsbd_enabled']);
+
+  if (!settings || settings.length === 0) return null;
+
+  const config: Record<string, any> = {};
+  settings.forEach((s: any) => {
+    let value = s.setting_value;
+    if (typeof value === 'string') {
+      value = value.replace(/^"|"$/g, '');
+    }
+    config[s.setting_key] = value;
+  });
+
+  if (config.bulksmsbd_enabled !== 'true' || !config.bulksmsbd_api_key) {
+    return null;
+  }
+
+  return {
+    api_key: config.bulksmsbd_api_key,
+    sender_id: config.bulksmsbd_sender_id || 'MedFlowX',
   };
 }
 
@@ -104,6 +154,26 @@ async function sendInviteEmail(
   });
 
   await client.close();
+}
+
+async function sendInviteSms(smsConfig: SmsConfig, phone: string, message: string): Promise<boolean> {
+  try {
+    const smsUrl = `https://bulksmsbd.net/api/smsapi?api_key=${smsConfig.api_key}&type=text&number=${phone}&senderid=${smsConfig.sender_id}&message=${encodeURIComponent(message)}`;
+    
+    const response = await fetch(smsUrl);
+    const result = await response.json();
+    
+    if (result.response_code === 202) {
+      console.log('Invite SMS sent successfully to:', phone);
+      return true;
+    } else {
+      console.error('SMS send failed:', result);
+      return false;
+    }
+  } catch (error) {
+    console.error('Failed to send SMS:', error);
+    return false;
+  }
 }
 
 Deno.serve(async (req) => {
@@ -175,12 +245,12 @@ Deno.serve(async (req) => {
     }
 
     // Parse request body
-    const { email, full_name }: InviteStaffRequest = await req.json();
+    const { full_name, invite_method, email, phone }: InviteStaffRequest = await req.json();
 
-    // Validate input
-    if (!email || !email.includes('@')) {
+    // Validate input based on invite method
+    if (!invite_method || !['email', 'phone'].includes(invite_method)) {
       return new Response(
-        JSON.stringify({ error: 'Valid email is required' }),
+        JSON.stringify({ error: 'Invalid invite method. Use "email" or "phone".' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -190,6 +260,22 @@ Deno.serve(async (req) => {
         JSON.stringify({ error: 'Full name must be at least 2 characters' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    if (invite_method === 'email') {
+      if (!email || !email.includes('@')) {
+        return new Response(
+          JSON.stringify({ error: 'Valid email is required for email invitation' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } else if (invite_method === 'phone') {
+      if (!phone || phone.replace(/\D/g, '').length < 10) {
+        return new Response(
+          JSON.stringify({ error: 'Valid phone number is required for phone invitation' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     // Get the caller's pharmacy name to assign to new staff
@@ -202,14 +288,26 @@ Deno.serve(async (req) => {
     // Generate a random password for the new user
     const tempPassword = crypto.randomUUID().slice(0, 12) + 'Aa1!';
 
+    // Prepare user email - for phone invites, create a placeholder email
+    let userEmail: string;
+    let formattedPhone: string | null = null;
+
+    if (invite_method === 'email') {
+      userEmail = email!.toLowerCase().trim();
+    } else {
+      formattedPhone = formatPhoneNumber(phone!);
+      userEmail = `${formattedPhone}@phone.medflowx.local`;
+    }
+
     // Create the new user
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-      email: email.toLowerCase().trim(),
+      email: userEmail,
       password: tempPassword,
       email_confirm: true,
       user_metadata: {
         full_name: full_name.trim(),
         invited_by: caller.id,
+        invite_method: invite_method,
       },
     });
 
@@ -217,7 +315,7 @@ Deno.serve(async (req) => {
       // Check for duplicate email
       if (createError.message.includes('already been registered')) {
         return new Response(
-          JSON.stringify({ error: 'A user with this email already exists' }),
+          JSON.stringify({ error: invite_method === 'email' ? 'A user with this email already exists' : 'A user with this phone number already exists' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -228,13 +326,21 @@ Deno.serve(async (req) => {
       throw new Error('Failed to create user');
     }
 
-    // Update the profile with pharmacy name (profile is auto-created by trigger)
+    // Update the profile with pharmacy name and phone (profile is auto-created by trigger)
+    const profileUpdate: Record<string, any> = { 
+      full_name: full_name.trim(),
+      pharmacy_name: callerProfile?.pharmacy_name,
+      must_change_password: true, // Force password change on first login
+    };
+
+    if (invite_method === 'phone' && formattedPhone) {
+      profileUpdate.phone = formattedPhone;
+      profileUpdate.phone_verified = true; // Consider phone verified since admin invited them
+    }
+
     await supabaseAdmin
       .from('profiles')
-      .update({ 
-        full_name: full_name.trim(),
-        pharmacy_name: callerProfile?.pharmacy_name 
-      })
+      .update(profileUpdate)
       .eq('user_id', newUser.user.id);
 
     // Update role to client_staff (trigger creates with client_admin by default)
@@ -243,42 +349,63 @@ Deno.serve(async (req) => {
       .update({ role: 'client_staff' })
       .eq('user_id', newUser.user.id);
 
-    // Get SMTP config and email template, then send invite email
-    const smtpConfig = await getSmtpConfig(supabaseAdmin);
-    const template = await getEmailTemplate(supabaseAdmin, 'staff_invite');
-    let emailSent = false;
-    
-    if (smtpConfig && template) {
-      try {
-        const loginUrl = 'https://medflowxbd.lovable.app/login';
-        const templateData = {
-          staff_name: full_name.trim(),
-          email: email.toLowerCase().trim(),
-          temp_password: tempPassword,
-          pharmacy_name: callerProfile?.pharmacy_name || 'our pharmacy',
-          platform_name: smtpConfig.smtp_from_name,
-          login_url: loginUrl,
-        };
-        await sendInviteEmail(smtpConfig, template, templateData);
-        emailSent = true;
-        console.log('Invite email sent successfully to:', email);
-      } catch (emailError) {
-        console.error('Failed to send invite email:', emailError);
-        // Don't fail the whole operation if email fails
+    // Send credentials based on invite method
+    let credentialsSent = false;
+    const loginUrl = 'https://medflowxbd.lovable.app/login';
+
+    if (invite_method === 'email') {
+      // Get SMTP config and email template
+      const smtpConfig = await getSmtpConfig(supabaseAdmin);
+      const template = await getEmailTemplate(supabaseAdmin, 'staff_invite');
+      
+      if (smtpConfig && template) {
+        try {
+          const templateData = {
+            staff_name: full_name.trim(),
+            email: userEmail,
+            temp_password: tempPassword,
+            pharmacy_name: callerProfile?.pharmacy_name || 'our pharmacy',
+            platform_name: smtpConfig.smtp_from_name,
+            login_url: loginUrl,
+          };
+          await sendInviteEmail(smtpConfig, template, templateData);
+          credentialsSent = true;
+          console.log('Invite email sent successfully to:', userEmail);
+        } catch (emailError) {
+          console.error('Failed to send invite email:', emailError);
+        }
+      } else {
+        console.log('SMTP not configured or template not found, skipping invite email');
       }
     } else {
-      console.log('SMTP not configured or template not found, skipping invite email');
+      // Send SMS for phone invite
+      const smsConfig = await getSmsConfig(supabaseAdmin);
+      
+      if (smsConfig && formattedPhone) {
+        const smsMessage = `MedFlowX স্টাফ অ্যাক্সেস:
+Login: ${loginUrl}
+Phone: ${formattedPhone}
+Pass: ${tempPassword}
+প্রথম লগইনে পাসওয়ার্ড পরিবর্তন করুন।`;
+
+        credentialsSent = await sendInviteSms(smsConfig, formattedPhone, smsMessage);
+      } else {
+        console.log('SMS not configured, skipping invite SMS');
+      }
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: emailSent 
-          ? 'Staff member invited successfully. Login credentials sent via email.'
+        message: credentialsSent 
+          ? (invite_method === 'email' 
+              ? 'Staff member invited successfully. Login credentials sent via email.'
+              : 'Staff member invited successfully. Login credentials sent via SMS.')
           : 'Staff member created successfully. Please share the credentials manually.',
         user_id: newUser.user.id,
-        temp_password: emailSent ? undefined : tempPassword, // Only return if email not sent
-        email_sent: emailSent,
+        temp_password: credentialsSent ? undefined : tempPassword, // Only return if credentials not sent
+        credentials_sent: credentialsSent,
+        invite_method: invite_method,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
