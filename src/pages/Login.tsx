@@ -598,13 +598,14 @@ export default function Login() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex justify-center">
+            <div className="flex flex-col items-center gap-4">
               <InputOTP 
                 maxLength={4} 
                 value={loginPin}
+                disabled={pinLoading || isPinLocked}
                 onChange={(value) => {
                   setLoginPin(value);
-                  if (value.length === 4) {
+                  if (value.length === 4 && !pinLoading) {
                     handlePinLogin(value);
                   }
                 }}
@@ -616,6 +617,14 @@ export default function Login() {
                   <InputOTPSlot index={3} />
                 </InputOTPGroup>
               </InputOTP>
+
+              {/* Loading Spinner */}
+              {pinLoading && (
+                <div className="flex items-center gap-2 text-primary">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="text-sm">যাচাই করা হচ্ছে...</span>
+                </div>
+              )}
             </div>
 
             {/* PIN Lock Warning */}
@@ -638,16 +647,11 @@ export default function Login() {
               </Alert>
             )}
 
-            {pinLoading && (
-              <div className="flex justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            )}
-
             <Button 
               variant="ghost" 
               onClick={switchToPasswordLogin} 
               className="w-full"
+              disabled={pinLoading}
             >
               <Smartphone className="mr-2 h-4 w-4" />
               {t.login.loginWithPassword}
