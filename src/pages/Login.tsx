@@ -75,6 +75,7 @@ export default function Login() {
   const [isPinLocked, setIsPinLocked] = useState(false);
   const [pinLockRemainingMinutes, setPinLockRemainingMinutes] = useState(0);
   const [pinSuccess, setPinSuccess] = useState(false);
+  const [pinShake, setPinShake] = useState(false);
 
   // Password change flow state
   const [showPasswordChange, setShowPasswordChange] = useState(false);
@@ -463,6 +464,11 @@ export default function Login() {
         
         toast.error(errorData.error);
         setLoginPin('');
+        
+        // Trigger shake animation
+        setPinShake(true);
+        setTimeout(() => setPinShake(false), 400);
+        
         setPinLoading(false);
         return;
       }
@@ -606,24 +612,26 @@ export default function Login() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex flex-col items-center gap-4">
-              <InputOTP 
-                maxLength={4} 
-                value={loginPin}
-                disabled={pinLoading || isPinLocked}
-                onChange={(value) => {
-                  setLoginPin(value);
-                  if (value.length === 4 && !pinLoading) {
-                    handlePinLogin(value);
-                  }
-                }}
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                </InputOTPGroup>
-              </InputOTP>
+              <div className={pinShake ? "animate-shake" : ""}>
+                <InputOTP 
+                  maxLength={4} 
+                  value={loginPin}
+                  disabled={pinLoading || isPinLocked || pinSuccess}
+                  onChange={(value) => {
+                    setLoginPin(value);
+                    if (value.length === 4 && !pinLoading) {
+                      handlePinLogin(value);
+                    }
+                  }}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
 
               {/* Loading Spinner */}
               {pinLoading && !pinSuccess && (
