@@ -7,9 +7,10 @@ import { MobileMoreMenu } from './MobileMoreMenu';
 import { PullToRefresh } from './PullToRefresh';
 import { ImpersonationBanner } from '@/components/dashboard/ImpersonationBanner';
 import { SubscriptionBanner } from '@/components/dashboard/SubscriptionBanner';
-import { Factory, Truck, Users, Clock, FileText, Settings } from 'lucide-react';
+import { ClipboardList, BookOpen, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 // Wrapper dialogs that can be controlled externally
 import { QuickSaleDialog } from '@/components/sales/QuickSaleDialog';
@@ -21,6 +22,7 @@ export function MobileLayout() {
   const location = useLocation();
   const queryClient = useQueryClient();
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const { t } = useLanguage();
   const { medicines } = useMedicines();
 
@@ -72,48 +74,63 @@ export function MobileLayout() {
     await new Promise(resolve => setTimeout(resolve, 300));
   }, [location.pathname, queryClient]);
 
+  // Cache clearing handler
+  const handleClearCache = async () => {
+    setIsClearing(true);
+    try {
+      // Clear React Query cache
+      queryClient.clear();
+      
+      // Clear Service Worker caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(
+          cacheNames.map(name => caches.delete(name))
+        );
+      }
+      
+      // Clear localStorage except auth token
+      const supabaseAuthKey = Object.keys(localStorage).find(key => 
+        key.startsWith('sb-') && key.endsWith('-auth-token')
+      );
+      const authToken = supabaseAuthKey ? localStorage.getItem(supabaseAuthKey) : null;
+      
+      localStorage.clear();
+      
+      if (supabaseAuthKey && authToken) {
+        localStorage.setItem(supabaseAuthKey, authToken);
+      }
+      
+      toast.success(t.settings?.cacheCleared || 'ক্যাশ সফলভাবে ক্লিয়ার হয়েছে');
+    } catch (error) {
+      console.error('Failed to clear cache:', error);
+      toast.error(t.settings?.cacheClearFailed || 'ক্যাশ ক্লিয়ার করতে ব্যর্থ');
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
   const fabActions = [
     {
-      id: 'manufacturers',
-      label: t.nav?.manufacturers || 'প্রস্তুতকারক',
-      icon: Factory,
-      onClick: () => navigate('/dashboard/manufacturers'),
+      id: 'stockShort',
+      label: t.suppliers?.stockShort || 'শর্ট লিস্ট',
+      icon: ClipboardList,
+      onClick: () => navigate('/dashboard/suppliers/stock-short'),
+      color: 'bg-primary text-primary-foreground',
+    },
+    {
+      id: 'medicineInfo',
+      label: t.nav?.medicineInfo || 'ঔষধ তথ্য',
+      icon: BookOpen,
+      onClick: () => navigate('/dashboard/medicine-info'),
       color: 'bg-info text-info-foreground',
     },
     {
-      id: 'suppliers',
-      label: t.nav?.suppliers || 'সরবরাহকারী',
-      icon: Truck,
-      onClick: () => navigate('/dashboard/suppliers'),
-      color: 'bg-primary text-primary-foreground',
-    },
-    {
-      id: 'customerDues',
-      label: t.nav?.customerDues || 'গ্রাহক বাকি',
-      icon: Users,
-      onClick: () => navigate('/dashboard/customer-dues'),
-      color: 'bg-warning text-warning-foreground',
-    },
-    {
-      id: 'expiry',
-      label: t.nav?.expiryMonitor || 'মেয়াদ পর্যবেক্ষণ',
-      icon: Clock,
-      onClick: () => navigate('/dashboard/expiry'),
+      id: 'clearCache',
+      label: t.settings?.clearCache || 'ক্যাশ ক্লিয়ার',
+      icon: Trash2,
+      onClick: handleClearCache,
       color: 'bg-destructive text-destructive-foreground',
-    },
-    {
-      id: 'reports',
-      label: t.nav?.reports || 'রিপোর্ট',
-      icon: FileText,
-      onClick: () => navigate('/dashboard/reports'),
-      color: 'bg-primary text-primary-foreground',
-    },
-    {
-      id: 'settings',
-      label: t.nav?.settings || 'সেটিংস',
-      icon: Settings,
-      onClick: () => navigate('/dashboard/settings'),
-      color: 'bg-muted text-muted-foreground',
     },
   ];
 
