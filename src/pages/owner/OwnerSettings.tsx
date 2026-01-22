@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePlatformSettings, useUpdatePlatformSetting } from '@/hooks/useOwnerData';
-import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send, CreditCard, ExternalLink, Bell, MessageSquare, Wallet, ShieldAlert, Phone } from 'lucide-react';
+import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send, CreditCard, ExternalLink, Bell, MessageSquare, Wallet, ShieldAlert, Phone, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { PlatformBrandingUpload } from '@/components/owner/PlatformBrandingUpload';
@@ -18,6 +18,7 @@ export default function OwnerSettings() {
   const [localSettings, setLocalSettings] = useState<Record<string, any>>({});
   const [changedKeys, setChangedKeys] = useState<Set<string>>(new Set());
   const [savingSection, setSavingSection] = useState<string | null>(null);
+  const [savedSections, setSavedSections] = useState<Set<string>>(new Set());
   const [showSmtpPassword, setShowSmtpPassword] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
   const [showSmsApiKey, setShowSmsApiKey] = useState(false);
@@ -69,6 +70,19 @@ export default function OwnerSettings() {
         keys.forEach(k => newSet.delete(k));
         return newSet;
       });
+      
+      // Add section to savedSections for checkmark display
+      setSavedSections(prev => new Set(prev).add(sectionName));
+      
+      // Remove checkmark after 3 seconds
+      setTimeout(() => {
+        setSavedSections(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(sectionName);
+          return newSet;
+        });
+      }, 3000);
+      
       toast.success(`${sectionName} সেভ হয়েছে!`);
     } catch (error: any) {
       toast.error(error.message || 'সেভ করতে সমস্যা হয়েছে');
@@ -76,6 +90,9 @@ export default function OwnerSettings() {
       setSavingSection(null);
     }
   };
+
+  // Check if section was recently saved
+  const isSectionSaved = (sectionName: string) => savedSections.has(sectionName);
 
   // Check if any key in the section has changed
   const hasSectionChanges = (keys: string[]) => {
@@ -223,14 +240,21 @@ export default function OwnerSettings() {
             <CardTitle>Branding</CardTitle>
             <CardDescription>Platform name and identity</CardDescription>
           </div>
-          <Button 
-            size="sm"
-            onClick={() => handleSaveSection('Branding', sectionKeys.branding)}
-            disabled={savingSection === 'Branding' || !hasSectionChanges(sectionKeys.branding)}
-          >
-            {savingSection === 'Branding' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-            Save
-          </Button>
+          {isSectionSaved('Branding') ? (
+            <div className="flex items-center gap-2 text-emerald-600 animate-fade-in">
+              <CheckCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">Saved!</span>
+            </div>
+          ) : (
+            <Button 
+              size="sm"
+              onClick={() => handleSaveSection('Branding', sectionKeys.branding)}
+              disabled={savingSection === 'Branding' || !hasSectionChanges(sectionKeys.branding)}
+            >
+              {savingSection === 'Branding' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Save
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -269,14 +293,21 @@ export default function OwnerSettings() {
             <CardTitle>Date & Time</CardTitle>
             <CardDescription>Regional format settings</CardDescription>
           </div>
-          <Button 
-            size="sm"
-            onClick={() => handleSaveSection('Date & Time', sectionKeys.dateTime)}
-            disabled={savingSection === 'Date & Time' || !hasSectionChanges(sectionKeys.dateTime)}
-          >
-            {savingSection === 'Date & Time' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-            Save
-          </Button>
+          {isSectionSaved('Date & Time') ? (
+            <div className="flex items-center gap-2 text-emerald-600 animate-fade-in">
+              <CheckCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">Saved!</span>
+            </div>
+          ) : (
+            <Button 
+              size="sm"
+              onClick={() => handleSaveSection('Date & Time', sectionKeys.dateTime)}
+              disabled={savingSection === 'Date & Time' || !hasSectionChanges(sectionKeys.dateTime)}
+            >
+              {savingSection === 'Date & Time' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Save
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -322,14 +353,21 @@ export default function OwnerSettings() {
             <CardTitle>Subscription Settings</CardTitle>
             <CardDescription>Trial and renewal configuration</CardDescription>
           </div>
-          <Button 
-            size="sm"
-            onClick={() => handleSaveSection('Subscription', sectionKeys.subscription)}
-            disabled={savingSection === 'Subscription' || !hasSectionChanges(sectionKeys.subscription)}
-          >
-            {savingSection === 'Subscription' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-            Save
-          </Button>
+          {isSectionSaved('Subscription') ? (
+            <div className="flex items-center gap-2 text-emerald-600 animate-fade-in">
+              <CheckCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">Saved!</span>
+            </div>
+          ) : (
+            <Button 
+              size="sm"
+              onClick={() => handleSaveSection('Subscription', sectionKeys.subscription)}
+              disabled={savingSection === 'Subscription' || !hasSectionChanges(sectionKeys.subscription)}
+            >
+              {savingSection === 'Subscription' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Save
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -392,16 +430,23 @@ export default function OwnerSettings() {
               <CardDescription>Critical system settings - use with caution</CardDescription>
             </div>
           </div>
-          <Button 
-            size="sm"
-            variant="outline"
-            className="border-orange-300 hover:bg-orange-50"
-            onClick={() => handleSaveSection('System Controls', sectionKeys.systemControls)}
-            disabled={savingSection === 'System Controls' || !hasSectionChanges(sectionKeys.systemControls)}
-          >
-            {savingSection === 'System Controls' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-            Save
-          </Button>
+          {isSectionSaved('System Controls') ? (
+            <div className="flex items-center gap-2 text-emerald-600 animate-fade-in">
+              <CheckCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">Saved!</span>
+            </div>
+          ) : (
+            <Button 
+              size="sm"
+              variant="outline"
+              className="border-orange-300 hover:bg-orange-50"
+              onClick={() => handleSaveSection('System Controls', sectionKeys.systemControls)}
+              disabled={savingSection === 'System Controls' || !hasSectionChanges(sectionKeys.systemControls)}
+            >
+              {savingSection === 'System Controls' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Save
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between p-4 rounded-lg bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800">
@@ -429,14 +474,21 @@ export default function OwnerSettings() {
               <CardDescription>Configure email server for sending notifications (staff invites, etc.)</CardDescription>
             </div>
           </div>
-          <Button 
-            size="sm"
-            onClick={() => handleSaveSection('SMTP', sectionKeys.smtp)}
-            disabled={savingSection === 'SMTP' || !hasSectionChanges(sectionKeys.smtp)}
-          >
-            {savingSection === 'SMTP' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-            Save
-          </Button>
+          {isSectionSaved('SMTP') ? (
+            <div className="flex items-center gap-2 text-emerald-600 animate-fade-in">
+              <CheckCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">Saved!</span>
+            </div>
+          ) : (
+            <Button 
+              size="sm"
+              onClick={() => handleSaveSection('SMTP', sectionKeys.smtp)}
+              disabled={savingSection === 'SMTP' || !hasSectionChanges(sectionKeys.smtp)}
+            >
+              {savingSection === 'SMTP' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Save
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -567,14 +619,21 @@ export default function OwnerSettings() {
               <CardDescription>সাবস্ক্রিপশন মেয়াদ শেষের আগে ক্লায়েন্টদের স্বয়ংক্রিয় নোটিফিকেশন পাঠানোর সেটিংস</CardDescription>
             </div>
           </div>
-          <Button 
-            size="sm"
-            onClick={() => handleSaveSection('Notifications', sectionKeys.notifications)}
-            disabled={savingSection === 'Notifications' || !hasSectionChanges(sectionKeys.notifications)}
-          >
-            {savingSection === 'Notifications' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-            Save
-          </Button>
+          {isSectionSaved('Notifications') ? (
+            <div className="flex items-center gap-2 text-emerald-600 animate-fade-in">
+              <CheckCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">Saved!</span>
+            </div>
+          ) : (
+            <Button 
+              size="sm"
+              onClick={() => handleSaveSection('Notifications', sectionKeys.notifications)}
+              disabled={savingSection === 'Notifications' || !hasSectionChanges(sectionKeys.notifications)}
+            >
+              {savingSection === 'Notifications' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Save
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Email Notifications */}
@@ -675,16 +734,23 @@ export default function OwnerSettings() {
               <CardDescription>অ্যাকাউন্ট লক হলে অ্যাডমিনকে নোটিফিকেশন পাঠানোর সেটিংস</CardDescription>
             </div>
           </div>
-          <Button 
-            size="sm"
-            variant="outline"
-            className="border-red-300 hover:bg-red-50"
-            onClick={() => handleSaveSection('Security Alerts', sectionKeys.securityAlerts)}
-            disabled={savingSection === 'Security Alerts' || !hasSectionChanges(sectionKeys.securityAlerts)}
-          >
-            {savingSection === 'Security Alerts' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-            Save
-          </Button>
+          {isSectionSaved('Security Alerts') ? (
+            <div className="flex items-center gap-2 text-emerald-600 animate-fade-in">
+              <CheckCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">Saved!</span>
+            </div>
+          ) : (
+            <Button 
+              size="sm"
+              variant="outline"
+              className="border-red-300 hover:bg-red-50"
+              onClick={() => handleSaveSection('Security Alerts', sectionKeys.securityAlerts)}
+              disabled={savingSection === 'Security Alerts' || !hasSectionChanges(sectionKeys.securityAlerts)}
+            >
+              {savingSection === 'Security Alerts' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Save
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Lockout Notifications Toggle */}
@@ -760,14 +826,21 @@ export default function OwnerSettings() {
               <CardDescription>Configure BulkSMSBD for sending SMS notifications to clients</CardDescription>
             </div>
           </div>
-          <Button 
-            size="sm"
-            onClick={() => handleSaveSection('BulkSMSBD', sectionKeys.bulksms)}
-            disabled={savingSection === 'BulkSMSBD' || !hasSectionChanges(sectionKeys.bulksms)}
-          >
-            {savingSection === 'BulkSMSBD' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-            Save
-          </Button>
+          {isSectionSaved('BulkSMSBD') ? (
+            <div className="flex items-center gap-2 text-emerald-600 animate-fade-in">
+              <CheckCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">Saved!</span>
+            </div>
+          ) : (
+            <Button 
+              size="sm"
+              onClick={() => handleSaveSection('BulkSMSBD', sectionKeys.bulksms)}
+              disabled={savingSection === 'BulkSMSBD' || !hasSectionChanges(sectionKeys.bulksms)}
+            >
+              {savingSection === 'BulkSMSBD' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Save
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
@@ -944,14 +1017,21 @@ export default function OwnerSettings() {
               <CardDescription>Configure UddoktaPay for subscription payments (bKash, Nagad, Rocket, Bank)</CardDescription>
             </div>
           </div>
-          <Button 
-            size="sm"
-            onClick={() => handleSaveSection('UddoktaPay', sectionKeys.uddoktapay)}
-            disabled={savingSection === 'UddoktaPay' || !hasSectionChanges(sectionKeys.uddoktapay)}
-          >
-            {savingSection === 'UddoktaPay' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-            Save
-          </Button>
+          {isSectionSaved('UddoktaPay') ? (
+            <div className="flex items-center gap-2 text-emerald-600 animate-fade-in">
+              <CheckCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">Saved!</span>
+            </div>
+          ) : (
+            <Button 
+              size="sm"
+              onClick={() => handleSaveSection('UddoktaPay', sectionKeys.uddoktapay)}
+              disabled={savingSection === 'UddoktaPay' || !hasSectionChanges(sectionKeys.uddoktapay)}
+            >
+              {savingSection === 'UddoktaPay' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Save
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
