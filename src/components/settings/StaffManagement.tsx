@@ -9,9 +9,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { usePermissions } from '@/hooks/usePermissions';
 import { usePharmacyStaff, useInviteStaff, useRemoveStaff, useResetStaffPassword, StaffMember } from '@/hooks/useStaffManagement';
-import { Users, UserPlus, Trash2, Loader2, Lock, Crown, KeyRound } from 'lucide-react';
+import { StaffPermissionsDialog } from '@/components/settings/StaffPermissionsDialog';
+import { Users, UserPlus, Trash2, Loader2, Lock, Crown, KeyRound, Settings2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { z } from 'zod';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const inviteSchema = z.object({
   email: z.string().trim().email({ message: 'Please enter a valid email address' }).max(255),
@@ -19,10 +21,12 @@ const inviteSchema = z.object({
 });
 
 export function StaffManagement() {
+  const { language } = useLanguage();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [formErrors, setFormErrors] = useState<{ email?: string; fullName?: string }>({});
+  const [permissionsDialogStaff, setPermissionsDialogStaff] = useState<StaffMember | null>(null);
 
   const { canCreateStaff, isTrial, isAdmin } = usePermissions();
   const { data: staff, isLoading } = usePharmacyStaff();
@@ -196,6 +200,16 @@ export function StaffManagement() {
                     <TableCell className="text-right">
                       {canManageStaff && (
                         <div className="flex items-center justify-end gap-1">
+                          {/* Permissions */}
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/30"
+                            onClick={() => setPermissionsDialogStaff(member)}
+                          >
+                            <Settings2 className="h-4 w-4" />
+                          </Button>
+
                           {/* Reset Password */}
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
@@ -205,14 +219,16 @@ export function StaffManagement() {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Reset Password</AlertDialogTitle>
+                                <AlertDialogTitle>{language === 'bn' ? 'পাসওয়ার্ড রিসেট' : 'Reset Password'}</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  This will generate a new password for {member.full_name || 'this staff member'}. 
-                                  {' '}The new credentials will be sent via email if SMTP is configured.
+                                  {language === 'bn' 
+                                    ? `এটি ${member.full_name || 'এই স্টাফ সদস্যের'} জন্য একটি নতুন পাসওয়ার্ড তৈরি করবে।`
+                                    : `This will generate a new password for ${member.full_name || 'this staff member'}.`
+                                  }
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogCancel>{language === 'bn' ? 'বাতিল' : 'Cancel'}</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleResetPassword(member)}
                                   className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
@@ -220,7 +236,7 @@ export function StaffManagement() {
                                   {resetPassword.isPending ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                   ) : (
-                                    'Reset Password'
+                                    language === 'bn' ? 'রিসেট করুন' : 'Reset Password'
                                   )}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
@@ -236,14 +252,16 @@ export function StaffManagement() {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Remove Staff Member</AlertDialogTitle>
+                                <AlertDialogTitle>{language === 'bn' ? 'স্টাফ সদস্য সরান' : 'Remove Staff Member'}</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to remove {member.full_name || 'this staff member'}? 
-                                  This action cannot be undone and will delete their account.
+                                  {language === 'bn' 
+                                    ? `আপনি কি নিশ্চিত যে আপনি ${member.full_name || 'এই স্টাফ সদস্যকে'} সরাতে চান?`
+                                    : `Are you sure you want to remove ${member.full_name || 'this staff member'}?`
+                                  }
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogCancel>{language === 'bn' ? 'বাতিল' : 'Cancel'}</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleRemove(member)}
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -251,7 +269,7 @@ export function StaffManagement() {
                                   {removeStaff.isPending ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                   ) : (
-                                    'Remove'
+                                    language === 'bn' ? 'সরান' : 'Remove'
                                   )}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
@@ -282,6 +300,16 @@ export function StaffManagement() {
               </div>
             ) : null}
           </div>
+        )}
+
+        {/* Staff Permissions Dialog */}
+        {permissionsDialogStaff && (
+          <StaffPermissionsDialog
+            open={!!permissionsDialogStaff}
+            onOpenChange={(open) => !open && setPermissionsDialogStaff(null)}
+            staffUserId={permissionsDialogStaff.user_id}
+            staffName={permissionsDialogStaff.full_name || 'Staff Member'}
+          />
         )}
       </CardContent>
     </Card>

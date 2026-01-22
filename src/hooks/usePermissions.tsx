@@ -1,5 +1,6 @@
 import { useUserRole } from '@/hooks/useAdminData';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { useMyPermissions } from '@/hooks/useStaffPermissions';
 
 export type Permission = 
   | 'create_staff'
@@ -19,9 +20,11 @@ export type Permission =
   | 'view_reports'
   | 'view_settings'
   | 'manage_settings'
-  | 'view_admin';
+  | 'view_admin'
+  | 'view_customer_dues'
+  | 'manage_customer_dues';
 
-// Define permissions for each role
+// Define permissions for each role (admin roles only - staff uses database permissions)
 const rolePermissions: Record<string, Permission[]> = {
   owner_admin: [
     'view_dashboard',
@@ -42,6 +45,8 @@ const rolePermissions: Record<string, Permission[]> = {
     'manage_settings',
     'view_admin',
     'create_staff',
+    'view_customer_dues',
+    'manage_customer_dues',
   ],
   client_admin: [
     'view_dashboard',
@@ -60,15 +65,12 @@ const rolePermissions: Record<string, Permission[]> = {
     'view_reports',
     'view_settings',
     'manage_settings',
-    'create_staff', // Will be restricted for trial users
+    'create_staff',
+    'view_customer_dues',
+    'manage_customer_dues',
   ],
   client_staff: [
     'view_dashboard',
-    'view_medicines', // Read-only view
-    'view_sales',
-    'manage_sales', // Can create sales
-    'view_daily_cash',
-    'manage_daily_cash', // Can add costs
   ],
 };
 
@@ -120,9 +122,46 @@ export const menuAccessByRole: Record<string, string[]> = {
 export function usePermissions() {
   const { data: role, isLoading: roleLoading } = useUserRole();
   const { isTrial, isLoading: subscriptionLoading, isOwnerAdmin: isOwnerAdminFromSubscription } = useSubscriptionStatus();
+  const { data: staffDbPermissions, isLoading: staffPermissionsLoading } = useMyPermissions();
   
   const currentRole = role || 'client_staff';
-  let permissions = [...(rolePermissions[currentRole] || [])];
+  const isStaff = currentRole === 'client_staff';
+  
+  // Build permissions based on role
+  let permissions: Permission[] = [];
+  
+  if (isStaff && staffDbPermissions) {
+    // Staff permissions from database
+    permissions = ['view_dashboard'];
+    
+    if (staffDbPermissions.can_view_medicines) permissions.push('view_medicines');
+    if (staffDbPermissions.can_manage_medicines) permissions.push('manage_medicines');
+    if (staffDbPermissions.can_view_sales) permissions.push('view_sales');
+    if (staffDbPermissions.can_manage_sales) permissions.push('manage_sales');
+    if (staffDbPermissions.can_view_customer_dues) permissions.push('view_customer_dues');
+    if (staffDbPermissions.can_manage_customer_dues) permissions.push('manage_customer_dues');
+    if (staffDbPermissions.can_view_suppliers) permissions.push('view_suppliers');
+    if (staffDbPermissions.can_manage_suppliers) permissions.push('manage_suppliers');
+    if (staffDbPermissions.can_view_manufacturers) permissions.push('view_manufacturers');
+    if (staffDbPermissions.can_view_daily_cash) permissions.push('view_daily_cash');
+    if (staffDbPermissions.can_manage_daily_cash) permissions.push('manage_daily_cash');
+    if (staffDbPermissions.can_view_stock_short) permissions.push('view_stock_short');
+    if (staffDbPermissions.can_view_reports) permissions.push('view_reports');
+  } else if (isStaff) {
+    // Default staff permissions if no database record exists
+    permissions = [
+      'view_dashboard',
+      'view_medicines',
+      'view_sales',
+      'manage_sales',
+      'view_customer_dues',
+      'view_daily_cash',
+      'manage_daily_cash',
+    ];
+  } else {
+    // Admin permissions from static config
+    permissions = [...(rolePermissions[currentRole] || [])];
+  }
 
   // Trial users cannot create staff members
   if (isTrial && currentRole === 'client_admin') {
@@ -134,6 +173,25 @@ export function usePermissions() {
   };
 
   const canAccessRoute = (route: string): boolean => {
+    if (isStaff && staffDbPermissions) {
+      // Dynamic route access for staff based on database permissions
+      const routeMap: Record<string, boolean> = {
+        '/dashboard': true,
+        '/dashboard/medicines': staffDbPermissions.can_view_medicines,
+        '/dashboard/batches': staffDbPermissions.can_view_medicines,
+        '/dashboard/expiry': staffDbPermissions.can_view_medicines,
+        '/dashboard/alerts': staffDbPermissions.can_view_medicines,
+        '/dashboard/sales': staffDbPermissions.can_view_sales,
+        '/dashboard/customer-dues': staffDbPermissions.can_view_customer_dues,
+        '/dashboard/suppliers': staffDbPermissions.can_view_suppliers,
+        '/dashboard/manufacturers': staffDbPermissions.can_view_manufacturers,
+        '/dashboard/daily-cash': staffDbPermissions.can_view_daily_cash,
+        '/dashboard/stock-short': staffDbPermissions.can_view_stock_short,
+        '/dashboard/reports': staffDbPermissions.can_view_reports,
+      };
+      return routeMap[route] ?? false;
+    }
+    
     const allowedRoutes = menuAccessByRole[currentRole] || [];
     return allowedRoutes.includes(route);
   };
@@ -146,13 +204,12 @@ export function usePermissions() {
     return true;
   };
 
-  const isStaff = currentRole === 'client_staff';
   const isAdmin = currentRole === 'client_admin' || currentRole === 'owner_admin';
   const isOwnerAdmin = currentRole === 'owner_admin';
 
   return {
     role: currentRole,
-    isLoading: roleLoading || subscriptionLoading,
+    isLoading: roleLoading || subscriptionLoading || (isStaff && staffPermissionsLoading),
     permissions,
     hasPermission,
     canAccessRoute,
@@ -161,5 +218,6 @@ export function usePermissions() {
     isAdmin,
     isOwnerAdmin,
     isTrial,
+    staffDbPermissions,
   };
 }
