@@ -191,7 +191,7 @@ export function StaffManagement() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {format(new Date(member.created_at), 'MMM d, yyyy')}
+                      {format(new Date(member.created_at), 'dd MMM yyyy')}
                     </TableCell>
                     <TableCell className="text-right">
                       {canManageStaff && (

@@ -136,8 +136,8 @@ export function QuickReportDialog({
           {selectedPreset !== 'custom' && (
             <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
               <span className="font-medium">Selected Period:</span>{' '}
-              {format(getDateRange().start, 'MMM dd, yyyy')} -{' '}
-              {format(getDateRange().end, 'MMM dd, yyyy')}
+              {format(getDateRange().start, 'dd MMM yyyy')} -{' '}
+              {format(getDateRange().end, 'dd MMM yyyy')}
             </div>
           )}
         </div>

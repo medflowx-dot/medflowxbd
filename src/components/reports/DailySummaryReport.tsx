@@ -77,7 +77,7 @@ export function DailySummaryReportView({ dateRange }: DailySummaryReportProps) {
         <div>
           <CardTitle>{t.reports.dailySummaryReport}</CardTitle>
           <CardDescription>
-            {format(dateRange.start, 'MMM dd, yyyy')} - {format(dateRange.end, 'MMM dd, yyyy')}
+            {format(dateRange.start, 'dd MMM yyyy')} - {format(dateRange.end, 'dd MMM yyyy')}
           </CardDescription>
         </div>
         <Button onClick={handleExport} disabled={!data?.length || exporting}>
@@ -134,7 +134,7 @@ export function DailySummaryReportView({ dateRange }: DailySummaryReportProps) {
                 data.map((row) => (
                   <TableRow key={row.date}>
                     <TableCell className="font-medium">
-                      {format(new Date(row.date), 'MMM dd, yyyy')}
+                      {format(new Date(row.date), 'dd MMM yyyy')}
                     </TableCell>
                     <TableCell className="text-right">৳{row.totalSales.toLocaleString()}</TableCell>
                     <TableCell className="text-right text-success">৳{row.totalPaid.toLocaleString()}</TableCell>

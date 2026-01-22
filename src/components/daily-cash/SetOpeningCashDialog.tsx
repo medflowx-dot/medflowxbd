@@ -57,7 +57,7 @@ export function SetOpeningCashDialog({
   const handleUsePreviousClosing = () => {
     if (previousDayClosingCash !== null) {
       setAmount(previousDayClosingCash.toString());
-      setNotes(`${t.dailyCash.carriedForward} ${format(previousDate, 'MMM d, yyyy')}`);
+      setNotes(`${t.dailyCash.carriedForward} ${format(previousDate, 'dd MMM yyyy')}`);
     }
   };
 
@@ -92,7 +92,7 @@ export function SetOpeningCashDialog({
           <DialogHeader>
             <DialogTitle>{t.dailyCash.setOpeningCash}</DialogTitle>
             <DialogDescription>
-              {t.dailyCash.setOpeningCashFor} {format(date, 'MMMM d, yyyy')}
+              {t.dailyCash.setOpeningCashFor} {format(date, 'dd MMMM yyyy')}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -119,7 +119,7 @@ export function SetOpeningCashDialog({
                       {t.dailyCash.previousDayClosing}: ৳{previousDayClosingCash?.toLocaleString()}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {format(previousDate, 'MMM d, yyyy')}
+                      {format(previousDate, 'dd MMM yyyy')}
                     </p>
                   </div>
                   <Button 

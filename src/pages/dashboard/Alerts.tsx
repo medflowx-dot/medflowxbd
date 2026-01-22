@@ -95,7 +95,7 @@ export default function Alerts() {
                 <div className="text-right">
                   {getDaysLeftBadge(batch.daysUntilExpiry, batch.status)}
                   <div className="text-sm text-muted-foreground mt-1">
-                    {format(new Date(batch.expiry_date), 'MMM d, yyyy')}
+                    {format(new Date(batch.expiry_date), 'dd MMM yyyy')}
                   </div>
                 </div>
               </div>

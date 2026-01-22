@@ -236,7 +236,7 @@ export function CashFlowReportDialog() {
             <div className="rounded-lg border bg-muted/50 p-3">
               <p className="text-sm text-muted-foreground">
                 <strong>{t.dailyCash.period}:</strong>{' '}
-                {format(getDateRange()!.start, 'MMM d, yyyy')} - {format(getDateRange()!.end, 'MMM d, yyyy')}
+                {format(getDateRange()!.start, 'dd MMM yyyy')} - {format(getDateRange()!.end, 'dd MMM yyyy')}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {eachDayOfInterval({ start: getDateRange()!.start, end: getDateRange()!.end }).length} {t.dailyCash.days}

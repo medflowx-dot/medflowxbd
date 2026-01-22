@@ -75,7 +75,7 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
           <div>
             <CardTitle>{t.reports.salesReport}</CardTitle>
             <CardDescription>
-              {format(dateRange.start, 'MMM dd, yyyy')} - {format(dateRange.end, 'MMM dd, yyyy')}
+              {format(dateRange.start, 'dd MMM yyyy')} - {format(dateRange.end, 'dd MMM yyyy')}
             </CardDescription>
           </div>
           <Button onClick={handleExportSales} disabled={!salesData?.length || exporting}>
@@ -121,7 +121,7 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell>{format(new Date(sale.sale_date), 'MMM dd, yyyy')}</TableCell>
+                      <TableCell>{format(new Date(sale.sale_date), 'dd MMM yyyy')}</TableCell>
                       <TableCell className="text-right">৳{sale.total_amount.toLocaleString()}</TableCell>
                       <TableCell className="text-right text-green-600">৳{sale.paid_amount.toLocaleString()}</TableCell>
                       <TableCell className="text-right text-orange-600">
