@@ -643,6 +643,84 @@ export type Database = {
           },
         ]
       }
+      medicine_generics: {
+        Row: {
+          created_at: string
+          description: string | null
+          drug_class: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          drug_class?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          drug_class?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      medicine_reference: {
+        Row: {
+          created_at: string
+          dosage_form: string | null
+          drug_class: string | null
+          generic_name: string | null
+          id: string
+          indication: string | null
+          is_active: boolean
+          manufacturer_name: string | null
+          name: string
+          pack_size: string | null
+          strength: string | null
+          strip_price: number | null
+          unit_price: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dosage_form?: string | null
+          drug_class?: string | null
+          generic_name?: string | null
+          id?: string
+          indication?: string | null
+          is_active?: boolean
+          manufacturer_name?: string | null
+          name: string
+          pack_size?: string | null
+          strength?: string | null
+          strip_price?: number | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dosage_form?: string | null
+          drug_class?: string | null
+          generic_name?: string | null
+          id?: string
+          indication?: string | null
+          is_active?: boolean
+          manufacturer_name?: string | null
+          name?: string
+          pack_size?: string | null
+          strength?: string | null
+          strip_price?: number | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       medicines: {
         Row: {
           category: string | null

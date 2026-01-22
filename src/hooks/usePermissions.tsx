@@ -119,6 +119,7 @@ export const menuAccessByRole: Record<string, string[]> = {
     '/dashboard/sales',
     '/dashboard/customer-dues',
     '/dashboard/daily-cash',
+    '/dashboard/medicine-info',
   ],
 };
 
