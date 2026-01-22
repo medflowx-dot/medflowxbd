@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Users, Wallet, Plus, Search, Phone, MessageCircle, Trash2, FileText, Loader2, Pencil, Pill } from 'lucide-react';
+import { Users, Wallet, Plus, Search, Phone, MessageCircle, Trash2, FileText, Loader2, Pencil, Pill, Filter, FilterX } from 'lucide-react';
 import { useCustomers, useCustomerDuesSummary, useDeleteCustomer, shareViaWhatsApp, Customer } from '@/hooks/useCustomerDues';
 import { useCustomersWithPrescriptions } from '@/hooks/useCustomerPrescriptions';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,6 +38,7 @@ import {
 
 export default function CustomerDues() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showOnlyWithPrescriptions, setShowOnlyWithPrescriptions] = useState(false);
   const [addCustomerOpen, setAddCustomerOpen] = useState(false);
   const [addDueOpen, setAddDueOpen] = useState(false);
   const [recordPaymentOpen, setRecordPaymentOpen] = useState(false);
@@ -98,10 +99,13 @@ export default function CustomerDues() {
     });
   };
 
-  const filteredCustomers = customers?.filter((c) =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.phone?.includes(searchTerm)
-  );
+  const filteredCustomers = customers?.filter((c) => {
+    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.phone?.includes(searchTerm);
+    const matchesPrescriptionFilter = !showOnlyWithPrescriptions || 
+      customersWithPrescriptions?.includes(c.id);
+    return matchesSearch && matchesPrescriptionFilter;
+  });
 
   const handleAddDue = (customer: any) => {
     setSelectedCustomer(customer);
@@ -201,14 +205,29 @@ export default function CustomerDues() {
               </div>
               {t.customerDues.allCustomers}
             </CardTitle>
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder={t.customerDues.searchByNamePhone}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
-              />
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button
+                variant={showOnlyWithPrescriptions ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowOnlyWithPrescriptions(!showOnlyWithPrescriptions)}
+                className={cn(
+                  "gap-1.5 shrink-0",
+                  showOnlyWithPrescriptions && "bg-primary text-primary-foreground"
+                )}
+              >
+                {showOnlyWithPrescriptions ? <FilterX className="h-4 w-4" /> : <Filter className="h-4 w-4" />}
+                <Pill className="h-4 w-4" />
+                <span className="hidden sm:inline">{t.customerDues?.prescriptionFilter || 'Prescription'}</span>
+              </Button>
+              <div className="relative flex-1 sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder={t.customerDues.searchByNamePhone}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
             </div>
           </div>
         </CardHeader>

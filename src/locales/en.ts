@@ -816,6 +816,7 @@ export const en = {
     deletePrescription: 'Delete Prescription?',
     deletePrescriptionConfirm: 'This medicine will be removed from the prescription.',
     viewPrescription: 'View Prescription',
+    prescriptionFilter: 'Prescription',
     hasPrescription: 'Has prescription medicines',
   },
 
