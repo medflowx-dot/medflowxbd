@@ -10,6 +10,7 @@ import {
   Layers,
   Clock,
   Bell,
+  Pill,
 } from 'lucide-react';
 import {
   Drawer,
@@ -33,6 +34,7 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
+  { id: 'medicines', labelKey: 'medicines', icon: Pill, path: '/dashboard/medicines', iconClass: 'icon-container-primary' },
   { id: 'manufacturers', labelKey: 'manufacturers', icon: Factory, path: '/dashboard/manufacturers', iconClass: 'icon-container-info' },
   { id: 'suppliers', labelKey: 'suppliers', icon: Truck, path: '/dashboard/suppliers', badge: 'supplierDues', iconClass: 'icon-container-info' },
   { id: 'batches', labelKey: 'batches', icon: Layers, path: '/dashboard/batches', iconClass: 'icon-container-primary' },
@@ -57,6 +59,7 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
 
   const getLabel = (key: string) => {
     const labels: Record<string, string> = {
+      medicines: t.nav?.medicines || 'ঔষধ',
       manufacturers: t.nav?.manufacturers || 'প্রস্তুতকারক',
       suppliers: t.nav?.suppliers || 'সরবরাহকারী',
       batches: t.nav?.batches || 'ব্যাচ',
