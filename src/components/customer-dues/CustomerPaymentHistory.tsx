@@ -170,38 +170,36 @@ export function CustomerPaymentHistory({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent variant="fullscreen" className="sm:max-w-lg">
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <DialogTitle className="flex items-center gap-2">
-                <Wallet className="h-5 w-5" />
-                {customerName}
-              </DialogTitle>
-              <div className="flex items-center gap-2">
-                {customer && transactions.length > 0 && activeTab === 'transactions' && (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleExportStatement}
-                      className="gap-1.5"
-                    >
-                      <FileText className="h-4 w-4" />
-                      {t.customerDues?.exportStatement || 'Statement'}
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => setClearHistoryOpen(true)}
-                      className="gap-1.5"
-                    >
-                      <Eraser className="h-4 w-4" />
-                      {t.customerDues?.clearHistory || 'Clear All'}
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
+          <DialogHeader className="pr-10">
+            <DialogTitle className="flex items-center gap-2">
+              <Wallet className="h-5 w-5" />
+              {customerName}
+            </DialogTitle>
           </DialogHeader>
+
+          {/* Action buttons below header */}
+          {customer && transactions.length > 0 && activeTab === 'transactions' && (
+            <div className="flex items-center gap-2 -mt-2 mb-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportStatement}
+                className="gap-1.5"
+              >
+                <FileText className="h-4 w-4" />
+                {t.customerDues?.exportStatement || 'Statement'}
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setClearHistoryOpen(true)}
+                className="gap-1.5"
+              >
+                <Eraser className="h-4 w-4" />
+                {t.customerDues?.clearHistory || 'Clear All'}
+              </Button>
+            </div>
+          )}
 
           {/* Tabs for Transactions and Prescriptions */}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'transactions' | 'prescriptions')} className="w-full">
