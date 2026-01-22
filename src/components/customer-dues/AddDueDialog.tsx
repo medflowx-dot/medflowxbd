@@ -101,7 +101,7 @@ export function AddDueDialog({ open, onOpenChange, customer }: AddDueDialogProps
           {/* Total Due Summary */}
           <div className="p-3 bg-muted rounded-lg space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">এই বকেয়া (This Due):</span>
+              <span className="text-muted-foreground">{t.customerDues.thisDue}:</span>
               <span className="font-semibold text-destructive">
                 ৳{Math.round(parseFloat(amount) || 0)}
               </span>

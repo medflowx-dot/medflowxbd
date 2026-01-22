@@ -247,6 +247,12 @@ export const bn: TranslationKeys = {
     noDues: 'কোনো বকেয়া নেই',
     total: 'মোট',
     supplierDuesTitle: 'সরবরাহকারী বকেয়া',
+    // Transaction descriptions
+    salePrefix: 'বিক্রি',
+    dueCollection: 'বকেয়া আদায়',
+    costPrefix: 'খরচ',
+    supplierPayment: 'সাপ্লায়ার পেমেন্ট',
+    more: 'আরও',
   },
 
   // Medicines Page
@@ -535,6 +541,8 @@ export const bn: TranslationKeys = {
     advanceAmount: 'অ্যাডভান্স পরিমাণ',
     othersNotesPlaceholder: 'এই পেমেন্টের কারণ লিখুন...',
     paymentNotesPlaceholder: 'পেমেন্ট নোট',
+    payFullDue: 'পুরো বকেয়া পরিশোধ',
+    payFullDueWithValue: 'পুরো বকেয়া পরিশোধ (৳{amount})',
     // Payment History
     recentPayments: 'সাম্প্রতিক পেমেন্ট',
     paymentsToSuppliers: 'সরবরাহকারীদের দেওয়া পেমেন্ট',
@@ -731,7 +739,8 @@ export const bn: TranslationKeys = {
     recordPaymentFrom: 'পেমেন্ট রেকর্ড করুন',
     outstandingDue: 'বকেয়া পাওনা',
     paymentAmount: 'পেমেন্ট পরিমাণ (৳)',
-    payFullAmount: 'সম্পূর্ণ পরিশোধ করুন',
+    payFullAmount: 'পুরো পরিশোধ',
+    payFullAmountWithValue: 'পুরো বকেয়া পরিশোধ (৳{amount})',
     paymentMethod: 'পেমেন্ট পদ্ধতি',
     cash: 'ক্যাশ',
     bkash: 'বিকাশ',
@@ -739,6 +748,7 @@ export const bn: TranslationKeys = {
     bankTransfer: 'ব্যাংক ট্রান্সফার',
     other: 'অন্যান্য',
     remainingDue: 'পেমেন্টের পর অবশিষ্ট বকেয়া',
+    thisDue: 'এই বকেয়া',
     recording: 'রেকর্ড হচ্ছে...',
     // Report
     customerReport: 'গ্রাহক রিপোর্ট',

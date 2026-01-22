@@ -104,6 +104,25 @@ export default function DashboardHome() {
     }
   };
 
+  // Localize transaction descriptions
+  const getLocalizedDescription = (transaction: Transaction): string => {
+    switch (transaction.type) {
+      case 'sale':
+        return `${t.dashboard.salePrefix} ${transaction.description.replace('বিক্রি ', '').replace('Sale ', '')}`;
+      case 'due_collection':
+        const customerName = transaction.description.replace('বকেয়া আদায় - ', '').replace('Due Collection - ', '');
+        return `${t.dashboard.dueCollection} - ${customerName}`;
+      case 'daily_cost':
+        const costDesc = transaction.description.replace('খরচ - ', '').replace('Cost - ', '');
+        return `${t.dashboard.costPrefix} - ${costDesc}`;
+      case 'supplier_payment':
+        const supplierName = transaction.description.replace('সাপ্লায়ার পেমেন্ট - ', '').replace('Supplier Payment - ', '');
+        return `${t.dashboard.supplierPayment} - ${supplierName}`;
+      default:
+        return transaction.description;
+    }
+  };
+
   const getTransactionStyle = (type: Transaction['type'], isIncome: boolean) => {
     if (isIncome) {
       return {
@@ -406,7 +425,7 @@ export default function DashboardHome() {
                       <Icon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-medium truncate">{transaction.description}</p>
+                      <p className="text-xs sm:text-sm font-medium truncate">{getLocalizedDescription(transaction)}</p>
                       <p className="text-[10px] sm:text-xs text-muted-foreground">{transaction.time}</p>
                     </div>
                     <div className={cn("text-xs sm:text-sm font-bold shrink-0", style.text)}>
