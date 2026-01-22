@@ -238,12 +238,12 @@ export default function ExpiryMonitoring() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="text-center">{t.expiryMonitoring.status}</TableHead>
                         <TableHead>{t.expiryMonitoring.medicine}</TableHead>
                         <TableHead>{t.expiryMonitoring.batchNo}</TableHead>
                         <TableHead>{t.expiryMonitoring.category}</TableHead>
                         <TableHead>{t.expiryMonitoring.manufacturer}</TableHead>
                         <TableHead>{t.expiryMonitoring.expiryDate}</TableHead>
-                        <TableHead className="text-center">{t.expiryMonitoring.status}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -255,6 +255,9 @@ export default function ExpiryMonitoring() {
                             batch.status === 'critical' && 'bg-warning/10'
                           )}
                         >
+                          <TableCell className="text-center">
+                            {getStatusBadge(batch.status, batch.daysUntilExpiry)}
+                          </TableCell>
                           <TableCell className="font-medium">{batch.medicine_name}</TableCell>
                           <TableCell className="font-mono text-sm">{batch.batch_number}</TableCell>
                           <TableCell>{batch.category || '-'}</TableCell>
@@ -264,9 +267,6 @@ export default function ExpiryMonitoring() {
                               <Clock className="h-4 w-4 text-muted-foreground" />
                               {format(new Date(batch.expiry_date), 'dd MMM yyyy')}
                             </span>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {getStatusBadge(batch.status, batch.daysUntilExpiry)}
                           </TableCell>
                         </TableRow>
                       ))}
