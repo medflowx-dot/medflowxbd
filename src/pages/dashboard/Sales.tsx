@@ -6,9 +6,10 @@ import { NewSaleDialog } from '@/components/sales/NewSaleDialog';
 import { QuickSaleDialog } from '@/components/sales/QuickSaleDialog';
 import { SalesTable } from '@/components/sales/SalesTable';
 import { useSales, type EntryType } from '@/hooks/useSales';
-import { Zap, ClipboardList, TrendingUp, Wallet, Loader2 } from 'lucide-react';
+import { Zap, ClipboardList, TrendingUp, Wallet } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
+import { SummaryCardsSkeleton, TableSkeleton } from '@/components/ui/skeletons';
 
 export default function Sales() {
   const { sales, isLoading, todayStats } = useSales();
@@ -131,9 +132,7 @@ export default function Sales() {
         </CardHeader>
         <CardContent className="p-0 sm:p-4 md:p-6 pt-0">
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
+            <TableSkeleton rows={5} columns={7} />
           ) : (
             <SalesTable sales={filteredSales} />
           )}

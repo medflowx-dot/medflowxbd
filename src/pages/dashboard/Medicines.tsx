@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Package, Search, AlertTriangle, MapPin, Globe, Copy, Loader2 } from 'lucide-react';
+import { Package, Search, AlertTriangle, MapPin, Globe, Copy } from 'lucide-react';
 import { AddMedicineDialog } from '@/components/medicines/AddMedicineDialog';
 import { BulkImportDialog } from '@/components/medicines/BulkImportDialog';
 import { MedicineTable } from '@/components/medicines/MedicineTable';
@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { TableSkeleton } from '@/components/ui/skeletons';
 
 export default function Medicines() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -194,9 +195,7 @@ export default function Medicines() {
             </CardHeader>
             <CardContent className="p-0 sm:p-4">
               {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
+                <TableSkeleton rows={5} columns={6} />
               ) : (
                 <MedicineTable medicines={medicines} searchTerm={searchTerm} shelfFilter={shelfFilter} />
               )}
@@ -231,9 +230,7 @@ export default function Medicines() {
                 <Input placeholder={t.medicines.searchGlobal} value={globalSearchTerm} onChange={(e) => setGlobalSearchTerm(e.target.value)} className="pl-9" />
               </div>
               {globalLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
+                <TableSkeleton rows={5} columns={5} />
               ) : filteredGlobalMedicines.length === 0 ? (
                 <div className="py-8 text-center text-muted-foreground">
                   <div className="h-16 w-16 mx-auto mb-3 rounded-full bg-muted/50 flex items-center justify-center">
