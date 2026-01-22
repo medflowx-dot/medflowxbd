@@ -70,12 +70,17 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Find user by phone number in profiles
+    // Find user by phone number in profiles (check both formats)
+    const localFormat = formattedPhone.startsWith("880") 
+      ? "0" + formattedPhone.substring(3) 
+      : formattedPhone;
+    
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
       .select("user_id")
-      .eq("phone", formattedPhone)
       .eq("phone_verified", true)
+      .or(`phone.eq.${formattedPhone},phone.eq.${localFormat}`)
+      .limit(1)
       .single();
 
     if (profileError || !profile) {
