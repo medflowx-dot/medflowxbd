@@ -105,7 +105,7 @@ export function MobileFAB({ actions }: MobileFABProps) {
 
       {/* Vertical Actions Menu - slides up from FAB */}
       {isExpanded && (
-        <div className="fixed bottom-40 right-4 z-50 md:hidden">
+        <div className="fixed bottom-40 right-4 z-[60] md:hidden">
           <div className="flex flex-col gap-3">
             {actions.map((action, index) => {
               const Icon = action.icon;
@@ -115,13 +115,13 @@ export function MobileFAB({ actions }: MobileFABProps) {
                   onClick={() => handleActionClick(action)}
                   className={cn(
                     "flex items-center gap-3 pr-4 pl-2 py-2 rounded-full",
-                    "bg-card/95 backdrop-blur-xl border border-border/50 shadow-lg",
+                    "bg-card border border-border shadow-xl",
                     "active:scale-95 touch-manipulation",
-                    "hover:bg-card transition-colors duration-100",
-                    "opacity-0 animate-[fab-item-enter_0.4s_ease-out_forwards]"
+                    "transition-all duration-150",
+                    "fab-menu-item"
                   )}
                   style={{
-                    animationDelay: `${(actions.length - 1 - index) * 80}ms`
+                    animationDelay: `${(actions.length - 1 - index) * 60}ms`
                   }}
                 >
                   <div className={cn(
@@ -130,7 +130,7 @@ export function MobileFAB({ actions }: MobileFABProps) {
                   )}>
                     <Icon className="h-5 w-5" />
                   </div>
-                  <span className="text-sm font-medium text-foreground whitespace-nowrap">
+                  <span className="text-sm font-medium text-foreground whitespace-nowrap pr-2">
                     {action.label}
                   </span>
                 </button>

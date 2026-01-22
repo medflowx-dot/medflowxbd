@@ -876,6 +876,12 @@
     transform: translateX(0) scale(1);
   }
 }
+
+/* FAB Menu Item Animation Class */
+.fab-menu-item {
+  opacity: 0;
+  animation: fab-item-enter 0.35s ease-out forwards;
+}
 @keyframes card-enter {
   from {
     opacity: 0;
