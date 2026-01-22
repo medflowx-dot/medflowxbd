@@ -1336,6 +1336,10 @@ export const en = {
     incorrectPin: 'Incorrect PIN. Try again.',
     pinSetupFailed: 'Failed to setup PIN',
     pinSetupSuccess: 'PIN setup complete! You can now use PIN for quick login.',
+    loginSuccessPinSetup: 'Login successful! Now set up your PIN.',
+    sessionExpired: 'Session expired. Please login with password.',
+    connectionError: 'Cannot connect to server. Check your internet.',
+    pinVerifyFailed: 'PIN verification failed',
   },
 };
 

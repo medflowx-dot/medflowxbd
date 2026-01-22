@@ -175,7 +175,15 @@ export default function Login() {
       // Set the session
       if (data?.session) {
         await supabase.auth.setSession(data.session);
-        toast.success('স্বাগতম!');
+        
+        // Save session for PIN login (mobile app only)
+        if (isMobileApp) {
+          localStorage.setItem('medflowx_user_id', data.user.id);
+          localStorage.setItem('medflowx_session', JSON.stringify(data.session));
+          setUserId(data.user.id);
+        }
+        
+        toast.success(t.login.welcome || 'স্বাগতম!');
         navigate(from, { replace: true });
       }
     } catch (error: unknown) {
@@ -255,21 +263,22 @@ export default function Login() {
       if (data?.session) {
         await supabase.auth.setSession(data.session);
         
-        // Save user ID for PIN login (mobile app only)
+        // Save user ID and session for PIN login (mobile app only)
         if (isMobileApp) {
           localStorage.setItem('medflowx_user_id', data.user.id);
+          localStorage.setItem('medflowx_session', JSON.stringify(data.session));
           setUserId(data.user.id);
           
           // Check if PIN is set up
           if (!data.hasPinSetup) {
             setShowPinSetup(true);
-            toast.success('লগইন সফল! এখন পিন সেটআপ করুন।');
+            toast.success(t.login.loginSuccessPinSetup || 'লগইন সফল! এখন পিন সেটআপ করুন।');
             setPhoneLoading(false);
             return;
           }
         }
         
-        toast.success('স্বাগতম!');
+        toast.success(t.login.welcome || 'স্বাগতম!');
         navigate(from, { replace: true });
       }
     } catch (error: unknown) {
@@ -324,7 +333,13 @@ export default function Login() {
         throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
 
-      toast.success('পিন সেটআপ সফল!');
+      // Refresh and save the session after PIN setup
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (currentSession && isMobileApp) {
+        localStorage.setItem('medflowx_session', JSON.stringify(currentSession));
+      }
+
+      toast.success(t.login.pinSetupSuccess || 'পিন সেটআপ সফল!');
       setShowPinSetup(false);
       navigate(from, { replace: true });
     } catch (error: unknown) {
@@ -341,24 +356,45 @@ export default function Login() {
 
     setPinLoading(true);
     try {
-      // First, we need to get a session using stored credentials
-      // This is a simplified flow - in production you'd want to store encrypted session
       const savedSession = localStorage.getItem('medflowx_session');
       
       if (!savedSession) {
-        toast.error('সেশন মেয়াদোত্তীর্ণ। পাসওয়ার্ড দিয়ে লগইন করুন।');
+        toast.error(t.login.sessionExpired || 'সেশন মেয়াদোত্তীর্ণ। পাসওয়ার্ড দিয়ে লগইন করুন।');
         setShowPinLogin(false);
         setPinLoading(false);
         return;
       }
 
-      const session = JSON.parse(savedSession);
+      const storedSession = JSON.parse(savedSession);
       
-      // Verify PIN
+      // Try to refresh the session first (handles expired access tokens)
+      let activeSession = storedSession;
+      try {
+        const { data: refreshed, error: refreshError } = await supabase.auth.setSession({
+          access_token: storedSession.access_token,
+          refresh_token: storedSession.refresh_token
+        });
+        
+        if (refreshError || !refreshed.session) {
+          throw new Error('Session refresh failed');
+        }
+        
+        activeSession = refreshed.session;
+        // Save the refreshed session
+        localStorage.setItem('medflowx_session', JSON.stringify(activeSession));
+      } catch {
+        // If refresh fails, redirect to password login
+        toast.error(t.login.sessionExpired || 'সেশন মেয়াদোত্তীর্ণ। পাসওয়ার্ড দিয়ে লগইন করুন।');
+        switchToPasswordLogin();
+        setPinLoading(false);
+        return;
+      }
+      
+      // Verify PIN with refreshed session
       const { data, error } = await supabase.functions.invoke('pin-auth', {
         body: { action: 'verify', pin: loginPin },
         headers: {
-          Authorization: `Bearer ${session.access_token}`
+          Authorization: `Bearer ${activeSession.access_token}`
         }
       });
 
@@ -374,15 +410,14 @@ export default function Login() {
       
       // Network/SDK level error
       if (error && !data) {
-        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
+        throw new Error(t.login.connectionError || 'সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
 
-      // Set session and navigate
-      await supabase.auth.setSession(session);
-      toast.success('স্বাগতম!');
+      // Session is already set by setSession above, just navigate
+      toast.success(t.login.welcome || 'স্বাগতম!');
       navigate(from, { replace: true });
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'পিন যাচাই ব্যর্থ';
+      const message = error instanceof Error ? error.message : (t.login.pinVerifyFailed || 'পিন যাচাই ব্যর্থ');
       toast.error(message);
       setLoginPin('');
     } finally {

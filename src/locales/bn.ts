@@ -1337,5 +1337,9 @@ export const bn: TranslationKeys = {
     incorrectPin: 'ভুল পিন। আবার চেষ্টা করুন।',
     pinSetupFailed: 'পিন সেটআপ ব্যর্থ হয়েছে',
     pinSetupSuccess: 'পিন সেটআপ সম্পন্ন! এখন দ্রুত লগইনের জন্য পিন ব্যবহার করতে পারবেন।',
+    loginSuccessPinSetup: 'লগইন সফল! এখন পিন সেটআপ করুন।',
+    sessionExpired: 'সেশন মেয়াদোত্তীর্ণ। পাসওয়ার্ড দিয়ে লগইন করুন।',
+    connectionError: 'সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।',
+    pinVerifyFailed: 'পিন যাচাই ব্যর্থ',
   },
 };
