@@ -78,31 +78,69 @@ export default function Login() {
 
   // Check for saved user and PIN on mount (mobile app only)
   useEffect(() => {
-    if (isMobileApp) {
+    const initializePinLogin = async () => {
+      if (!isMobileApp) return;
+      
       const savedUserId = localStorage.getItem('medflowx_user_id');
-      if (savedUserId) {
+      const savedSession = localStorage.getItem('medflowx_session');
+      
+      if (savedUserId && savedSession) {
         setUserId(savedUserId);
-        // Check if user has PIN
-        checkUserHasPin(savedUserId);
+        
+        try {
+          // First restore the session so we can query the database
+          const sessionData = JSON.parse(savedSession);
+          if (sessionData?.refresh_token) {
+            // Try to refresh the session to get a valid access token
+            const { data: refreshedSession, error: refreshError } = await supabase.auth.setSession({
+              access_token: sessionData.access_token,
+              refresh_token: sessionData.refresh_token
+            });
+            
+            if (!refreshError && refreshedSession?.session) {
+              // Session is valid, now check if user has PIN
+              await checkUserHasPin(savedUserId);
+              
+              // Update stored session with refreshed tokens
+              localStorage.setItem('medflowx_session', JSON.stringify(refreshedSession.session));
+            } else {
+              console.log('Session refresh failed, clearing stored data');
+              // Session invalid, clear stored data
+              localStorage.removeItem('medflowx_session');
+              localStorage.removeItem('medflowx_user_id');
+              setUserId(null);
+            }
+          }
+        } catch (error) {
+          console.error('Error restoring session:', error);
+          // Clear invalid session data
+          localStorage.removeItem('medflowx_session');
+          localStorage.removeItem('medflowx_user_id');
+          setUserId(null);
+        }
       }
-    }
+    };
+    
+    initializePinLogin();
   }, [isMobileApp]);
 
   const checkUserHasPin = async (uid: string) => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('user_pins')
         .select('id, is_active')
         .eq('user_id', uid)
         .eq('is_active', true)
         .single();
       
-      if (data) {
+      if (data && !error) {
         setHasPinSetup(true);
         setShowPinLogin(true);
+      } else {
+        console.log('No PIN found or error:', error?.message);
       }
-    } catch {
-      // No PIN set up
+    } catch (err) {
+      console.error('Error checking PIN:', err);
     }
   };
 
