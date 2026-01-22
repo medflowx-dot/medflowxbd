@@ -46,23 +46,29 @@ export default function AdminLogin() {
         body: { email, password }
       });
 
-      if (error) throw error;
-      
-      // Check for lock status
-      if (data.locked) {
-        setIsLocked(true);
-        setLockRemainingMinutes(data.remainingMinutes || 15);
-        toast.error(data.error);
-        setLoading(false);
-        return;
+      // Check data.error first (Edge Function returns error in body even with non-2xx)
+      if (data?.error) {
+        // Check for lock status
+        if (data.locked) {
+          setIsLocked(true);
+          setLockRemainingMinutes(data.remainingMinutes || 15);
+          toast.error(data.error);
+          setLoading(false);
+          return;
+        }
+        
+        // Check for attempts remaining
+        if (data.attemptsRemaining !== undefined) {
+          setAttemptsRemaining(data.attemptsRemaining);
+        }
+        
+        throw new Error(data.error);
       }
       
-      // Check for attempts remaining
-      if (data.attemptsRemaining !== undefined) {
-        setAttemptsRemaining(data.attemptsRemaining);
+      // Network/SDK level error (no data returned)
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
-      
-      if (data.error) throw new Error(data.error);
 
       // Set the session first
       if (data.session) {
