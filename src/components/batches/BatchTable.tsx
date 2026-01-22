@@ -68,16 +68,16 @@ export function BatchTable({ batches, medicines, canManage }: BatchTableProps) {
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
+    <div className="rounded-md border overflow-x-auto">
+      <Table className="min-w-[500px]">
         <TableHeader>
           <TableRow>
             <TableHead>{t.batches.medicine}</TableHead>
             <TableHead>{t.batches.batchNo}</TableHead>
             <TableHead>{t.batches.expiryDate}</TableHead>
-            <TableHead>{t.batches.supplier}</TableHead>
+            <TableHead className="hidden sm:table-cell">{t.batches.supplier}</TableHead>
             {canManage && (
-              <TableHead className="text-right">{t.batches.actions}</TableHead>
+              <TableHead className="text-right sticky right-0 bg-background">{t.batches.actions}</TableHead>
             )}
           </TableRow>
         </TableHeader>
@@ -118,11 +118,11 @@ export function BatchTable({ batches, medicines, canManage }: BatchTableProps) {
                     {format(new Date(batch.expiry_date), 'dd MMM yyyy')}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   {batch.supplier_name || '-'}
                 </TableCell>
                 {canManage && (
-                  <TableCell className="text-right">
+                  <TableCell className="text-right sticky right-0 bg-background">
                     <div className="flex items-center justify-end gap-1">
                       <AddBatchDialog
                         medicines={medicines}

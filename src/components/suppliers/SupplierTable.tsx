@@ -125,8 +125,8 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
 
   return (
     <>
-      <div className="border rounded-lg overflow-hidden">
-        <Table>
+      <div className="border rounded-lg overflow-x-auto">
+        <Table className="min-w-[600px]">
           <TableHeader>
             <TableRow>
               <TableHead>{t.suppliers.supplier}</TableHead>
@@ -134,7 +134,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
               <TableHead className="hidden sm:table-cell">{t.suppliers.contact}</TableHead>
               <TableHead className="text-right">{t.suppliers.totalPaid}</TableHead>
               <TableHead className="text-right">{t.suppliers.totalDue}</TableHead>
-              <TableHead className="w-[100px]">{t.suppliers.actions}</TableHead>
+              <TableHead className="w-[100px] sticky right-0 bg-background">{t.suppliers.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -221,7 +221,7 @@ export function SupplierTable({ suppliers, searchQuery }: SupplierTableProps) {
                     <Badge variant="secondary">৳0</Badge>
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell className="sticky right-0 bg-background">
                   <div className="flex items-center gap-1">
                     <Button 
                       size="icon" 

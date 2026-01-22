@@ -245,13 +245,13 @@ export default function CustomerDues() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
+              <Table className="min-w-[500px]">
                 <TableHeader>
                   <TableRow className="bg-muted/30">
                     <TableHead>{t.customerDues.name}</TableHead>
                     <TableHead className="hidden sm:table-cell">{t.customerDues.phone}</TableHead>
                     <TableHead className="text-right">{t.customerDues.dueAmount}</TableHead>
-                    <TableHead className="text-right">{t.medicines.actions}</TableHead>
+                    <TableHead className="text-right w-auto sticky right-0 bg-muted/30 backdrop-blur-sm">{t.medicines.actions}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -287,8 +287,8 @@ export default function CustomerDues() {
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-0.5 sm:gap-1">
+                      <TableCell className="text-right sticky right-0 bg-background">
+                        <div className="flex justify-end gap-0.5 sm:gap-1 flex-nowrap">
                           <EditCustomerDialog
                             customer={customer}
                             trigger={
