@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import logoAuthFallback from '@/assets/logo-auth.png';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { parseEdgeFunctionError, getErrorMessage } from '@/lib/edgeFunctionError';
 
 export default function Login() {
   const { logoAuth } = usePlatformBranding();
@@ -121,26 +122,30 @@ export default function Login() {
         body: { email, password: emailPassword }
       });
 
-      // Check data.error first (Edge Function returns error in body even with non-2xx)
-      if (data?.error) {
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
         // Check for lock status
-        if (data.locked) {
+        if (errorData.locked) {
           setIsEmailLocked(true);
-          setEmailLockRemainingMinutes(data.remainingMinutes || 15);
-          toast.error(data.error);
+          setEmailLockRemainingMinutes(errorData.remainingMinutes || 15);
+          toast.error(errorData.error);
           setEmailLoading(false);
           return;
         }
         
         // Check for attempts remaining
-        if (data.attemptsRemaining !== undefined) {
-          setEmailAttemptsRemaining(data.attemptsRemaining);
+        if (errorData.attemptsRemaining !== undefined) {
+          setEmailAttemptsRemaining(errorData.attemptsRemaining);
         }
         
-        throw new Error(data.error);
+        toast.error(errorData.error);
+        setEmailLoading(false);
+        return;
       }
       
-      // Network/SDK level error (no data returned)
+      // Network/SDK level error (no data and no parseable error)
       if (error && !data) {
         throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
@@ -150,7 +155,7 @@ export default function Login() {
       setEmailAttemptsRemaining(null);
 
       // Set the session
-      if (data.session) {
+      if (data?.session) {
         await supabase.auth.setSession(data.session);
         toast.success('স্বাগতম!');
         navigate(from, { replace: true });
@@ -185,26 +190,30 @@ export default function Login() {
         body: { phone, password: phonePassword }
       });
 
-      // Check data.error first (Edge Function returns error in body even with non-2xx)
-      if (data?.error) {
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
         // Check for lock status
-        if (data.locked) {
+        if (errorData.locked) {
           setIsPhoneLocked(true);
-          setPhoneLockRemainingMinutes(data.remainingMinutes || 15);
-          toast.error(data.error);
+          setPhoneLockRemainingMinutes(errorData.remainingMinutes || 15);
+          toast.error(errorData.error);
           setPhoneLoading(false);
           return;
         }
         
         // Check for attempts remaining
-        if (data.attemptsRemaining !== undefined) {
-          setPhoneAttemptsRemaining(data.attemptsRemaining);
+        if (errorData.attemptsRemaining !== undefined) {
+          setPhoneAttemptsRemaining(errorData.attemptsRemaining);
         }
         
-        throw new Error(data.error);
+        toast.error(errorData.error);
+        setPhoneLoading(false);
+        return;
       }
       
-      // Network/SDK level error (no data returned)
+      // Network/SDK level error (no data and no parseable error)
       if (error && !data) {
         throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
@@ -214,7 +223,7 @@ export default function Login() {
       setPhoneAttemptsRemaining(null);
 
       // Set the session
-      if (data.session) {
+      if (data?.session) {
         await supabase.auth.setSession(data.session);
         
         // Save user ID for PIN login (mobile app only)
@@ -272,12 +281,16 @@ export default function Login() {
         } : undefined
       });
 
-      // Check data.error first (Edge Function returns error in body even with non-2xx)
-      if (data?.error) {
-        throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setPinLoading(false);
+        return;
       }
       
-      // Network/SDK level error (no data returned)
+      // Network/SDK level error
       if (error && !data) {
         throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
@@ -320,12 +333,17 @@ export default function Login() {
         }
       });
 
-      // Check data.error first (Edge Function returns error in body even with non-2xx)
-      if (data?.error) {
-        throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setLoginPin('');
+        setPinLoading(false);
+        return;
       }
       
-      // Network/SDK level error (no data returned)
+      // Network/SDK level error
       if (error && !data) {
         throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }

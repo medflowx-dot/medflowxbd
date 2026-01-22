@@ -10,6 +10,7 @@ import { usePlatformBranding } from '@/hooks/usePlatformBranding';
 import { supabase } from '@/integrations/supabase/client';
 import logoAuthFallback from '@/assets/logo-auth.png';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { parseEdgeFunctionError } from '@/lib/edgeFunctionError';
 
 export default function AdminLogin() {
   const { logoAuth } = usePlatformBranding();
@@ -46,32 +47,36 @@ export default function AdminLogin() {
         body: { email, password }
       });
 
-      // Check data.error first (Edge Function returns error in body even with non-2xx)
-      if (data?.error) {
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
         // Check for lock status
-        if (data.locked) {
+        if (errorData.locked) {
           setIsLocked(true);
-          setLockRemainingMinutes(data.remainingMinutes || 15);
-          toast.error(data.error);
+          setLockRemainingMinutes(errorData.remainingMinutes || 15);
+          toast.error(errorData.error);
           setLoading(false);
           return;
         }
         
         // Check for attempts remaining
-        if (data.attemptsRemaining !== undefined) {
-          setAttemptsRemaining(data.attemptsRemaining);
+        if (errorData.attemptsRemaining !== undefined) {
+          setAttemptsRemaining(errorData.attemptsRemaining);
         }
         
-        throw new Error(data.error);
+        toast.error(errorData.error);
+        setLoading(false);
+        return;
       }
       
-      // Network/SDK level error (no data returned)
+      // Network/SDK level error (no data and no parseable error)
       if (error && !data) {
         throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
       }
 
       // Set the session first
-      if (data.session) {
+      if (data?.session) {
         await supabase.auth.setSession(data.session);
         
         // Now check if this user is an owner_admin
