@@ -624,6 +624,14 @@ export const bn: TranslationKeys = {
     manageAppearance: 'অ্যাপের লুক এবং ফিল কাস্টমাইজ করুন',
     darkMode: 'ডার্ক মোড',
     darkModeDesc: 'কম আলোতে ভালো দৃশ্যমানতার জন্য ডার্ক থিমে সুইচ করুন',
+    // Storage
+    storage: 'স্টোরেজ',
+    manageStorage: 'অ্যাপ ক্যাশ এবং স্টোরেজ ব্যবস্থাপনা করুন',
+    clearCache: 'ক্যাশ ক্লিয়ার করুন',
+    clearCacheDesc: 'স্টোরেজ স্পেস মুক্ত করতে ক্যাশড ডেটা সরান',
+    clearing: 'ক্লিয়ার হচ্ছে...',
+    cacheCleared: 'ক্যাশ সফলভাবে ক্লিয়ার হয়েছে',
+    cacheClearFailed: 'ক্যাশ ক্লিয়ার করতে ব্যর্থ',
     // Notifications
     notifications: 'নোটিফিকেশন',
     manageNotifications: 'নোটিফিকেশন পছন্দ ব্যবস্থাপনা করুন',

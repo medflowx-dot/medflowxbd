@@ -623,6 +623,14 @@ export const en = {
     manageAppearance: 'Customize the look and feel of the app',
     darkMode: 'Dark Mode',
     darkModeDesc: 'Switch to dark theme for better visibility in low light',
+    // Storage
+    storage: 'Storage',
+    manageStorage: 'Manage app cache and storage',
+    clearCache: 'Clear Cache',
+    clearCacheDesc: 'Remove cached data to free up storage space',
+    clearing: 'Clearing...',
+    cacheCleared: 'Cache cleared successfully',
+    cacheClearFailed: 'Failed to clear cache',
     // Notifications
     notifications: 'Notifications',
     manageNotifications: 'Manage notification preferences',
