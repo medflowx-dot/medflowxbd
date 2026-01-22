@@ -99,7 +99,7 @@ serve(async (req: Request): Promise<Response> => {
     const smtpHost = smtpConfig.smtp_host;
     const smtpUser = smtpConfig.smtp_user;
     const smtpPassword = smtpConfig.smtp_password;
-    const smtpPort = smtpConfig.smtp_port;
+    const smtpPort = Number(smtpConfig.smtp_port) || 587;
     const smtpSecure = smtpConfig.smtp_secure;
     const smtpFromEmail = smtpConfig.smtp_from_email || smtpUser;
     const smtpFromName = smtpConfig.smtp_from_name || "MedFlowX";
@@ -121,30 +121,50 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
+    // Determine TLS mode based on port and settings
+    // Port 465 = implicit TLS (SSL from start)
+    // Port 587 = STARTTLS (upgrade after connection)
+    // Port 25 = No TLS (not recommended)
+    const isSecure = smtpSecure === true || smtpSecure === "true" || smtpSecure === "tls";
+    const useImplicitTLS = smtpPort === 465;
+
     console.log("SMTP Config:", { 
       host: smtpHost, 
       port: smtpPort,
       user: smtpUser,
-      secure: smtpSecure,
+      secure: isSecure,
+      implicitTLS: useImplicitTLS,
       fromEmail: smtpFromEmail,
       fromName: smtpFromName
     });
 
-    // Determine TLS setting
-    const useTls = smtpSecure === true || smtpSecure === "true" || smtpSecure === "tls";
-    const portNumber = Number(smtpPort) || 587;
-
-    // Create SMTP client
-    const client = new SMTPClient({
-      connection: {
-        hostname: smtpHost,
-        port: portNumber,
-        tls: useTls,
-        auth: {
-          username: smtpUser,
-          password: smtpPassword,
-        },
+    // Create SMTP client with proper TLS configuration
+    // For port 465: use tls: true (implicit TLS/SSL)
+    // For port 587: use tls: false with STARTTLS upgrade
+    const connectionConfig: any = {
+      hostname: smtpHost,
+      port: smtpPort,
+      auth: {
+        username: smtpUser,
+        password: smtpPassword,
       },
+    };
+
+    // Port 465 uses implicit TLS (connection starts encrypted)
+    // Port 587 uses STARTTLS (starts unencrypted, upgrades to TLS)
+    if (useImplicitTLS) {
+      // For port 465, we need wrapper TLS from the start
+      connectionConfig.tls = true;
+    } else if (isSecure) {
+      // For port 587 with STARTTLS
+      connectionConfig.tls = false; // Start without TLS, library will upgrade via STARTTLS
+    } else {
+      // No TLS
+      connectionConfig.tls = false;
+    }
+
+    const client = new SMTPClient({
+      connection: connectionConfig,
     });
 
     // Build proper RFC 5322 compliant email
