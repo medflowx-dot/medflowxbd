@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Pill, Search, Plus, Upload, MoreHorizontal, Pencil, Trash2, Database, Download, Loader2 } from 'lucide-react';
+import { Pill, Search, Plus, Upload, MoreHorizontal, Pencil, Trash2, Database, Download, Loader2, BookOpen } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useGlobalMedicines, GlobalMedicine, CreateGlobalMedicineData } from '@/hooks/useGlobalMedicines';
 import { useGlobalManufacturers } from '@/hooks/useGlobalManufacturers';
@@ -73,6 +73,7 @@ export default function GlobalMedicines() {
     is_tax_applicable: false,
   });
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isImportingReference, setIsImportingReference] = useState(false);
 
   const filteredMedicines = medicines.filter(m => {
     const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -181,6 +182,26 @@ export default function GlobalMedicines() {
       toast.error(error.message || 'Failed to generate master data');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleImportMedicineReference = async () => {
+    setIsImportingReference(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('import-medicine-reference');
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        toast.success(`${data.inserted} medicines imported to Reference Database! (${data.skipped} already existed)`);
+      } else {
+        toast.error(data.error || 'Failed to import medicine reference');
+      }
+    } catch (error: any) {
+      console.error('Error importing medicine reference:', error);
+      toast.error(error.message || 'Failed to import medicine reference');
+    } finally {
+      setIsImportingReference(false);
     }
   };
 
@@ -317,6 +338,18 @@ export default function GlobalMedicines() {
               <Database className="h-4 w-4 mr-2" />
             )}
             {isGenerating ? 'Generating...' : 'Generate Master Data'}
+          </Button>
+          <Button 
+            variant="default" 
+            onClick={handleImportMedicineReference}
+            disabled={isImportingReference}
+          >
+            {isImportingReference ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <BookOpen className="h-4 w-4 mr-2" />
+            )}
+            {isImportingReference ? 'Importing...' : 'Import Medicine Reference (500+)'}
           </Button>
           <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
