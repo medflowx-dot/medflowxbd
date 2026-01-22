@@ -20,6 +20,7 @@ export type Permission =
   | 'view_stock_short'
   | 'manage_stock_short'
   | 'view_reports'
+  | 'manage_reports'
   | 'view_settings'
   | 'manage_settings'
   | 'view_admin'
@@ -163,10 +164,13 @@ export function usePermissions() {
     if (staffDbPermissions.can_view_suppliers) permissions.push('view_suppliers');
     if (staffDbPermissions.can_manage_suppliers) permissions.push('manage_suppliers');
     if (staffDbPermissions.can_view_manufacturers) permissions.push('view_manufacturers');
+    if (staffDbPermissions.can_manage_manufacturers) permissions.push('manage_manufacturers');
     if (staffDbPermissions.can_view_daily_cash) permissions.push('view_daily_cash');
     if (staffDbPermissions.can_manage_daily_cash) permissions.push('manage_daily_cash');
     if (staffDbPermissions.can_view_stock_short) permissions.push('view_stock_short');
+    if (staffDbPermissions.can_manage_stock_short) permissions.push('manage_stock_short');
     if (staffDbPermissions.can_view_reports) permissions.push('view_reports');
+    if (staffDbPermissions.can_manage_reports) permissions.push('manage_reports');
   } else if (isStaff) {
     // Default staff permissions if no database record exists
     permissions = [
