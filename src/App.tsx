@@ -11,7 +11,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { SubscriptionGuard } from "@/components/auth/SubscriptionGuard";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { Loader2 } from "lucide-react";
+import { BrandedLoader } from "@/components/ui/branded-loader";
 
 // Eagerly loaded pages (critical path)
 import Index from "./pages/Index";
@@ -76,11 +76,7 @@ const queryClient = new QueryClient({
 });
 
 // Loading fallback component
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-[200px]">
-    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-  </div>
-);
+const PageLoader = () => <BrandedLoader />;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
