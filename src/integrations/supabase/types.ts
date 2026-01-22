@@ -1180,6 +1180,69 @@ export type Database = {
           },
         ]
       }
+      staff_permissions: {
+        Row: {
+          can_manage_customer_dues: boolean | null
+          can_manage_daily_cash: boolean | null
+          can_manage_medicines: boolean | null
+          can_manage_sales: boolean | null
+          can_manage_suppliers: boolean | null
+          can_view_customer_dues: boolean | null
+          can_view_daily_cash: boolean | null
+          can_view_manufacturers: boolean | null
+          can_view_medicines: boolean | null
+          can_view_reports: boolean | null
+          can_view_sales: boolean | null
+          can_view_stock_short: boolean | null
+          can_view_suppliers: boolean | null
+          created_at: string | null
+          id: string
+          pharmacy_owner_id: string
+          staff_user_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          can_manage_customer_dues?: boolean | null
+          can_manage_daily_cash?: boolean | null
+          can_manage_medicines?: boolean | null
+          can_manage_sales?: boolean | null
+          can_manage_suppliers?: boolean | null
+          can_view_customer_dues?: boolean | null
+          can_view_daily_cash?: boolean | null
+          can_view_manufacturers?: boolean | null
+          can_view_medicines?: boolean | null
+          can_view_reports?: boolean | null
+          can_view_sales?: boolean | null
+          can_view_stock_short?: boolean | null
+          can_view_suppliers?: boolean | null
+          created_at?: string | null
+          id?: string
+          pharmacy_owner_id: string
+          staff_user_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          can_manage_customer_dues?: boolean | null
+          can_manage_daily_cash?: boolean | null
+          can_manage_medicines?: boolean | null
+          can_manage_sales?: boolean | null
+          can_manage_suppliers?: boolean | null
+          can_view_customer_dues?: boolean | null
+          can_view_daily_cash?: boolean | null
+          can_view_manufacturers?: boolean | null
+          can_view_medicines?: boolean | null
+          can_view_reports?: boolean | null
+          can_view_sales?: boolean | null
+          can_view_stock_short?: boolean | null
+          can_view_suppliers?: boolean | null
+          created_at?: string | null
+          id?: string
+          pharmacy_owner_id?: string
+          staff_user_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       stock_order_items: {
         Row: {
           created_at: string
