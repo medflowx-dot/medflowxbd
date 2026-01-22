@@ -77,54 +77,91 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Parse settings into a map
+    // Parse settings into a map - handle JSON stringified values
     const smtpConfig: Record<string, any> = {};
     settings?.forEach((s) => {
       let value = s.setting_value;
-      // Remove quotes from string values
+      // Handle JSON stringified values
       if (typeof value === "string") {
+        // Remove surrounding quotes if present
         value = value.replace(/^"|"$/g, "");
+        // Try to parse as JSON
+        try {
+          value = JSON.parse(value);
+        } catch {
+          // Keep as string if not valid JSON
+        }
       }
       smtpConfig[s.setting_key] = value;
     });
 
     // Validate required SMTP settings
-    if (!smtpConfig.smtp_host || !smtpConfig.smtp_user || !smtpConfig.smtp_password) {
+    const smtpHost = smtpConfig.smtp_host;
+    const smtpUser = smtpConfig.smtp_user;
+    const smtpPassword = smtpConfig.smtp_password;
+    const smtpPort = smtpConfig.smtp_port;
+    const smtpSecure = smtpConfig.smtp_secure;
+    const smtpFromEmail = smtpConfig.smtp_from_email || smtpUser;
+    const smtpFromName = smtpConfig.smtp_from_name || "MedFlowX";
+
+    if (!smtpHost || !smtpUser || !smtpPassword) {
+      console.error("Missing SMTP config:", { smtpHost, smtpUser, hasPassword: !!smtpPassword });
       return new Response(
         JSON.stringify({ error: "SMTP not configured. Please configure SMTP settings in Owner Admin panel." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
+    // Validate from email
+    if (!smtpFromEmail) {
+      console.error("Missing from email address");
+      return new Response(
+        JSON.stringify({ error: "SMTP From Email not configured. Please set smtp_from_email in settings." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     console.log("SMTP Config:", { 
-      host: smtpConfig.smtp_host, 
-      port: smtpConfig.smtp_port,
-      user: smtpConfig.smtp_user,
-      secure: smtpConfig.smtp_secure
+      host: smtpHost, 
+      port: smtpPort,
+      user: smtpUser,
+      secure: smtpSecure,
+      fromEmail: smtpFromEmail,
+      fromName: smtpFromName
     });
+
+    // Determine TLS setting
+    const useTls = smtpSecure === true || smtpSecure === "true" || smtpSecure === "tls";
+    const portNumber = Number(smtpPort) || 587;
 
     // Create SMTP client
     const client = new SMTPClient({
       connection: {
-        hostname: smtpConfig.smtp_host,
-        port: Number(smtpConfig.smtp_port) || 587,
-        tls: smtpConfig.smtp_secure === true || smtpConfig.smtp_secure === "true",
+        hostname: smtpHost,
+        port: portNumber,
+        tls: useTls,
         auth: {
-          username: smtpConfig.smtp_user,
-          password: smtpConfig.smtp_password,
+          username: smtpUser,
+          password: smtpPassword,
         },
       },
     });
 
-    // Send email
-    const fromEmail = smtpConfig.smtp_from_email || smtpConfig.smtp_user;
-    const fromName = smtpConfig.smtp_from_name || "MedFlowX";
+    // Build proper RFC 5322 compliant email
+    const fromAddress = smtpFromName ? `"${smtpFromName}" <${smtpFromEmail}>` : smtpFromEmail;
+
+    console.log("Sending email with From:", fromAddress);
 
     await client.send({
-      from: `${fromName} <${fromEmail}>`,
+      from: fromAddress,
       to: to,
       subject: subject,
       html: html,
+      headers: {
+        "From": fromAddress,
+        "Reply-To": smtpFromEmail,
+        "X-Mailer": "MedFlowX-SMTP",
+      },
     });
 
     await client.close();
