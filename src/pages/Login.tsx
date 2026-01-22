@@ -76,6 +76,8 @@ export default function Login() {
   const [pinLockRemainingMinutes, setPinLockRemainingMinutes] = useState(0);
   const [pinSuccess, setPinSuccess] = useState(false);
   const [pinShake, setPinShake] = useState(false);
+  const [pinSetupSuccess, setPinSetupSuccess] = useState(false);
+  const [pinSetupShake, setPinSetupShake] = useState(false);
 
   // Password change flow state
   const [showPasswordChange, setShowPasswordChange] = useState(false);
@@ -347,7 +349,9 @@ export default function Login() {
     if (pin !== confirmPin) {
       toast.error('পিন মিলছে না');
       setConfirmPin('');
-      setPinStep('setup');
+      // Trigger shake animation
+      setPinSetupShake(true);
+      setTimeout(() => setPinSetupShake(false), 400);
       return;
     }
 
@@ -382,12 +386,22 @@ export default function Login() {
         localStorage.setItem('medflowx_session', JSON.stringify(currentSession));
       }
 
-      toast.success(t.login.pinSetupSuccess || 'পিন সেটআপ সফল!');
-      setShowPinSetup(false);
-      navigate(from, { replace: true });
+      // Show success animation before navigating
+      setPinSetupSuccess(true);
+      setPinLoading(false);
+      
+      // Wait for animation, then navigate
+      setTimeout(() => {
+        toast.success(t.login.pinSetupSuccess || 'পিন সেটআপ সফল!');
+        setShowPinSetup(false);
+        navigate(from, { replace: true });
+      }, 800);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'পিন সেটআপ ব্যর্থ';
       toast.error(message);
+      // Trigger shake animation on error
+      setPinSetupShake(true);
+      setTimeout(() => setPinSetupShake(false), 400);
     } finally {
       setPinLoading(false);
     }
@@ -554,38 +568,63 @@ export default function Login() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex justify-center">
-              <InputOTP 
-                maxLength={4} 
-                value={pinStep === 'setup' ? pin : confirmPin}
-                onChange={pinStep === 'setup' ? setPin : setConfirmPin}
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                </InputOTPGroup>
-              </InputOTP>
+            <div className="flex flex-col items-center gap-4">
+              <div className={pinSetupShake ? "animate-shake" : ""}>
+                <InputOTP 
+                  maxLength={4} 
+                  value={pinStep === 'setup' ? pin : confirmPin}
+                  onChange={pinStep === 'setup' ? setPin : setConfirmPin}
+                  disabled={pinLoading || pinSetupSuccess}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+
+              {/* Loading Spinner */}
+              {pinLoading && !pinSetupSuccess && (
+                <div className="flex items-center gap-2 text-primary">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="text-sm">সেটআপ হচ্ছে...</span>
+                </div>
+              )}
+
+              {/* Success Animation */}
+              {pinSetupSuccess && (
+                <div className="flex flex-col items-center gap-2 animate-scale-in">
+                  <div className="rounded-full bg-primary/20 p-3">
+                    <CheckCircle2 className="h-8 w-8 text-primary animate-[pulse_0.5s_ease-in-out]" />
+                  </div>
+                  <span className="text-sm font-medium text-primary">পিন সেটআপ সফল!</span>
+                </div>
+              )}
             </div>
 
-            <Button 
-              onClick={handlePinSetup} 
-              className="w-full" 
-              disabled={pinLoading || (pinStep === 'setup' ? pin.length !== 4 : confirmPin.length !== 4)}
-            >
-              {pinLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : pinStep === 'setup' ? (
-                t.login.next
-              ) : (
-                t.login.setPin
-              )}
-            </Button>
+            {!pinSetupSuccess && (
+              <>
+                <Button 
+                  onClick={handlePinSetup} 
+                  className="w-full" 
+                  disabled={pinLoading || (pinStep === 'setup' ? pin.length !== 4 : confirmPin.length !== 4)}
+                >
+                  {pinLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : pinStep === 'setup' ? (
+                    t.login.next
+                  ) : (
+                    t.login.setPin
+                  )}
+                </Button>
 
-            <Button variant="ghost" onClick={skipPinSetup} className="w-full">
-              {t.login.skipForNow}
-            </Button>
+                <Button variant="ghost" onClick={skipPinSetup} className="w-full" disabled={pinLoading}>
+                  {t.login.skipForNow}
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
