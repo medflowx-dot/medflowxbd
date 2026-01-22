@@ -10,6 +10,7 @@ import {
   Layers,
   Clock,
   Bell,
+  BookOpen,
 } from 'lucide-react';
 import {
   Drawer,
@@ -40,6 +41,7 @@ const menuItems: MenuItem[] = [
   { id: 'customerDues', labelKey: 'customerDues', icon: Users, path: '/dashboard/customer-dues', badge: 'customerDues', iconClass: 'icon-container-warning' },
   { id: 'alerts', labelKey: 'alerts', icon: Bell, path: '/dashboard/alerts', badge: 'expiryAlerts', iconClass: 'icon-container-danger' },
   { id: 'expiry', labelKey: 'expiryMonitoring', icon: Clock, path: '/dashboard/expiry', iconClass: 'icon-container-danger' },
+  { id: 'medicineInfo', labelKey: 'medicineInfo', icon: BookOpen, path: '/dashboard/medicine-info', iconClass: 'icon-container-primary' },
   { id: 'reports', labelKey: 'reports', icon: FileText, path: '/dashboard/reports', iconClass: 'icon-container-primary' },
   { id: 'settings', labelKey: 'settings', icon: Settings, path: '/dashboard/settings', iconClass: 'bg-muted' },
 ];
@@ -64,6 +66,7 @@ export function MobileMoreMenu({ open, onOpenChange }: MobileMoreMenuProps) {
       customerDues: t.nav?.customerDues || 'গ্রাহক বাকি',
       alerts: t.nav?.alerts || 'এলার্ট',
       expiryMonitoring: t.nav?.expiryMonitor || 'মেয়াদ পর্যবেক্ষণ',
+      medicineInfo: t.nav?.medicineInfo || 'ঔষধ তথ্য',
       reports: t.nav?.reports || 'রিপোর্ট',
       settings: t.nav?.settings || 'সেটিংস',
     };
