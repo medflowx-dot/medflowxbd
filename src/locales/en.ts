@@ -1299,6 +1299,44 @@ export const en = {
     brands: 'brands',
     sortedBy: 'Sorted by',
   },
+
+  // Login Page
+  login: {
+    welcome: 'Welcome',
+    signInToPharmacy: 'Sign in to your pharmacy dashboard',
+    mobile: 'Mobile',
+    email: 'Email',
+    mobileNumber: 'Mobile Number',
+    password: 'Password',
+    signIn: 'Sign In',
+    signingIn: 'Signing in...',
+    forgotPassword: 'Forgot password?',
+    noAccount: "Don't have an account?",
+    startFreeTrial: 'Start Free Trial',
+    accountLocked: 'Too many failed attempts. Account locked for {minutes} minutes.',
+    attemptsWarning: 'Warning: {attempts} more wrong attempts will lock your account.',
+    waitMinutes: 'Wait {minutes} minutes',
+    // PIN
+    pinSetupTitle: 'Set up 4-Digit PIN',
+    pinConfirmTitle: 'Confirm PIN',
+    pinSetupDesc: 'Set a PIN for quick login',
+    enterPinAgain: 'Enter your PIN again',
+    next: 'Next',
+    setPin: 'Set PIN',
+    skipForNow: 'Skip for now',
+    loginWithPin: 'Login with PIN',
+    enterYour4DigitPin: 'Enter your 4-digit PIN',
+    loginWithPassword: 'Login with Password',
+    // Errors
+    serverConnectionError: 'Cannot connect to server. Check your internet.',
+    loginFailed: 'Login Failed',
+    invalidCredentials: 'Invalid phone number or password',
+    invalidEmailCredentials: 'Invalid email or password',
+    pinMismatch: 'PINs do not match. Try again.',
+    incorrectPin: 'Incorrect PIN. Try again.',
+    pinSetupFailed: 'Failed to setup PIN',
+    pinSetupSuccess: 'PIN setup complete! You can now use PIN for quick login.',
+  },
 };
 
 export type TranslationKeys = typeof en;

@@ -15,12 +15,14 @@ import logoAuthFallback from '@/assets/logo-auth.png';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { parseEdgeFunctionError, getErrorMessage } from '@/lib/edgeFunctionError';
 import { ChangePasswordScreen } from '@/components/auth/ChangePasswordScreen';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Login() {
   const { logoAuth } = usePlatformBranding();
   const navigate = useNavigate();
   const location = useLocation();
   const { signIn } = useAuth();
+  const { t } = useLanguage();
   
   // Detect if running in a mobile app context
   const [isMobileApp, setIsMobileApp] = useState(false);
@@ -435,12 +437,12 @@ export default function Login() {
             </div>
             <div>
               <CardTitle className="text-2xl font-display">
-                {pinStep === 'setup' ? '৪-ডিজিট পিন সেটআপ করুন' : 'পিন নিশ্চিত করুন'}
+                {pinStep === 'setup' ? t.login.pinSetupTitle : t.login.pinConfirmTitle}
               </CardTitle>
               <CardDescription>
                 {pinStep === 'setup' 
-                  ? 'দ্রুত লগইনের জন্য একটি পিন সেট করুন'
-                  : 'আবার আপনার পিন লিখুন'
+                  ? t.login.pinSetupDesc
+                  : t.login.enterPinAgain
                 }
               </CardDescription>
             </div>
@@ -469,14 +471,14 @@ export default function Login() {
               {pinLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : pinStep === 'setup' ? (
-                'পরবর্তী'
+                t.login.next
               ) : (
-                'পিন সেট করুন'
+                t.login.setPin
               )}
             </Button>
 
             <Button variant="ghost" onClick={skipPinSetup} className="w-full">
-              পরে করব
+              {t.login.skipForNow}
             </Button>
           </CardContent>
         </Card>
@@ -498,8 +500,8 @@ export default function Login() {
               />
             </Link>
             <div>
-              <CardTitle className="text-2xl font-display">পিন দিয়ে লগইন করুন</CardTitle>
-              <CardDescription>আপনার ৪-ডিজিট পিন লিখুন</CardDescription>
+              <CardTitle className="text-2xl font-display">{t.login.loginWithPin}</CardTitle>
+              <CardDescription>{t.login.enterYour4DigitPin}</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -535,7 +537,7 @@ export default function Login() {
               className="w-full"
             >
               <Smartphone className="mr-2 h-4 w-4" />
-              পাসওয়ার্ড দিয়ে লগইন করুন
+              {t.login.loginWithPassword}
             </Button>
           </CardContent>
         </Card>
@@ -555,8 +557,8 @@ export default function Login() {
             />
           </Link>
           <div>
-            <CardTitle className="text-2xl font-display">স্বাগতম</CardTitle>
-            <CardDescription>আপনার ফার্মেসি ড্যাশবোর্ডে সাইন ইন করুন</CardDescription>
+            <CardTitle className="text-2xl font-display">{t.login.welcome}</CardTitle>
+            <CardDescription>{t.login.signInToPharmacy}</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
@@ -564,11 +566,11 @@ export default function Login() {
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="phone" className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
-                মোবাইল
+                {t.login.mobile}
               </TabsTrigger>
               <TabsTrigger value="email" className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
-                ইমেইল
+                {t.login.email}
               </TabsTrigger>
             </TabsList>
 
@@ -580,7 +582,7 @@ export default function Login() {
                   <Alert variant="destructive">
                     <ShieldAlert className="h-4 w-4" />
                     <AlertDescription>
-                      অনেক বার ভুল পাসওয়ার্ড দেওয়া হয়েছে। অ্যাকাউন্ট {phoneLockRemainingMinutes} মিনিটের জন্য লক করা হয়েছে।
+                      {t.login.accountLocked.replace('{minutes}', String(phoneLockRemainingMinutes))}
                     </AlertDescription>
                   </Alert>
                 )}
@@ -590,13 +592,13 @@ export default function Login() {
                   <Alert className="border-warning bg-warning/10 text-warning-foreground">
                     <ShieldAlert className="h-4 w-4" />
                     <AlertDescription>
-                      সতর্কতা: আর {phoneAttemptsRemaining} বার ভুল চেষ্টায় অ্যাকাউন্ট লক হবে।
+                      {t.login.attemptsWarning.replace('{attempts}', String(phoneAttemptsRemaining))}
                     </AlertDescription>
                   </Alert>
                 )}
                 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">মোবাইল নাম্বার</Label>
+                  <Label htmlFor="phone">{t.login.mobileNumber}</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -613,7 +615,7 @@ export default function Login() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phonePassword">পাসওয়ার্ড</Label>
+                  <Label htmlFor="phonePassword">{t.login.password}</Label>
                   <div className="relative">
                     <Input
                       id="phonePassword"
@@ -639,12 +641,12 @@ export default function Login() {
                   {phoneLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      সাইন ইন হচ্ছে...
+                      {t.login.signingIn}
                     </>
                   ) : isPhoneLocked ? (
-                    `${phoneLockRemainingMinutes} মিনিট অপেক্ষা করুন`
+                    t.login.waitMinutes.replace('{minutes}', String(phoneLockRemainingMinutes))
                   ) : (
-                    'সাইন ইন করুন'
+                    t.login.signIn
                   )}
                 </Button>
               </form>
@@ -658,7 +660,7 @@ export default function Login() {
                   <Alert variant="destructive">
                     <ShieldAlert className="h-4 w-4" />
                     <AlertDescription>
-                      অনেক বার ভুল পাসওয়ার্ড দেওয়া হয়েছে। অ্যাকাউন্ট {emailLockRemainingMinutes} মিনিটের জন্য লক করা হয়েছে।
+                      {t.login.accountLocked.replace('{minutes}', String(emailLockRemainingMinutes))}
                     </AlertDescription>
                   </Alert>
                 )}
@@ -668,13 +670,13 @@ export default function Login() {
                   <Alert className="border-warning bg-warning/10 text-warning-foreground">
                     <ShieldAlert className="h-4 w-4" />
                     <AlertDescription>
-                      সতর্কতা: আর {emailAttemptsRemaining} বার ভুল চেষ্টায় অ্যাকাউন্ট লক হবে।
+                      {t.login.attemptsWarning.replace('{attempts}', String(emailAttemptsRemaining))}
                     </AlertDescription>
                   </Alert>
                 )}
                 
                 <div className="space-y-2">
-                  <Label htmlFor="email">ইমেইল</Label>
+                  <Label htmlFor="email">{t.login.email}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -687,7 +689,7 @@ export default function Login() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="emailPassword">পাসওয়ার্ড</Label>
+                  <Label htmlFor="emailPassword">{t.login.password}</Label>
                   <div className="relative">
                     <Input
                       id="emailPassword"
@@ -714,12 +716,12 @@ export default function Login() {
                   {emailLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      সাইন ইন হচ্ছে...
+                      {t.login.signingIn}
                     </>
                   ) : isEmailLocked ? (
-                    `${emailLockRemainingMinutes} মিনিট অপেক্ষা করুন`
+                    t.login.waitMinutes.replace('{minutes}', String(emailLockRemainingMinutes))
                   ) : (
-                    'সাইন ইন করুন'
+                    t.login.signIn
                   )}
                 </Button>
               </form>
@@ -728,14 +730,14 @@ export default function Login() {
 
           <div className="mt-4 text-center">
             <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-primary">
-              পাসওয়ার্ড ভুলে গেছেন?
+              {t.login.forgotPassword}
             </Link>
           </div>
 
           <div className="mt-4 text-center text-sm">
-            <span className="text-muted-foreground">অ্যাকাউন্ট নেই? </span>
+            <span className="text-muted-foreground">{t.login.noAccount} </span>
             <Link to="/signup" className="text-primary hover:underline font-medium">
-              ফ্রি ট্রায়াল শুরু করুন
+              {t.login.startFreeTrial}
             </Link>
           </div>
         </CardContent>
