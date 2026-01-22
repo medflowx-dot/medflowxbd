@@ -265,39 +265,33 @@ export type Database = {
         Row: {
           created_at: string
           customer_id: string
-          dosage: string | null
-          frequency: string | null
+          doctor_name: string | null
           id: string
           is_active: boolean | null
-          medicine_name: string
           notes: string | null
-          start_date: string | null
+          prescription_date: string
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           customer_id: string
-          dosage?: string | null
-          frequency?: string | null
+          doctor_name?: string | null
           id?: string
           is_active?: boolean | null
-          medicine_name: string
           notes?: string | null
-          start_date?: string | null
+          prescription_date?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           customer_id?: string
-          dosage?: string | null
-          frequency?: string | null
+          doctor_name?: string | null
           id?: string
           is_active?: boolean | null
-          medicine_name?: string
           notes?: string | null
-          start_date?: string | null
+          prescription_date?: string
           updated_at?: string
           user_id?: string
         }
@@ -1079,6 +1073,53 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      prescription_medicines: {
+        Row: {
+          created_at: string
+          dosage: string | null
+          duration: string | null
+          frequency: string | null
+          id: string
+          is_active: boolean | null
+          medicine_name: string
+          notes: string | null
+          prescription_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dosage?: string | null
+          duration?: string | null
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          medicine_name: string
+          notes?: string | null
+          prescription_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dosage?: string | null
+          duration?: string | null
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          medicine_name?: string
+          notes?: string | null
+          prescription_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prescription_medicines_prescription_id_fkey"
+            columns: ["prescription_id"]
+            isOneToOne: false
+            referencedRelation: "customer_prescriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pricing_plans: {
         Row: {
