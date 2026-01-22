@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,55 +17,107 @@ interface MobileFABProps {
 export function MobileFAB({ actions }: MobileFABProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const lastScrollY = useRef(0);
-  const ticking = useRef(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const lastScrollTop = useRef(0);
 
+  // Use scroll event on the pull-to-refresh container
   useEffect(() => {
-    const handleScroll = () => {
-      if (ticking.current) return;
-      
-      ticking.current = true;
-      
-      requestAnimationFrame(() => {
-        // Find the scroll container
-        const scrollContainer = document.querySelector('[data-pull-to-refresh]') as HTMLElement;
-        
-        if (scrollContainer) {
-          const currentScrollY = scrollContainer.scrollTop;
-          const scrollHeight = scrollContainer.scrollHeight;
-          const clientHeight = scrollContainer.clientHeight;
-          
-          // Check if near bottom (within 100px of bottom)
-          const isNearBottom = scrollHeight - currentScrollY - clientHeight < 100;
-          
-          if (isNearBottom && currentScrollY > 50) {
-            setIsVisible(false);
-          } else {
-            setIsVisible(true);
-          }
-          
-          lastScrollY.current = currentScrollY;
-        }
-        
-        ticking.current = false;
-      });
+    let scrollContainer: HTMLElement | null = null;
+    
+    const findScrollContainer = () => {
+      // Try to find the pull-to-refresh container
+      const container = document.querySelector('[data-pull-to-refresh="true"]') as HTMLElement;
+      return container;
     };
 
-    // Attach to the scroll container
-    const scrollContainer = document.querySelector('[data-pull-to-refresh]');
-    
-    if (scrollContainer) {
-      scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-    }
+    const handleScroll = () => {
+      if (!scrollContainer) return;
+      
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 80;
+      
+      // Hide when at bottom, show when scrolling up or not at bottom
+      if (isAtBottom) {
+        setIsVisible(false);
+      } else if (scrollTop < lastScrollTop.current || scrollTop < 50) {
+        setIsVisible(true);
+      }
+      
+      lastScrollTop.current = scrollTop;
+    };
 
-    // Also listen to window scroll as fallback
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
+    // Delay to ensure DOM is ready
+    const timeoutId = setTimeout(() => {
+      scrollContainer = findScrollContainer();
+      
+      if (scrollContainer) {
+        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+      }
+    }, 100);
+
     return () => {
+      clearTimeout(timeoutId);
       if (scrollContainer) {
         scrollContainer.removeEventListener('scroll', handleScroll);
       }
-      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  // Fallback: Use IntersectionObserver for bottom detection
+  useEffect(() => {
+    // Create a sentinel element at the bottom of the page
+    const createSentinel = () => {
+      const existingSentinel = document.getElementById('fab-bottom-sentinel');
+      if (existingSentinel) return existingSentinel;
+      
+      const sentinel = document.createElement('div');
+      sentinel.id = 'fab-bottom-sentinel';
+      sentinel.style.cssText = 'height: 1px; width: 100%; pointer-events: none;';
+      
+      // Find the outlet content and append sentinel
+      const outlet = document.querySelector('[data-pull-to-refresh="true"] > div');
+      if (outlet) {
+        outlet.appendChild(sentinel);
+      }
+      
+      return sentinel;
+    };
+
+    const timeoutId = setTimeout(() => {
+      const sentinel = createSentinel();
+      
+      if (sentinel) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              // When sentinel is visible (bottom of page reached), hide FAB
+              if (entry.isIntersecting) {
+                setIsVisible(false);
+              } else {
+                setIsVisible(true);
+              }
+            });
+          },
+          {
+            root: document.querySelector('[data-pull-to-refresh="true"]'),
+            rootMargin: '0px',
+            threshold: 0.1,
+          }
+        );
+
+        observer.observe(sentinel);
+
+        return () => {
+          observer.disconnect();
+          sentinel.remove();
+        };
+      }
+    }, 200);
+
+    return () => {
+      clearTimeout(timeoutId);
+      const sentinel = document.getElementById('fab-bottom-sentinel');
+      if (sentinel) sentinel.remove();
     };
   }, []);
 
