@@ -157,11 +157,7 @@ serve(async (req: Request): Promise<Response> => {
       to: to,
       subject: subject,
       html: html,
-      headers: {
-        "From": fromAddress,
-        "Reply-To": smtpFromEmail,
-        "X-Mailer": "MedFlowX-SMTP",
-      },
+      replyTo: smtpFromEmail,
     });
 
     await client.close();
