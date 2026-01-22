@@ -200,12 +200,21 @@ export default function AdminLogin() {
               )}
             </Button>
 
-            <div className="text-center pt-4">
+            <div className="flex items-center justify-between pt-2">
+              <Link 
+                to="/forgot-password" 
+                className="text-sm text-slate-400 hover:text-primary transition-colors"
+              >
+                পাসওয়ার্ড ভুলে গেছেন?
+              </Link>
+            </div>
+
+            <div className="text-center pt-4 border-t border-slate-700 mt-4">
               <Link 
                 to="/login" 
                 className="text-sm text-slate-400 hover:text-primary transition-colors"
               >
-                সাধারণ লগইন পেজে যান
+                ← সাধারণ লগইন পেজে যান
               </Link>
             </div>
           </form>
