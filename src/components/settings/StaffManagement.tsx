@@ -92,7 +92,7 @@ export function StaffManagement() {
                   Invite Staff
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="sm:max-w-sm">
                 <DialogHeader>
                   <DialogTitle>Invite Staff Member</DialogTitle>
                   <DialogDescription>

@@ -59,7 +59,7 @@ export function EditCustomerDialog({ customer, trigger }: EditCustomerDialogProp
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>{t.customerDues?.editCustomer || 'Edit Customer'}</DialogTitle>
           <DialogDescription>
