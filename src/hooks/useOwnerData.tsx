@@ -613,12 +613,22 @@ export function useUpdatePlatformSetting() {
       settingKey: string;
       value: any;
     }) => {
+      // Use upsert to handle both insert and update cases
       const { data, error } = await supabase
         .from('platform_settings')
-        .update({ setting_value: value })
-        .eq('setting_key', settingKey)
+        .upsert(
+          { 
+            setting_key: settingKey, 
+            setting_value: value,
+            updated_at: new Date().toISOString()
+          },
+          { 
+            onConflict: 'setting_key',
+            ignoreDuplicates: false 
+          }
+        )
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
@@ -634,7 +644,6 @@ export function useUpdatePlatformSetting() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['owner-platform-settings'] });
       queryClient.invalidateQueries({ queryKey: ['owner-audit-logs'] });
-      toast.success('Setting updated');
     },
     onError: (error: Error) => {
       toast.error('Failed to update setting: ' + error.message);
