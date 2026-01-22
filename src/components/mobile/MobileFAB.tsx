@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,50 +17,76 @@ interface MobileFABProps {
 export function MobileFAB({ actions }: MobileFABProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const lastScrollTop = useRef(0);
-  const scrollContainerRef = useRef<HTMLElement | null>(null);
+  const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const checkScrollPosition = useCallback(() => {
+    // Find the scroll container
+    const container = document.querySelector('[data-pull-to-refresh="true"]') as HTMLElement;
+    
+    if (!container) {
+      setIsVisible(true);
+      return;
+    }
+    
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const maxScroll = scrollHeight - clientHeight;
+    
+    // Only hide if there's actually scrollable content and we're near the bottom
+    if (maxScroll > 100) {
+      const isNearBottom = (maxScroll - scrollTop) < 80;
+      setIsVisible(!isNearBottom);
+    } else {
+      // Not enough content to scroll, always show FAB
+      setIsVisible(true);
+    }
+  }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const container = scrollContainerRef.current;
-      if (!container) return;
+    // Check scroll position periodically for reliability
+    const startChecking = () => {
+      // Initial check
+      checkScrollPosition();
       
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      const maxScroll = scrollHeight - clientHeight;
-      const isAtBottom = maxScroll > 0 && (maxScroll - scrollTop) < 50;
-      
-      if (isAtBottom) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
-      
-      lastScrollTop.current = scrollTop;
-    };
-
-    // Find scroll container after a short delay
-    const initScrollListener = () => {
-      const container = document.querySelector('[data-pull-to-refresh="true"]') as HTMLElement;
-      
+      // Set up scroll listener
+      const container = document.querySelector('[data-pull-to-refresh="true"]');
       if (container) {
-        scrollContainerRef.current = container;
-        container.addEventListener('scroll', handleScroll, { passive: true });
-        // Initial check
-        handleScroll();
+        container.addEventListener('scroll', checkScrollPosition, { passive: true });
       }
+      
+      // Also check periodically as backup (every 500ms)
+      checkIntervalRef.current = setInterval(checkScrollPosition, 500);
     };
 
-    // Try immediately and also after a delay
-    initScrollListener();
-    const timeoutId = setTimeout(initScrollListener, 500);
+    // Delay start to ensure DOM is ready
+    const timeoutId = setTimeout(startChecking, 300);
 
     return () => {
       clearTimeout(timeoutId);
-      if (scrollContainerRef.current) {
-        scrollContainerRef.current.removeEventListener('scroll', handleScroll);
+      if (checkIntervalRef.current) {
+        clearInterval(checkIntervalRef.current);
+      }
+      const container = document.querySelector('[data-pull-to-refresh="true"]');
+      if (container) {
+        container.removeEventListener('scroll', checkScrollPosition);
       }
     };
-  }, []);
+  }, [checkScrollPosition]);
+
+  // Re-check when route changes
+  useEffect(() => {
+    const handleRouteChange = () => {
+      // Reset visibility and recheck after route change
+      setIsVisible(true);
+      setTimeout(checkScrollPosition, 100);
+    };
+
+    // Listen for popstate (browser back/forward)
+    window.addEventListener('popstate', handleRouteChange);
+    
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, [checkScrollPosition]);
 
   const handleActionClick = (action: FABAction) => {
     setIsExpanded(false);
@@ -79,7 +105,7 @@ export function MobileFAB({ actions }: MobileFABProps) {
 
       {/* Vertical Actions Menu - slides up from FAB */}
       {isExpanded && (
-        <div className="fixed bottom-36 right-4 z-50 md:hidden animate-in slide-in-from-bottom-4 fade-in duration-150">
+        <div className="fixed bottom-40 right-4 z-50 md:hidden animate-in slide-in-from-bottom-4 fade-in duration-150">
           <div className="flex flex-col gap-3">
             {actions.map((action, index) => {
               const Icon = action.icon;
@@ -118,7 +144,7 @@ export function MobileFAB({ actions }: MobileFABProps) {
         className={cn(
           "fixed bottom-28 right-4 z-50 md:hidden",
           "transition-all duration-300 ease-out",
-          isVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
+          isVisible ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0 pointer-events-none"
         )}
       >
         <button
@@ -126,10 +152,10 @@ export function MobileFAB({ actions }: MobileFABProps) {
           className={cn(
             "h-14 w-14 rounded-full flex items-center justify-center",
             "transition-all duration-150 ease-out",
-            "active:scale-95 touch-manipulation",
+            "active:scale-95 touch-manipulation shadow-lg",
             isExpanded 
-              ? "bg-destructive rotate-45 shadow-lg shadow-destructive/30" 
-              : "fab-gradient"
+              ? "bg-destructive rotate-45 shadow-destructive/30" 
+              : "fab-gradient shadow-primary/30"
           )}
         >
           {isExpanded ? (
