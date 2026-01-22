@@ -227,6 +227,20 @@ export function StaffManagement() {
                   )}
 
                   {/* Info Box */}
+                  <div className="p-3 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-800/30 text-sm">
+                    <p className="font-semibold text-foreground flex items-center gap-2">
+                      🔑 {language === 'bn' ? 'টেম্পোরারি পাসওয়ার্ড:' : 'Temporary Password:'} 
+                      <code className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/50 rounded font-mono text-amber-700 dark:text-amber-300">123456</code>
+                    </p>
+                    <p className="mt-1 text-muted-foreground">
+                      {language === 'bn' 
+                        ? '⚠️ স্টাফ প্রথম লগইনে অবশ্যই নতুন পাসওয়ার্ড সেট করতে বাধ্য থাকবে।'
+                        : '⚠️ Staff must set a new password on their first login.'
+                      }
+                    </p>
+                  </div>
+
+                  {/* Access Info Box */}
                   <div className="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200/50 dark:border-blue-800/30 text-sm text-muted-foreground">
                     <p className="font-medium text-foreground">
                       {language === 'bn' ? 'স্টাফ সদস্যদের সীমিত অ্যাক্সেস থাকে:' : 'Staff members have limited access:'}
@@ -236,12 +250,6 @@ export function StaffManagement() {
                       <li>{language === 'bn' ? 'বিক্রি তৈরি ও ম্যানেজ' : 'Create and manage sales'}</li>
                       <li>{language === 'bn' ? 'দৈনিক ক্যাশ ম্যানেজ' : 'Manage daily cash'}</li>
                     </ul>
-                    <p className="mt-2 text-xs text-primary font-medium">
-                      {language === 'bn' 
-                        ? '⚠️ প্রথম লগইনে নতুন পাসওয়ার্ড সেট করতে হবে'
-                        : '⚠️ They will need to set a new password on first login'
-                      }
-                    </p>
                   </div>
                 </div>
 
