@@ -13,6 +13,7 @@ import { AdminRoute } from "@/components/auth/AdminRoute";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { BrandedLoader } from "@/components/ui/branded-loader";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { PrefetchProvider } from "@/components/PrefetchProvider";
 
 // Eagerly loaded pages (critical path)
 import Index from "./pages/Index";
@@ -68,10 +69,15 @@ const LockedAccounts = lazy(() => import("./pages/owner/LockedAccounts"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 2, // 2 minutes - data stays fresh
-      gcTime: 1000 * 60 * 10,   // 10 minutes - garbage collect old cache
+      staleTime: 1000 * 60 * 5, // 5 minutes - data stays fresh longer
+      gcTime: 1000 * 60 * 15,   // 15 minutes - garbage collect old cache
       retry: 1,
       refetchOnWindowFocus: false, // Don't refetch on window focus
+      refetchOnReconnect: false, // Don't refetch on reconnect 
+      refetchOnMount: false, // Don't refetch if data is fresh
+    },
+    mutations: {
+      retry: 1,
     },
   },
 });
@@ -87,9 +93,10 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          <AuthProvider>
-            <LanguageProvider>
-              <Suspense fallback={<PageLoader />}>
+          <PrefetchProvider>
+            <AuthProvider>
+              <LanguageProvider>
+                <Suspense fallback={<PageLoader />}>
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/login" element={<Login />} />
@@ -172,6 +179,7 @@ const App = () => (
               </Suspense>
             </LanguageProvider>
           </AuthProvider>
+        </PrefetchProvider>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
