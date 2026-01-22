@@ -826,7 +826,21 @@
   animation: fab-bounce-out 0.3s ease-in forwards;
 }
 
-/* Card Entry Animation */
+/* FAB Menu Item Staggered Animation */
+@keyframes fab-item-enter {
+  0% {
+    opacity: 0;
+    transform: translateX(30px) scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: translateX(-5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
 @keyframes card-enter {
   from {
     opacity: 0;
