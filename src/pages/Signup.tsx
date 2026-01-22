@@ -99,8 +99,15 @@ export default function Signup() {
         body: { phone, purpose: 'signup' }
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Check data.error first (Edge Function returns error in body even with non-2xx)
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+      
+      // Network/SDK level error (no data returned)
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
+      }
 
       toast.success('OTP পাঠানো হয়েছে!');
       startTimers();
@@ -131,8 +138,15 @@ export default function Signup() {
         body: { phone, otp, purpose: 'signup' }
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Check data.error first (Edge Function returns error in body even with non-2xx)
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+      
+      // Network/SDK level error (no data returned)
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
+      }
 
       setVerificationToken(data.verificationToken);
       toast.success('OTP যাচাই সফল!');
@@ -167,8 +181,15 @@ export default function Signup() {
         }
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Check data.error first (Edge Function returns error in body even with non-2xx)
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+      
+      // Network/SDK level error (no data returned)
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
+      }
 
       // If we got a session, set it
       if (data.session) {
@@ -194,8 +215,15 @@ export default function Signup() {
         body: { phone, purpose: 'signup' }
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Check data.error first (Edge Function returns error in body even with non-2xx)
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+      
+      // Network/SDK level error (no data returned)
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
+      }
 
       toast.success('নতুন OTP পাঠানো হয়েছে!');
       setOtp('');
