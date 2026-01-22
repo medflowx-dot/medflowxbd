@@ -1,11 +1,9 @@
-import { useState, useMemo } from 'react';
-import { Book, Pill, FlaskConical, Building2, Search, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { Book, Pill, Search, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   useMedicineReference,
-  useMedicineReferenceStats,
   MedicineReference as MedicineReferenceType,
 } from '@/hooks/useMedicineReference';
 import {
@@ -30,7 +28,6 @@ export default function MedicineReference() {
   const [alternatesOpen, setAlternatesOpen] = useState(false);
   
   // Data
-  const { data: stats, isLoading: statsLoading } = useMedicineReferenceStats();
   const { data: medicines, isLoading: medicinesLoading } = useMedicineReference({
     search,
     dosageForm,
@@ -59,83 +56,26 @@ export default function MedicineReference() {
   const hasFilters = search || dosageForm !== 'all' || drugClass !== 'all' || manufacturer !== 'all';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Book className="h-6 w-6 text-primary" />
+        <h1 className="text-xl font-bold flex items-center gap-2">
+          <Book className="h-5 w-5 text-primary" />
           {t.medicineReference?.title || 'Medicine Reference'}
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           {t.medicineReference?.subtitle || 'Search medicine prices, generics, and alternate brands'}
         </p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Pill className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              {statsLoading ? (
-                <Skeleton className="h-6 w-16" />
-              ) : (
-                <p className="text-2xl font-bold">{stats?.totalMedicines.toLocaleString() || 0}</p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                {t.medicineReference?.totalMedicines || 'Total Medicines'}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-info/10 flex items-center justify-center">
-              <FlaskConical className="h-5 w-5 text-info" />
-            </div>
-            <div>
-              {statsLoading ? (
-                <Skeleton className="h-6 w-16" />
-              ) : (
-                <p className="text-2xl font-bold">{stats?.totalGenerics.toLocaleString() || 0}</p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                {t.medicineReference?.totalGenerics || 'Generics'}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-warning" />
-            </div>
-            <div>
-              {statsLoading ? (
-                <Skeleton className="h-6 w-16" />
-              ) : (
-                <p className="text-2xl font-bold">{stats?.totalManufacturers || 0}</p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                {t.medicineReference?.manufacturers || 'Manufacturers'}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Search Card */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-2">
             <Search className="h-4 w-4" />
             {t.medicineReference?.searchTitle || 'Search Medicines'}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-xs">
             {t.medicineReference?.searchDescription || 'Find medicine by name, generic, or filter by form and manufacturer'}
           </CardDescription>
         </CardHeader>
