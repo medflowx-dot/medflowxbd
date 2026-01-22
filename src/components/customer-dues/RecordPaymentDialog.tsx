@@ -74,7 +74,7 @@ export function RecordPaymentDialog({ open, onOpenChange, customer }: RecordPaym
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>{t.customerDues.recordPaymentTitle}</DialogTitle>
           <DialogDescription>

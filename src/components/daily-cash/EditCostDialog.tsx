@@ -58,7 +58,7 @@ export function EditCostDialog({ cost }: EditCostDialogProps) {
           <Pencil className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>{t.dailyCash?.editCost || 'Edit Cost'}</DialogTitle>
           <DialogDescription>

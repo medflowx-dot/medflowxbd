@@ -58,7 +58,7 @@ export function EditPaymentDialog({ open, onOpenChange, payment }: EditPaymentDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>{t.customerDues?.editPayment || 'Edit Payment'}</DialogTitle>
           <DialogDescription>

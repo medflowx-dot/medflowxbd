@@ -74,7 +74,7 @@ export function AddManufacturerDialog({ manufacturer, trigger, onSuccess }: AddM
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>{isEditing ? t.manufacturers.editManufacturer : t.manufacturers.addManufacturer}</DialogTitle>
           <DialogDescription>

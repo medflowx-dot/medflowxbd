@@ -56,7 +56,7 @@ export function EditDueDialog({ open, onOpenChange, due }: EditDueDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>{t.customerDues?.editDue || 'Edit Due Entry'}</DialogTitle>
           <DialogDescription>

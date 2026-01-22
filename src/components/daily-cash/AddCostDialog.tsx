@@ -88,7 +88,7 @@ export function AddCostDialog({ date }: AddCostDialogProps) {
           <span className="hidden sm:inline">{t.dailyCash.addCost}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-sm">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{t.dailyCash.addDailyCost}</DialogTitle>
