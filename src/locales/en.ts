@@ -19,6 +19,7 @@ export const en = {
     reports: 'Reports',
     settings: 'Settings',
     adminDashboard: 'Admin Dashboard',
+    more: 'More',
   },
 
   // Manufacturers Page

@@ -20,6 +20,7 @@ export const bn: TranslationKeys = {
     reports: 'রিপোর্ট',
     settings: 'সেটিংস',
     adminDashboard: 'অ্যাডমিন ড্যাশবোর্ড',
+    more: 'আরও মেনু',
   },
 
   // Manufacturers Page
