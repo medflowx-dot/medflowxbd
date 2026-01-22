@@ -8,6 +8,7 @@ import { Loader2, UserPlus, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { parseEdgeFunctionError } from '@/lib/edgeFunctionError';
 
 export function AddClientDialog() {
   const [open, setOpen] = useState(false);
@@ -94,8 +95,14 @@ export function AddClientDialog() {
         },
       });
 
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setIsLoading(false);
+        return;
+      }
 
       toast.success('Client created successfully');
       setOpen(false);

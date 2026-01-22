@@ -16,6 +16,7 @@ import { AddClientDialog } from '@/components/owner/AddClientDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { parseEdgeFunctionError } from '@/lib/edgeFunctionError';
 
 export default function ClientManagement() {
   const [search, setSearch] = useState('');
@@ -51,15 +52,22 @@ export default function ClientManagement() {
         body: { userId: selectedClient.user_id },
       });
 
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setIsDeleting(false);
+        return;
+      }
 
       toast.success('Client deleted successfully');
       setDialogType(null);
       queryClient.invalidateQueries({ queryKey: ['owner-clients'] });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting client:', error);
-      toast.error(error.message || 'Failed to delete client');
+      const message = error instanceof Error ? error.message : 'Failed to delete client';
+      toast.error(message);
     } finally {
       setIsDeleting(false);
     }
@@ -74,10 +82,16 @@ export default function ClientManagement() {
         body: { userId: selectedClient.user_id, channel: notifyChannel },
       });
 
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setIsSendingNotification(false);
+        return;
+      }
 
-      const results = data.results || {};
+      const results = data?.results || {};
       if (results.emailSent && results.smsSent) {
         toast.success('Email ও SMS উভয়ই পাঠানো হয়েছে');
       } else if (results.emailSent) {
@@ -88,9 +102,10 @@ export default function ClientManagement() {
         toast.warning('নোটিফিকেশন পাঠানো যায়নি - সেটিংস চেক করুন');
       }
       setDialogType(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error sending notification:', error);
-      toast.error(error.message || 'নোটিফিকেশন পাঠাতে সমস্যা হয়েছে');
+      const message = error instanceof Error ? error.message : 'নোটিফিকেশন পাঠাতে সমস্যা হয়েছে';
+      toast.error(message);
     } finally {
       setIsSendingNotification(false);
     }

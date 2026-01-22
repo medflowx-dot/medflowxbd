@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Loader2, CreditCard, ExternalLink, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
+import { parseEdgeFunctionError } from '@/lib/edgeFunctionError';
 
 interface PaymentRequestDialogProps {
   open: boolean;
@@ -86,17 +87,25 @@ export function PaymentRequestDialog({ open, onOpenChange, plan }: PaymentReques
         },
       });
 
-      if (error) throw error;
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setLoadingUddoktapay(false);
+        return;
+      }
 
       if (data?.success && data?.payment_url) {
         // Redirect to UddoktaPay checkout
         window.location.href = data.payment_url;
       } else {
-        throw new Error(data?.error || 'Failed to create payment');
+        throw new Error(data?.error || 'পেমেন্ট তৈরি করতে ব্যর্থ');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('UddoktaPay error:', error);
-      toast.error(error.message || 'পেমেন্ট তৈরি করতে সমস্যা হয়েছে');
+      const message = error instanceof Error ? error.message : 'পেমেন্ট তৈরি করতে সমস্যা হয়েছে';
+      toast.error(message);
     } finally {
       setLoadingUddoktapay(false);
     }

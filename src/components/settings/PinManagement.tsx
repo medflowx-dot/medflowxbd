@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Loader2, Lock, KeyRound, Trash2, RefreshCw, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
+import { parseEdgeFunctionError } from '@/lib/edgeFunctionError';
 
 export function PinManagement() {
   const { user } = useAuth();
@@ -80,8 +81,18 @@ export function PinManagement() {
         headers: session ? { Authorization: `Bearer ${session.access_token}` } : undefined
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setActionLoading(false);
+        return;
+      }
+      
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না।');
+      }
 
       toast.success('পিন সেটআপ সফল!');
       setHasPin(true);
@@ -111,8 +122,19 @@ export function PinManagement() {
           headers: session ? { Authorization: `Bearer ${session.access_token}` } : undefined
         });
 
-        if (error) throw error;
-        if (data.error) throw new Error(data.error);
+        // Parse error from Edge Function response
+        const errorData = await parseEdgeFunctionError(error, data);
+        
+        if (errorData?.error) {
+          toast.error(errorData.error);
+          setCurrentPin('');
+          setActionLoading(false);
+          return;
+        }
+        
+        if (error && !data) {
+          throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না।');
+        }
 
         setPinStep('new');
       } catch (error: unknown) {
@@ -150,8 +172,18 @@ export function PinManagement() {
         headers: session ? { Authorization: `Bearer ${session.access_token}` } : undefined
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setActionLoading(false);
+        return;
+      }
+      
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না।');
+      }
 
       toast.success('পিন পরিবর্তন সফল!');
       resetForm();
@@ -173,8 +205,18 @@ export function PinManagement() {
         headers: session ? { Authorization: `Bearer ${session.access_token}` } : undefined
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setActionLoading(false);
+        return;
+      }
+      
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না।');
+      }
 
       toast.success('পিন মুছে ফেলা হয়েছে');
       setHasPin(false);
