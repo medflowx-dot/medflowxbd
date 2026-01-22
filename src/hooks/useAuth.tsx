@@ -74,6 +74,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    // Clear mobile app PIN session data
+    localStorage.removeItem('medflowx_session');
+    localStorage.removeItem('medflowx_user_id');
     await supabase.auth.signOut();
   };
 
