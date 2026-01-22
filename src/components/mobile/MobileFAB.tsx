@@ -105,7 +105,7 @@ export function MobileFAB({ actions }: MobileFABProps) {
 
       {/* Vertical Actions Menu - slides up from FAB */}
       {isExpanded && (
-        <div className="fixed bottom-44 right-4 z-[55] md:hidden">
+        <div className="fixed bottom-36 right-4 z-[55] md:hidden">
           <div className="flex flex-col gap-2">
             {actions.map((action, index) => {
               const Icon = action.icon;
