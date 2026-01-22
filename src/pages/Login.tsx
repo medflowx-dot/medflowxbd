@@ -389,9 +389,9 @@ export default function Login() {
   };
 
   // PIN login handler
-  const handlePinLogin = async () => {
-    if (loginPin.length !== 4) return;
-
+  const handlePinLogin = async (pinValue?: string) => {
+    const pinToVerify = pinValue || loginPin;
+    if (pinToVerify.length !== 4) return;
     setPinLoading(true);
     try {
       const savedSession = localStorage.getItem('medflowx_session');
@@ -430,7 +430,7 @@ export default function Login() {
       
       // Verify PIN with refreshed session
       const { data, error } = await supabase.functions.invoke('pin-auth', {
-        body: { action: 'verify', pin: loginPin },
+        body: { action: 'verify', pin: pinToVerify },
         headers: {
           Authorization: `Bearer ${activeSession.access_token}`
         }
@@ -585,7 +585,7 @@ export default function Login() {
                 onChange={(value) => {
                   setLoginPin(value);
                   if (value.length === 4) {
-                    handlePinLogin();
+                    handlePinLogin(value);
                   }
                 }}
               >
