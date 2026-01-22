@@ -12,6 +12,7 @@ import { SubscriptionGuard } from "@/components/auth/SubscriptionGuard";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { BrandedLoader } from "@/components/ui/branded-loader";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 // Eagerly loaded pages (critical path)
 import Index from "./pages/Index";
@@ -85,6 +86,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <AuthProvider>
             <LanguageProvider>
               <Suspense fallback={<PageLoader />}>
