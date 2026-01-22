@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { useOtpTimer } from '@/hooks/useOtpTimer';
 import logoAuthFallback from '@/assets/logo-auth.png';
+import { parseEdgeFunctionError } from '@/lib/edgeFunctionError';
 
 type ResetStep = 'phone' | 'otp' | 'password' | 'success';
 
@@ -66,8 +67,19 @@ export default function ForgotPassword() {
         body: { phone, purpose: 'reset' }
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setSendingOtp(false);
+        return;
+      }
+      
+      // Network/SDK level error
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
+      }
 
       toast.success('OTP পাঠানো হয়েছে!');
       startTimers();
@@ -98,8 +110,19 @@ export default function ForgotPassword() {
         body: { phone, otp, purpose: 'reset' }
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setVerifyingOtp(false);
+        return;
+      }
+      
+      // Network/SDK level error
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
+      }
 
       setVerificationToken(data.verificationToken);
       toast.success('OTP যাচাই সফল!');
@@ -132,8 +155,19 @@ export default function ForgotPassword() {
         body: { phone, verificationToken, newPassword }
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setResettingPassword(false);
+        return;
+      }
+      
+      // Network/SDK level error
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
+      }
 
       toast.success('পাসওয়ার্ড রিসেট সফল!');
       setStep('success');
@@ -145,7 +179,6 @@ export default function ForgotPassword() {
     }
   };
 
-  // Resend OTP
   const handleResendOtp = async () => {
     setSendingOtp(true);
     try {
@@ -153,8 +186,19 @@ export default function ForgotPassword() {
         body: { phone, purpose: 'reset' }
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      // Parse error from Edge Function response
+      const errorData = await parseEdgeFunctionError(error, data);
+      
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        setSendingOtp(false);
+        return;
+      }
+      
+      // Network/SDK level error
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট চেক করুন।');
+      }
 
       toast.success('নতুন OTP পাঠানো হয়েছে!');
       setOtp('');
