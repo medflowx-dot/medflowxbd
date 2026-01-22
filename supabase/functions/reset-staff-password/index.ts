@@ -181,8 +181,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Generate new password
-    const newPassword = crypto.randomUUID().slice(0, 12) + 'Aa1!';
+    // Use fixed temporary password (same as invite-staff)
+    const newPassword = '123456';
 
     // Update user password
     const { data: updatedUser, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
@@ -193,6 +193,22 @@ Deno.serve(async (req) => {
     if (updateError) {
       throw updateError;
     }
+
+    // Set must_change_password flag
+    const { error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .update({ must_change_password: true })
+      .eq('user_id', staff_user_id);
+
+    if (profileError) {
+      console.error('Failed to set must_change_password flag:', profileError);
+    }
+
+    // Also delete any existing PIN (force re-setup for security)
+    await supabaseAdmin
+      .from('user_pins')
+      .delete()
+      .eq('user_id', staff_user_id);
 
     // Get staff details for email
     const { data: staffProfile } = await supabaseAdmin
