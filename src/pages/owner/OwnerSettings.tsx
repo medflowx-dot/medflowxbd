@@ -10,6 +10,7 @@ import { Loader2, Settings, Save, AlertTriangle, Mail, Eye, EyeOff, Send, Credit
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { PlatformBrandingUpload } from '@/components/owner/PlatformBrandingUpload';
+import { parseEdgeFunctionError } from '@/lib/edgeFunctionError';
 
 export default function OwnerSettings() {
   const { data: settings, isLoading } = usePlatformSettings();
@@ -101,7 +102,7 @@ export default function OwnerSettings() {
 
   const handleTestEmail = async () => {
     if (!testEmailAddress) {
-      toast.error('Please enter an email address');
+      toast.error('ইমেইল অ্যাড্রেস দিন');
       return;
     }
     
@@ -115,11 +116,21 @@ export default function OwnerSettings() {
         },
       });
       
-      if (error) throw error;
-      toast.success('Test email sent successfully!');
+      // Parse error from response body if Edge Function returned non-2xx
+      const errorData = await parseEdgeFunctionError(error, data);
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        return;
+      }
+      
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না।');
+      }
+      
+      toast.success('টেস্ট ইমেইল সফলভাবে পাঠানো হয়েছে!');
     } catch (error: any) {
       console.error('Test email error:', error);
-      toast.error(error.message || 'Failed to send test email');
+      toast.error(error.message || 'ইমেইল পাঠাতে সমস্যা হয়েছে');
     } finally {
       setTestingEmail(false);
     }
@@ -185,8 +196,16 @@ export default function OwnerSettings() {
         },
       });
       
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      // Parse error from response body if Edge Function returned non-2xx
+      const errorData = await parseEdgeFunctionError(error, data);
+      if (errorData?.error) {
+        toast.error(errorData.error);
+        return;
+      }
+      
+      if (error && !data) {
+        throw new Error('সার্ভারের সাথে সংযোগ করা যাচ্ছে না।');
+      }
       
       toast.success('টেস্ট SMS সফলভাবে পাঠানো হয়েছে!');
     } catch (error: any) {
