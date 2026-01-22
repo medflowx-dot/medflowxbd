@@ -143,7 +143,7 @@ export function MobileFAB({ actions }: MobileFABProps) {
       {/* Main FAB Button */}
       <div 
         className={cn(
-          "fixed bottom-28 right-4 z-50 md:hidden",
+          "fixed bottom-24 right-4 z-50 md:hidden",
           isVisible 
             ? "fab-bounce-in" 
             : "fab-bounce-out pointer-events-none"
@@ -152,18 +152,18 @@ export function MobileFAB({ actions }: MobileFABProps) {
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(
-            "h-14 w-14 rounded-full flex items-center justify-center",
-            "transition-all duration-150 ease-out",
-            "active:scale-95 touch-manipulation shadow-lg",
+            "h-11 w-11 rounded-full flex items-center justify-center",
+            "transition-all duration-100 ease-out",
+            "active:scale-95 touch-manipulation shadow-md",
             isExpanded 
               ? "bg-destructive rotate-45 shadow-destructive/30" 
-              : "fab-gradient shadow-primary/30"
+              : "fab-gradient shadow-primary/20"
           )}
         >
           {isExpanded ? (
-            <X className="h-6 w-6 text-white" />
+            <X className="h-5 w-5 text-white" />
           ) : (
-            <Plus className="h-6 w-6 text-white" />
+            <Plus className="h-5 w-5 text-white" />
           )}
         </button>
       </div>
