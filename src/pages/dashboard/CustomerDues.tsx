@@ -3,13 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Users, Wallet, Plus, Search, Phone, MessageCircle, Trash2, FileText, Loader2, Pencil, Pill, Filter, FilterX } from 'lucide-react';
+import { Users, Wallet, Plus, Search, Phone, MessageCircle, Trash2, FileText, Loader2, Pencil, Pill, Filter, FilterX, MoreHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
 import { useCustomers, useCustomerDuesSummary, useDeleteCustomer, shareViaWhatsApp, Customer } from '@/hooks/useCustomerDues';
 import { useCustomersWithPrescriptions } from '@/hooks/useCustomerPrescriptions';
 import { supabase } from '@/integrations/supabase/client';
 import { generateIndividualCustomerPDF } from '@/lib/pdfGenerator';
 import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { AddCustomerDialog } from '@/components/customer-dues/AddCustomerDialog';
 import { AddDueDialog } from '@/components/customer-dues/AddDueDialog';
 import { RecordPaymentDialog } from '@/components/customer-dues/RecordPaymentDialog';
@@ -49,12 +50,14 @@ export default function CustomerDues() {
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportCustomer, setReportCustomer] = useState<Customer | null>(null);
   const [historyInitialTab, setHistoryInitialTab] = useState<'transactions' | 'prescriptions'>('transactions');
+  const [expandedCustomerId, setExpandedCustomerId] = useState<string | null>(null);
 
   const { data: customers, isLoading } = useCustomers();
   const { data: summary } = useCustomerDuesSummary();
   const { data: customersWithPrescriptions } = useCustomersWithPrescriptions();
   const deleteCustomer = useDeleteCustomer();
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
 
   const handleQuickReportClick = (customer: Customer) => {
     setReportCustomer(customer);
@@ -244,137 +247,266 @@ export default function CustomerDues() {
               <p>{searchTerm ? t.customerDues.noCustomersFound : t.customerDues.noCustomersYet}</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table className="min-w-[500px]">
+            <div className={cn("overflow-x-auto", isMobile && "overflow-x-hidden")}>
+              <Table className={cn(!isMobile && "min-w-[500px]")}>
                 <TableHeader>
                   <TableRow className="bg-muted/30">
                     <TableHead>{t.customerDues.name}</TableHead>
                     <TableHead className="hidden sm:table-cell">{t.customerDues.phone}</TableHead>
                     <TableHead className="text-right">{t.customerDues.dueAmount}</TableHead>
-                    <TableHead className="text-right w-auto sticky right-0 bg-muted/30 backdrop-blur-sm">{t.medicines.actions}</TableHead>
+                    <TableHead className="text-right w-auto">{t.medicines.actions}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredCustomers?.map((customer) => (
-                    <TableRow key={customer.id} className="hover:bg-muted/30 transition-colors">
-                      <TableCell className="font-medium">
-                        {customer.name}
-                        {customer.phone && (
-                          <span className="block sm:hidden text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                            <Phone className="h-3 w-3" />
-                            {customer.phone}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        {customer.phone ? (
-                          <span className="flex items-center gap-1 text-muted-foreground">
-                            <Phone className="h-3 w-3" />
-                            {customer.phone}
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {Number(customer.total_due) > 0 ? (
-                          <Badge className="bg-destructive text-destructive-foreground border-0 shadow-sm">
-                            ৳{Number(customer.total_due).toFixed(0)}
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-success text-success-foreground border-0 shadow-sm">
-                            {t.customerDues.paid}
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right sticky right-0 bg-background">
-                        <div className="flex justify-end gap-0.5 sm:gap-1 flex-nowrap">
-                          <EditCustomerDialog
-                            customer={customer}
-                            trigger={
+                  {filteredCustomers?.map((customer) => {
+                    const hasDue = Number(customer.total_due) > 0;
+                    const hasPhone = !!customer.phone;
+                    const hasPrescription = customersWithPrescriptions?.includes(customer.id);
+                    const isExpanded = expandedCustomerId === customer.id;
+
+                    // Action items for mobile grid
+                    type ActionItem = {
+                      icon: typeof Pencil;
+                      label: string;
+                      color: string;
+                      onClick?: () => void;
+                      disabled?: boolean;
+                      type?: 'edit';
+                    };
+
+                    const actionItems: ActionItem[] = [
+                      { 
+                        icon: Pencil, 
+                        label: t.customerDues?.editCustomer || 'Edit', 
+                        color: 'text-primary',
+                        type: 'edit'
+                      },
+                      { 
+                        icon: FileText, 
+                        label: t.customerDues?.quickReport || 'Report', 
+                        onClick: () => handleQuickReportClick(customer), 
+                        color: 'text-primary' 
+                      },
+                      { 
+                        icon: Plus, 
+                        label: t.customerDues?.addDue || 'Add Due', 
+                        onClick: () => handleAddDue(customer), 
+                        color: 'text-warning' 
+                      },
+                      { 
+                        icon: Wallet, 
+                        label: t.customerDues?.recordPayment || 'Payment', 
+                        onClick: () => handleRecordPayment(customer), 
+                        color: 'text-success',
+                        disabled: !hasDue
+                      },
+                      { 
+                        icon: Pill, 
+                        label: t.customerDues?.viewPrescription || 'Prescription', 
+                        onClick: () => handleViewPrescription(customer), 
+                        color: hasPrescription ? 'text-primary' : 'text-muted-foreground'
+                      },
+                      { 
+                        icon: Search, 
+                        label: t.customerDues?.viewHistory || 'History', 
+                        onClick: () => handleViewHistory(customer), 
+                        color: 'text-info' 
+                      },
+                      ...(hasDue && hasPhone ? [{
+                        icon: MessageCircle, 
+                        label: t.customerDues?.sendWhatsApp || 'WhatsApp', 
+                        onClick: () => handleWhatsApp(customer), 
+                        color: 'text-success'
+                      }] : []),
+                      { 
+                        icon: Trash2, 
+                        label: t.customerDues?.deleteCustomer || 'Delete', 
+                        onClick: () => {
+                          setCustomerToDelete(customer.id);
+                          setDeleteConfirmOpen(true);
+                        }, 
+                        color: 'text-destructive' 
+                      },
+                    ];
+
+                    return (
+                      <>
+                        <TableRow key={customer.id} className="hover:bg-muted/30 transition-colors">
+                          <TableCell className="font-medium">
+                            {customer.name}
+                            {customer.phone && (
+                              <span className="block sm:hidden text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                                <Phone className="h-3 w-3" />
+                                {customer.phone}
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell">
+                            {customer.phone ? (
+                              <span className="flex items-center gap-1 text-muted-foreground">
+                                <Phone className="h-3 w-3" />
+                                {customer.phone}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {hasDue ? (
+                              <Badge className="bg-destructive text-destructive-foreground border-0 shadow-sm">
+                                ৳{Number(customer.total_due).toFixed(0)}
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-success text-success-foreground border-0 shadow-sm">
+                                {t.customerDues.paid}
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {/* Mobile: Show expand button */}
+                            {isMobile ? (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                title={t.customerDues?.editCustomer || 'Edit Customer'}
-                                className="h-8 w-8 p-0 hover:bg-primary/10"
+                                onClick={() => setExpandedCustomerId(isExpanded ? null : customer.id)}
+                                className="h-8 px-2 gap-1 hover:bg-primary/10"
                               >
-                                <Pencil className="h-4 w-4" />
+                                <MoreHorizontal className="h-4 w-4" />
+                                {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                               </Button>
-                            }
-                          />
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleQuickReportClick(customer)}
-                            title={t.customerDues.quickReport}
-                            className="h-8 w-8 p-0 hover:bg-primary/10"
-                          >
-                            <FileText className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleAddDue(customer)}
-                            title={t.customerDues.addDue}
-                            className="h-8 w-8 p-0 hover:bg-warning/10 text-warning"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRecordPayment(customer)}
-                            disabled={Number(customer.total_due) <= 0}
-                            title={t.customerDues.recordPayment}
-                            className="h-8 w-8 p-0 hover:bg-success/10 text-success"
-                          >
-                            <Wallet className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewPrescription(customer)}
-                            title={t.customerDues?.viewPrescription || 'View Prescription'}
-                            className={`h-8 w-8 p-0 hover:bg-primary/10 ${customersWithPrescriptions?.includes(customer.id) ? 'text-primary' : 'text-muted-foreground'}`}
-                          >
-                            <Pill className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewHistory(customer)}
-                            title={t.customerDues.viewHistory}
-                            className="h-8 w-8 p-0 hover:bg-info/10 text-info"
-                          >
-                            <Search className="h-4 w-4" />
-                          </Button>
-                          {Number(customer.total_due) > 0 && customer.phone && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleWhatsApp(customer)}
-                              title={t.customerDues.sendWhatsApp}
-                              className="h-8 w-8 p-0 hover:bg-success/10 text-success"
-                            >
-                              <MessageCircle className="h-4 w-4" />
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setCustomerToDelete(customer.id);
-                              setDeleteConfirmOpen(true);
-                            }}
-                            title={t.customerDues.deleteCustomer}
-                            className="h-8 w-8 p-0 hover:bg-destructive/10 text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            ) : (
+                              /* Desktop: Show all action buttons inline */
+                              <div className="flex justify-end gap-0.5 sm:gap-1 flex-nowrap">
+                                <EditCustomerDialog
+                                  customer={customer}
+                                  trigger={
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      title={t.customerDues?.editCustomer || 'Edit Customer'}
+                                      className="h-8 w-8 p-0 hover:bg-primary/10"
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                  }
+                                />
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleQuickReportClick(customer)}
+                                  title={t.customerDues.quickReport}
+                                  className="h-8 w-8 p-0 hover:bg-primary/10"
+                                >
+                                  <FileText className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleAddDue(customer)}
+                                  title={t.customerDues.addDue}
+                                  className="h-8 w-8 p-0 hover:bg-warning/10 text-warning"
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRecordPayment(customer)}
+                                  disabled={!hasDue}
+                                  title={t.customerDues.recordPayment}
+                                  className="h-8 w-8 p-0 hover:bg-success/10 text-success"
+                                >
+                                  <Wallet className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleViewPrescription(customer)}
+                                  title={t.customerDues?.viewPrescription || 'View Prescription'}
+                                  className={`h-8 w-8 p-0 hover:bg-primary/10 ${hasPrescription ? 'text-primary' : 'text-muted-foreground'}`}
+                                >
+                                  <Pill className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleViewHistory(customer)}
+                                  title={t.customerDues.viewHistory}
+                                  className="h-8 w-8 p-0 hover:bg-info/10 text-info"
+                                >
+                                  <Search className="h-4 w-4" />
+                                </Button>
+                                {hasDue && hasPhone && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleWhatsApp(customer)}
+                                    title={t.customerDues.sendWhatsApp}
+                                    className="h-8 w-8 p-0 hover:bg-success/10 text-success"
+                                  >
+                                    <MessageCircle className="h-4 w-4" />
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setCustomerToDelete(customer.id);
+                                    setDeleteConfirmOpen(true);
+                                  }}
+                                  title={t.customerDues.deleteCustomer}
+                                  className="h-8 w-8 p-0 hover:bg-destructive/10 text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                        
+                        {/* Mobile: Expandable Action Grid Row */}
+                        {isMobile && isExpanded && (
+                          <TableRow key={`${customer.id}-actions`} className="bg-muted/20 border-b">
+                            <TableCell colSpan={4} className="p-2">
+                              <div className="grid grid-cols-4 gap-1">
+                                {actionItems.map((action, idx) => (
+                                  action.type === 'edit' ? (
+                                    <EditCustomerDialog
+                                      key={idx}
+                                      customer={customer}
+                                      trigger={
+                                        <Button
+                                          variant="ghost"
+                                          className="flex flex-col h-auto py-2 px-1 gap-1 w-full hover:bg-background/80"
+                                        >
+                                          <action.icon className={cn("h-5 w-5", action.color)} />
+                                          <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                                        </Button>
+                                      }
+                                    />
+                                  ) : (
+                                    <Button
+                                      key={idx}
+                                      variant="ghost"
+                                      disabled={action.disabled}
+                                      onClick={() => {
+                                        action.onClick?.();
+                                        setExpandedCustomerId(null);
+                                      }}
+                                      className="flex flex-col h-auto py-2 px-1 gap-1 hover:bg-background/80 disabled:opacity-40"
+                                    >
+                                      <action.icon className={cn("h-5 w-5", action.color)} />
+                                      <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                                    </Button>
+                                  )
+                                ))}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
