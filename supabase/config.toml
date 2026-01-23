@@ -77,3 +77,15 @@ verify_jwt = false
 
 [functions.import-medicine-reference]
 verify_jwt = false
+
+[functions.admin-team-login]
+verify_jwt = false
+
+[functions.invite-admin-team]
+verify_jwt = false
+
+[functions.remove-admin-team]
+verify_jwt = false
+
+[functions.change-temp-password]
+verify_jwt = false

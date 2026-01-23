@@ -14,6 +14,146 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_team_members: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          is_active: boolean
+          phone: string | null
+          team_role: Database["public"]["Enums"]["admin_team_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          is_active?: boolean
+          phone?: string | null
+          team_role: Database["public"]["Enums"]["admin_team_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          is_active?: boolean
+          phone?: string | null
+          team_role?: Database["public"]["Enums"]["admin_team_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_team_permissions: {
+        Row: {
+          can_delete_clients: boolean
+          can_impersonate_users: boolean
+          can_manage_clients: boolean
+          can_manage_cms: boolean
+          can_manage_email_templates: boolean
+          can_manage_feature_flags: boolean
+          can_manage_master_data: boolean
+          can_manage_payments: boolean
+          can_manage_pricing: boolean
+          can_manage_settings: boolean
+          can_manage_subscriptions: boolean
+          can_process_refunds: boolean
+          can_send_notifications: boolean
+          can_view_audit_logs: boolean
+          can_view_clients: boolean
+          can_view_cms: boolean
+          can_view_dashboard: boolean
+          can_view_email_templates: boolean
+          can_view_feature_flags: boolean
+          can_view_master_data: boolean
+          can_view_payments: boolean
+          can_view_pricing: boolean
+          can_view_settings: boolean
+          can_view_subscriptions: boolean
+          created_at: string
+          id: string
+          team_member_id: string
+          updated_at: string
+        }
+        Insert: {
+          can_delete_clients?: boolean
+          can_impersonate_users?: boolean
+          can_manage_clients?: boolean
+          can_manage_cms?: boolean
+          can_manage_email_templates?: boolean
+          can_manage_feature_flags?: boolean
+          can_manage_master_data?: boolean
+          can_manage_payments?: boolean
+          can_manage_pricing?: boolean
+          can_manage_settings?: boolean
+          can_manage_subscriptions?: boolean
+          can_process_refunds?: boolean
+          can_send_notifications?: boolean
+          can_view_audit_logs?: boolean
+          can_view_clients?: boolean
+          can_view_cms?: boolean
+          can_view_dashboard?: boolean
+          can_view_email_templates?: boolean
+          can_view_feature_flags?: boolean
+          can_view_master_data?: boolean
+          can_view_payments?: boolean
+          can_view_pricing?: boolean
+          can_view_settings?: boolean
+          can_view_subscriptions?: boolean
+          created_at?: string
+          id?: string
+          team_member_id: string
+          updated_at?: string
+        }
+        Update: {
+          can_delete_clients?: boolean
+          can_impersonate_users?: boolean
+          can_manage_clients?: boolean
+          can_manage_cms?: boolean
+          can_manage_email_templates?: boolean
+          can_manage_feature_flags?: boolean
+          can_manage_master_data?: boolean
+          can_manage_payments?: boolean
+          can_manage_pricing?: boolean
+          can_manage_settings?: boolean
+          can_manage_subscriptions?: boolean
+          can_process_refunds?: boolean
+          can_send_notifications?: boolean
+          can_view_audit_logs?: boolean
+          can_view_clients?: boolean
+          can_view_cms?: boolean
+          can_view_dashboard?: boolean
+          can_view_email_templates?: boolean
+          can_view_feature_flags?: boolean
+          can_view_master_data?: boolean
+          can_view_payments?: boolean
+          can_view_pricing?: boolean
+          can_view_settings?: boolean
+          can_view_subscriptions?: boolean
+          created_at?: string
+          id?: string
+          team_member_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_team_permissions_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: true
+            referencedRelation: "admin_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action_type: string
@@ -2040,6 +2180,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin_team_member: { Args: { _user_id: string }; Returns: boolean }
       log_admin_action: {
         Args: {
           p_action_type: string
@@ -2052,6 +2193,7 @@ export type Database = {
       }
     }
     Enums: {
+      admin_team_role: "manager" | "support" | "staff" | "technical_it"
       app_role: "owner_admin" | "client_admin" | "client_staff"
     }
     CompositeTypes: {
@@ -2180,6 +2322,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      admin_team_role: ["manager", "support", "staff", "technical_it"],
       app_role: ["owner_admin", "client_admin", "client_staff"],
     },
   },
