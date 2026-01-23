@@ -28,10 +28,10 @@ interface MedExMedicine {
 }
 
 // Parse MedEx medicine page markdown to extract structured data
-function parseMedExMarkdown(markdown: string, medicineName: string): MedExMedicine | null {
+function parseMedExMarkdown(markdown: string, fallbackName: string): MedExMedicine | null {
   try {
     const medicine: MedExMedicine = {
-      name: medicineName,
+      name: fallbackName,
       generic_name: null,
       dosage_form: null,
       strength: null,
@@ -52,121 +52,108 @@ function parseMedExMarkdown(markdown: string, medicineName: string): MedExMedici
       storage: null,
     };
 
-    // Extract medicine name from title if available
+    // Extract medicine name from H1 title
     const titleMatch = markdown.match(/^#\s+([^\n]+)/m);
     if (titleMatch) {
       medicine.name = titleMatch[1].trim();
     }
 
-    // Extract generic name
-    const genericMatch = markdown.match(/Generic(?:\s+Name)?[:\s]+([^\n]+)/i);
+    // Extract generic name from link: [Paracetamol](https://medex.com.bd/generics/...)
+    const genericMatch = markdown.match(/\[([^\]]+)\]\(https:\/\/medex\.com\.bd\/generics\/[^)]+\)/i);
     if (genericMatch) {
       medicine.generic_name = genericMatch[1].trim();
     }
 
-    // Extract manufacturer
-    const manufacturerMatch = markdown.match(/(?:Manufacturer|Company|Marketed by)[:\s]+([^\n]+)/i);
+    // Extract manufacturer from link: [Beximco Pharmaceuticals Ltd.](https://medex.com.bd/companies/...)
+    const manufacturerMatch = markdown.match(/\[([^\]]+)\]\(https:\/\/medex\.com\.bd\/companies\/[^)]+\)/i);
     if (manufacturerMatch) {
       medicine.manufacturer_name = manufacturerMatch[1].trim();
     }
 
-    // Extract dosage form
-    const formMatch = markdown.match(/(?:Dosage Form|Type)[:\s]+([^\n]+)/i);
-    if (formMatch) {
-      medicine.dosage_form = formMatch[1].trim();
-    }
-
-    // Extract strength
-    const strengthMatch = markdown.match(/(?:Strength|Dose)[:\s]+([^\n]+)/i);
+    // Extract strength - usually a standalone line like "1000 mg" or "500 mg"
+    const strengthMatch = markdown.match(/^(\d+(?:\.\d+)?\s*(?:mg|ml|mcg|g|iu|%)[^\n]*)\s*$/im);
     if (strengthMatch) {
       medicine.strength = strengthMatch[1].trim();
     }
 
-    // Extract price - try multiple patterns
-    const priceMatch = markdown.match(/(?:Unit Price|Price per unit|৳)\s*([\d.]+)/i);
-    if (priceMatch) {
-      medicine.unit_price = parseFloat(priceMatch[1]);
+    // Extract dosage form from image alt text or name
+    const formMatch = markdown.match(/!\[(Tablet|Capsule|Syrup|Suspension|Injection|Cream|Ointment|Gel|Drops|Inhaler|Suppository|Powder|Solution|Spray)\]/i);
+    if (formMatch) {
+      medicine.dosage_form = formMatch[1].trim();
     }
 
-    const stripPriceMatch = markdown.match(/(?:Strip Price|Pack Price)[:\s]*৳?\s*([\d.]+)/i);
+    // Extract unit price: "Unit Price:" followed by "৳ 2.25"
+    const unitPriceMatch = markdown.match(/Unit Price[:\s]*\n?৳\s*([\d.]+)/i);
+    if (unitPriceMatch) {
+      medicine.unit_price = parseFloat(unitPriceMatch[1]);
+    }
+
+    // Extract strip price: "Strip Price:৳ 22.50"
+    const stripPriceMatch = markdown.match(/Strip Price[:\s]*৳\s*([\d.]+)/i);
     if (stripPriceMatch) {
       medicine.strip_price = parseFloat(stripPriceMatch[1]);
     }
 
-    // Extract pack size
-    const packMatch = markdown.match(/(?:Pack Size|Pack)[:\s]+([^\n]+)/i);
+    // Extract pack size from pattern like "(20 x 10: ৳ 450.00)"
+    const packMatch = markdown.match(/\((\d+\s*x\s*\d+)[:\s]*৳/i);
     if (packMatch) {
       medicine.pack_size = packMatch[1].trim();
     }
 
-    // Extract indication
-    const indicationMatch = markdown.match(/(?:Indication|Indications)[:\s]*\n?([\s\S]*?)(?=\n(?:Pharmacology|Dosage|Contra|Side Effect|Precaution|Drug Interaction|Storage|Pregnancy|Administration|\n#|\n\*\*|$))/i);
+    // Extract indication - section starts with "### Indications"
+    const indicationMatch = markdown.match(/###\s*Indication[s]?\s*\n([\s\S]*?)(?=\n###|\n\*\*|\[_\\)/i);
     if (indicationMatch) {
       medicine.indication = indicationMatch[1].trim().slice(0, 2000);
     }
 
-    // Extract pharmacology
-    const pharmacologyMatch = markdown.match(/(?:Pharmacology|Therapeutic Class)[:\s]*\n?([\s\S]*?)(?=\n(?:Indication|Dosage|Contra|Side Effect|Precaution|Drug Interaction|Storage|Pregnancy|Administration|\n#|\n\*\*|$))/i);
+    // Extract pharmacology - section starts with "### Pharmacology"
+    const pharmacologyMatch = markdown.match(/###\s*Pharmacology\s*\n([\s\S]*?)(?=\n###|\n\*\*)/i);
     if (pharmacologyMatch) {
       medicine.pharmacology = pharmacologyMatch[1].trim().slice(0, 2000);
     }
 
-    // Extract dosage
-    const dosageMatch = markdown.match(/(?:Dosage|Dose)[:\s]*\n?([\s\S]*?)(?=\n(?:Indication|Pharmacology|Contra|Side Effect|Precaution|Drug Interaction|Storage|Pregnancy|Administration|\n#|\n\*\*|$))/i);
+    // Extract dosage & administration - section starts with "### Dosage & Administration"
+    const dosageMatch = markdown.match(/###\s*Dosage\s*(?:&|and)?\s*Administration\s*\n([\s\S]*?)(?=\n###|\n\*\*)/i);
     if (dosageMatch) {
       const dosageText = dosageMatch[1].trim();
-      const adultMatch = dosageText.match(/(?:Adult)[:\s]*([\s\S]*?)(?=(?:Child|Pediatric|Paediatric|$))/i);
-      const pediatricMatch = dosageText.match(/(?:Child|Pediatric|Paediatric)[:\s]*([\s\S]*?)$/i);
-      
-      if (adultMatch) {
-        medicine.dosage_adult = adultMatch[1].trim().slice(0, 1000);
-      } else {
-        medicine.dosage_adult = dosageText.slice(0, 1000);
-      }
-      
-      if (pediatricMatch) {
-        medicine.dosage_pediatric = pediatricMatch[1].trim().slice(0, 1000);
-      }
-    }
-
-    // Extract administration
-    const adminMatch = markdown.match(/(?:Administration|Mode of Administration)[:\s]*\n?([\s\S]*?)(?=\n(?:Indication|Pharmacology|Dosage|Contra|Side Effect|Precaution|Drug Interaction|Storage|Pregnancy|\n#|\n\*\*|$))/i);
-    if (adminMatch) {
-      medicine.administration = adminMatch[1].trim().slice(0, 1000);
+      medicine.dosage_adult = dosageText.slice(0, 2000);
     }
 
     // Extract contraindications
-    const contraMatch = markdown.match(/(?:Contraindication|Contra-indication)[:\s]*\n?([\s\S]*?)(?=\n(?:Indication|Pharmacology|Dosage|Side Effect|Precaution|Drug Interaction|Storage|Pregnancy|Administration|\n#|\n\*\*|$))/i);
+    const contraMatch = markdown.match(/###\s*Contra[- ]?indication[s]?\s*\n([\s\S]*?)(?=\n###|\n\*\*)/i);
     if (contraMatch) {
       medicine.contraindications = contraMatch[1].trim().slice(0, 1000);
     }
 
     // Extract side effects
-    const sideEffectMatch = markdown.match(/(?:Side Effect|Adverse Effect)[:\s]*\n?([\s\S]*?)(?=\n(?:Indication|Pharmacology|Dosage|Contra|Precaution|Drug Interaction|Storage|Pregnancy|Administration|\n#|\n\*\*|$))/i);
+    const sideEffectMatch = markdown.match(/###\s*Side Effects?\s*\n([\s\S]*?)(?=\n###|\n\*\*)/i);
     if (sideEffectMatch) {
       medicine.side_effects = sideEffectMatch[1].trim().slice(0, 1000);
     }
 
     // Extract precautions
-    const precautionMatch = markdown.match(/(?:Precaution|Warning)[:\s]*\n?([\s\S]*?)(?=\n(?:Indication|Pharmacology|Dosage|Contra|Side Effect|Drug Interaction|Storage|Pregnancy|Administration|\n#|\n\*\*|$))/i);
+    const precautionMatch = markdown.match(/###\s*Precaution[s]?\s*(?:&|and)?\s*Warning[s]?\s*\n([\s\S]*?)(?=\n###|\n\*\*)/i);
     if (precautionMatch) {
       medicine.precautions = precautionMatch[1].trim().slice(0, 1000);
     }
 
     // Extract drug interactions
-    const interactionMatch = markdown.match(/(?:Drug Interaction|Interaction)[:\s]*\n?([\s\S]*?)(?=\n(?:Indication|Pharmacology|Dosage|Contra|Side Effect|Precaution|Storage|Pregnancy|Administration|\n#|\n\*\*|$))/i);
+    const interactionMatch = markdown.match(/###\s*(?:Drug\s+)?Interaction[s]?\s*\n([\s\S]*?)(?=\n###|\n\*\*)/i);
     if (interactionMatch) {
       medicine.drug_interactions = interactionMatch[1].trim().slice(0, 1000);
     }
 
-    // Extract pregnancy category
-    const pregnancyMatch = markdown.match(/(?:Pregnancy Category|Pregnancy)[:\s]*([A-DX])/i);
+    // Extract pregnancy category from "### Pregnancy & Lactation" section
+    const pregnancyMatch = markdown.match(/(?:Category|Pregnancy)[:\s]*([A-DX])\b/i);
     if (pregnancyMatch) {
       medicine.pregnancy_category = pregnancyMatch[1].toUpperCase();
     }
 
     // Extract storage
-    const storageMatch = markdown.match(/(?:Storage|Store)[:\s]*\n?([^\n]+)/i);
+    const storageMatch = markdown.match(/###\s*Storage\s*\n([^\n]+)/i);
+    if (storageMatch) {
+      medicine.storage = storageMatch[1].trim().slice(0, 500);
+    }
     if (storageMatch) {
       medicine.storage = storageMatch[1].trim().slice(0, 500);
     }
