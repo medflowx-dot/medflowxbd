@@ -153,7 +153,7 @@ export function useMedicineReferenceFilters() {
       if (error) throw error;
 
       const items = (data || []) as unknown as { dosage_form: string }[];
-      const uniqueForms = [...new Set(items.map(d => d.dosage_form).filter(Boolean))];
+      const uniqueForms = [...new Set(items.map(d => d.dosage_form).filter(v => v && v.trim() !== ''))];
       return uniqueForms.sort();
     },
   });
@@ -171,7 +171,7 @@ export function useMedicineReferenceFilters() {
       if (error) throw error;
 
       const items = (data || []) as unknown as { drug_class: string }[];
-      const uniqueClasses = [...new Set(items.map(d => d.drug_class).filter(Boolean))];
+      const uniqueClasses = [...new Set(items.map(d => d.drug_class).filter(v => v && v.trim() !== ''))];
       return uniqueClasses.sort();
     },
   });
@@ -189,7 +189,7 @@ export function useMedicineReferenceFilters() {
       if (error) throw error;
 
       const items = (data || []) as unknown as { manufacturer_name: string }[];
-      const uniqueMfgs = [...new Set(items.map(d => d.manufacturer_name).filter(Boolean))];
+      const uniqueMfgs = [...new Set(items.map(d => d.manufacturer_name).filter(v => v && v.trim() !== ''))];
       return uniqueMfgs.sort();
     },
   });
