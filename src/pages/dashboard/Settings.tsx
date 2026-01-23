@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MobileSelect } from '@/components/ui/mobile-select';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
@@ -283,42 +283,42 @@ export default function Settings() {
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="currency">{t.settings.currency}</Label>
-                <Select value={formData.currency} onValueChange={(v) => handleChange('currency', v)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t.settings.selectCurrency} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="BDT">BDT (৳)</SelectItem>
-                    <SelectItem value="USD">USD ($)</SelectItem>
-                    <SelectItem value="EUR">EUR (€)</SelectItem>
-                    <SelectItem value="INR">INR (₹)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <MobileSelect
+                  value={formData.currency}
+                  onValueChange={(v) => handleChange('currency', v)}
+                  placeholder={t.settings.selectCurrency}
+                  options={[
+                    { value: 'BDT', label: 'BDT (৳)' },
+                    { value: 'USD', label: 'USD ($)' },
+                    { value: 'EUR', label: 'EUR (€)' },
+                    { value: 'INR', label: 'INR (₹)' },
+                  ]}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dateFormat">{t.settings.dateFormat}</Label>
-                <Select value={formData.date_format} onValueChange={(v) => handleChange('date_format', v)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t.settings.selectFormat} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
-                    <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
-                    <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
-                  </SelectContent>
-                </Select>
+                <MobileSelect
+                  value={formData.date_format}
+                  onValueChange={(v) => handleChange('date_format', v)}
+                  placeholder={t.settings.selectFormat}
+                  options={[
+                    { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' },
+                    { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY' },
+                    { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD' },
+                  ]}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="language">{t.settings.language}</Label>
-                <Select value={formData.language} onValueChange={(v) => handleChange('language', v)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t.settings.selectLanguage} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="en">{t.settings.english}</SelectItem>
-                    <SelectItem value="bn">{t.settings.bengali}</SelectItem>
-                  </SelectContent>
-                </Select>
+                <MobileSelect
+                  value={formData.language}
+                  onValueChange={(v) => handleChange('language', v)}
+                  placeholder={t.settings.selectLanguage}
+                  options={[
+                    { value: 'en', label: t.settings.english },
+                    { value: 'bn', label: t.settings.bengali },
+                  ]}
+                />
               </div>
             </div>
             <Button 
