@@ -24,6 +24,7 @@ import {
   Menu,
   Smartphone,
   Lock,
+  BookOpen,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -75,6 +76,11 @@ const masterDataItems = [
     title: 'Global Medicines',
     href: '/owner/global-medicines',
     icon: Pill,
+  },
+  {
+    title: 'Medicine Reference',
+    href: '/owner/medicine-reference',
+    icon: BookOpen,
   },
 ];
 
