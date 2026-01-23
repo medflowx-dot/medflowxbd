@@ -78,9 +78,13 @@ export function SalesReportView({ dateRange }: SalesReportViewProps) {
               {format(dateRange.start, 'dd MMM yyyy')} - {format(dateRange.end, 'dd MMM yyyy')}
             </CardDescription>
           </div>
-          <Button onClick={handleExportSales} disabled={!salesData?.length || exporting}>
-            {exporting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-            {t.reports.exportPDF}
+          <Button 
+            onClick={handleExportSales} 
+            disabled={!salesData?.length || exporting}
+            className="h-auto py-2 px-3 flex flex-col sm:flex-row items-center gap-1"
+          >
+            {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            <span className="text-[10px] sm:text-sm">{t.reports.exportPDF}</span>
           </Button>
         </CardHeader>
         <CardContent>

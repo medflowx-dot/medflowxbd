@@ -105,9 +105,10 @@ export function CustomerDuesReportView({ dateRange }: CustomerDuesReportProps) {
                 variant="outline" 
                 onClick={handleExportPDF}
                 disabled={filteredCustomers.length === 0}
+                className="h-auto py-2 px-3 flex flex-col sm:flex-row items-center gap-1"
               >
-                <Download className="h-4 w-4 mr-2" />
-                {t.reports.exportPDF}
+                <Download className="h-4 w-4" />
+                <span className="text-[10px] sm:text-sm">{t.reports.exportPDF}</span>
               </Button>
             </div>
           </div>
