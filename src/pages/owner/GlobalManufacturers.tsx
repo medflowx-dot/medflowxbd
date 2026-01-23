@@ -233,7 +233,7 @@ export default function GlobalManufacturers() {
                     <TableRow key={manufacturer.id}>
                       <TableCell className="font-medium">{manufacturer.name}</TableCell>
                       <TableCell>
-                        <DropdownMenu>
+                        <DropdownMenu modal={false}>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
                               <MoreHorizontal className="h-4 w-4" />
