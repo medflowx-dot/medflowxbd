@@ -108,10 +108,10 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
               <Button
                 onClick={handleExportIndividual}
                 disabled={!individualReport || individualLoading}
-                className="gap-2"
+                className="h-auto py-2 px-3 flex flex-col sm:flex-row items-center gap-1"
               >
                 <Download className="h-4 w-4" />
-                {t.reports.exportPDF}
+                <span className="text-[10px] sm:text-sm">{t.reports.exportPDF}</span>
               </Button>
             </div>
 
@@ -304,10 +304,10 @@ export function SupplierReportsView({ dateRange }: SupplierReportsProps) {
               <Button
                 onClick={handleExportAll}
                 disabled={!allSuppliersReport || allLoading}
-                className="gap-2"
+                className="h-auto py-2 px-3 flex flex-col sm:flex-row items-center gap-1"
               >
                 <Download className="h-4 w-4" />
-                {t.reports.exportAllPDF}
+                <span className="text-[10px] sm:text-sm">{t.reports.exportAllPDF}</span>
               </Button>
             </div>
 
