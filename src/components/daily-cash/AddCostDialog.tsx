@@ -83,9 +83,9 @@ export function AddCostDialog({ date }: AddCostDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="flex-1 sm:flex-none">
-          <Plus className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">{t.dailyCash.addCost}</span>
+        <Button className="flex-1 sm:flex-none h-auto py-2 flex flex-col sm:flex-row items-center gap-1">
+          <Plus className="h-4 w-4" />
+          <span className="text-[10px] sm:text-sm">{t.dailyCash.addCost}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
