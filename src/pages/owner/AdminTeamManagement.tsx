@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Loader2, Plus, Users, MoreHorizontal, Settings, Trash2, Power, PowerOff, Mail, Search } from 'lucide-react';
+import { Loader2, Plus, Users, MoreHorizontal, Settings, Trash2, Power, PowerOff, Mail, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { 
@@ -25,6 +25,8 @@ import {
   getRoleLabel
 } from '@/hooks/useAdminTeam';
 import { AdminTeamPermissionsDialog } from '@/components/owner/AdminTeamPermissionsDialog';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 import { z } from 'zod';
 
 const inviteSchema = z.object({
@@ -35,10 +37,14 @@ const inviteSchema = z.object({
 
 export default function AdminTeamManagement() {
   const { language } = useLanguage();
+  const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [inviteOpen, setInviteOpen] = useState(false);
   const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<AdminTeamMemberWithPermissions | null>(null);
+  const [expandedMemberId, setExpandedMemberId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<AdminTeamMemberWithPermissions | null>(null);
   
   // Invite form state
   const [fullName, setFullName] = useState('');
@@ -265,122 +271,147 @@ export default function AdminTeamManagement() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredMembers.map((member) => (
-                    <TableRow key={member.id}>
-                      <TableCell className="font-medium">
-                        {member.full_name || 'N/A'}
-                      </TableCell>
-                      <TableCell>{member.email || '-'}</TableCell>
-                      <TableCell>
-                        <Select
-                          value={member.team_role}
-                          onValueChange={(v) => handleRoleChange(member, v as AdminTeamRole)}
-                          disabled={updateMemberMutation.isPending}
-                        >
-                          <SelectTrigger className="w-[140px]">
+                  filteredMembers.map((member) => {
+                    const isExpanded = expandedMemberId === member.id;
+                    
+                    return (
+                      <>
+                        <TableRow key={member.id}>
+                          <TableCell className="font-medium">
+                            {member.full_name || 'N/A'}
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell">{member.email || '-'}</TableCell>
+                          <TableCell className="hidden md:table-cell">
                             <Badge variant={getRoleBadgeVariant(member.team_role)}>
                               {getRoleLabel(member.team_role, language === 'bn' ? 'bn' : 'en')}
                             </Badge>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="manager">
-                              {language === 'bn' ? 'ম্যানেজার' : 'Manager'}
-                            </SelectItem>
-                            <SelectItem value="support">
-                              {language === 'bn' ? 'সাপোর্ট' : 'Support'}
-                            </SelectItem>
-                            <SelectItem value="staff">
-                              {language === 'bn' ? 'স্টাফ' : 'Staff'}
-                            </SelectItem>
-                            <SelectItem value="technical_it">
-                              {language === 'bn' ? 'টেকনিক্যাল আইটি' : 'Technical IT'}
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            checked={member.is_active}
-                            onCheckedChange={() => handleToggleStatus(member)}
-                            disabled={toggleStatusMutation.isPending}
-                          />
-                          <span className={member.is_active ? 'text-green-600' : 'text-muted-foreground'}>
-                            {member.is_active 
-                              ? (language === 'bn' ? 'সক্রিয়' : 'Active')
-                              : (language === 'bn' ? 'নিষ্ক্রিয়' : 'Inactive')}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {format(new Date(member.created_at), 'dd MMM yyyy')}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu modal={false}>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openPermissions(member)}>
-                              <Settings className="h-4 w-4 mr-2" />
-                              {language === 'bn' ? 'Permissions' : 'Permissions'}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleStatus(member)}>
-                              {member.is_active ? (
-                                <>
-                                  <PowerOff className="h-4 w-4 mr-2" />
-                                  {language === 'bn' ? 'নিষ্ক্রিয় করুন' : 'Deactivate'}
-                                </>
-                              ) : (
-                                <>
-                                  <Power className="h-4 w-4 mr-2" />
-                                  {language === 'bn' ? 'সক্রিয় করুন' : 'Activate'}
-                                </>
-                              )}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <DropdownMenuItem 
-                                  onSelect={(e) => e.preventDefault()}
-                                  className="text-destructive focus:text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  {language === 'bn' ? 'সরিয়ে দিন' : 'Remove'}
-                                </DropdownMenuItem>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    {language === 'bn' ? 'নিশ্চিত করুন' : 'Are you sure?'}
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    {language === 'bn'
-                                      ? `${member.full_name} কে Team থেকে সরিয়ে দিতে চান?`
-                                      : `Remove ${member.full_name} from the team?`}
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>
-                                    {language === 'bn' ? 'বাতিল' : 'Cancel'}
-                                  </AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleRemove(member, false)}
-                                    className="bg-destructive hover:bg-destructive/90"
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            <div className="flex items-center gap-2">
+                              <Switch
+                                checked={member.is_active}
+                                onCheckedChange={() => handleToggleStatus(member)}
+                                disabled={toggleStatusMutation.isPending}
+                              />
+                              <span className={member.is_active ? 'text-success' : 'text-muted-foreground'}>
+                                {member.is_active 
+                                  ? (language === 'bn' ? 'সক্রিয়' : 'Active')
+                                  : (language === 'bn' ? 'নিষ্ক্রিয়' : 'Inactive')}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground hidden xl:table-cell">
+                            {format(new Date(member.created_at), 'dd MMM yyyy')}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {/* Mobile: Show expand button */}
+                            {isMobile ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setExpandedMemberId(isExpanded ? null : member.id)}
+                                className="h-8 px-2 gap-1 hover:bg-primary/10"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                                {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                              </Button>
+                            ) : (
+                              /* Desktop: Show dropdown menu */
+                              <DropdownMenu modal={false}>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => openPermissions(member)}>
+                                    <Settings className="h-4 w-4 mr-2" />
+                                    {language === 'bn' ? 'Permissions' : 'Permissions'}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleToggleStatus(member)}>
+                                    {member.is_active ? (
+                                      <>
+                                        <PowerOff className="h-4 w-4 mr-2" />
+                                        {language === 'bn' ? 'নিষ্ক্রিয় করুন' : 'Deactivate'}
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Power className="h-4 w-4 mr-2" />
+                                        {language === 'bn' ? 'সক্রিয় করুন' : 'Activate'}
+                                      </>
+                                    )}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
+                                    onClick={() => { setMemberToDelete(member); setDeleteDialogOpen(true); }}
+                                    className="text-destructive focus:text-destructive"
                                   >
-                                    {removeMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                                    <Trash2 className="h-4 w-4 mr-2" />
                                     {language === 'bn' ? 'সরিয়ে দিন' : 'Remove'}
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                        
+                        {/* Mobile: Expandable Action Grid Row */}
+                        {isMobile && isExpanded && (
+                          <TableRow key={`${member.id}-actions`} className="bg-muted/20 border-b">
+                            <TableCell colSpan={6} className="p-2">
+                              <div className="grid grid-cols-3 gap-2">
+                                <Button
+                                  variant="ghost"
+                                  className="flex flex-col h-auto py-3 px-2 gap-1 w-full hover:bg-background/80 border border-border/50"
+                                  onClick={() => openPermissions(member)}
+                                >
+                                  <Settings className="h-5 w-5 text-primary" />
+                                  <span className="text-[10px] text-muted-foreground leading-tight text-center">
+                                    {language === 'bn' ? 'Permissions' : 'Permissions'}
+                                  </span>
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  className={cn(
+                                    "flex flex-col h-auto py-3 px-2 gap-1 w-full border border-border/50",
+                                    member.is_active ? "hover:bg-destructive/10" : "hover:bg-success/10"
+                                  )}
+                                  onClick={() => handleToggleStatus(member)}
+                                  disabled={toggleStatusMutation.isPending}
+                                >
+                                  {member.is_active ? (
+                                    <>
+                                      <PowerOff className="h-5 w-5 text-warning" />
+                                      <span className="text-[10px] text-muted-foreground leading-tight text-center">
+                                        {language === 'bn' ? 'নিষ্ক্রিয়' : 'Deactivate'}
+                                      </span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Power className="h-5 w-5 text-success" />
+                                      <span className="text-[10px] text-muted-foreground leading-tight text-center">
+                                        {language === 'bn' ? 'সক্রিয়' : 'Activate'}
+                                      </span>
+                                    </>
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  className="flex flex-col h-auto py-3 px-2 gap-1 w-full hover:bg-destructive/10 border border-border/50"
+                                  onClick={() => { setMemberToDelete(member); setDeleteDialogOpen(true); }}
+                                >
+                                  <Trash2 className="h-5 w-5 text-destructive" />
+                                  <span className="text-[10px] text-muted-foreground leading-tight text-center">
+                                    {language === 'bn' ? 'সরিয়ে দিন' : 'Remove'}
+                                  </span>
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
@@ -399,6 +430,34 @@ export default function AdminTeamManagement() {
           member={selectedMember}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {language === 'bn' ? 'নিশ্চিত করুন' : 'Are you sure?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {language === 'bn'
+                ? `${memberToDelete?.full_name} কে Team থেকে সরিয়ে দিতে চান?`
+                : `Remove ${memberToDelete?.full_name} from the team?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {language === 'bn' ? 'বাতিল' : 'Cancel'}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => { if (memberToDelete) handleRemove(memberToDelete, false); setDeleteDialogOpen(false); }}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {removeMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {language === 'bn' ? 'সরিয়ে দিন' : 'Remove'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

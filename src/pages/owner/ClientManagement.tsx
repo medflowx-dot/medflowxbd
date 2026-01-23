@@ -10,17 +10,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useClients, useUpdateClientSubscription, useExtendSubscription, useConvertToLifetime, useSuspendAccount, useActivateAccount, Client } from '@/hooks/useOwnerData';
-import { Loader2, Search, MoreHorizontal, UserCheck, UserX, Clock, Crown, ArrowUpCircle, ArrowDownCircle, Eye, Calendar, Users, Package, ShoppingCart, Trash2, Bell, Mail, MessageSquare, Send } from 'lucide-react';
+import { Loader2, Search, MoreHorizontal, UserCheck, UserX, Clock, Crown, ArrowUpCircle, ArrowDownCircle, Eye, Calendar, Users, Package, ShoppingCart, Trash2, Bell, Mail, MessageSquare, Send, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { AddClientDialog } from '@/components/owner/AddClientDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { parseEdgeFunctionError } from '@/lib/edgeFunctionError';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 export default function ClientManagement() {
   const [search, setSearch] = useState('');
+  const isMobile = useIsMobile();
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [expandedClientId, setExpandedClientId] = useState<string | null>(null);
   const [dialogType, setDialogType] = useState<'extend' | 'upgrade' | 'suspend' | 'view' | 'delete' | 'notify' | null>(null);
   const [extendDays, setExtendDays] = useState('30');
   const [newPlan, setNewPlan] = useState('monthly');
@@ -338,90 +342,179 @@ export default function ClientManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredClients?.map((client) => (
-                  <TableRow key={client.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{client.pharmacy_name || 'No Name'}</p>
-                        <p className="text-sm text-muted-foreground">{client.full_name || '-'}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm">{client.phone || '-'}</p>
-                    </TableCell>
-                    <TableCell>{getPlanBadge(client.subscription?.plan_type)}</TableCell>
-                    <TableCell>{getStatusBadge(client.subscription?.status)}</TableCell>
-                    <TableCell>
-                      <p className="text-sm">
-                        {client.subscription?.current_period_end
-                          ? format(new Date(client.subscription.current_period_end), 'dd MMM yyyy')
-                          : client.subscription?.plan_type === 'lifetime'
-                          ? 'Lifetime'
-                          : '-'}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Package className="h-3 w-3" />
-                          {client.total_medicines || 0}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <ShoppingCart className="h-3 w-3" />
-                          {client.total_sales || 0}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu modal={false}>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => { setSelectedClient(client); setDialogType('view'); }}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => { setSelectedClient(client); setDialogType('extend'); }}>
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Extend Subscription
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => { setSelectedClient(client); setDialogType('upgrade'); }}>
-                            <ArrowUpCircle className="h-4 w-4 mr-2" />
-                            Change Plan
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => { setSelectedClient(client); setDialogType('notify'); }}>
-                            <Bell className="h-4 w-4 mr-2" />
-                            Send Notification
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          {client.subscription?.status === 'suspended' ? (
-                            <DropdownMenuItem onClick={() => handleActivate(client)} className="text-green-600">
-                              <UserCheck className="h-4 w-4 mr-2" />
-                              Activate Account
-                            </DropdownMenuItem>
+                {filteredClients?.map((client) => {
+                  const isExpanded = expandedClientId === client.id;
+                  
+                  return (
+                    <>
+                      <TableRow key={client.id}>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{client.pharmacy_name || 'No Name'}</p>
+                            <p className="text-sm text-muted-foreground">{client.full_name || '-'}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          <p className="text-sm">{client.phone || '-'}</p>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">{getPlanBadge(client.subscription?.plan_type)}</TableCell>
+                        <TableCell className="hidden lg:table-cell">{getStatusBadge(client.subscription?.status)}</TableCell>
+                        <TableCell className="hidden xl:table-cell">
+                          <p className="text-sm">
+                            {client.subscription?.current_period_end
+                              ? format(new Date(client.subscription.current_period_end), 'dd MMM yyyy')
+                              : client.subscription?.plan_type === 'lifetime'
+                              ? 'Lifetime'
+                              : '-'}
+                          </p>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Package className="h-3 w-3" />
+                              {client.total_medicines || 0}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <ShoppingCart className="h-3 w-3" />
+                              {client.total_sales || 0}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {/* Mobile: Show expand button */}
+                          {isMobile ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setExpandedClientId(isExpanded ? null : client.id)}
+                              className="h-8 px-2 gap-1 hover:bg-primary/10"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                              {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                            </Button>
                           ) : (
-                            <DropdownMenuItem onClick={() => { setSelectedClient(client); setDialogType('suspend'); }} className="text-red-600">
-                              <UserX className="h-4 w-4 mr-2" />
-                              Suspend Account
-                            </DropdownMenuItem>
+                            /* Desktop: Show dropdown menu */
+                            <DropdownMenu modal={false}>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => { setSelectedClient(client); setDialogType('view'); }}>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  View Details
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => { setSelectedClient(client); setDialogType('extend'); }}>
+                                  <Calendar className="h-4 w-4 mr-2" />
+                                  Extend Subscription
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => { setSelectedClient(client); setDialogType('upgrade'); }}>
+                                  <ArrowUpCircle className="h-4 w-4 mr-2" />
+                                  Change Plan
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => { setSelectedClient(client); setDialogType('notify'); }}>
+                                  <Bell className="h-4 w-4 mr-2" />
+                                  Send Notification
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                {client.subscription?.status === 'suspended' ? (
+                                  <DropdownMenuItem onClick={() => handleActivate(client)} className="text-success">
+                                    <UserCheck className="h-4 w-4 mr-2" />
+                                    Activate Account
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem onClick={() => { setSelectedClient(client); setDialogType('suspend'); }} className="text-destructive">
+                                    <UserX className="h-4 w-4 mr-2" />
+                                    Suspend Account
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuItem 
+                                  onClick={() => { setSelectedClient(client); setDialogType('delete'); }} 
+                                  className="text-destructive focus:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete Client
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           )}
-                          <DropdownMenuItem 
-                            onClick={() => { setSelectedClient(client); setDialogType('delete'); }} 
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete Client
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                        </TableCell>
+                      </TableRow>
+                      
+                      {/* Mobile: Expandable Action Grid Row */}
+                      {isMobile && isExpanded && (
+                        <TableRow key={`${client.id}-actions`} className="bg-muted/20 border-b">
+                          <TableCell colSpan={7} className="p-2">
+                            <div className="grid grid-cols-3 gap-2">
+                              <Button
+                                variant="ghost"
+                                className="flex flex-col h-auto py-3 px-2 gap-1 w-full hover:bg-background/80 border border-border/50"
+                                onClick={() => { setSelectedClient(client); setDialogType('view'); }}
+                              >
+                                <Eye className="h-5 w-5 text-info" />
+                                <span className="text-[10px] text-muted-foreground leading-tight text-center">View</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                className="flex flex-col h-auto py-3 px-2 gap-1 w-full hover:bg-background/80 border border-border/50"
+                                onClick={() => { setSelectedClient(client); setDialogType('extend'); }}
+                              >
+                                <Calendar className="h-5 w-5 text-primary" />
+                                <span className="text-[10px] text-muted-foreground leading-tight text-center">Extend</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                className="flex flex-col h-auto py-3 px-2 gap-1 w-full hover:bg-background/80 border border-border/50"
+                                onClick={() => { setSelectedClient(client); setDialogType('upgrade'); }}
+                              >
+                                <ArrowUpCircle className="h-5 w-5 text-success" />
+                                <span className="text-[10px] text-muted-foreground leading-tight text-center">Plan</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                className="flex flex-col h-auto py-3 px-2 gap-1 w-full hover:bg-background/80 border border-border/50"
+                                onClick={() => { setSelectedClient(client); setDialogType('notify'); }}
+                              >
+                                <Bell className="h-5 w-5 text-warning" />
+                                <span className="text-[10px] text-muted-foreground leading-tight text-center">Notify</span>
+                              </Button>
+                              {client.subscription?.status === 'suspended' ? (
+                                <Button
+                                  variant="ghost"
+                                  className="flex flex-col h-auto py-3 px-2 gap-1 w-full hover:bg-success/10 border border-border/50"
+                                  onClick={() => handleActivate(client)}
+                                >
+                                  <UserCheck className="h-5 w-5 text-success" />
+                                  <span className="text-[10px] text-muted-foreground leading-tight text-center">Activate</span>
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="ghost"
+                                  className="flex flex-col h-auto py-3 px-2 gap-1 w-full hover:bg-destructive/10 border border-border/50"
+                                  onClick={() => { setSelectedClient(client); setDialogType('suspend'); }}
+                                >
+                                  <UserX className="h-5 w-5 text-destructive" />
+                                  <span className="text-[10px] text-muted-foreground leading-tight text-center">Suspend</span>
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                className="flex flex-col h-auto py-3 px-2 gap-1 w-full hover:bg-destructive/10 border border-border/50"
+                                onClick={() => { setSelectedClient(client); setDialogType('delete'); }}
+                              >
+                                <Trash2 className="h-5 w-5 text-destructive" />
+                                <span className="text-[10px] text-muted-foreground leading-tight text-center">Delete</span>
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </>
+                  );
+                })}
 
                 {filteredClients?.length === 0 && (
                   <TableRow>
