@@ -143,7 +143,7 @@ export function MobileLayout() {
       
       <PullToRefresh 
         onRefresh={handleRefresh}
-        className="flex-1 pb-20"
+        className="flex-1 pb-20 overflow-visible"
         pullText="টানুন রিফ্রেশ করতে"
         releaseText="ছেড়ে দিন"
         refreshingText="রিফ্রেশ হচ্ছে..."
