@@ -29,11 +29,13 @@ import {
   MessageSquare,
   ShieldAlert,
   AlertTriangle,
+  ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { usePlatformBranding } from '@/hooks/usePlatformBranding';
 import logoAuthFallback from '@/assets/logo-auth.png';
 
@@ -141,9 +143,26 @@ const settingsItems = [
 // Sidebar content component to reuse in both desktop and mobile
 function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { signOut } = useAuth();
   const { logoAuth } = usePlatformBranding();
   const platformLogo = logoAuth.startsWith('/src') ? logoAuthFallback : logoAuth;
+
+  // Auto-expand sections based on current route
+  const isMasterDataRoute = location.pathname.startsWith('/owner/global-') || location.pathname.startsWith('/owner/medicine-reference');
+  const isSystemRoute = ['/owner/locked-accounts', '/owner/feature-flags', '/owner/system-review', '/owner/cms', '/owner/email-templates', '/owner/notification-logs', '/owner/logs'].some(path => location.pathname.startsWith(path));
+  const isSettingsRoute = location.pathname.startsWith('/owner/settings');
+
+  const [masterDataOpen, setMasterDataOpen] = useState(isMasterDataRoute);
+  const [systemOpen, setSystemOpen] = useState(isSystemRoute);
+  const [settingsOpen, setSettingsOpen] = useState(isSettingsRoute);
+
+  // Update open state when route changes
+  useEffect(() => {
+    if (isMasterDataRoute) setMasterDataOpen(true);
+    if (isSystemRoute) setSystemOpen(true);
+    if (isSettingsRoute) setSettingsOpen(true);
+  }, [isMasterDataRoute, isSystemRoute, isSettingsRoute]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -191,88 +210,145 @@ function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
           ))}
         </nav>
         
-        {/* Master Data Section */}
+        {/* Master Data Section - Collapsible */}
         <div className="mt-4 pt-4 border-t border-border">
-          <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            <Database className="h-3 w-3" />
-            Master Data
-          </div>
-          <nav className="space-y-1 mt-1">
-            {masterDataItems.map((item) => (
-              <NavLink
-                key={item.href}
-                to={item.href}
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
-                    isActive
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  )
-                }
+          <Collapsible open={masterDataOpen} onOpenChange={setMasterDataOpen}>
+            <CollapsibleTrigger asChild>
+              <button
+                className={cn(
+                  'flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+                  isMasterDataRoute
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                )}
               >
-                <item.icon className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">{item.title}</span>
-              </NavLink>
-            ))}
-          </nav>
+                <div className="flex items-center gap-3">
+                  <Database className="h-4 w-4 flex-shrink-0" />
+                  <span>Master Data</span>
+                </div>
+                <ChevronDown 
+                  className={cn(
+                    "h-4 w-4 transition-transform duration-200",
+                    masterDataOpen && "rotate-180"
+                  )} 
+                />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-1 ml-4 space-y-1">
+              {masterDataItems.map((item) => (
+                <NavLink
+                  key={item.href}
+                  to={item.href}
+                  onClick={handleNavClick}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all',
+                      isActive
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    )
+                  }
+                >
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{item.title}</span>
+                </NavLink>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
         </div>
         
-        {/* System Section */}
+        {/* System Section - Collapsible */}
         <div className="mt-4 pt-4 border-t border-border">
-          <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            <Shield className="h-3 w-3" />
-            System
-          </div>
-          <nav className="space-y-1 mt-1">
-            {systemItems.map((item) => (
-              <NavLink
-                key={item.href}
-                to={item.href}
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
-                    isActive
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  )
-                }
+          <Collapsible open={systemOpen} onOpenChange={setSystemOpen}>
+            <CollapsibleTrigger asChild>
+              <button
+                className={cn(
+                  'flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+                  isSystemRoute
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                )}
               >
-                <item.icon className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">{item.title}</span>
-              </NavLink>
-            ))}
-          </nav>
+                <div className="flex items-center gap-3">
+                  <Shield className="h-4 w-4 flex-shrink-0" />
+                  <span>System</span>
+                </div>
+                <ChevronDown 
+                  className={cn(
+                    "h-4 w-4 transition-transform duration-200",
+                    systemOpen && "rotate-180"
+                  )} 
+                />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-1 ml-4 space-y-1">
+              {systemItems.map((item) => (
+                <NavLink
+                  key={item.href}
+                  to={item.href}
+                  onClick={handleNavClick}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all',
+                      isActive
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    )
+                  }
+                >
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{item.title}</span>
+                </NavLink>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
         </div>
         
-        {/* Settings Section */}
+        {/* Settings Section - Collapsible */}
         <div className="mt-4 pt-4 border-t border-border">
-          <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            <Settings className="h-3 w-3" />
-            Settings
-          </div>
-          <nav className="space-y-1 mt-1">
-            {settingsItems.map((item) => (
-              <NavLink
-                key={item.href}
-                to={item.href}
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
-                    isActive
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  )
-                }
+          <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
+            <CollapsibleTrigger asChild>
+              <button
+                className={cn(
+                  'flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+                  isSettingsRoute
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                )}
               >
-                <item.icon className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">{item.title}</span>
-              </NavLink>
-            ))}
-          </nav>
+                <div className="flex items-center gap-3">
+                  <Settings className="h-4 w-4 flex-shrink-0" />
+                  <span>Settings</span>
+                </div>
+                <ChevronDown 
+                  className={cn(
+                    "h-4 w-4 transition-transform duration-200",
+                    settingsOpen && "rotate-180"
+                  )} 
+                />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-1 ml-4 space-y-1">
+              {settingsItems.map((item) => (
+                <NavLink
+                  key={item.href}
+                  to={item.href}
+                  onClick={handleNavClick}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all',
+                      isActive
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    )
+                  }
+                >
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{item.title}</span>
+                </NavLink>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       </ScrollArea>
 
