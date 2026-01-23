@@ -235,31 +235,36 @@ Deno.serve(async (req) => {
     console.log('Search successful, looking for medicine links...');
 
     // Find medicine detail links from the search results
-    const links = searchData.data?.links || searchData.links || [];
-    const medicineLinks = links.filter((link: string) => 
-      link.includes('/brands/') && 
-      !link.includes('/brands?') && 
-      link.includes(medicineName.toLowerCase().replace(/\s+/g, '-').split(' ')[0])
-    ).slice(0, 5); // Limit to first 5 matches
+    const links: string[] = searchData.data?.links || searchData.links || [];
+    const searchTermLower = medicineName.toLowerCase().replace(/\s+/g, '-');
+    const searchWords = medicineName.toLowerCase().split(/\s+/);
+    
+    // Filter links that contain the medicine name in the URL
+    const medicineLinks = links.filter((link: string) => {
+      if (!link.includes('/brands/') || link.includes('/brands?')) return false;
+      
+      const linkLower = link.toLowerCase();
+      // Check if the URL contains the first word of the search term
+      // e.g., "napa" should match "/brands/1234/napa-500-mg"
+      return searchWords.some((word: string) => {
+        // Match the word as a path segment (after / or at start of medicine name)
+        const regex = new RegExp(`/brands/\\d+/${word}|/${word}-|/${word}$`, 'i');
+        return regex.test(linkLower);
+      });
+    }).slice(0, 10);
+
+    console.log('Filtered medicine links:', medicineLinks);
 
     if (medicineLinks.length === 0) {
-      // Try to find any brand links
-      const allBrandLinks = links.filter((link: string) => 
-        link.includes('/brands/') && !link.includes('/brands?')
-      ).slice(0, 5);
-      
-      if (allBrandLinks.length === 0) {
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: `No medicines found matching "${medicineName}" on MedEx`,
-            searchMarkdown: searchData.data?.markdown?.slice(0, 500) || 'No content'
-          }),
-          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      medicineLinks.push(...allBrandLinks);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `No medicines found matching "${medicineName}" on MedEx`,
+          searchMarkdown: searchData.data?.markdown?.slice(0, 500) || 'No content',
+          allLinks: links.filter((l: string) => l.includes('/brands/')).slice(0, 10)
+        }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log(`Found ${medicineLinks.length} medicine links, scraping details...`);
