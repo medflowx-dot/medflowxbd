@@ -52,6 +52,12 @@ function parseMedExMarkdown(markdown: string, medicineName: string): MedExMedici
       storage: null,
     };
 
+    // Extract medicine name from title if available
+    const titleMatch = markdown.match(/^#\s+([^\n]+)/m);
+    if (titleMatch) {
+      medicine.name = titleMatch[1].trim();
+    }
+
     // Extract generic name
     const genericMatch = markdown.match(/Generic(?:\s+Name)?[:\s]+([^\n]+)/i);
     if (genericMatch) {
@@ -76,8 +82,8 @@ function parseMedExMarkdown(markdown: string, medicineName: string): MedExMedici
       medicine.strength = strengthMatch[1].trim();
     }
 
-    // Extract price
-    const priceMatch = markdown.match(/(?:Unit Price|Price per unit)[:\s]*৳?\s*([\d.]+)/i);
+    // Extract price - try multiple patterns
+    const priceMatch = markdown.match(/(?:Unit Price|Price per unit|৳)\s*([\d.]+)/i);
     if (priceMatch) {
       medicine.unit_price = parseFloat(priceMatch[1]);
     }
@@ -109,7 +115,6 @@ function parseMedExMarkdown(markdown: string, medicineName: string): MedExMedici
     const dosageMatch = markdown.match(/(?:Dosage|Dose)[:\s]*\n?([\s\S]*?)(?=\n(?:Indication|Pharmacology|Contra|Side Effect|Precaution|Drug Interaction|Storage|Pregnancy|Administration|\n#|\n\*\*|$))/i);
     if (dosageMatch) {
       const dosageText = dosageMatch[1].trim();
-      // Try to separate adult and pediatric
       const adultMatch = dosageText.match(/(?:Adult)[:\s]*([\s\S]*?)(?=(?:Child|Pediatric|Paediatric|$))/i);
       const pediatricMatch = dosageText.match(/(?:Child|Pediatric|Paediatric)[:\s]*([\s\S]*?)$/i);
       
@@ -197,21 +202,23 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Use Firecrawl search to find MedEx pages for the medicine
-    const searchQuery = `site:medex.com.bd/brands ${medicineName}`;
+    // Use MedEx's search page (correct URL format!)
+    const searchUrl = `https://medex.com.bd/search?search=${encodeURIComponent(medicineName)}`;
     
-    console.log(`Searching for: ${searchQuery}`);
+    console.log(`Searching MedEx: ${searchUrl}`);
 
-    // Use Firecrawl's search API to find medicine pages
-    const searchResponse = await fetch('https://api.firecrawl.dev/v1/search', {
+    // Scrape the search results page
+    const searchResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        query: searchQuery,
-        limit: 10,
+        url: searchUrl,
+        formats: ['markdown', 'links'],
+        onlyMainContent: true,
+        waitFor: 3000,
       }),
     });
 
@@ -222,50 +229,65 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: searchData.error || 'Failed to search for medicines',
+          error: searchData.error || 'Failed to search MedEx',
           details: searchData 
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Search successful, processing results...');
-    console.log('Search results:', JSON.stringify(searchData).slice(0, 500));
+    console.log('Search successful, extracting medicine links...');
 
-    // Extract medicine URLs from search results
-    const searchResults = searchData.data || searchData.results || [];
-    const medicineUrls: string[] = [];
+    // Get links from the response
+    const links: string[] = searchData.data?.links || searchData.links || [];
+    const markdown = searchData.data?.markdown || searchData.markdown || '';
     
-    for (const result of searchResults) {
-      const url = result.url || result.link || '';
-      // Only include MedEx brand pages
-      if (url.includes('medex.com.bd/brands/') && !url.includes('/brands?')) {
-        medicineUrls.push(url);
+    console.log(`Found ${links.length} total links`);
+    console.log('Sample markdown:', markdown.slice(0, 300));
+
+    // Filter for brand pages
+    const medicineUrls = links.filter((link: string) => 
+      link.includes('medex.com.bd/brands/') && 
+      !link.includes('/brands?') &&
+      /\/brands\/\d+\//.test(link)
+    );
+    
+    console.log(`Found ${medicineUrls.length} medicine URLs from links`);
+
+    // Also try to extract from markdown if not enough links found
+    if (medicineUrls.length < 3) {
+      const markdownLinkRegex = /\[([^\]]*)\]\((https:\/\/medex\.com\.bd\/brands\/\d+\/[^)]+)\)/g;
+      let match;
+      while ((match = markdownLinkRegex.exec(markdown)) !== null) {
+        if (!medicineUrls.includes(match[2])) {
+          medicineUrls.push(match[2]);
+        }
       }
+      console.log(`Total medicine URLs after markdown extraction: ${medicineUrls.length}`);
     }
-    
-    console.log(`Found ${medicineUrls.length} medicine URLs from search`);
 
     if (medicineUrls.length === 0) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: `"${medicineName}" নামে কোন ওষুধ পাওয়া যায়নি। অনুগ্রহ করে সঠিক নাম দিয়ে আবার চেষ্টা করুন।`,
-          hint: 'Try searching with the exact brand name like "Napa", "Seclo", "Zimax"',
-          searchResults: searchResults.slice(0, 3).map((r: any) => ({ url: r.url, title: r.title }))
+          error: `"${medicineName}" নামে কোন ওষুধ পাওয়া যায়নি।`,
+          hint: 'সঠিক ওষুধের নাম দিয়ে চেষ্টা করুন যেমন: Napa, Seclo, Zimax',
+          debugInfo: {
+            totalLinks: links.length,
+            sampleLinks: links.slice(0, 5)
+          }
         }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const allMatchingLinks = medicineUrls.slice(0, 5);
-
-    console.log(`Found ${allMatchingLinks.length} medicine links, scraping details...`);
+    console.log('Medicine links to scrape:', allMatchingLinks);
 
     // Scrape each medicine detail page
     const medicines: MedExMedicine[] = [];
 
-    for (const link of allMatchingLinks.slice(0, 5)) { // Limit to 5 to avoid timeout
+    for (const link of allMatchingLinks) {
       try {
         console.log(`Scraping: ${link}`);
         
@@ -286,13 +308,14 @@ Deno.serve(async (req) => {
         const detailData = await detailResponse.json();
 
         if (detailResponse.ok && detailData.data?.markdown) {
-          // Extract medicine name from URL
+          // Extract medicine name from URL as fallback
           const urlParts = link.split('/');
           const nameFromUrl = urlParts[urlParts.length - 1]
-            .split('-')
-            .filter((part: string) => isNaN(Number(part)))
-            .join(' ')
-            .replace(/-/g, ' ');
+            .replace(/-/g, ' ')
+            .replace(/\d+\s*mg|\d+\s*ml|\d+\s*mcg/gi, (m) => m.toUpperCase())
+            .split(' ')
+            .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
           
           const parsedMedicine = parseMedExMarkdown(detailData.data.markdown, nameFromUrl || medicineName);
           
@@ -310,7 +333,7 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Could not parse any medicine data from MedEx',
+          error: 'MedEx থেকে ওষুধের তথ্য পার্স করা যায়নি।',
           links: allMatchingLinks
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -395,7 +418,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Found ${medicines.length} medicines from MedEx`,
+        message: `MedEx থেকে ${medicines.length}টি ওষুধ পাওয়া গেছে`,
         inserted,
         updated,
         medicines: medicines.map(m => ({
