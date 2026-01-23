@@ -25,6 +25,10 @@ import {
   Smartphone,
   Lock,
   BookOpen,
+  Phone,
+  MessageSquare,
+  ShieldAlert,
+  AlertTriangle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -120,11 +124,18 @@ const systemItems = [
     href: '/owner/logs',
     icon: History,
   },
-  {
-    title: 'Settings',
-    href: '/owner/settings',
-    icon: Settings,
-  },
+];
+
+const settingsItems = [
+  { title: 'Branding', href: '/owner/settings/branding', icon: Settings },
+  { title: 'Support Contact', href: '/owner/settings/support', icon: Phone },
+  { title: 'Admin Team', href: '/owner/settings/admin-team', icon: Users },
+  { title: 'SMTP Email', href: '/owner/settings/smtp', icon: Mail },
+  { title: 'SMS Gateway', href: '/owner/settings/sms', icon: MessageSquare },
+  { title: 'Notifications', href: '/owner/settings/notifications', icon: Bell },
+  { title: 'Security Alerts', href: '/owner/settings/security', icon: ShieldAlert },
+  { title: 'Payment Gateway', href: '/owner/settings/payment', icon: CreditCard },
+  { title: 'System', href: '/owner/settings/system', icon: AlertTriangle },
 ];
 
 // Sidebar content component to reuse in both desktop and mobile
@@ -211,11 +222,39 @@ function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
         {/* System Section */}
         <div className="mt-4 pt-4 border-t border-border">
           <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            <Settings className="h-3 w-3" />
+            <Shield className="h-3 w-3" />
             System
           </div>
           <nav className="space-y-1 mt-1">
             {systemItems.map((item) => (
+              <NavLink
+                key={item.href}
+                to={item.href}
+                onClick={handleNavClick}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  )
+                }
+              >
+                <item.icon className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{item.title}</span>
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+        
+        {/* Settings Section */}
+        <div className="mt-4 pt-4 border-t border-border">
+          <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <Settings className="h-3 w-3" />
+            Settings
+          </div>
+          <nav className="space-y-1 mt-1">
+            {settingsItems.map((item) => (
               <NavLink
                 key={item.href}
                 to={item.href}
