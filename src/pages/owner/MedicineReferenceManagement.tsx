@@ -456,7 +456,7 @@ export default function MedicineReferenceManagement() {
                         {medicine.unit_price ? `৳${medicine.unit_price.toFixed(2)}` : '-'}
                       </TableCell>
                       <TableCell>
-                        <DropdownMenu>
+                        <DropdownMenu modal={false}>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
                               <MoreHorizontal className="h-4 w-4" />

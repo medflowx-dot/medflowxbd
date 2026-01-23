@@ -316,7 +316,7 @@ export default function AdminTeamManagement() {
                         {format(new Date(member.created_at), 'dd MMM yyyy')}
                       </TableCell>
                       <TableCell className="text-right">
-                        <DropdownMenu>
+                        <DropdownMenu modal={false}>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm">
                               <MoreHorizontal className="h-4 w-4" />
