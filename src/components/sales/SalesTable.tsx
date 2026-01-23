@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Trash2, Receipt, ChevronDown, ChevronRight, Zap, ClipboardList, Pencil } from 'lucide-react';
+import { Trash2, Receipt, ChevronDown, ChevronRight, Zap, ClipboardList, Pencil, MoreHorizontal, ChevronUp, Eye } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -31,7 +31,9 @@ import { useSales, type Sale } from '@/hooks/useSales';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { EditSaleDialog } from './EditSaleDialog';
+import { cn } from '@/lib/utils';
 
 interface SalesTableProps {
   sales: Sale[];
@@ -41,7 +43,11 @@ interface SalesTableProps {
 export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
   const { deleteSale } = useSales();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [expandedActionId, setExpandedActionId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [saleToDelete, setSaleToDelete] = useState<Sale | null>(null);
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
 
   const { data: saleItems } = useQuery({
     queryKey: ['sale-items', Array.from(expandedRows)],
@@ -99,160 +105,299 @@ export function SalesTable({ sales, showEntryType = true }: SalesTableProps) {
   };
 
   return (
-    <div className="-mx-3 sm:mx-0 overflow-x-auto">
-      <Table className="min-w-[400px]">
-        <TableHeader>
-          <TableRow>
-            {showEntryType && <TableHead className="w-8 hidden sm:table-cell"></TableHead>}
-            <TableHead className="text-xs sm:text-sm">{t.sales.id}</TableHead>
-            {showEntryType && <TableHead className="hidden md:table-cell text-xs sm:text-sm">{t.sales.type}</TableHead>}
-            <TableHead className="text-xs sm:text-sm">{t.sales.date}</TableHead>
-            <TableHead className="text-right text-xs sm:text-sm">{t.sales.total}</TableHead>
-            <TableHead className="text-right hidden md:table-cell text-xs sm:text-sm">{t.sales.paid}</TableHead>
-            <TableHead className="text-right text-xs sm:text-sm">{t.sales.due}</TableHead>
-            <TableHead className="hidden lg:table-cell text-xs sm:text-sm">{t.sales.method}</TableHead>
-            <TableHead className="text-right w-12 sticky right-0 bg-background"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sales.map((sale) => {
-            const isExpanded = expandedRows.has(sale.id);
-            const isDetailedSale = sale.entry_type === 'detailed';
-            const items = saleItems?.[sale.id] || [];
+    <>
+      <div className={cn("-mx-3 sm:mx-0", isMobile ? "overflow-hidden" : "overflow-x-auto")}>
+        <Table className={cn(!isMobile && "min-w-[400px]")}>
+          <TableHeader>
+            <TableRow>
+              {showEntryType && <TableHead className="w-8 hidden sm:table-cell"></TableHead>}
+              <TableHead className="text-xs sm:text-sm">{t.sales.id}</TableHead>
+              {showEntryType && <TableHead className="hidden md:table-cell text-xs sm:text-sm">{t.sales.type}</TableHead>}
+              <TableHead className="text-xs sm:text-sm">{t.sales.date}</TableHead>
+              <TableHead className="text-right text-xs sm:text-sm">{t.sales.total}</TableHead>
+              <TableHead className="text-right hidden md:table-cell text-xs sm:text-sm">{t.sales.paid}</TableHead>
+              <TableHead className="text-right text-xs sm:text-sm">{t.sales.due}</TableHead>
+              <TableHead className="hidden lg:table-cell text-xs sm:text-sm">{t.sales.method}</TableHead>
+              <TableHead className="text-right w-12"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sales.map((sale) => {
+              const isExpanded = expandedRows.has(sale.id);
+              const isActionExpanded = expandedActionId === sale.id;
+              const isDetailedSale = sale.entry_type === 'detailed';
+              const items = saleItems?.[sale.id] || [];
 
-            return (
-              <Collapsible key={sale.id} open={isExpanded} asChild>
-                <>
-                  <TableRow className={isExpanded ? 'border-b-0' : ''}>
-                    {showEntryType && (
-                      <TableCell className="py-2 hidden sm:table-cell">
-                        {isDetailedSale && (
-                          <CollapsibleTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => toggleRow(sale.id)}
-                            >
-                              {isExpanded ? (
-                                <ChevronDown className="h-4 w-4" />
-                              ) : (
-                                <ChevronRight className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </CollapsibleTrigger>
-                        )}
-                      </TableCell>
-                    )}
-                    <TableCell className="font-mono text-xs">
-                      {sale.invoice_number.replace('INV-', '')}
-                    </TableCell>
-                    {showEntryType && (
-                      <TableCell className="hidden md:table-cell">
-                        {sale.entry_type === 'quick' ? (
-                          <Badge variant="secondary" className="gap-1">
-                            <Zap className="h-3 w-3" />
-                            {t.sales.quick}
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="gap-1">
-                            <ClipboardList className="h-3 w-3" />
-                            {t.sales.detailed}
-                          </Badge>
-                        )}
-                      </TableCell>
-                    )}
-                    <TableCell className="text-xs sm:text-sm whitespace-nowrap">
-                      <span className="sm:hidden">{format(new Date(sale.sale_date), 'dd/MM')}</span>
-                      <span className="hidden sm:inline">{format(new Date(sale.sale_date), 'dd MMM yyyy')}</span>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      ৳{Number(sale.total_amount).toFixed(0)}
-                    </TableCell>
-                    <TableCell className="text-right text-success hidden md:table-cell">
-                      ৳{Number(sale.paid_amount).toFixed(0)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {Number(sale.due_amount) > 0 ? (
-                        <span className="text-warning font-medium">৳{Number(sale.due_amount).toFixed(0)}</span>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <Badge variant="outline" className="capitalize">
-                        {sale.payment_method}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right sticky right-0 bg-background">
-                      <div className="flex items-center justify-end gap-1">
-                        <EditSaleDialog
-                          sale={sale}
-                          trigger={
-                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10">
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          }
-                        />
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>{t.sales.deleteSale}</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                {t.sales.deleteSaleConfirm} "{sale.invoice_number}"? {t.sales.cannotBeUndone}
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteSale.mutate(sale.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              // Action items for mobile grid
+              type ActionItem = {
+                icon: typeof Pencil;
+                label: string;
+                color: string;
+                onClick?: () => void;
+                type?: 'edit' | 'viewItems' | 'delete';
+              };
+
+              const actionItems: ActionItem[] = [
+                { 
+                  icon: Pencil, 
+                  label: t.actions?.edit || 'Edit', 
+                  color: 'text-primary',
+                  type: 'edit'
+                },
+              ...(isDetailedSale ? [{
+                icon: Eye, 
+                label: t.sales?.saleItems || 'Items', 
+                color: 'text-info',
+                onClick: () => toggleRow(sale.id),
+                type: 'viewItems' as const
+              }] : []),
+                { 
+                  icon: Trash2, 
+                  label: t.actions?.delete || 'Delete', 
+                  color: 'text-destructive',
+                  type: 'delete'
+                },
+              ];
+
+              return (
+                <Collapsible key={sale.id} open={isExpanded} asChild>
+                  <>
+                    <TableRow className={isExpanded ? 'border-b-0' : ''}>
+                      {showEntryType && (
+                        <TableCell className="py-2 hidden sm:table-cell">
+                          {isDetailedSale && (
+                            <CollapsibleTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => toggleRow(sale.id)}
                               >
-                                {t.actions.delete}
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                  {isDetailedSale && (
-                    <CollapsibleContent asChild>
-                      <TableRow className="bg-muted/50">
-                        <TableCell colSpan={showEntryType ? 9 : 7} className="py-2 px-6">
-                          {items.length > 0 ? (
-                            <div className="space-y-1">
-                              <p className="text-xs font-medium text-muted-foreground mb-2">{t.sales.saleItems}:</p>
-                              {items.map((item) => (
-                                <div key={item.id} className="flex justify-between text-sm">
-                                  <span>
-                                    {item.medicine_name} 
-                                    <span className="text-muted-foreground ml-1">
-                                      ({item.quantity} {getUnitLabel(item.sale_unit || 'piece')} @ ৳{Math.round(Number(item.unit_price))})
-                                    </span>
-                                  </span>
-                                  <span className="font-medium">৳{Math.round(Number(item.total_price))}</span>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">{t.sales.loadingItems}</p>
+                                {isExpanded ? (
+                                  <ChevronDown className="h-4 w-4" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </CollapsibleTrigger>
                           )}
                         </TableCell>
+                      )}
+                      <TableCell className="font-mono text-xs">
+                        {sale.invoice_number.replace('INV-', '')}
+                      </TableCell>
+                      {showEntryType && (
+                        <TableCell className="hidden md:table-cell">
+                          {sale.entry_type === 'quick' ? (
+                            <Badge variant="secondary" className="gap-1">
+                              <Zap className="h-3 w-3" />
+                              {t.sales.quick}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="gap-1">
+                              <ClipboardList className="h-3 w-3" />
+                              {t.sales.detailed}
+                            </Badge>
+                          )}
+                        </TableCell>
+                      )}
+                      <TableCell className="text-xs sm:text-sm whitespace-nowrap">
+                        <span className="sm:hidden">{format(new Date(sale.sale_date), 'dd/MM')}</span>
+                        <span className="hidden sm:inline">{format(new Date(sale.sale_date), 'dd MMM yyyy')}</span>
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        ৳{Number(sale.total_amount).toFixed(0)}
+                      </TableCell>
+                      <TableCell className="text-right text-success hidden md:table-cell">
+                        ৳{Number(sale.paid_amount).toFixed(0)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {Number(sale.due_amount) > 0 ? (
+                          <span className="text-warning font-medium">৳{Number(sale.due_amount).toFixed(0)}</span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        <Badge variant="outline" className="capitalize">
+                          {sale.payment_method}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {/* Mobile: Show expand button */}
+                        {isMobile ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setExpandedActionId(isActionExpanded ? null : sale.id)}
+                            className="h-8 px-2 gap-1 hover:bg-primary/10"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                            {isActionExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                          </Button>
+                        ) : (
+                          /* Desktop: Show all action buttons inline */
+                          <div className="flex items-center justify-end gap-1">
+                            <EditSaleDialog
+                              sale={sale}
+                              trigger={
+                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10">
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              }
+                            />
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>{t.sales.deleteSale}</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    {t.sales.deleteSaleConfirm} "{sale.invoice_number}"? {t.sales.cannotBeUndone}
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteSale.mutate(sale.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    {t.actions.delete}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+
+                    {/* Mobile: Expandable Action Grid Row */}
+                    {isMobile && isActionExpanded && (
+                      <TableRow key={`${sale.id}-actions`} className="bg-muted/20 border-b">
+                        <TableCell colSpan={showEntryType ? 9 : 7} className="p-2">
+                          <div className="grid grid-cols-3 gap-1">
+                            {actionItems.map((action, idx) => {
+                              if (action.type === 'edit') {
+                                return (
+                                  <EditSaleDialog
+                                    key={idx}
+                                    sale={sale}
+                                    trigger={
+                                      <Button
+                                        variant="ghost"
+                                        className="flex flex-col h-auto py-2 px-1 gap-1 w-full hover:bg-background/80"
+                                      >
+                                        <action.icon className={cn("h-5 w-5", action.color)} />
+                                        <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                                      </Button>
+                                    }
+                                  />
+                                );
+                              }
+                              if (action.type === 'viewItems') {
+                                return (
+                                  <Button
+                                    key={idx}
+                                    variant="ghost"
+                                    onClick={() => {
+                                      toggleRow(sale.id);
+                                      setExpandedActionId(null);
+                                    }}
+                                    className="flex flex-col h-auto py-2 px-1 gap-1 hover:bg-background/80"
+                                  >
+                                    <action.icon className={cn("h-5 w-5", action.color)} />
+                                    <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                                  </Button>
+                                );
+                              }
+                              if (action.type === 'delete') {
+                                return (
+                                  <Button
+                                    key={idx}
+                                    variant="ghost"
+                                    onClick={() => {
+                                      setSaleToDelete(sale);
+                                      setDeleteDialogOpen(true);
+                                      setExpandedActionId(null);
+                                    }}
+                                    className="flex flex-col h-auto py-2 px-1 gap-1 hover:bg-background/80"
+                                  >
+                                    <action.icon className={cn("h-5 w-5", action.color)} />
+                                    <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                                  </Button>
+                                );
+                              }
+                              return null;
+                            })}
+                          </div>
+                        </TableCell>
                       </TableRow>
-                    </CollapsibleContent>
-                  )}
-                </>
-              </Collapsible>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+                    )}
+
+                    {isDetailedSale && (
+                      <CollapsibleContent asChild>
+                        <TableRow className="bg-muted/50">
+                          <TableCell colSpan={showEntryType ? 9 : 7} className="py-2 px-6">
+                            {items.length > 0 ? (
+                              <div className="space-y-1">
+                                <p className="text-xs font-medium text-muted-foreground mb-2">{t.sales.saleItems}:</p>
+                                {items.map((item) => (
+                                  <div key={item.id} className="flex justify-between text-sm">
+                                    <span>
+                                      {item.medicine_name} 
+                                      <span className="text-muted-foreground ml-1">
+                                        ({item.quantity} {getUnitLabel(item.sale_unit || 'piece')} @ ৳{Math.round(Number(item.unit_price))})
+                                      </span>
+                                    </span>
+                                    <span className="font-medium">৳{Math.round(Number(item.total_price))}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground">{t.sales.loadingItems}</p>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      </CollapsibleContent>
+                    )}
+                  </>
+                </Collapsible>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Mobile Delete Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t.sales.deleteSale}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t.sales.deleteSaleConfirm} "{saleToDelete?.invoice_number}"? {t.sales.cannotBeUndone}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (saleToDelete) {
+                  deleteSale.mutate(saleToDelete.id);
+                }
+                setDeleteDialogOpen(false);
+                setSaleToDelete(null);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t.actions.delete}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
