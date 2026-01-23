@@ -67,6 +67,17 @@ const MedicineReferenceManagement = lazy(() => import("./pages/owner/MedicineRef
 const NotificationLogs = lazy(() => import("./pages/owner/NotificationLogs"));
 const LockedAccounts = lazy(() => import("./pages/owner/LockedAccounts"));
 
+// Owner Settings Sub-pages
+const BrandingSettings = lazy(() => import("./pages/owner/settings/BrandingSettings"));
+const SupportContactSettings = lazy(() => import("./pages/owner/settings/SupportContactSettings"));
+const AdminTeamSettings = lazy(() => import("./pages/owner/settings/AdminTeamSettings"));
+const SmtpSettings = lazy(() => import("./pages/owner/settings/SmtpSettings"));
+const SmsGatewaySettings = lazy(() => import("./pages/owner/settings/SmsGatewaySettings"));
+const NotificationSettings = lazy(() => import("./pages/owner/settings/NotificationSettings"));
+const SecurityAlertSettings = lazy(() => import("./pages/owner/settings/SecurityAlertSettings"));
+const PaymentGatewaySettings = lazy(() => import("./pages/owner/settings/PaymentGatewaySettings"));
+const SystemSettings = lazy(() => import("./pages/owner/settings/SystemSettings"));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -173,6 +184,15 @@ const App = () => (
                     <Route path="notification-logs" element={<NotificationLogs />} />
                     <Route path="logs" element={<AuditLogs />} />
                     <Route path="settings" element={<OwnerSettings />} />
+                    <Route path="settings/branding" element={<BrandingSettings />} />
+                    <Route path="settings/support" element={<SupportContactSettings />} />
+                    <Route path="settings/admin-team" element={<AdminTeamSettings />} />
+                    <Route path="settings/smtp" element={<SmtpSettings />} />
+                    <Route path="settings/sms" element={<SmsGatewaySettings />} />
+                    <Route path="settings/notifications" element={<NotificationSettings />} />
+                    <Route path="settings/security" element={<SecurityAlertSettings />} />
+                    <Route path="settings/payment" element={<PaymentGatewaySettings />} />
+                    <Route path="settings/system" element={<SystemSettings />} />
                   </Route>
 
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
