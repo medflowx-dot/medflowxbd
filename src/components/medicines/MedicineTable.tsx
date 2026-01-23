@@ -6,6 +6,10 @@ import {
   Package,
   Plus,
   Building2,
+  MoreHorizontal,
+  ChevronDown,
+  ChevronUp,
+  Layers,
 } from 'lucide-react';
 import {
   Table,
@@ -47,6 +51,8 @@ import { useMedicines, type MedicineWithBatches } from '@/hooks/useMedicines';
 import { useManufacturers } from '@/hooks/useManufacturers';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface MedicineTableProps {
   medicines: MedicineWithBatches[];
@@ -59,7 +65,11 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
   const { manufacturers } = useManufacturers();
   const { hasPermission } = usePermissions();
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [expandedMedicineId, setExpandedMedicineId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [medicineToDelete, setMedicineToDelete] = useState<MedicineWithBatches | null>(null);
   
   const canManageMedicines = hasPermission('manage_medicines');
 
@@ -131,196 +141,363 @@ export function MedicineTable({ medicines, searchTerm, shelfFilter = 'all' }: Me
   }
 
   return (
-    <div className="rounded-md border overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t.medicines.medicine}</TableHead>
-            <TableHead className="hidden md:table-cell">{t.medicines.manufacturer}</TableHead>
-            <TableHead className="hidden lg:table-cell">{t.medicines.category}</TableHead>
-            <TableHead className="hidden sm:table-cell">{t.medicines.shelf}</TableHead>
-            <TableHead className="hidden xl:table-cell">{t.medicines.batches}</TableHead>
-            <TableHead>{t.medicines.expiry}</TableHead>
-            {canManageMedicines && (
-              <TableHead className="text-right sticky right-0 bg-background">{t.medicines.actions}</TableHead>
-            )}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredMedicines.map((medicine) => {
-            const expiryStatus = getExpiryStatus(medicine.earliest_expiry);
+    <>
+      <div className={cn("rounded-md border", isMobile ? "overflow-hidden" : "overflow-x-auto")}>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t.medicines.medicine}</TableHead>
+              <TableHead className="hidden md:table-cell">{t.medicines.manufacturer}</TableHead>
+              <TableHead className="hidden lg:table-cell">{t.medicines.category}</TableHead>
+              <TableHead className="hidden sm:table-cell">{t.medicines.shelf}</TableHead>
+              <TableHead className="hidden xl:table-cell">{t.medicines.batches}</TableHead>
+              <TableHead>{t.medicines.expiry}</TableHead>
+              {canManageMedicines && (
+                <TableHead className="text-right">{t.medicines.actions}</TableHead>
+              )}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredMedicines.map((medicine) => {
+              const expiryStatus = getExpiryStatus(medicine.earliest_expiry);
+              const isExpanded = expandedMedicineId === medicine.id;
 
-            return (
-              <TableRow key={medicine.id}>
-                <TableCell>
-                  <div>
-                    <p className="font-medium">{medicine.name}</p>
-                    {medicine.generic_name && (
-                      <p className="text-sm text-muted-foreground">{medicine.generic_name}</p>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  {canManageMedicines ? (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className={`h-auto py-1 px-2 ${!medicine.manufacturer_id ? 'text-muted-foreground' : ''}`}
-                          disabled={updatingId === medicine.id}
-                        >
-                          {updatingId === medicine.id ? (
-                            <span className="text-xs">{t.medicines.saving}</span>
-                          ) : medicine.manufacturer ? (
-                            <span className="flex items-center gap-1">
-                              <Building2 className="h-3 w-3" />
-                              {medicine.manufacturer}
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-xs">
-                              <Plus className="h-3 w-3" />
-                              {t.medicines.setManufacturer}
-                            </span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-56 p-2" align="start">
-                        <Select
-                          value={medicine.manufacturer_id || 'none'}
-                          onValueChange={(value) => handleManufacturerChange(medicine.id, value)}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder={t.medicines.selectManufacturer} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">{t.medicines.none}</SelectItem>
-                            {manufacturers.map((m) => (
-                              <SelectItem key={m.id} value={m.id}>
-                                {m.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </PopoverContent>
-                    </Popover>
-                  ) : medicine.manufacturer ? (
-                    <span className="text-sm">{medicine.manufacturer}</span>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">—</span>
-                  )}
-                </TableCell>
-                <TableCell className="hidden lg:table-cell">
-                  {medicine.category && (
-                    <Badge variant="secondary">{medicine.category}</Badge>
-                  )}
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">
-                  {medicine.shelf_location ? (
-                    <Badge variant="outline" className="font-mono">
-                      {medicine.shelf_location}
-                    </Badge>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">—</span>
-                  )}
-                </TableCell>
-                <TableCell className="hidden xl:table-cell">
-                  <BatchListDialog
-                    medicineName={medicine.name}
-                    medicineId={medicine.id}
-                    batches={medicine.batches}
-                    trigger={
-                      <Badge 
-                        variant="outline" 
-                        className="cursor-pointer hover:bg-accent transition-colors"
-                      >
-                        {medicine.batches.length}
-                      </Badge>
-                    }
-                  />
-                </TableCell>
-                <TableCell>
-                  {medicine.earliest_expiry ? (
-                    <Badge
-                      variant={
-                        expiryStatus === 'expired' || expiryStatus === 'critical'
-                          ? 'destructive'
-                          : expiryStatus === 'warning'
-                          ? 'default'
-                          : 'secondary'
-                      }
-                      className={
-                        expiryStatus === 'warning'
-                          ? 'bg-orange-500 hover:bg-orange-600'
-                          : expiryStatus === 'notice'
-                          ? 'bg-yellow-500 hover:bg-yellow-600 text-yellow-950'
-                          : ''
-                      }
-                    >
-                      {format(new Date(medicine.earliest_expiry), 'dd MMM yyyy')}
-                    </Badge>
-                  ) : canManageMedicines ? (
-                    <AddBatchDialog
-                      medicineId={medicine.id}
-                      medicineName={medicine.name}
-                      trigger={
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="text-muted-foreground hover:text-primary text-sm h-auto py-1 px-2"
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          {t.medicines.addBatch}
-                        </Button>
-                      }
-                    />
-                  ) : (
-                    <span className="text-muted-foreground text-sm">{t.medicines.noBatches}</span>
-                  )}
-                </TableCell>
-                {canManageMedicines && (
-                  <TableCell className="text-right sticky right-0 bg-background">
-                    <div className="flex items-center justify-end gap-1">
-                      <AddMedicineDialog
-                        medicine={medicine}
+              // Action items for mobile grid
+              type ActionItem = {
+                icon: typeof Edit;
+                label: string;
+                color: string;
+                onClick?: () => void;
+                type?: 'edit' | 'addBatch' | 'viewBatches' | 'delete';
+                disabled?: boolean;
+              };
+
+              const actionItems: ActionItem[] = [
+                { 
+                  icon: Edit, 
+                  label: t.actions?.edit || 'Edit', 
+                  color: 'text-primary',
+                  type: 'edit'
+                },
+                { 
+                  icon: Plus, 
+                  label: t.medicines?.addBatch || 'Add Batch', 
+                  color: 'text-success',
+                  type: 'addBatch'
+                },
+                { 
+                  icon: Layers, 
+                  label: t.medicines?.batches || 'Batches', 
+                  color: 'text-info',
+                  type: 'viewBatches'
+                },
+                { 
+                  icon: Trash2, 
+                  label: t.actions?.delete || 'Delete', 
+                  color: 'text-destructive',
+                  type: 'delete'
+                },
+              ];
+
+              return (
+                <>
+                  <TableRow key={medicine.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{medicine.name}</p>
+                        {medicine.generic_name && (
+                          <p className="text-sm text-muted-foreground">{medicine.generic_name}</p>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {canManageMedicines ? (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className={`h-auto py-1 px-2 ${!medicine.manufacturer_id ? 'text-muted-foreground' : ''}`}
+                              disabled={updatingId === medicine.id}
+                            >
+                              {updatingId === medicine.id ? (
+                                <span className="text-xs">{t.medicines.saving}</span>
+                              ) : medicine.manufacturer ? (
+                                <span className="flex items-center gap-1">
+                                  <Building2 className="h-3 w-3" />
+                                  {medicine.manufacturer}
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1 text-xs">
+                                  <Plus className="h-3 w-3" />
+                                  {t.medicines.setManufacturer}
+                                </span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-56 p-2" align="start">
+                            <Select
+                              value={medicine.manufacturer_id || 'none'}
+                              onValueChange={(value) => handleManufacturerChange(medicine.id, value)}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder={t.medicines.selectManufacturer} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">{t.medicines.none}</SelectItem>
+                                {manufacturers.map((m) => (
+                                  <SelectItem key={m.id} value={m.id}>
+                                    {m.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </PopoverContent>
+                        </Popover>
+                      ) : medicine.manufacturer ? (
+                        <span className="text-sm">{medicine.manufacturer}</span>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {medicine.category && (
+                        <Badge variant="secondary">{medicine.category}</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {medicine.shelf_location ? (
+                        <Badge variant="outline" className="font-mono">
+                          {medicine.shelf_location}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="hidden xl:table-cell">
+                      <BatchListDialog
+                        medicineName={medicine.name}
+                        medicineId={medicine.id}
+                        batches={medicine.batches}
                         trigger={
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          <Badge 
+                            variant="outline" 
+                            className="cursor-pointer hover:bg-accent transition-colors"
+                          >
+                            {medicine.batches.length}
+                          </Badge>
                         }
                       />
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>{t.medicines.deleteMedicine}</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              {t.medicines.deleteConfirm} "{medicine.name}"? {t.medicines.deleteWarning}
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deleteMedicine.mutate(medicine.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    </TableCell>
+                    <TableCell>
+                      {medicine.earliest_expiry ? (
+                        <Badge
+                          variant={
+                            expiryStatus === 'expired' || expiryStatus === 'critical'
+                              ? 'destructive'
+                              : expiryStatus === 'warning'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                          className={
+                            expiryStatus === 'warning'
+                              ? 'bg-orange-500 hover:bg-orange-600'
+                              : expiryStatus === 'notice'
+                              ? 'bg-yellow-500 hover:bg-yellow-600 text-yellow-950'
+                              : ''
+                          }
+                        >
+                          {format(new Date(medicine.earliest_expiry), 'dd MMM yyyy')}
+                        </Badge>
+                      ) : canManageMedicines ? (
+                        <AddBatchDialog
+                          medicineId={medicine.id}
+                          medicineName={medicine.name}
+                          trigger={
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-muted-foreground hover:text-primary text-sm h-auto py-1 px-2"
                             >
-                              {t.actions.delete}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
-                )}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+                              <Plus className="h-3 w-3 mr-1" />
+                              {t.medicines.addBatch}
+                            </Button>
+                          }
+                        />
+                      ) : (
+                        <span className="text-muted-foreground text-sm">{t.medicines.noBatches}</span>
+                      )}
+                    </TableCell>
+                    {canManageMedicines && (
+                      <TableCell className="text-right">
+                        {/* Mobile: Show expand button */}
+                        {isMobile ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setExpandedMedicineId(isExpanded ? null : medicine.id)}
+                            className="h-8 px-2 gap-1 hover:bg-primary/10"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                            {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                          </Button>
+                        ) : (
+                          /* Desktop: Show all action buttons inline */
+                          <div className="flex items-center justify-end gap-1">
+                            <AddMedicineDialog
+                              medicine={medicine}
+                              trigger={
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              }
+                            />
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>{t.medicines.deleteMedicine}</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    {t.medicines.deleteConfirm} "{medicine.name}"? {t.medicines.deleteWarning}
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteMedicine.mutate(medicine.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    {t.actions.delete}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        )}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                  
+                  {/* Mobile: Expandable Action Grid Row */}
+                  {isMobile && canManageMedicines && isExpanded && (
+                    <TableRow key={`${medicine.id}-actions`} className="bg-muted/20 border-b">
+                      <TableCell colSpan={7} className="p-2">
+                        <div className="grid grid-cols-4 gap-1">
+                          {actionItems.map((action, idx) => {
+                            if (action.type === 'edit') {
+                              return (
+                                <AddMedicineDialog
+                                  key={idx}
+                                  medicine={medicine}
+                                  trigger={
+                                    <Button
+                                      variant="ghost"
+                                      className="flex flex-col h-auto py-2 px-1 gap-1 w-full hover:bg-background/80"
+                                    >
+                                      <action.icon className={cn("h-5 w-5", action.color)} />
+                                      <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                                    </Button>
+                                  }
+                                />
+                              );
+                            }
+                            if (action.type === 'addBatch') {
+                              return (
+                                <AddBatchDialog
+                                  key={idx}
+                                  medicineId={medicine.id}
+                                  medicineName={medicine.name}
+                                  trigger={
+                                    <Button
+                                      variant="ghost"
+                                      className="flex flex-col h-auto py-2 px-1 gap-1 w-full hover:bg-background/80"
+                                    >
+                                      <action.icon className={cn("h-5 w-5", action.color)} />
+                                      <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                                    </Button>
+                                  }
+                                />
+                              );
+                            }
+                            if (action.type === 'viewBatches') {
+                              return (
+                                <BatchListDialog
+                                  key={idx}
+                                  medicineName={medicine.name}
+                                  medicineId={medicine.id}
+                                  batches={medicine.batches}
+                                  trigger={
+                                    <Button
+                                      variant="ghost"
+                                      className="flex flex-col h-auto py-2 px-1 gap-1 w-full hover:bg-background/80"
+                                    >
+                                      <action.icon className={cn("h-5 w-5", action.color)} />
+                                      <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                                    </Button>
+                                  }
+                                />
+                              );
+                            }
+                            if (action.type === 'delete') {
+                              return (
+                                <Button
+                                  key={idx}
+                                  variant="ghost"
+                                  onClick={() => {
+                                    setMedicineToDelete(medicine);
+                                    setDeleteDialogOpen(true);
+                                    setExpandedMedicineId(null);
+                                  }}
+                                  className="flex flex-col h-auto py-2 px-1 gap-1 hover:bg-background/80"
+                                >
+                                  <action.icon className={cn("h-5 w-5", action.color)} />
+                                  <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                                </Button>
+                              );
+                            }
+                            return null;
+                          })}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Mobile Delete Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t.medicines.deleteMedicine}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t.medicines.deleteConfirm} "{medicineToDelete?.name}"? {t.medicines.deleteWarning}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t.actions.cancel}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (medicineToDelete) {
+                  deleteMedicine.mutate(medicineToDelete.id);
+                }
+                setDeleteDialogOpen(false);
+                setMedicineToDelete(null);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t.actions.delete}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
