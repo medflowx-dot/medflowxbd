@@ -33,7 +33,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { usePlatformBranding } from '@/hooks/usePlatformBranding';
@@ -175,20 +174,20 @@ function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <>
-      {/* Logo/Brand */}
-      <div className="p-4 md:p-6 border-b border-border">
-        <div className="flex items-center gap-3">
-          <img src={platformLogo} alt="MedFlowx" className="h-10 w-10 rounded-lg" />
+      {/* Logo/Brand - Minimal */}
+      <div className="px-3 py-3 border-b border-border/50">
+        <div className="flex items-center gap-2.5">
+          <img src={platformLogo} alt="MedFlowx" className="h-8 w-8 rounded-md" />
           <div>
-            <h1 className="font-bold text-base md:text-lg">Owner Panel</h1>
-            <p className="text-xs text-muted-foreground">Master Control</p>
+            <h1 className="font-semibold text-sm">Owner Panel</h1>
+            <p className="text-[10px] text-muted-foreground">Master Control</p>
           </div>
         </div>
       </div>
 
-      {/* Navigation */}
-      <ScrollArea className="flex-1 px-2 md:px-3 py-4">
-        <nav className="space-y-1">
+      {/* Navigation - Minimal */}
+      <ScrollArea className="flex-1 px-2 py-2">
+        <nav className="space-y-0.5">
           {navItems.map((item) => (
             <NavLink
               key={item.href}
@@ -197,9 +196,9 @@ function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
               onClick={handleNavClick}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+                  'flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13px] transition-colors',
                   isActive
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 )
               }
@@ -210,31 +209,31 @@ function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
           ))}
         </nav>
         
-        {/* Master Data Section - Collapsible */}
-        <div className="mt-4 pt-4 border-t border-border">
+        {/* Master Data - Collapsible Minimal */}
+        <div className="mt-2 pt-2 border-t border-border/40">
           <Collapsible open={masterDataOpen} onOpenChange={setMasterDataOpen}>
             <CollapsibleTrigger asChild>
               <button
                 className={cn(
-                  'flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+                  'flex items-center justify-between w-full px-2.5 py-2 rounded-md text-[13px] transition-colors',
                   isMasterDataRoute
-                    ? 'bg-muted text-foreground'
+                    ? 'text-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 )}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
                   <Database className="h-4 w-4 flex-shrink-0" />
                   <span>Master Data</span>
                 </div>
                 <ChevronDown 
                   className={cn(
-                    "h-4 w-4 transition-transform duration-200",
+                    "h-3.5 w-3.5 transition-transform duration-200",
                     masterDataOpen && "rotate-180"
                   )} 
                 />
               </button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-1 ml-4 space-y-1">
+            <CollapsibleContent className="ml-3 mt-0.5 space-y-0.5 border-l border-border/40 pl-2">
               {masterDataItems.map((item) => (
                 <NavLink
                   key={item.href}
@@ -242,14 +241,14 @@ function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
                   onClick={handleNavClick}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all',
+                      'flex items-center gap-2 px-2 py-1.5 rounded-md text-[12px] transition-colors',
                       isActive
-                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        ? 'bg-primary text-primary-foreground'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     )
                   }
                 >
-                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <item.icon className="h-3.5 w-3.5 flex-shrink-0" />
                   <span className="truncate">{item.title}</span>
                 </NavLink>
               ))}
@@ -257,31 +256,31 @@ function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
           </Collapsible>
         </div>
         
-        {/* System Section - Collapsible */}
-        <div className="mt-4 pt-4 border-t border-border">
+        {/* System - Collapsible Minimal */}
+        <div className="mt-2 pt-2 border-t border-border/40">
           <Collapsible open={systemOpen} onOpenChange={setSystemOpen}>
             <CollapsibleTrigger asChild>
               <button
                 className={cn(
-                  'flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+                  'flex items-center justify-between w-full px-2.5 py-2 rounded-md text-[13px] transition-colors',
                   isSystemRoute
-                    ? 'bg-muted text-foreground'
+                    ? 'text-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 )}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
                   <Shield className="h-4 w-4 flex-shrink-0" />
                   <span>System</span>
                 </div>
                 <ChevronDown 
                   className={cn(
-                    "h-4 w-4 transition-transform duration-200",
+                    "h-3.5 w-3.5 transition-transform duration-200",
                     systemOpen && "rotate-180"
                   )} 
                 />
               </button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-1 ml-4 space-y-1">
+            <CollapsibleContent className="ml-3 mt-0.5 space-y-0.5 border-l border-border/40 pl-2">
               {systemItems.map((item) => (
                 <NavLink
                   key={item.href}
@@ -289,14 +288,14 @@ function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
                   onClick={handleNavClick}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all',
+                      'flex items-center gap-2 px-2 py-1.5 rounded-md text-[12px] transition-colors',
                       isActive
-                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        ? 'bg-primary text-primary-foreground'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     )
                   }
                 >
-                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <item.icon className="h-3.5 w-3.5 flex-shrink-0" />
                   <span className="truncate">{item.title}</span>
                 </NavLink>
               ))}
@@ -304,31 +303,31 @@ function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
           </Collapsible>
         </div>
         
-        {/* Settings Section - Collapsible */}
-        <div className="mt-4 pt-4 border-t border-border">
+        {/* Settings - Collapsible Minimal */}
+        <div className="mt-2 pt-2 border-t border-border/40">
           <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
             <CollapsibleTrigger asChild>
               <button
                 className={cn(
-                  'flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+                  'flex items-center justify-between w-full px-2.5 py-2 rounded-md text-[13px] transition-colors',
                   isSettingsRoute
-                    ? 'bg-muted text-foreground'
+                    ? 'text-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 )}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
                   <Settings className="h-4 w-4 flex-shrink-0" />
                   <span>Settings</span>
                 </div>
                 <ChevronDown 
                   className={cn(
-                    "h-4 w-4 transition-transform duration-200",
+                    "h-3.5 w-3.5 transition-transform duration-200",
                     settingsOpen && "rotate-180"
                   )} 
                 />
               </button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-1 ml-4 space-y-1">
+            <CollapsibleContent className="ml-3 mt-0.5 space-y-0.5 border-l border-border/40 pl-2">
               {settingsItems.map((item) => (
                 <NavLink
                   key={item.href}
@@ -336,14 +335,14 @@ function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
                   onClick={handleNavClick}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all',
+                      'flex items-center gap-2 px-2 py-1.5 rounded-md text-[12px] transition-colors',
                       isActive
-                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        ? 'bg-primary text-primary-foreground'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     )
                   }
                 >
-                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <item.icon className="h-3.5 w-3.5 flex-shrink-0" />
                   <span className="truncate">{item.title}</span>
                 </NavLink>
               ))}
@@ -352,19 +351,19 @@ function SidebarContentComponent({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       </ScrollArea>
 
-      {/* Footer */}
-      <div className="p-3 md:p-4 border-t border-border space-y-3">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-accent/50">
-          <Shield className="h-4 w-4 text-primary" />
-          <span className="text-xs font-medium">Owner Admin</span>
+      {/* Footer - Minimal */}
+      <div className="px-2 py-2 border-t border-border/50 space-y-1">
+        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-accent/30">
+          <Shield className="h-3.5 w-3.5 text-primary" />
+          <span className="text-[11px] font-medium">Owner Admin</span>
         </div>
-        <Separator />
         <Button
           variant="ghost"
-          className="w-full justify-start gap-2 text-muted-foreground hover:text-destructive"
+          size="sm"
+          className="w-full justify-start gap-2 h-8 text-[12px] text-muted-foreground hover:text-destructive"
           onClick={handleSignOut}
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-3.5 w-3.5" />
           Sign Out
         </Button>
       </div>
