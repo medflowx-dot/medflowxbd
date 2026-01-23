@@ -220,7 +220,7 @@ export default function GlobalManufacturers() {
               <p>No manufacturers found</p>
             </div>
           ) : (
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-visible">
               <Table>
                 <TableHeader>
                   <TableRow>

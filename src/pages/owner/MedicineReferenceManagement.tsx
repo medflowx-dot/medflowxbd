@@ -431,7 +431,7 @@ export default function MedicineReferenceManagement() {
               <p className="text-sm mt-1">Add medicines manually or use bulk import</p>
             </div>
           ) : (
-            <div className="rounded-md border overflow-x-auto">
+            <div className="rounded-md border overflow-visible">
               <Table>
                 <TableHeader>
                   <TableRow>
