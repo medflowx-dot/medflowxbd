@@ -13,8 +13,41 @@ import { Loader2, CreditCard, AlertTriangle, Clock, Crown, Check, Phone, Mail, M
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import logoAuth from '@/assets/logo-auth.png';
+
+// Hook to fetch support contact settings
+function useSupportContact() {
+  return useQuery({
+    queryKey: ['support-contact-settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('setting_key, setting_value')
+        .in('setting_key', ['support_phone', 'support_email', 'support_whatsapp']);
+      
+      if (error) {
+        console.error('Error fetching support contact:', error);
+        return { phone: '', email: '', whatsapp: '' };
+      }
+      
+      const settings: Record<string, string> = {};
+      data?.forEach(s => {
+        if (s.setting_value) {
+          settings[s.setting_key] = String(s.setting_value).replace(/"/g, '');
+        }
+      });
+      
+      return {
+        phone: settings.support_phone || '',
+        email: settings.support_email || '',
+        whatsapp: settings.support_whatsapp || '',
+      };
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
 
 export default function Billing() {
   const navigate = useNavigate();
@@ -25,6 +58,7 @@ export default function Billing() {
   const { isActive, isTrial, isExpired, isSuspended, planType, daysRemaining, isLoading: subscriptionLoading } = useSubscriptionStatus();
   const { data: plans, isLoading: plansLoading, error: plansError, refetch: refetchPlans } = usePricingPlansPublic();
   const { data: paymentRequests, refetch: refetchPaymentRequests } = useUserPaymentRequests();
+  const { data: supportContact } = useSupportContact();
   
   const [selectedPlan, setSelectedPlan] = useState<{
     id: string;
@@ -416,18 +450,47 @@ export default function Billing() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
-              <Button variant="outline" className="gap-2">
-                <Phone className="h-4 w-4" />
-                +880 1XXX-XXXXXX
-              </Button>
-              <Button variant="outline" className="gap-2">
-                <Mail className="h-4 w-4" />
-                support@medflowx.com
-              </Button>
-              <Button variant="outline" className="gap-2">
-                <MessageCircle className="h-4 w-4" />
-                WhatsApp Support
-              </Button>
+              {supportContact?.phone && (
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => window.open(`tel:${supportContact.phone.replace(/\s/g, '')}`, '_blank')}
+                >
+                  <Phone className="h-4 w-4" />
+                  {supportContact.phone}
+                </Button>
+              )}
+              {supportContact?.email && (
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => window.open(`mailto:${supportContact.email}`, '_blank')}
+                >
+                  <Mail className="h-4 w-4" />
+                  {supportContact.email}
+                </Button>
+              )}
+              {supportContact?.whatsapp && (
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => {
+                    const a = document.createElement('a');
+                    a.href = `https://wa.me/${supportContact.whatsapp.replace(/[^0-9]/g, '')}`;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                  }}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  WhatsApp Support
+                </Button>
+              )}
+              {!supportContact?.phone && !supportContact?.email && !supportContact?.whatsapp && (
+                <p className="text-muted-foreground text-sm">সাপোর্ট কন্টাক্ট সেট করা হয়নি</p>
+              )}
             </div>
           </CardContent>
         </Card>

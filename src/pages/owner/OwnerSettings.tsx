@@ -226,6 +226,7 @@ export default function OwnerSettings() {
   // Section key groups
   const sectionKeys = {
     branding: ['platform_name', 'default_currency'],
+    supportContact: ['support_phone', 'support_email', 'support_whatsapp'],
     dateTime: ['date_format', 'time_format'],
     subscription: ['trial_duration_days', 'yearly_service_charge', 'abandoned_payment_cleanup_minutes', 'auto_renew_enabled'],
     systemControls: ['maintenance_mode'],
@@ -301,6 +302,64 @@ export default function OwnerSettings() {
                   <SelectItem value="INR">INR (₹)</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Support Contact Settings */}
+      <Card className="border-0 shadow-card">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Phone className="h-5 w-5 text-primary" />
+            <div>
+              <CardTitle>Support Contact</CardTitle>
+              <CardDescription>Contact information shown on billing page</CardDescription>
+            </div>
+          </div>
+          {isSectionSaved('Support Contact') ? (
+            <div className="flex items-center gap-2 text-emerald-600 animate-fade-in">
+              <CheckCircle className="h-5 w-5" />
+              <span className="text-sm font-medium">Saved!</span>
+            </div>
+          ) : (
+            <Button 
+              size="sm"
+              onClick={() => handleSaveSection('Support Contact', sectionKeys.supportContact)}
+              disabled={savingSection === 'Support Contact' || !hasSectionChanges(sectionKeys.supportContact)}
+            >
+              {savingSection === 'Support Contact' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Save
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label>Support Phone</Label>
+              <Input
+                value={getCleanValue(localSettings.support_phone) || ''}
+                onChange={(e) => handleChange('support_phone', e.target.value)}
+                placeholder="+880 1XXX-XXXXXX"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Support Email</Label>
+              <Input
+                type="email"
+                value={getCleanValue(localSettings.support_email) || ''}
+                onChange={(e) => handleChange('support_email', e.target.value)}
+                placeholder="support@example.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>WhatsApp Number</Label>
+              <Input
+                value={getCleanValue(localSettings.support_whatsapp) || ''}
+                onChange={(e) => handleChange('support_whatsapp', e.target.value)}
+                placeholder="+8801XXXXXXXXX"
+              />
+              <p className="text-xs text-muted-foreground">Country code সহ (e.g., +8801604334494)</p>
             </div>
           </div>
         </CardContent>
