@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+// MedEx-style complete medicine reference data
 export interface MedicineReferenceData {
   id: string;
   name: string;
@@ -14,6 +15,21 @@ export interface MedicineReferenceData {
   pack_size: string | null;
   indication: string | null;
   drug_class: string | null;
+  // MedEx-style clinical fields
+  pharmacology: string | null;
+  mode_of_action: string | null;
+  dosage_adult: string | null;
+  dosage_pediatric: string | null;
+  administration: string | null;
+  contraindications: string | null;
+  side_effects: string | null;
+  precautions: string | null;
+  drug_interactions: string | null;
+  overdose_info: string | null;
+  pregnancy_category: string | null;
+  lactation_info: string | null;
+  storage: string | null;
+  therapeutic_class: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -30,6 +46,21 @@ export interface CreateMedicineReferenceData {
   pack_size?: string;
   indication?: string;
   drug_class?: string;
+  // MedEx-style clinical fields
+  pharmacology?: string;
+  mode_of_action?: string;
+  dosage_adult?: string;
+  dosage_pediatric?: string;
+  administration?: string;
+  contraindications?: string;
+  side_effects?: string;
+  precautions?: string;
+  drug_interactions?: string;
+  overdose_info?: string;
+  pregnancy_category?: string;
+  lactation_info?: string;
+  storage?: string;
+  therapeutic_class?: string;
 }
 
 export interface UpdateMedicineReferenceData extends CreateMedicineReferenceData {
@@ -76,6 +107,21 @@ export function useMedicineReferenceAdmin(options: { search?: string; limit?: nu
           pack_size: data.pack_size || null,
           indication: data.indication || null,
           drug_class: data.drug_class || null,
+          // Clinical fields
+          pharmacology: data.pharmacology || null,
+          mode_of_action: data.mode_of_action || null,
+          dosage_adult: data.dosage_adult || null,
+          dosage_pediatric: data.dosage_pediatric || null,
+          administration: data.administration || null,
+          contraindications: data.contraindications || null,
+          side_effects: data.side_effects || null,
+          precautions: data.precautions || null,
+          drug_interactions: data.drug_interactions || null,
+          overdose_info: data.overdose_info || null,
+          pregnancy_category: data.pregnancy_category || null,
+          lactation_info: data.lactation_info || null,
+          storage: data.storage || null,
+          therapeutic_class: data.therapeutic_class || null,
           is_active: true,
         })
         .select()
@@ -110,6 +156,21 @@ export function useMedicineReferenceAdmin(options: { search?: string; limit?: nu
           pack_size: updateData.pack_size || null,
           indication: updateData.indication || null,
           drug_class: updateData.drug_class || null,
+          // Clinical fields
+          pharmacology: updateData.pharmacology || null,
+          mode_of_action: updateData.mode_of_action || null,
+          dosage_adult: updateData.dosage_adult || null,
+          dosage_pediatric: updateData.dosage_pediatric || null,
+          administration: updateData.administration || null,
+          contraindications: updateData.contraindications || null,
+          side_effects: updateData.side_effects || null,
+          precautions: updateData.precautions || null,
+          drug_interactions: updateData.drug_interactions || null,
+          overdose_info: updateData.overdose_info || null,
+          pregnancy_category: updateData.pregnancy_category || null,
+          lactation_info: updateData.lactation_info || null,
+          storage: updateData.storage || null,
+          therapeutic_class: updateData.therapeutic_class || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
@@ -162,6 +223,21 @@ export function useMedicineReferenceAdmin(options: { search?: string; limit?: nu
         pack_size: med.pack_size || null,
         indication: med.indication || null,
         drug_class: med.drug_class || null,
+        // Clinical fields
+        pharmacology: med.pharmacology || null,
+        mode_of_action: med.mode_of_action || null,
+        dosage_adult: med.dosage_adult || null,
+        dosage_pediatric: med.dosage_pediatric || null,
+        administration: med.administration || null,
+        contraindications: med.contraindications || null,
+        side_effects: med.side_effects || null,
+        precautions: med.precautions || null,
+        drug_interactions: med.drug_interactions || null,
+        overdose_info: med.overdose_info || null,
+        pregnancy_category: med.pregnancy_category || null,
+        lactation_info: med.lactation_info || null,
+        storage: med.storage || null,
+        therapeutic_class: med.therapeutic_class || null,
         is_active: true,
       }));
 

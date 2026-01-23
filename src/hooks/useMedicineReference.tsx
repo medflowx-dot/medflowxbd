@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+// MedEx-style complete medicine reference interface
 export interface MedicineReference {
   id: string;
   name: string;
@@ -13,6 +14,21 @@ export interface MedicineReference {
   pack_size: string | null;
   indication: string | null;
   drug_class: string | null;
+  // MedEx-style clinical fields
+  pharmacology: string | null;
+  mode_of_action: string | null;
+  dosage_adult: string | null;
+  dosage_pediatric: string | null;
+  administration: string | null;
+  contraindications: string | null;
+  side_effects: string | null;
+  precautions: string | null;
+  drug_interactions: string | null;
+  overdose_info: string | null;
+  pregnancy_category: string | null;
+  lactation_info: string | null;
+  storage: string | null;
+  therapeutic_class: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

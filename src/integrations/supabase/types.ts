@@ -856,50 +856,92 @@ export type Database = {
       }
       medicine_reference: {
         Row: {
+          administration: string | null
+          contraindications: string | null
           created_at: string
+          dosage_adult: string | null
           dosage_form: string | null
+          dosage_pediatric: string | null
           drug_class: string | null
+          drug_interactions: string | null
           generic_name: string | null
           id: string
           indication: string | null
           is_active: boolean
+          lactation_info: string | null
           manufacturer_name: string | null
+          mode_of_action: string | null
           name: string
+          overdose_info: string | null
           pack_size: string | null
+          pharmacology: string | null
+          precautions: string | null
+          pregnancy_category: string | null
+          side_effects: string | null
+          storage: string | null
           strength: string | null
           strip_price: number | null
+          therapeutic_class: string | null
           unit_price: number | null
           updated_at: string
         }
         Insert: {
+          administration?: string | null
+          contraindications?: string | null
           created_at?: string
+          dosage_adult?: string | null
           dosage_form?: string | null
+          dosage_pediatric?: string | null
           drug_class?: string | null
+          drug_interactions?: string | null
           generic_name?: string | null
           id?: string
           indication?: string | null
           is_active?: boolean
+          lactation_info?: string | null
           manufacturer_name?: string | null
+          mode_of_action?: string | null
           name: string
+          overdose_info?: string | null
           pack_size?: string | null
+          pharmacology?: string | null
+          precautions?: string | null
+          pregnancy_category?: string | null
+          side_effects?: string | null
+          storage?: string | null
           strength?: string | null
           strip_price?: number | null
+          therapeutic_class?: string | null
           unit_price?: number | null
           updated_at?: string
         }
         Update: {
+          administration?: string | null
+          contraindications?: string | null
           created_at?: string
+          dosage_adult?: string | null
           dosage_form?: string | null
+          dosage_pediatric?: string | null
           drug_class?: string | null
+          drug_interactions?: string | null
           generic_name?: string | null
           id?: string
           indication?: string | null
           is_active?: boolean
+          lactation_info?: string | null
           manufacturer_name?: string | null
+          mode_of_action?: string | null
           name?: string
+          overdose_info?: string | null
           pack_size?: string | null
+          pharmacology?: string | null
+          precautions?: string | null
+          pregnancy_category?: string | null
+          side_effects?: string | null
+          storage?: string | null
           strength?: string | null
           strip_price?: number | null
+          therapeutic_class?: string | null
           unit_price?: number | null
           updated_at?: string
         }
