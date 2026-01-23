@@ -197,24 +197,21 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Search MedEx for the medicine
-    const searchUrl = `https://medex.com.bd/brands?search=${encodeURIComponent(medicineName)}`;
+    // Use Firecrawl search to find MedEx pages for the medicine
+    const searchQuery = `site:medex.com.bd/brands ${medicineName}`;
     
-    console.log(`Searching MedEx for: ${medicineName}`);
-    console.log(`Search URL: ${searchUrl}`);
+    console.log(`Searching for: ${searchQuery}`);
 
-    // First, scrape the search results page with longer wait for JS
-    const searchResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    // Use Firecrawl's search API to find medicine pages
+    const searchResponse = await fetch('https://api.firecrawl.dev/v1/search', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        url: searchUrl,
-        formats: ['markdown', 'links', 'html'],
-        onlyMainContent: false, // Get full page to capture search results
-        waitFor: 5000, // Wait longer for JS to execute
+        query: searchQuery,
+        limit: 10,
       }),
     });
 
@@ -225,90 +222,43 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: searchData.error || 'Failed to search MedEx',
+          error: searchData.error || 'Failed to search for medicines',
           details: searchData 
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Search successful, looking for medicine links...');
+    console.log('Search successful, processing results...');
+    console.log('Search results:', JSON.stringify(searchData).slice(0, 500));
 
-    // Get content from response
-    const markdown = searchData.data?.markdown || searchData.markdown || '';
-    const html = searchData.data?.html || searchData.html || '';
-    const links: string[] = searchData.data?.links || searchData.links || [];
+    // Extract medicine URLs from search results
+    const searchResults = searchData.data || searchData.results || [];
+    const medicineUrls: string[] = [];
     
-    const searchTermLower = medicineName.toLowerCase();
-    const searchWords = medicineName.toLowerCase().split(/\s+/);
-    
-    // Method 1: Extract links from markdown that match medicine name
-    // Look for patterns like [Napa 500 mg Tablet](https://medex.com.bd/brands/...)
-    const markdownLinkRegex = /\[([^\]]*)\]\((https:\/\/medex\.com\.bd\/brands\/\d+\/[^)]+)\)/g;
-    const extractedLinks: string[] = [];
-    let match;
-    
-    while ((match = markdownLinkRegex.exec(markdown)) !== null) {
-      const linkText = match[1].toLowerCase();
-      const linkUrl = match[2];
-      
-      // Check if the link text contains the search term
-      if (searchWords.some((word: string) => linkText.includes(word))) {
-        extractedLinks.push(linkUrl);
+    for (const result of searchResults) {
+      const url = result.url || result.link || '';
+      // Only include MedEx brand pages
+      if (url.includes('medex.com.bd/brands/') && !url.includes('/brands?')) {
+        medicineUrls.push(url);
       }
     }
     
-    console.log(`Found ${extractedLinks.length} links from markdown matching "${medicineName}"`);
-    
-    // Method 2: Also check the links array
-    const filteredLinks = links.filter((link: string) => {
-      if (!link.includes('/brands/') || link.includes('/brands?')) return false;
-      
-      const linkLower = link.toLowerCase();
-      // Check if the URL slug contains the first word of the search term
-      return searchWords.some((word: string) => {
-        const urlSlug = linkLower.split('/').pop() || '';
-        return urlSlug.startsWith(word) || urlSlug.includes(`-${word}`) || urlSlug.includes(`/${word}`);
-      });
-    });
-    
-    console.log(`Found ${filteredLinks.length} links from links array matching "${medicineName}"`);
-    
-    // Combine and deduplicate
-    const allMatchingLinks = [...new Set([...extractedLinks, ...filteredLinks])].slice(0, 10);
-    
-    console.log('All matching links:', allMatchingLinks);
+    console.log(`Found ${medicineUrls.length} medicine URLs from search`);
 
-    if (allMatchingLinks.length === 0) {
-      // As a fallback, try to search directly by constructing medicine URL
-      // MedEx URLs follow pattern: /brands/{id}/{name-slug}
-      // Try to find any brand links and filter by name later
-      const fallbackLinks = links
-        .filter((l: string) => l.includes('/brands/') && !l.includes('/brands?'))
-        .slice(0, 20);
-      
-      console.log('No direct matches found, checking fallback links for name matches...');
-      
-      // We'll scrape a few and check the actual medicine name
-      const medicineLinks = fallbackLinks.slice(0, 5);
-      
-      if (medicineLinks.length === 0) {
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: `No medicines found matching "${medicineName}" on MedEx. The search might not be returning results.`,
-            hint: 'Try searching with a more specific medicine name or brand.',
-            debugInfo: { 
-              linksFound: links.length,
-              markdownPreview: markdown.slice(0, 500)
-            }
-          }),
-          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      allMatchingLinks.push(...medicineLinks);
+    if (medicineUrls.length === 0) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `"${medicineName}" নামে কোন ওষুধ পাওয়া যায়নি। অনুগ্রহ করে সঠিক নাম দিয়ে আবার চেষ্টা করুন।`,
+          hint: 'Try searching with the exact brand name like "Napa", "Seclo", "Zimax"',
+          searchResults: searchResults.slice(0, 3).map((r: any) => ({ url: r.url, title: r.title }))
+        }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const allMatchingLinks = medicineUrls.slice(0, 5);
 
     console.log(`Found ${allMatchingLinks.length} medicine links, scraping details...`);
 
