@@ -203,7 +203,7 @@ Deno.serve(async (req) => {
     console.log(`Searching MedEx for: ${medicineName}`);
     console.log(`Search URL: ${searchUrl}`);
 
-    // First, scrape the search results page
+    // First, scrape the search results page with longer wait for JS
     const searchResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
@@ -212,9 +212,9 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         url: searchUrl,
-        formats: ['markdown', 'links'],
-        onlyMainContent: true,
-        waitFor: 2000,
+        formats: ['markdown', 'links', 'html'],
+        onlyMainContent: false, // Get full page to capture search results
+        waitFor: 5000, // Wait longer for JS to execute
       }),
     });
 
@@ -234,45 +234,88 @@ Deno.serve(async (req) => {
 
     console.log('Search successful, looking for medicine links...');
 
-    // Find medicine detail links from the search results
+    // Get content from response
+    const markdown = searchData.data?.markdown || searchData.markdown || '';
+    const html = searchData.data?.html || searchData.html || '';
     const links: string[] = searchData.data?.links || searchData.links || [];
-    const searchTermLower = medicineName.toLowerCase().replace(/\s+/g, '-');
+    
+    const searchTermLower = medicineName.toLowerCase();
     const searchWords = medicineName.toLowerCase().split(/\s+/);
     
-    // Filter links that contain the medicine name in the URL
-    const medicineLinks = links.filter((link: string) => {
+    // Method 1: Extract links from markdown that match medicine name
+    // Look for patterns like [Napa 500 mg Tablet](https://medex.com.bd/brands/...)
+    const markdownLinkRegex = /\[([^\]]*)\]\((https:\/\/medex\.com\.bd\/brands\/\d+\/[^)]+)\)/g;
+    const extractedLinks: string[] = [];
+    let match;
+    
+    while ((match = markdownLinkRegex.exec(markdown)) !== null) {
+      const linkText = match[1].toLowerCase();
+      const linkUrl = match[2];
+      
+      // Check if the link text contains the search term
+      if (searchWords.some((word: string) => linkText.includes(word))) {
+        extractedLinks.push(linkUrl);
+      }
+    }
+    
+    console.log(`Found ${extractedLinks.length} links from markdown matching "${medicineName}"`);
+    
+    // Method 2: Also check the links array
+    const filteredLinks = links.filter((link: string) => {
       if (!link.includes('/brands/') || link.includes('/brands?')) return false;
       
       const linkLower = link.toLowerCase();
-      // Check if the URL contains the first word of the search term
-      // e.g., "napa" should match "/brands/1234/napa-500-mg"
+      // Check if the URL slug contains the first word of the search term
       return searchWords.some((word: string) => {
-        // Match the word as a path segment (after / or at start of medicine name)
-        const regex = new RegExp(`/brands/\\d+/${word}|/${word}-|/${word}$`, 'i');
-        return regex.test(linkLower);
+        const urlSlug = linkLower.split('/').pop() || '';
+        return urlSlug.startsWith(word) || urlSlug.includes(`-${word}`) || urlSlug.includes(`/${word}`);
       });
-    }).slice(0, 10);
+    });
+    
+    console.log(`Found ${filteredLinks.length} links from links array matching "${medicineName}"`);
+    
+    // Combine and deduplicate
+    const allMatchingLinks = [...new Set([...extractedLinks, ...filteredLinks])].slice(0, 10);
+    
+    console.log('All matching links:', allMatchingLinks);
 
-    console.log('Filtered medicine links:', medicineLinks);
-
-    if (medicineLinks.length === 0) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: `No medicines found matching "${medicineName}" on MedEx`,
-          searchMarkdown: searchData.data?.markdown?.slice(0, 500) || 'No content',
-          allLinks: links.filter((l: string) => l.includes('/brands/')).slice(0, 10)
-        }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (allMatchingLinks.length === 0) {
+      // As a fallback, try to search directly by constructing medicine URL
+      // MedEx URLs follow pattern: /brands/{id}/{name-slug}
+      // Try to find any brand links and filter by name later
+      const fallbackLinks = links
+        .filter((l: string) => l.includes('/brands/') && !l.includes('/brands?'))
+        .slice(0, 20);
+      
+      console.log('No direct matches found, checking fallback links for name matches...');
+      
+      // We'll scrape a few and check the actual medicine name
+      const medicineLinks = fallbackLinks.slice(0, 5);
+      
+      if (medicineLinks.length === 0) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: `No medicines found matching "${medicineName}" on MedEx. The search might not be returning results.`,
+            hint: 'Try searching with a more specific medicine name or brand.',
+            debugInfo: { 
+              linksFound: links.length,
+              markdownPreview: markdown.slice(0, 500)
+            }
+          }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      allMatchingLinks.push(...medicineLinks);
     }
 
-    console.log(`Found ${medicineLinks.length} medicine links, scraping details...`);
+    console.log(`Found ${allMatchingLinks.length} medicine links, scraping details...`);
 
     // Scrape each medicine detail page
     const medicines: MedExMedicine[] = [];
 
-    for (const link of medicineLinks.slice(0, 3)) { // Limit to 3 to avoid timeout
+    for (const link of allMatchingLinks.slice(0, 5)) { // Limit to 5 to avoid timeout
       try {
         console.log(`Scraping: ${link}`);
         
@@ -318,7 +361,7 @@ Deno.serve(async (req) => {
         JSON.stringify({ 
           success: false, 
           error: 'Could not parse any medicine data from MedEx',
-          links: medicineLinks
+          links: allMatchingLinks
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
