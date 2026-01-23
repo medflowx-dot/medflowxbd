@@ -80,7 +80,7 @@ export function PullToRefresh({
     <div
       ref={containerRef}
       data-pull-to-refresh="true"
-      className={cn("relative", className)}
+      className={cn("relative overflow-visible", className)}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}

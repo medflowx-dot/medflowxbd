@@ -21,11 +21,11 @@ export function DashboardLayout() {
       <div className="min-h-screen flex flex-col w-full overflow-x-hidden">
         <ImpersonationBanner />
         <SubscriptionBanner />
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-visible">
           <AppSidebar />
-          <SidebarInset className="flex flex-col flex-1 min-w-0">
+          <SidebarInset className="flex flex-col flex-1 min-w-0 overflow-visible">
             <DashboardHeader />
-            <main className="flex-1 p-3 sm:p-4 md:p-6 bg-muted/30 overflow-x-hidden">
+            <main className="flex-1 p-3 sm:p-4 md:p-6 bg-muted/30 overflow-visible">
               <Outlet />
             </main>
           </SidebarInset>
