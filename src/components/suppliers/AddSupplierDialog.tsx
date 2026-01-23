@@ -89,9 +89,9 @@ export function AddSupplierDialog({ supplier, trigger, onSuccess }: AddSupplierD
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            {t.suppliers.addSupplier}
+          <Button className="h-auto py-2 px-3 flex flex-col sm:flex-row items-center gap-1">
+            <Plus className="h-4 w-4" />
+            <span className="text-[10px] sm:text-sm">{t.suppliers.addSupplier}</span>
           </Button>
         )}
       </DialogTrigger>
