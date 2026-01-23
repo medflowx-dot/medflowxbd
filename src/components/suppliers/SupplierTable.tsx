@@ -6,9 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Pencil, Trash2, Phone, Mail, Building2, Plus, FileText, History, ShoppingCart } from 'lucide-react';
+import { Pencil, Trash2, Phone, Mail, Building2, Plus, FileText, History, ShoppingCart, MoreHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
 import { Supplier, useSuppliers } from '@/hooks/useSuppliers';
 import { useManufacturers } from '@/hooks/useManufacturers';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { AddSupplierDialog } from './AddSupplierDialog';
 import { SupplierPaymentDialog } from './SupplierPaymentDialog';
 import { SupplierPaymentHistoryDialog } from './SupplierPaymentHistoryDialog';
@@ -18,6 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { generateIndividualSupplierPDF } from '@/lib/pdfGenerator';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface SupplierTableProps {
   suppliers: Supplier[];
@@ -33,7 +35,9 @@ export function SupplierTable({ suppliers, searchQuery, canManage = true }: Supp
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [expandedSupplierId, setExpandedSupplierId] = useState<string | null>(null);
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
 
   const handleQuickReportClick = (supplier: Supplier) => {
     setSelectedSupplier(supplier);
@@ -126,8 +130,8 @@ export function SupplierTable({ suppliers, searchQuery, canManage = true }: Supp
 
   return (
     <>
-      <div className="border rounded-lg overflow-x-auto">
-        <Table className="min-w-[600px]">
+      <div className={cn("border rounded-lg", isMobile ? "overflow-hidden" : "overflow-x-auto")}>
+        <Table className={cn(!isMobile && "min-w-[600px]")}>
           <TableHeader>
             <TableRow>
               <TableHead>{t.suppliers.supplier}</TableHead>
@@ -135,143 +139,288 @@ export function SupplierTable({ suppliers, searchQuery, canManage = true }: Supp
               <TableHead className="hidden sm:table-cell">{t.suppliers.contact}</TableHead>
               <TableHead className="text-right">{t.suppliers.totalPaid}</TableHead>
               <TableHead className="text-right">{t.suppliers.totalDue}</TableHead>
-              <TableHead className="w-[100px] sticky right-0 bg-background">{t.suppliers.actions}</TableHead>
+              <TableHead className="w-[100px]">{t.suppliers.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredSuppliers.map((supplier) => (
-              <TableRow key={supplier.id}>
-                <TableCell>
-                  <div 
-                    className="cursor-pointer hover:text-primary transition-colors"
-                    onClick={() => navigate(`/dashboard/suppliers/${supplier.id}`)}
-                  >
-                    <div className="font-medium">{supplier.name}</div>
-                    {supplier.contact_person && (
-                      <div className="text-sm text-muted-foreground">{supplier.contact_person}</div>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className={`h-auto py-1 px-2 ${!supplier.manufacturer_id ? 'text-muted-foreground' : ''}`}
-                        disabled={updatingId === supplier.id}
+            {filteredSuppliers.map((supplier) => {
+              const isExpanded = expandedSupplierId === supplier.id;
+
+              // Action items for mobile grid
+              type ActionItem = {
+                icon: typeof FileText;
+                label: string;
+                color: string;
+                onClick?: () => void;
+                type?: 'edit' | 'paymentHistory' | 'purchaseHistory';
+                disabled?: boolean;
+              };
+
+              const actionItems: ActionItem[] = [
+                { 
+                  icon: FileText, 
+                  label: t.suppliers?.quickReport || 'Report', 
+                  onClick: () => handleQuickReportClick(supplier), 
+                  color: 'text-primary' 
+                },
+                { 
+                  icon: History, 
+                  label: t.suppliers?.paymentHistory || 'Payments', 
+                  color: 'text-info',
+                  type: 'paymentHistory'
+                },
+                { 
+                  icon: ShoppingCart, 
+                  label: t.suppliers?.purchaseHistory || 'Purchases', 
+                  color: 'text-primary',
+                  type: 'purchaseHistory'
+                },
+                { 
+                  icon: Pencil, 
+                  label: t.actions?.edit || 'Edit', 
+                  color: 'text-primary',
+                  type: 'edit',
+                  disabled: !canManage
+                },
+                ...(canManage ? [{
+                  icon: Trash2, 
+                  label: t.actions?.delete || 'Delete', 
+                  onClick: () => setDeleteId(supplier.id), 
+                  color: 'text-destructive'
+                }] : []),
+              ];
+
+              return (
+                <>
+                  <TableRow key={supplier.id}>
+                    <TableCell>
+                      <div 
+                        className="cursor-pointer hover:text-primary transition-colors"
+                        onClick={() => navigate(`/dashboard/suppliers/${supplier.id}`)}
                       >
-                        {updatingId === supplier.id ? (
-                          <span className="text-xs">{t.suppliers.saving}</span>
-                        ) : supplier.manufacturer?.name ? (
-                          <span className="flex items-center gap-1">
-                            <Building2 className="h-3 w-3" />
-                            {supplier.manufacturer.name}
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1 text-xs">
-                            <Plus className="h-3 w-3" />
-                            {t.suppliers.setManufacturer}
-                          </span>
+                        <div className="font-medium">{supplier.name}</div>
+                        {supplier.contact_person && (
+                          <div className="text-sm text-muted-foreground">{supplier.contact_person}</div>
                         )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-56 p-2" align="start">
-                      <Select
-                        value={supplier.manufacturer_id || 'none'}
-                        onValueChange={(value) => handleManufacturerChange(supplier.id, value)}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder={t.suppliers.selectManufacturer} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">{t.medicines.none}</SelectItem>
-                          {manufacturers.map((m) => (
-                            <SelectItem key={m.id} value={m.id}>
-                              {m.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </PopoverContent>
-                  </Popover>
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">
-                  <div className="space-y-1">
-                    {supplier.phone && (
-                      <div className="flex items-center text-sm">
-                        <Phone className="h-3 w-3 mr-1 text-muted-foreground" />
-                        {supplier.phone}
                       </div>
-                    )}
-                    {supplier.email && (
-                      <div className="flex items-center text-sm">
-                        <Mail className="h-3 w-3 mr-1 text-muted-foreground" />
-                        {supplier.email}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className={`h-auto py-1 px-2 ${!supplier.manufacturer_id ? 'text-muted-foreground' : ''}`}
+                            disabled={updatingId === supplier.id}
+                          >
+                            {updatingId === supplier.id ? (
+                              <span className="text-xs">{t.suppliers.saving}</span>
+                            ) : supplier.manufacturer?.name ? (
+                              <span className="flex items-center gap-1">
+                                <Building2 className="h-3 w-3" />
+                                {supplier.manufacturer.name}
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1 text-xs">
+                                <Plus className="h-3 w-3" />
+                                {t.suppliers.setManufacturer}
+                              </span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 p-2" align="start">
+                          <Select
+                            value={supplier.manufacturer_id || 'none'}
+                            onValueChange={(value) => handleManufacturerChange(supplier.id, value)}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder={t.suppliers.selectManufacturer} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">{t.medicines.none}</SelectItem>
+                              {manufacturers.map((m) => (
+                                <SelectItem key={m.id} value={m.id}>
+                                  {m.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </PopoverContent>
+                      </Popover>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      <div className="space-y-1">
+                        {supplier.phone && (
+                          <div className="flex items-center text-sm">
+                            <Phone className="h-3 w-3 mr-1 text-muted-foreground" />
+                            {supplier.phone}
+                          </div>
+                        )}
+                        {supplier.email && (
+                          <div className="flex items-center text-sm">
+                            <Mail className="h-3 w-3 mr-1 text-muted-foreground" />
+                            {supplier.email}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  <span className="text-success">৳{Math.round(supplier.total_paid)}</span>
-                </TableCell>
-                <TableCell className="text-right">
-                  {supplier.total_due > 0 ? (
-                    <Badge variant="destructive">৳{Math.round(supplier.total_due)}</Badge>
-                  ) : (
-                    <Badge variant="secondary">৳0</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span className="text-success">৳{Math.round(supplier.total_paid)}</span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {supplier.total_due > 0 ? (
+                        <Badge variant="destructive">৳{Math.round(supplier.total_due)}</Badge>
+                      ) : (
+                        <Badge variant="secondary">৳0</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {/* Mobile: Show expand button */}
+                      {isMobile ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setExpandedSupplierId(isExpanded ? null : supplier.id)}
+                          className="h-8 px-2 gap-1 hover:bg-primary/10"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                          {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                        </Button>
+                      ) : (
+                        /* Desktop: Show all action buttons inline */
+                        <div className="flex items-center gap-1">
+                          <Button 
+                            size="icon" 
+                            variant="ghost" 
+                            title={t.suppliers.quickReport}
+                            onClick={() => handleQuickReportClick(supplier)}
+                          >
+                            <FileText className="h-4 w-4" />
+                          </Button>
+                          <SupplierPaymentHistoryDialog
+                            supplier={supplier}
+                            payments={payments}
+                            trigger={
+                              <Button size="icon" variant="ghost" title={t.suppliers.paymentHistory}>
+                                <History className="h-4 w-4" />
+                              </Button>
+                            }
+                          />
+                          <SupplierPurchaseHistoryDialog
+                            supplier={supplier}
+                            purchases={purchases}
+                            trigger={
+                              <Button size="icon" variant="ghost" title={t.suppliers.purchaseHistory}>
+                                <ShoppingCart className="h-4 w-4" />
+                              </Button>
+                            }
+                          />
+                          <AddSupplierDialog
+                            supplier={supplier}
+                            trigger={
+                              <Button size="icon" variant="ghost" title={t.actions.edit} disabled={!canManage}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            }
+                          />
+                          {canManage && (
+                            <Button 
+                              size="icon" 
+                              variant="ghost" 
+                              title={t.actions.delete}
+                              onClick={() => setDeleteId(supplier.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                  
+                  {/* Mobile: Expandable Action Grid Row */}
+                  {isMobile && isExpanded && (
+                    <TableRow key={`${supplier.id}-actions`} className="bg-muted/20 border-b">
+                      <TableCell colSpan={6} className="p-2">
+                        <div className="grid grid-cols-3 gap-1">
+                          {actionItems.map((action, idx) => {
+                            if (action.type === 'edit') {
+                              return (
+                                <AddSupplierDialog
+                                  key={idx}
+                                  supplier={supplier}
+                                  trigger={
+                                    <Button
+                                      variant="ghost"
+                                      disabled={action.disabled}
+                                      className="flex flex-col h-auto py-2 px-1 gap-1 w-full hover:bg-background/80"
+                                    >
+                                      <action.icon className={cn("h-5 w-5", action.color)} />
+                                      <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                                    </Button>
+                                  }
+                                />
+                              );
+                            }
+                            if (action.type === 'paymentHistory') {
+                              return (
+                                <SupplierPaymentHistoryDialog
+                                  key={idx}
+                                  supplier={supplier}
+                                  payments={payments}
+                                  trigger={
+                                    <Button
+                                      variant="ghost"
+                                      className="flex flex-col h-auto py-2 px-1 gap-1 w-full hover:bg-background/80"
+                                    >
+                                      <action.icon className={cn("h-5 w-5", action.color)} />
+                                      <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                                    </Button>
+                                  }
+                                />
+                              );
+                            }
+                            if (action.type === 'purchaseHistory') {
+                              return (
+                                <SupplierPurchaseHistoryDialog
+                                  key={idx}
+                                  supplier={supplier}
+                                  purchases={purchases}
+                                  trigger={
+                                    <Button
+                                      variant="ghost"
+                                      className="flex flex-col h-auto py-2 px-1 gap-1 w-full hover:bg-background/80"
+                                    >
+                                      <action.icon className={cn("h-5 w-5", action.color)} />
+                                      <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                                    </Button>
+                                  }
+                                />
+                              );
+                            }
+                            return (
+                              <Button
+                                key={idx}
+                                variant="ghost"
+                                disabled={action.disabled}
+                                onClick={() => {
+                                  action.onClick?.();
+                                  setExpandedSupplierId(null);
+                                }}
+                                className="flex flex-col h-auto py-2 px-1 gap-1 hover:bg-background/80 disabled:opacity-40"
+                              >
+                                <action.icon className={cn("h-5 w-5", action.color)} />
+                                <span className="text-[10px] text-muted-foreground leading-tight text-center">{action.label}</span>
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      </TableCell>
+                    </TableRow>
                   )}
-                </TableCell>
-                <TableCell className="sticky right-0 bg-background">
-                  <div className="flex items-center gap-1">
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
-                      title={t.suppliers.quickReport}
-                      onClick={() => handleQuickReportClick(supplier)}
-                    >
-                      <FileText className="h-4 w-4" />
-                    </Button>
-                    <SupplierPaymentHistoryDialog
-                      supplier={supplier}
-                      payments={payments}
-                      trigger={
-                        <Button size="icon" variant="ghost" title={t.suppliers.paymentHistory}>
-                          <History className="h-4 w-4" />
-                        </Button>
-                      }
-                    />
-                    <SupplierPurchaseHistoryDialog
-                      supplier={supplier}
-                      purchases={purchases}
-                      trigger={
-                        <Button size="icon" variant="ghost" title={t.suppliers.purchaseHistory}>
-                          <ShoppingCart className="h-4 w-4" />
-                        </Button>
-                      }
-                    />
-                    <AddSupplierDialog
-                      supplier={supplier}
-                      trigger={
-                        <Button size="icon" variant="ghost" title={t.actions.edit} disabled={!canManage}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      }
-                    />
-                    {canManage && (
-                      <Button 
-                        size="icon" 
-                        variant="ghost" 
-                        title={t.actions.delete}
-                        onClick={() => setDeleteId(supplier.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                </>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
