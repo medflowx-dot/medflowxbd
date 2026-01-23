@@ -135,7 +135,7 @@ export function MobileLayout() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background md:hidden">
+    <div className="min-h-screen flex flex-col bg-background md:hidden overflow-visible">
       <ImpersonationBanner />
       <SubscriptionBanner />
       
@@ -143,12 +143,12 @@ export function MobileLayout() {
       
       <PullToRefresh 
         onRefresh={handleRefresh}
-        className="flex-1 pb-20 overflow-visible"
+        className="flex-1 pb-20"
         pullText="টানুন রিফ্রেশ করতে"
         releaseText="ছেড়ে দিন"
         refreshingText="রিফ্রেশ হচ্ছে..."
       >
-        <div className="p-4">
+        <div className="p-4 overflow-visible">
           <Outlet />
         </div>
       </PullToRefresh>

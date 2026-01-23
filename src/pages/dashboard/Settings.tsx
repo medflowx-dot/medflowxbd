@@ -267,7 +267,7 @@ export default function Settings() {
         </Card>
 
         {/* Preferences */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-visible">
           <CardHeader className="bg-gradient-to-r from-purple-50 to-transparent dark:from-purple-950/30">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-violet-500 text-white">
@@ -279,7 +279,7 @@ export default function Settings() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4 pt-6">
+          <CardContent className="space-y-4 pt-6 overflow-visible">
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="currency">{t.settings.currency}</Label>
