@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { Book, Pill, Search, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Book, Pill, Search, Loader2, Globe, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   useMedicineReference,
   MedicineReference as MedicineReferenceType,
 } from '@/hooks/useMedicineReference';
+import { useFetchFromMedEx } from '@/hooks/useFetchFromMedEx';
 import {
   MedicineSearchCard,
   MedicineDetailDialog,
@@ -21,15 +23,27 @@ export default function MedicineReference() {
   const [dosageForm, setDosageForm] = useState('all');
   const [drugClass, setDrugClass] = useState('all');
   const [manufacturer, setManufacturer] = useState('all');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   
   // Dialog State
   const [selectedMedicine, setSelectedMedicine] = useState<MedicineReferenceType | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [alternatesOpen, setAlternatesOpen] = useState(false);
   
+  // MedEx Fetch
+  const { fetchFromMedEx, isFetching, lastFetchedTerm } = useFetchFromMedEx();
+  
+  // Debounce search for auto-fetch
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+  
   // Data
-  const { data: medicines, isLoading: medicinesLoading } = useMedicineReference({
-    search,
+  const { data: medicines, isLoading: medicinesLoading, refetch } = useMedicineReference({
+    search: debouncedSearch,
     dosageForm,
     drugClass,
     manufacturer,
@@ -48,12 +62,21 @@ export default function MedicineReference() {
 
   const handleClearFilters = () => {
     setSearch('');
+    setDebouncedSearch('');
     setDosageForm('all');
     setDrugClass('all');
     setManufacturer('all');
   };
 
-  const hasFilters = search || dosageForm !== 'all' || drugClass !== 'all' || manufacturer !== 'all';
+  const handleFetchFromMedEx = () => {
+    if (search.trim()) {
+      fetchFromMedEx(search.trim());
+    }
+  };
+
+  const hasFilters = debouncedSearch || dosageForm !== 'all' || drugClass !== 'all' || manufacturer !== 'all';
+  const showNoResults = hasFilters && medicines && medicines.length === 0 && !medicinesLoading;
+  const canFetchFromMedEx = search.trim().length >= 2 && !isFetching;
 
   return (
     <div className="space-y-4">
@@ -91,14 +114,45 @@ export default function MedicineReference() {
             onManufacturerChange={setManufacturer}
             onClearFilters={handleClearFilters}
           />
+          
+          {/* Fetch from MedEx Button - show when searching */}
+          {search.trim().length >= 2 && (
+            <div className="mt-4 pt-4 border-t">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleFetchFromMedEx}
+                disabled={!canFetchFromMedEx}
+                className="w-full sm:w-auto gap-2"
+              >
+                {isFetching ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    MedEx থেকে খুঁজছে...
+                  </>
+                ) : (
+                  <>
+                    <Globe className="h-4 w-4" />
+                    MedEx থেকে "{search}" আনুন
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                ডাটাবেসে না পেলে MedEx থেকে সরাসরি তথ্য আনতে পারবেন
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Results */}
       <div>
-        {medicinesLoading ? (
-          <div className="flex items-center justify-center py-12">
+        {medicinesLoading || isFetching ? (
+          <div className="flex flex-col items-center justify-center py-12 gap-2">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            {isFetching && (
+              <p className="text-sm text-muted-foreground">MedEx থেকে তথ্য আনা হচ্ছে...</p>
+            )}
           </div>
         ) : !hasFilters ? (
           <Card className="border-dashed">
@@ -135,8 +189,30 @@ export default function MedicineReference() {
               <h3 className="font-semibold text-lg">
                 {t.medicineReference?.noResults || 'No Medicines Found'}
               </h3>
-              <p className="text-muted-foreground mt-1">
-                {t.medicineReference?.noResultsDesc || 'Try adjusting your search or filters'}
+              <p className="text-muted-foreground mt-1 mb-4">
+                "{search}" ডাটাবেসে পাওয়া যায়নি
+              </p>
+              
+              {/* Prominent MedEx fetch button when no results */}
+              <Button
+                onClick={handleFetchFromMedEx}
+                disabled={!canFetchFromMedEx}
+                className="gap-2"
+              >
+                {isFetching ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    MedEx থেকে খুঁজছে...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4" />
+                    MedEx থেকে "{search}" আনুন
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground mt-3">
+                MedEx.com.bd থেকে সরাসরি ওষুধের তথ্য ডাউনলোড করুন
               </p>
             </CardContent>
           </Card>
