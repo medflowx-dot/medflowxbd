@@ -432,7 +432,7 @@ export default function OwnerLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto md:ml-64">
+      <main className="flex-1 md:ml-64">
         <div className="max-w-7xl mx-auto py-4 px-4 md:py-6 md:px-6">
           <Outlet />
         </div>
