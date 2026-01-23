@@ -324,7 +324,7 @@ export default function ClientManagement() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          <div className="rounded-lg border overflow-visible">
             <Table>
               <TableHeader>
                 <TableRow>

@@ -418,7 +418,7 @@ export default function GlobalMedicines() {
               <p>No medicines found</p>
             </div>
           ) : (
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-visible">
               <Table>
                 <TableHeader>
                   <TableRow>

@@ -245,7 +245,7 @@ export default function AdminTeamManagement() {
             </div>
           </div>
 
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-visible">
             <Table>
               <TableHeader>
                 <TableRow>
