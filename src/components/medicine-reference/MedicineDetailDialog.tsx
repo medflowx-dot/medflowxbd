@@ -42,13 +42,13 @@ function DetailSection({
   
   const bgColors = {
     default: 'bg-muted/50',
-    warning: 'bg-amber-500/10',
+    warning: 'bg-warning/10',
     danger: 'bg-destructive/10',
   };
   
   const iconColors = {
     default: 'text-muted-foreground',
-    warning: 'text-amber-600',
+    warning: 'text-warning',
     danger: 'text-destructive',
   };
 
@@ -342,7 +342,7 @@ export function MedicineDetailDialog({
                       <Heart className="h-4 w-4 text-primary" />
                       {t.medicineReference?.pregnancyLactation || 'Pregnancy & Lactation'}
                     </p>
-                    <div className="bg-pink-500/10 p-3 rounded-lg space-y-2">
+                    <div className="bg-purple/10 p-3 rounded-lg space-y-2">
                       {medicine.pregnancy_category && (
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="bg-background">
