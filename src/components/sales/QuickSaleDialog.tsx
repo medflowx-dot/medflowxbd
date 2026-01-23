@@ -94,10 +94,10 @@ export function QuickSaleDialog({ trigger }: QuickSaleDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="outline" size="sm" className="h-8 sm:h-9">
-            <Zap className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">{t.sales.quickEntry}</span>
-          </Button>
+        <Button variant="outline" size="sm" className="h-auto py-2 px-3 flex flex-col sm:flex-row items-center gap-1">
+          <Zap className="h-4 w-4" />
+          <span className="text-[10px] sm:text-sm">{t.sales.quickEntry}</span>
+        </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">

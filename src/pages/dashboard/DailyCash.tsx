@@ -138,14 +138,14 @@ export default function DailyCash() {
               onClick={handleExportPDF} 
               disabled={!summary || exporting}
               variant="outline"
-              className="flex-1 sm:flex-none"
+              className="flex-1 sm:flex-none h-auto py-2 flex flex-col sm:flex-row items-center gap-1"
             >
               {exporting ? (
-                <Loader2 className="h-4 w-4 sm:mr-2 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Download className="h-4 w-4 sm:mr-2" />
+                <Download className="h-4 w-4" />
               )}
-              <span className="hidden sm:inline">{t.dailyCash.export}</span>
+              <span className="text-[10px] sm:text-sm">{t.dailyCash.export}</span>
             </Button>
           </div>
         </div>

@@ -169,9 +169,9 @@ export function NewSaleDialog({ trigger }: NewSaleDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button size="sm" className="h-8 sm:h-9">
-            <ClipboardList className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">{t.sales.detailedSale}</span>
+          <Button size="sm" className="h-auto py-2 px-3 flex flex-col sm:flex-row items-center gap-1">
+            <ClipboardList className="h-4 w-4" />
+            <span className="text-[10px] sm:text-sm">{t.sales.detailedSale}</span>
           </Button>
         )}
       </DialogTrigger>

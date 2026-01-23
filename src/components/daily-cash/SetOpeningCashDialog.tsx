@@ -81,9 +81,9 @@ export function SetOpeningCashDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       {showTrigger && (
         <DialogTrigger asChild>
-          <Button variant="outline" className="flex-1 sm:flex-none">
-            <Wallet className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">{t.dailyCash.setOpening}</span>
+          <Button variant="outline" className="flex-1 sm:flex-none h-auto py-2 flex flex-col sm:flex-row items-center gap-1">
+            <Wallet className="h-4 w-4" />
+            <span className="text-[10px] sm:text-sm">{t.dailyCash.setOpening}</span>
           </Button>
         </DialogTrigger>
       )}

@@ -182,9 +182,9 @@ export function CashFlowReportDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="flex-1 sm:flex-none">
-          <FileText className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">{t.dailyCash.report}</span>
+        <Button variant="outline" className="flex-1 sm:flex-none h-auto py-2 flex flex-col sm:flex-row items-center gap-1">
+          <FileText className="h-4 w-4" />
+          <span className="text-[10px] sm:text-sm">{t.dailyCash.report}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
