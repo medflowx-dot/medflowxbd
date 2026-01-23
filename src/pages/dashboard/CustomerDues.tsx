@@ -151,12 +151,9 @@ export default function CustomerDues() {
             {t.customerDues.subtitle}
           </p>
         </div>
-        <Button 
-          onClick={() => setAddCustomerOpen(true)} 
-          className="h-auto py-2 px-3 flex flex-col sm:flex-row items-center gap-1 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-        >
-          <Plus className="h-4 w-4" />
-          <span className="text-[10px] sm:text-sm">{t.customerDues.addCustomer}</span>
+        <Button onClick={() => setAddCustomerOpen(true)} className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
+          <Plus className="h-4 w-4 mr-2" />
+          {t.customerDues.addCustomer}
         </Button>
       </div>
 
