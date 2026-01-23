@@ -23,7 +23,6 @@ export default function StaffLogin() {
   const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
   
   const navigate = useNavigate();
-  const { branding } = usePlatformBranding();
   const { t, language } = useLanguage();
 
   // Check if already logged in as admin team member
