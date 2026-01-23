@@ -88,6 +88,11 @@ export default function MedicineReferenceManagement() {
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // MedEx scraping state
+  const [medexDialogOpen, setMedexDialogOpen] = useState(false);
+  const [medexSearchTerm, setMedexSearchTerm] = useState('');
+  const [isScraping, setIsScraping] = useState(false);
+
   const [formData, setFormData] = useState<CreateMedicineReferenceData>(INITIAL_FORM_DATA);
 
   const resetForm = () => {
@@ -192,6 +197,37 @@ export default function MedicineReferenceManagement() {
       toast.error(error.message || 'Failed to import medicine reference');
     } finally {
       setIsImporting(false);
+    }
+  };
+
+  // MedEx scraping function
+  const handleScrapeMedEx = async () => {
+    if (!medexSearchTerm.trim()) {
+      toast.error('Please enter a medicine name to search');
+      return;
+    }
+
+    setIsScraping(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-medex', {
+        body: { medicineName: medexSearchTerm.trim() },
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        toast.success(`${data.message}. Inserted: ${data.inserted}, Updated: ${data.updated}`);
+        setMedexDialogOpen(false);
+        setMedexSearchTerm('');
+      } else {
+        toast.error(data.error || 'Failed to scrape MedEx');
+        console.error('MedEx scrape details:', data);
+      }
+    } catch (error: any) {
+      console.error('MedEx scrape error:', error);
+      toast.error(error.message || 'Failed to scrape MedEx');
+    } finally {
+      setIsScraping(false);
     }
   };
 
@@ -621,6 +657,58 @@ export default function MedicineReferenceManagement() {
             {isImporting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <BookOpen className="h-4 w-4 mr-2" />}
             Import Sample
           </Button>
+          
+          {/* MedEx Scrape Dialog */}
+          <Dialog open={medexDialogOpen} onOpenChange={setMedexDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default" className="bg-info hover:bg-info/90">
+                <Search className="h-4 w-4 mr-2" />
+                MedEx থেকে নিন
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>MedEx থেকে Medicine Import</DialogTitle>
+                <DialogDescription>
+                  MedEx.com.bd থেকে সরাসরি medicine তথ্য স্ক্র্যাপ করে ডাটাবেজে যোগ করুন।
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="medex-search">Medicine Name</Label>
+                  <Input
+                    id="medex-search"
+                    value={medexSearchTerm}
+                    onChange={(e) => setMedexSearchTerm(e.target.value)}
+                    placeholder="e.g., Napa, Seclo, Azithromycin"
+                    onKeyDown={(e) => e.key === 'Enter' && handleScrapeMedEx()}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Medicine-এর নাম লিখুন, MedEx থেকে সার্চ করে তথ্য আনা হবে।
+                  </p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setMedexDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleScrapeMedEx} disabled={isScraping}>
+                  {isScraping ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Scraping...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="h-4 w-4 mr-2" />
+                      Import from MedEx
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
           <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
               <Button>

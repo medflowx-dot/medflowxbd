@@ -89,3 +89,6 @@ verify_jwt = false
 
 [functions.change-temp-password]
 verify_jwt = false
+
+[functions.scrape-medex]
+verify_jwt = false
