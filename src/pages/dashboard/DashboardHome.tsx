@@ -315,9 +315,9 @@ export default function DashboardHome() {
                     )}
                     {salesTrend?.percentChange || 0}%
                   </div>
-                  <div className="text-right">
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">{t.dashboard.lastWeek}</p>
-                    <p className="text-sm sm:text-lg font-bold text-muted-foreground">৳{salesTrend?.lastWeekTotal?.toLocaleString() || 0}</p>
+                  <div className="text-right min-w-0 flex-shrink-0">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground whitespace-nowrap">{t.dashboard.lastWeek}</p>
+                    <p className="text-sm sm:text-lg font-bold text-muted-foreground whitespace-nowrap">৳{salesTrend?.lastWeekTotal?.toLocaleString() || 0}</p>
                   </div>
                 </div>
               </>
