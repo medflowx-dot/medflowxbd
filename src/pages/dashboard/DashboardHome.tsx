@@ -28,7 +28,7 @@ import {
   ChartTooltip, 
   ChartTooltipContent 
 } from '@/components/ui/chart';
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, LabelList } from 'recharts';
 import {
   StatCardsSkeleton,
   ExpiryStatsSkeleton,
@@ -232,34 +232,67 @@ export default function DashboardHome() {
               <ChartSkeleton height="120px" />
             ) : (
               <>
-                <div className="h-[100px] sm:h-[160px] md:h-[200px]">
+                <div className="h-[120px] sm:h-[180px] md:h-[220px]">
                   <ChartContainer config={chartConfig}>
-                    <AreaChart data={salesTrend?.dailyData || []}>
-                      <defs>
-                        <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--success))" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="hsl(var(--success))" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
+                    <BarChart data={salesTrend?.dailyData || []} barCategoryGap="12%">
+                      <CartesianGrid 
+                        strokeDasharray="3 3" 
+                        vertical={false} 
+                        stroke="hsl(var(--border))" 
+                        strokeOpacity={0.5}
+                      />
                       <XAxis 
                         dataKey="dayShort" 
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 10 }}
+                        tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
                       />
-                      <YAxis hide />
+                      <YAxis 
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 8, fill: 'hsl(var(--muted-foreground))' }}
+                        tickFormatter={(value) => value >= 1000 ? `৳${(value/1000).toFixed(0)}k` : `৳${value}`}
+                        width={35}
+                      />
                       <ChartTooltip 
                         content={<ChartTooltipContent />}
                         formatter={(value) => [`৳${Number(value).toLocaleString()}`, t.dashboard.salesAmount]}
                       />
-                      <Area
-                        type="monotone"
-                        dataKey="amount"
-                        stroke="hsl(var(--success))"
-                        strokeWidth={2}
-                        fill="url(#salesGradient)"
-                      />
-                    </AreaChart>
+                      <Bar 
+                        dataKey="amount" 
+                        radius={[4, 4, 0, 0]}
+                      >
+                        {salesTrend?.dailyData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                        <LabelList
+                          dataKey="amount"
+                          position="top"
+                          content={({ x, y, width, index }) => {
+                            if (index === undefined || !salesTrend) return null;
+                            const isHighest = index === salesTrend.highestIndex;
+                            const isLowest = index === salesTrend.lowestIndex;
+                            if (!isHighest && !isLowest) return null;
+                            
+                            const xPos = Number(x) + Number(width) / 2;
+                            const yPos = Number(y) - 8;
+                            
+                            return (
+                              <text
+                                x={xPos}
+                                y={yPos}
+                                textAnchor="middle"
+                                fontSize={8}
+                                fontWeight="600"
+                                fill={isHighest ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}
+                              >
+                                {isHighest ? '★ সর্বোচ্চ' : 'সর্বনিম্ন'}
+                              </text>
+                            );
+                          }}
+                        />
+                      </Bar>
+                    </BarChart>
                   </ChartContainer>
                 </div>
                 
