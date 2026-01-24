@@ -12,15 +12,15 @@ export interface DailySalesData {
   fill: string;
 }
 
-// Bar colors for each day of the week
+// Vibrant bar colors for each day of the week
 const barColors = [
-  'hsl(var(--chart-1))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-5))',
-  'hsl(var(--success))',
-  'hsl(var(--info))',
+  'hsl(270 70% 55%)',   // Purple - শনি
+  'hsl(217 91% 60%)',   // Blue - রবি  
+  'hsl(174 72% 40%)',   // Teal - সোম
+  'hsl(152 70% 40%)',   // Green - মঙ্গল
+  'hsl(38 92% 50%)',    // Amber - বুধ
+  'hsl(340 75% 55%)',   // Pink - বৃহঃ
+  'hsl(0 84% 60%)',     // Red - শুক্র
 ];
 
 export interface SalesTrendData {
