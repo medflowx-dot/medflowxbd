@@ -9,7 +9,19 @@ export interface DailySalesData {
   day: string;
   dayShort: string;
   amount: number;
+  fill: string;
 }
+
+// Bar colors for each day of the week
+const barColors = [
+  'hsl(var(--chart-1))',
+  'hsl(var(--chart-2))',
+  'hsl(var(--chart-3))',
+  'hsl(var(--chart-4))',
+  'hsl(var(--chart-5))',
+  'hsl(var(--success))',
+  'hsl(var(--info))',
+];
 
 export interface SalesTrendData {
   dailyData: DailySalesData[];
@@ -17,6 +29,10 @@ export interface SalesTrendData {
   lastWeekTotal: number;
   percentChange: number;
   isPositive: boolean;
+  highestIndex: number;
+  lowestIndex: number;
+  highestAmount: number;
+  lowestAmount: number;
 }
 
 export function useSalesTrend() {
@@ -32,6 +48,10 @@ export function useSalesTrend() {
           lastWeekTotal: 0,
           percentChange: 0,
           isPositive: true,
+          highestIndex: -1,
+          lowestIndex: -1,
+          highestAmount: 0,
+          lowestAmount: 0,
         };
       }
 
@@ -67,12 +87,14 @@ export function useSalesTrend() {
         const dateStr = format(date, 'yyyy-MM-dd');
         const amount = salesByDate[dateStr] || 0;
         thisWeekTotal += amount;
+        const colorIndex = dailyData.length;
 
         dailyData.push({
           date: dateStr,
           day: format(date, 'EEEE', { locale: bn }),
           dayShort: format(date, 'EEE', { locale: bn }),
           amount,
+          fill: barColors[colorIndex % barColors.length],
         });
       }
 
@@ -91,12 +113,26 @@ export function useSalesTrend() {
         percentChange = 100;
       }
 
+      // Calculate highest and lowest indices
+      const amounts = dailyData.map(d => d.amount);
+      const maxAmount = Math.max(...amounts);
+      const nonZeroAmounts = amounts.filter(a => a > 0);
+      const minAmount = nonZeroAmounts.length > 0 ? Math.min(...nonZeroAmounts) : 0;
+      
+      // Only mark if there's actual data and different values
+      const highestIndex = maxAmount > 0 ? amounts.indexOf(maxAmount) : -1;
+      const lowestIndex = minAmount > 0 && minAmount !== maxAmount ? amounts.indexOf(minAmount) : -1;
+
       return {
         dailyData,
         thisWeekTotal,
         lastWeekTotal,
         percentChange: Math.round(percentChange * 10) / 10,
         isPositive: percentChange >= 0,
+        highestIndex,
+        lowestIndex,
+        highestAmount: maxAmount,
+        lowestAmount: minAmount,
       };
     },
     enabled: !!user?.id,
