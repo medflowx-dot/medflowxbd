@@ -214,46 +214,38 @@ export default function DashboardHome() {
 
       {/* Sales Trend Chart & Due Alerts Row */}
       <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
-        {/* Sales Trend Chart - Hero Style */}
-        <Card className="overflow-hidden border-0 shadow-lg">
-          {/* Header with gradient background */}
-          <div className="bg-gradient-to-br from-success via-success/90 to-success/80 p-3 sm:p-4 text-white">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="bg-white/20 backdrop-blur-sm rounded-full p-1.5">
-                <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </div>
-              <span className="font-semibold text-sm sm:text-base">{t.dashboard.salesTrend}</span>
+        {/* Sales Trend Chart */}
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-1 sm:pb-2 bg-gradient-to-r from-success/10 to-success/5 p-2 sm:p-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
+                <div className="icon-container-success p-1.5 sm:p-2">
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+                </div>
+                {t.dashboard.salesTrend}
+              </CardTitle>
             </div>
-            <p className="text-white/80 text-xs sm:text-sm">{t.dashboard.last7Days}</p>
-          </div>
-          
-          <CardContent className="p-0">
+            <CardDescription className="text-xs sm:text-sm">{t.dashboard.last7Days}</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-2 sm:pt-4 p-2 sm:p-4">
             {trendLoading ? (
-              <div className="p-4">
-                <ChartSkeleton height="180px" />
-              </div>
+              <ChartSkeleton height="120px" />
             ) : (
               <>
-                {/* Chart Area */}
-                <div className="h-[120px] sm:h-[160px] md:h-[180px] px-2 pt-2">
+                <div className="h-[100px] sm:h-[160px] md:h-[200px]">
                   <ChartContainer config={chartConfig}>
-                    <AreaChart 
-                      data={salesTrend?.dailyData || []}
-                      margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                    >
+                    <AreaChart data={salesTrend?.dailyData || []}>
                       <defs>
                         <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="hsl(var(--success))" stopOpacity={0.4} />
-                          <stop offset="50%" stopColor="hsl(var(--success))" stopOpacity={0.15} />
-                          <stop offset="100%" stopColor="hsl(var(--success))" stopOpacity={0} />
+                          <stop offset="5%" stopColor="hsl(var(--success))" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="hsl(var(--success))" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <XAxis 
                         dataKey="dayShort" 
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                        dy={5}
+                        tick={{ fontSize: 10 }}
                       />
                       <YAxis hide />
                       <ChartTooltip 
@@ -264,46 +256,35 @@ export default function DashboardHome() {
                         type="monotone"
                         dataKey="amount"
                         stroke="hsl(var(--success))"
-                        strokeWidth={2.5}
+                        strokeWidth={2}
                         fill="url(#salesGradient)"
-                        dot={false}
-                        activeDot={{ r: 5, fill: 'hsl(var(--success))', stroke: 'white', strokeWidth: 2 }}
                       />
                     </AreaChart>
                   </ChartContainer>
                 </div>
                 
-                {/* Bottom Stats Bar */}
-                <div className="flex items-center justify-between px-3 sm:px-4 py-3 bg-muted/30 border-t">
-                  {/* This Week */}
+                {/* Week Comparison - Compact */}
+                <div className="flex items-center justify-between mt-2 sm:mt-4 pt-2 sm:pt-4 border-t">
                   <div>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">{t.dashboard.thisWeek}</p>
-                    <p className="text-base sm:text-xl font-bold text-foreground">
-                      ৳{salesTrend?.thisWeekTotal?.toLocaleString() || 0}
-                    </p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">{t.dashboard.thisWeek}</p>
+                    <p className="text-sm sm:text-lg font-bold">৳{salesTrend?.thisWeekTotal?.toLocaleString() || 0}</p>
                   </div>
-                  
-                  {/* Percentage Badge */}
                   <div className={cn(
-                    "flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-sm",
+                    "flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium",
                     salesTrend?.isPositive 
-                      ? "bg-success text-white" 
-                      : "bg-destructive text-white"
+                      ? "bg-success/10 text-success" 
+                      : "bg-destructive/10 text-destructive"
                   )}>
                     {salesTrend?.isPositive ? (
-                      <ArrowUpRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4" />
                     ) : (
-                      <ArrowDownRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      <ArrowDownRight className="h-3 w-3 sm:h-4 sm:w-4" />
                     )}
                     {salesTrend?.percentChange || 0}%
                   </div>
-                  
-                  {/* Last Week */}
                   <div className="text-right">
-                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">{t.dashboard.lastWeek}</p>
-                    <p className="text-base sm:text-xl font-bold text-muted-foreground">
-                      ৳{salesTrend?.lastWeekTotal?.toLocaleString() || 0}
-                    </p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">{t.dashboard.lastWeek}</p>
+                    <p className="text-sm sm:text-lg font-bold text-muted-foreground">৳{salesTrend?.lastWeekTotal?.toLocaleString() || 0}</p>
                   </div>
                 </div>
               </>
